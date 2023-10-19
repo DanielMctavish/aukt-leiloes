@@ -1,17 +1,23 @@
-import React from "react";
 import Navigation from "../navigation/Navigation";
 import tempLogo from "../medias/temp-logo.png"
 
-function App() {
+
+
+function Home() {
+
 
   const hiddenNav = () => {
-    const navigationAuk = document.querySelector(".nav-auk")
-    navigationAuk.style.marginLeft = '-40vh'
-    navigationAuk.style.transition = '.2s'
+    if (window.innerWidth < 1025) {
+      const navigationAuk = document.querySelector(".nav-auk")
+      navigationAuk.style.marginLeft = '-40vh'
+      navigationAuk.style.transition = '.2s'
+    }
   }
 
+
   return (
-    <div className="App flex flex-col justify-start items-center h-[100vh] bg-zinc-100">
+    <div
+      className="App flex flex-col justify-start items-center w-full h-[100vh] bg-zinc-100">
       <Navigation />
 
       <section
@@ -28,4 +34,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

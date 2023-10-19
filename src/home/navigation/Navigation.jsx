@@ -1,20 +1,20 @@
-import React, { useState } from "react"
 import { Home, Help, People, EventAvailable, Category, AccountCircle, Menu } from "@mui/icons-material"
+import { useState } from "react"
 
 function Navigation() {
-    const [navigationMenu,setNavigationMenu] = useState(false)
+    const [navigationMenu, setNavigationMenu] = useState(false)
 
     const tailwindItems = "flex justify-center items-center p-2 gap-3"
-   
-    const hideNavigation = ()=>{
+
+    const hideNavigation = () => {
 
         const navigationAuk = document.querySelector(".nav-auk")
-        
-        if(!navigationMenu){
+
+        if (!navigationMenu) {
             navigationAuk.style.marginLeft = '-40vh'
             navigationAuk.style.transition = '.6s'
             setNavigationMenu(!navigationMenu)
-        }else{
+        } else {
             navigationAuk.style.marginLeft = '0vh'
             navigationAuk.style.transition = '.2s'
             setNavigationMenu(!navigationMenu)
@@ -24,6 +24,8 @@ function Navigation() {
 
     return (
         <nav className="
+        lg:ml-0
+        ml-[-40vh]
         nav-auk
         lg:left-auto
         left-0
@@ -31,12 +33,12 @@ function Navigation() {
         fixed
         lg:w-full
         w-[220px] 
-        lg:h-[4vh]
+        lg:h-[48px]
         h-[100vh] 
         bg-[#012038] 
         lg:flex-col
         flex-row
-        flex 
+        lg:flex
         justify-center
         lg:justify-start 
         items-center 
@@ -45,9 +47,9 @@ function Navigation() {
         text-[12px]
         cursor-pointer">
 
-            <span 
-            style={{fontSize:'26px'}}
-            className="flex 
+            <span
+                style={{ fontSize: '26px' }}
+                className="flex 
             fixed 
             top-1 
             right-1 
@@ -61,14 +63,14 @@ function Navigation() {
             h-[44px] 
             justify-center
             items-center"
-            onClick={hideNavigation}>
-                <Menu/>
+                onClick={hideNavigation}>
+                <Menu />
             </span>
 
             <div className="
-            lg:w-[70%] 
+            lg:w-[80%] 
             w-full 
-            lg:h-[4vh]
+            lg:h-[48px]
             h-[100vh] 
             flex 
             flex-col 
