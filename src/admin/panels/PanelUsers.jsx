@@ -3,7 +3,7 @@
 function PanelUsers() {
 
     return (
-        <div className="w-[424px] h-[414px] bg-white rounded-[6px]">
+        <div className="lg:w-[324px] w-full h-[314px] bg-white rounded-[6px]">
 
         </div>
     )
