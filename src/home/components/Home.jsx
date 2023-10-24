@@ -1,8 +1,6 @@
 import Navigation from "../navigation/Navigation";
 import tempLogo from "../medias/temp-logo.png"
-
-
-
+ 
 function Home() {
 
 
