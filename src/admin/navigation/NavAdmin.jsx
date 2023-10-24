@@ -75,12 +75,15 @@ function NavAdmin() {
             flex 
             flex-col 
             lg:flex-row 
-            justify-between 
-            items-center">
+            lg:justify-between
+            justify-start 
+            items-center
+            lg:gap-0
+            gap-3">
 
                 <span className="text-[22px]">AUKT LEILÕES</span>
 
-                <section className="flex justify-center items-center gap-3">
+                <section className="flex lg:flex-row flex-col justify-center items-center gap-3">
                     <span style={{ letterSpacing: '4px' }} className="text-[18px] font-semibold ">R$10.245,44</span>
                     <button className={tailwindItems}>
                         <AccountCircle />

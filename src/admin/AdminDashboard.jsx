@@ -6,24 +6,24 @@ import PanelUsers from "./panels/PanelUsers"
 function AdminDashboard() {
 
     return (
-        <div className="w-full h-[100vh] bg-[#F3F3F3] text-zinc-600 overflow-hidden">
+        <div className="w-full lg:h-[100vh] h-auto bg-[#F3F3F3] text-zinc-600 overflow-hidden">
             <NavAdmin />
-            <section className="w-full h-[96vh] bg-[#82ffb2] flex justify-center items-center gap-3">
+            <section className="w-full lg:h-[96vh] h-auto bg-[#82ffb2] flex justify-center items-center gap-3">
 
-                <nav className="w-[20%] h-[90vh] bg-red-100">
+                <nav className="w-[16%] h-[90vh] bg-red-300 lg:flex hidden">
 
                 </nav>
 
-                <section className="w-[77%] h-[90vh] bg-red-100 flex flex-col justify-between items-center">
+                <section className="lg:mt-0 mt-[6vh] lg:w-[81%] w-full lg:h-[90vh] h-auto bg-red-100 flex flex-col lg:justify-between    justify-start items-center">
 
-                    <section className="w-full h-[50%] bg-cyan-300 flex justify-between items-center p-2">
+                    <section className="w-full lg:h-[50%] h-auto bg-cyan-300 flex lg:flex-row flex-col lg:gap-0 gap-2 justify-between items-center p-2">
                         <PanelUsers />
                         <PanelUsers />
                         <PanelUsers />
                         <PanelLives />
                     </section>
 
-                    <section className="w-full h-[50%] bg-cyan-600 flex justify-center items-center p-1">
+                    <section className="w-full lg:h-[50%] h-auto bg-cyan-600 flex justify-center items-center p-1">
                         <PanelGraph />
                     </section>
 
