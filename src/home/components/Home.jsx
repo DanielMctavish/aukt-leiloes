@@ -1,5 +1,6 @@
 import Navigation from "../navigation/Navigation";
 import tempLogo from "../medias/temp-logo.png"
+import Section01 from "./Section01";
  
 function Home() {
 
@@ -18,7 +19,9 @@ function Home() {
       className="App flex flex-col justify-start items-center w-full h-[100vh] bg-zinc-100">
       <Navigation />
 
-      <section
+      <Section01 />
+
+      {/* <section
         onClick={hiddenNav}
         className="w-full gap-3 flex flex-col justify-center items-center lg:h-[96vh] h-[100vh] bg-slate-100">
         <img src={tempLogo} alt="" className="w-[130px] h-[130px] object-cover shadow-md rounded-lg" />
@@ -26,7 +29,7 @@ function Home() {
         <button className="text-zinc-400">
           <a href="https://dmdesenvolvedor.com.br" target="_blank" rel="noreferrer">Arboris Codex_</a>
         </button>
-      </section>
+      </section> */}
 
     </div>
   );
