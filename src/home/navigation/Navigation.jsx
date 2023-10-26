@@ -45,7 +45,8 @@ function Navigation() {
         gap-2 
         text-white 
         text-[12px]
-        cursor-pointer">
+        cursor-pointer
+        z-30">
 
             <span
                 style={{ fontSize: '26px' }}
