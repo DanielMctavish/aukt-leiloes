@@ -2,6 +2,7 @@ import Navigation from "../navigation/Navigation";
 import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
 import Section02 from "./Section02";
+import Section03 from "./Section03";
 import './Home.css';
  
 function Home() {
@@ -23,6 +24,7 @@ function Home() {
 
       <Section01 />
       <Section02 />
+      <Section03 />
 
       {/* <section
         onClick={hiddenNav}
