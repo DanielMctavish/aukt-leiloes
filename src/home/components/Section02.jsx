@@ -72,7 +72,7 @@ function Section02() {
     //   </div>
     // </section>
 
-    <section className="bg-[#D9D9D9] sm:w-[1920px] sm:h-[1030px] w-full h-full overflow-x-hidden overflow-y-hidden pt-[100px]">
+    <section className="bg-[#D9D9D9] sm:w-[1920px] sm:h-[1630px] w-full h-full overflow-x-hidden overflow-y-hidden pt-[100px]">
     <div className="flex flex-col items-center justify-center  ">
       <h2 className="bg-[#E2E2E2] sm:w-[1260px] h-[48px] p-4 text-[#012038] text-[22px] font-bold leading-[14px]">
         NOSSOS DESTAQUES (ao vivo)
