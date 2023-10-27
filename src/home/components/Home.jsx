@@ -1,6 +1,8 @@
 import Navigation from "../navigation/Navigation";
 import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
+import Section02 from "./Section02";
+import './Home.css';
  
 function Home() {
 
@@ -16,10 +18,11 @@ function Home() {
 
   return (
     <div
-      className="App flex flex-col justify-start items-center w-full h-[100vh] bg-zinc-100">
+      className="App flex flex-col justify-start items-center w-full h-[600vh] bg-zinc-100 overflow-x-hidden">
       <Navigation />
 
       <Section01 />
+      <Section02 />
 
       {/* <section
         onClick={hiddenNav}
