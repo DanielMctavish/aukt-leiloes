@@ -1,29 +1,36 @@
-import { Home, Help, People, EventAvailable, Category, AccountCircle, Menu } from "@mui/icons-material"
-import { useState } from "react"
+import {
+  Home,
+  Help,
+  People,
+  EventAvailable,
+  Category,
+  AccountCircle,
+  Menu,
+} from "@mui/icons-material";
+import { useState } from "react";
 
 function Navigation() {
-    const [navigationMenu, setNavigationMenu] = useState(false)
+  const [navigationMenu, setNavigationMenu] = useState(false);
 
-    const tailwindItems = "flex justify-center items-center p-2 gap-3"
+  const tailwindItems = "flex justify-center items-center p-2 gap-3";
 
-    const hideNavigation = () => {
+  const hideNavigation = () => {
+    const navigationAuk = document.querySelector(".nav-auk");
 
-        const navigationAuk = document.querySelector(".nav-auk")
-
-        if (!navigationMenu) {
-            navigationAuk.style.marginLeft = '-40vh'
-            navigationAuk.style.transition = '.6s'
-            setNavigationMenu(!navigationMenu)
-        } else {
-            navigationAuk.style.marginLeft = '0vh'
-            navigationAuk.style.transition = '.2s'
-            setNavigationMenu(!navigationMenu)
-        }
-
+    if (!navigationMenu) {
+      navigationAuk.style.marginLeft = "-40vh";
+      navigationAuk.style.transition = ".6s";
+      setNavigationMenu(!navigationMenu);
+    } else {
+      navigationAuk.style.marginLeft = "0vh";
+      navigationAuk.style.transition = ".2s";
+      setNavigationMenu(!navigationMenu);
     }
+  };
 
-    return (
-        <nav className="
+  return (
+    <nav
+      className="
         lg:ml-0
         ml-[-40vh]
         nav-auk
@@ -39,18 +46,18 @@ function Navigation() {
         lg:flex-col
         flex-row
         lg:flex
-        justify-center
+        sm:justify-center
         lg:justify-start 
-        items-center 
+        sm:items-center 
         gap-2 
         text-white 
         text-[12px]
         cursor-pointer
-        z-30">
-
-            <span
-                style={{ fontSize: '26px' }}
-                className="flex 
+        z-30"
+    >
+      <span
+        style={{ fontSize: "26px" }}
+        className="flex 
             fixed 
             top-1 
             right-1 
@@ -64,11 +71,13 @@ function Navigation() {
             h-[44px] 
             justify-center
             items-center"
-                onClick={hideNavigation}>
-                <Menu />
-            </span>
+        onClick={hideNavigation}
+      >
+        <Menu />
+      </span>
 
-            <div className="
+      <div
+        className="
             lg:w-[80%] 
             w-full 
             lg:h-[48px]
@@ -77,9 +86,10 @@ function Navigation() {
             flex-col 
             lg:flex-row 
             justify-between 
-            items-center">
-
-                <section className="
+            items-center"
+      >
+        <section
+          className="
                 lg:mt-0
                 mt-[8vh]
                 h-[42px] 
@@ -91,40 +101,44 @@ function Navigation() {
                 justify-between 
                 items-center 
                 gap-2 
-                text-white">
-                    <button className={tailwindItems}>
-                        <Home />
-                        HOME
-                    </button>
-                    <button className={tailwindItems}>
-                        <People />
-                        QUEM SOMOS
-                    </button>
-                    <button className={tailwindItems}>
-                        <Help />
-                        AJUDA
-                    </button>
-                    <button className={tailwindItems}>
-                        <EventAvailable />
-                        AGENDA
-                    </button>
-                    <button className={tailwindItems}>
-                        <Category />
-                        PRODUTOS
-                    </button>
-                </section>
+                text-white"
+        >
+          <div className="flex items-center sm:ml-[-120px] sm:mr-[100px]">
+            <span className="text-[#FFF] text-[18px] leading-[7.11px] font-bold">
+              A U T K
+            </span>
+          </div>
+          <button className={tailwindItems}>
+            <Home />
+            HOME
+          </button>
+          <button className={tailwindItems}>
+            <People />
+            QUEM SOMOS
+          </button>
+          <button className={tailwindItems}>
+            <Help />
+            AJUDA
+          </button>
+          <button className={tailwindItems}>
+            <EventAvailable />
+            AGENDA
+          </button>
+          <button className={tailwindItems}>
+            <Category />
+            PRODUTOS
+          </button>
+        </section>
 
-                <section>
-                    <button className={tailwindItems}>
-                        <AccountCircle />
-                        ANUNCIAR
-                    </button>
-                </section>
-
-            </div>
-
-        </nav>
-    )
+        <section>
+          <button className={tailwindItems}>
+            <AccountCircle />
+            ANUNCIAR
+          </button>
+        </section>
+      </div>
+    </nav>
+  );
 }
 
-export default Navigation
+export default Navigation;
