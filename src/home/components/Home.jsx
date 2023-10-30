@@ -3,6 +3,7 @@ import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
 import Section02 from "./Section02";
 import Section03 from "./Section03";
+import Footer from "./Footer";
 import './Home.css';
  
 function Home() {
@@ -19,12 +20,13 @@ function Home() {
 
   return (
     <div
-      className="App flex flex-col justify-start items-center w-full h-[600vh] bg-zinc-100 overflow-x-hidden">
+      className="App flex flex-col justify-start items-center w-full h-full bg-zinc-100 overflow-x-hidden">
       <Navigation />
 
       <Section01 />
       <Section02 />
       <Section03 />
+      <Footer />
 
       {/* <section
         onClick={hiddenNav}
