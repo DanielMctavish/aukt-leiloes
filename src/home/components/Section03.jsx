@@ -130,7 +130,7 @@ function Section03() {
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 2 ? 'active' : 'active'
+                activeLink === 2 ? 'active ' : 'active'
               }`}
               onClick={() => handleLinkClick(2)}
             >
@@ -178,7 +178,7 @@ function Section03() {
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 8 ? 'active' : ''
+                activeLink === 8 ? 'active pl-4' : ''
               }`}
               onClick={() => handleLinkClick(8)}
             >
