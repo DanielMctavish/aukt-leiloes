@@ -21,11 +21,10 @@
   width: 12px;
 }
 
-span::selection,
+
 .active {
   width: 246px;
   height: 26px;
-  margin-left: -28px;
   flex-shrink: 0;
   background: rgba(41, 41, 41, 0.21);
   border-left: 4px solid #012038;
