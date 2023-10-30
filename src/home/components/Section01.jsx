@@ -21,7 +21,7 @@ function Section01() {
   };
 
   return (
-    <section className="sm:mt-2 mt-10">
+    <section className="sm:mt-2 mt-10 sm:mb-10">
       <Submenu />
       <div className="w-[1520px] h-[0.4px] bg-[#B5B5B5] mt-2 sm:flex hidden"></div>
 

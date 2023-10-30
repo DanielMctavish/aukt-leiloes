@@ -12,7 +12,7 @@ function Section03() {
     setIsActive(!isActive);
   };
   return (
-    <section className="sm:w-[1920px] h-full mb-0 sm:mt-0 mt-2 flex flex-col bg-[#1E1E1E]">
+    <section className="sm:w-[1920px] sm:h-600 mb-0 sm:mt-0 mt-0 flex flex-col">
       <div className="sm:w-[1920px] sm:h-[443px] bg-[#1E1E1E] flex items-center sm:justify-center sm:flex sm:mr-10 flex-col sm:flex-row">
         <div className="mt-0 sm:mb-[390px] ml-10">
           <h2 className=" text-[#FFFFFF1F] text-[18px] font-semibold leading-[7.11px]">
