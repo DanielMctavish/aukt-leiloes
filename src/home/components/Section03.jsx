@@ -6,11 +6,12 @@ import ArrowLeft from "../medias/vector/arrow-left.svg";
 import ArrowRight from "../medias/vector/arrow-right.svg";
 
 function Section03() {
-  const [isActive, setIsActive] = useState(false);
+  const [activeLink, setActiveLink] = useState(null);
 
-  const toggleActive = () => {
-    setIsActive(!isActive);
+  const handleLinkClick = (index) => {
+    setActiveLink(index);
   };
+  
   return (
     <section className="sm:w-[1920px] h-full mb-0 sm:mt-0 mt-0 flex flex-col ">
       <div className="sm:w-[1920px] sm:h-[443px] bg-[#1E1E1E] flex items-center sm:justify-center sm:flex sm:mr-10 flex-col sm:flex-row">
@@ -121,95 +122,97 @@ function Section03() {
           <div className="items-center justify-center mb-4 sm:mb-0 sm:pl-7 pl-20 pt-10  ">
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 1 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(1)}
             >
               Jóias e tesouros
             </span>
             <span
-              className={`text-[#828282] pl-6 text-[16px] block leading-normal cursor-pointer mb-2 active`}
-              onClick={toggleActive}
+              className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
+                activeLink === 2 ? 'active' : 'active'
+              }`}
+              onClick={() => handleLinkClick(2)}
             >
               Veículos
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 3 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(3)}
             >
               Miniaturas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 4 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(4)}
             >
               Roupas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 5 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(5)}
             >
               Brinquedos
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 6 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(6)}
             >
               Antiguidades
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 7 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(7)}
             >
               Espadas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 8 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(8)}
             >
               Réplicas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 9 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(9)}
             >
               Quadros
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 10 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(10)}
             >
               Livros
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 11 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(12)}
             >
               Arte moderna
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                isActive ? "active pl-6" : ""
+                activeLink === 12 ? 'active' : ''
               }`}
-              onClick={toggleActive}
+              onClick={() => handleLinkClick(13)}
             >
               Instrumento Musical
             </span>

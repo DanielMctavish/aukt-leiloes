@@ -21,6 +21,7 @@
   width: 12px;
 }
 
+span::selection,
 .active {
   width: 246px;
   height: 26px;
