@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import InstagramIcon from "@mui/icons-material/Instagram";
 
 function Footer() {
   return (
-    <section className="sm:w-[1520px] sm:h-[820px] h-full border-t-[100px] border-[#1E1E1E] bg-[#012038] overflow-hidden">
+    <section className="sm:w-full sm:h-[820px] h-full border-t-[100px] border-[#1E1E1E] bg-[#012038] overflow-hidden">
       <div className="items-center justify-center p-[20px]">
         <div className="mt-[10px]">
           <span className="text-[#FFFFFF1F] text-[77px] pl-10 font-bold leading-[30.415px]">
