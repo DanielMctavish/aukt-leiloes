@@ -22,20 +22,20 @@ export const GraphElement = () => {
     const data = {
         labels: [
             "Jan 1",
-            "Fev 1",
-            "Mar 1",
-            "Abr 1",
-            "Mai 1",
-            "Jun 1",
-            "Jul 1",
-            "Ago 1",
-            "Set 1",
-            "Out 1",
-            "Nov 1",
-            "Dez 1",
+            "Jan 2",
+            "Jan 3",
+            "Jan 4",
+            "Jan 5",
+            "Jan 6",
+            "Jan 7",
+            "Jan 8",
+            "Jan 9",
+            "Jan 10",
+            "Jan 11",
+            "Jan 12",
         ],
         datasets: [{
-            data: [3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000],
+            data: [35000, 37000, 39000, 32000, 38000, 32000, 25000,35000, 35000, 35000, 35000, 105000, 105000],
             backgroundColor: 'transparent',
             borderColor: '#b74900'
         }]
@@ -58,16 +58,16 @@ export const GraphElement = () => {
                     borderdash: [1]
                 },
                 ticks: {
-                    display: false
+                    display: true
                 }
             },
             y: {
                 min: 0,
-                max: 10000,
+                max: 100000,
                 legend: false,
                 ticks: {
                     stepSize: () => {
-                        return 2000
+                        return 5000
                     },
                     callback: (value) => {
                         //console.log('obs value >> ', value);
@@ -75,7 +75,7 @@ export const GraphElement = () => {
                         return "R$ " + value
 
                     },
-                    display: false
+                    display: true
                 },
                 grid: {
                     borderDash: [10]
