@@ -2,20 +2,163 @@ import React, { useState } from "react";
 import "./Home.css";
 import CardMarked from "../micro-components/CardMarked";
 import Car from "../medias/backgrounds/car.png";
+import Ferrari from "../medias/backgrounds/ferrari.png";
 import ArrowLeft from "../medias/vector/arrow-left.svg";
 import ArrowRight from "../medias/vector/arrow-right.svg";
+import CardCategory from "../micro-components/CardCategory";
 
 function Section03() {
-  const [activeLink, setActiveLink] = useState(null);
+  const cardItems = [
+    {
+      imagem: Car,
+      title: "Leilão antiguida...",
+      subtitle: "Promovido:",
+      subtitleDate: "Data:",
+      body: "LeilosNew",
+      date: "12/09/2023",
+    },
+    {
+      imagem: Car,
+      title: "Leilão antiguida...",
+      subtitle: "Promovido:",
+      subtitleDate: "Data:",
+      body: "LeilosNew",
+      date: "12/09/2023",
+    },
+    {
+      imagem: Car,
+      title: "Leilão antiguida...",
+      subtitle: "Promovido:",
+      subtitleDate: "Data:",
+      body: "LeilosNew",
+      date: "12/09/2023",
+    },
+    {
+      imagem: Car,
+      title: "Leilão antiguida...",
+      subtitle: "Promovido:",
+      subtitleDate: "Data:",
+      body: "LeilosNew",
+      date: "12/09/2023",
+    },
+  ];
 
-  const handleLinkClick = (index) => {
-    setActiveLink(index);
+  const cardCategories = [
+    {
+      category: "veiculos",
+      imagem: Ferrari,
+      title: "Ferrari única",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Joia",
+      imagem:
+        "https://media.istockphoto.com/id/1338646661/pt/foto/gold-jewelry-diamond-rings-show-in-luxury-retail-store-window-display-showcase.jpg?s=612x612&w=0&k=20&c=8uyKDciZmhnia-ZehC06M810kk8cF_BJy4c0J3rhzAE=",
+      title: "Joias",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Miniaturas",
+      imagem:
+        "https://www.engeplus.com.br/cache/noticia/0125/0125179/125179--1097825.jpg",
+      title: "Miniaturas",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Roupas",
+      imagem:
+        "https://img.freepik.com/fotos-gratis/loja-de-roupas-loja-de-roupas-em-cabide-na-boutique-loja-moderna_1150-8886.jpg?size=626&ext=jpg&ga=GA1.1.1826414947.1699228800&semt=ais",
+      title: "Roupas",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Brinquedos",
+      imagem:
+        "https://cdn.awsli.com.br/600x450/1300/1300531/produto/149205099/brinquedo-pista-carrinho-infantil-educativo-madeira-cidade-1-wwksjy.jpg",
+      title: "Brinquedos",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Antiguidades",
+      imagem:
+        "https://d26lpennugtm8s.cloudfront.net/stores/001/230/454/rte/_G241670-HDR.jpg",
+      title: "Antiguidades",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Espadas",
+      imagem:
+        "https://cdn.awsli.com.br/600x1000/2515/2515067/produto/183668587a72c355107.jpg",
+      title: "Espadas",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Replicas",
+      imagem:
+        "https://media.gazetadopovo.com.br/2019/07/17174556/ferrari-lamborghini-itajai-falso-11-952x540.jpg",
+      title: "Replicas",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Quadros",
+      imagem:
+        "https://67064.cdn.simplo7.net/static/67064/sku/quadros-cidades-quadro-decorativo-3-telas-paisagem-cidade-pintura-de-paris-franca-p-1685120859846.jpg",
+      title: "Quadros",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Livro",
+      imagem:
+        "https://www.bienaldolivrojf.com.br/wp-content/uploads/2023/07/Fotos-livros-cores-escada-conhecimento.webp",
+      title: "Livro",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Arte",
+      imagem:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuvZ4hJEkQ711qR4kvxQK8wV9awLFBD4brgA&usqp=CAU",
+      title: "Arte Moderna",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+    {
+      category: "Musica",
+      imagem:
+        "https://i0.wp.com/www.sabra.org.br/site/wp-content/uploads/2020/04/instrumentos-musicais-voce-sabe-quais-sao-os-mais-tocados-no-mundo-20191202180617.jpg.jpg?fit=800%2C600&ssl=1",
+      title: "Intrumento Musical",
+      body: " Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+    },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const handleCategoryClick = (category) => {
+    setCurrentIndex(0);
+    setActiveCategory(category);
   };
-  
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % cardCategories.length);
+    setActiveCategory(null);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? cardCategories.length - 1 : prevIndex - 1
+    );
+    setActiveCategory(null);
+  };
+
+  const currentCard = activeCategory
+  ? cardCategories.find((category) => category.category === activeCategory)
+  : cardCategories[currentIndex];
+
+
   return (
-    <section className="sm:w-[1920px] h-full mb-0 sm:mt-0 mt-0 flex flex-col ">
-      <div className="sm:w-[1920px] sm:h-[443px] bg-[#1E1E1E] flex items-center sm:justify-center sm:flex sm:mr-10 flex-col sm:flex-row">
-        <div className="mt-0 sm:mb-[390px] ml-10">
+    <section className="w-full h-full mb-0 sm:mt-0 mt-0 flex flex-col ">
+      <div className="w-full lg:h-[443px] bg-[#1E1E1E] flex items-center lg:justify-center lg:flex flex-col lg:flex-row">
+        <div className="mt-0 lg:mb-[390px] ml-10">
           <h2 className=" text-[#FFFFFF1F] text-[18px] font-semibold leading-[7.11px]">
             A U K T
           </h2>
@@ -25,56 +168,27 @@ function Section03() {
             Leilões Marcados
           </h2>
           <span className="text-[#D7D7D7] text-[10px] leading-[1.05px]">
-            Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod
+            Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiulgod
             tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim
             veniam, quis nostrum exercitationem ullam corporis suscipit
             laboriosam.
           </span>
         </div>
-        <div className="sm:flex space-x-4 sm:mr-10 flex-col sm:flex-row sm:mt-0 mt-4">
+        <div className="lg:flex space-x-4 lg:mr-10 flex-col lg:flex-row lg:mt-0 mt-4">
           <img src={ArrowLeft} alt="Arrow Left" className="sm:flex hidden" />
-          <CardMarked
-            imagem={Car}
-            title="Leilão antiguida..."
-            subtitle="Promovido:"
-            subtitleDate="Data:"
-            body="LeilosNew"
-            date="12/09/2023"
-          />
-          <CardMarked
-            imagem={Car}
-            title="Leilão antiguida..."
-            subtitle="Promovido:"
-            subtitleDate="Data:"
-            body="LeilosNew"
-            date="12/09/2023"
-          />
-          <CardMarked
-            imagem={Car}
-            title="Leilão antiguida..."
-            subtitle="Promovido:"
-            subtitleDate="Data:"
-            body="LeilosNew"
-            date="12/09/2023"
-          />
-          <CardMarked
-            imagem={Car}
-            title="Leilão antiguida..."
-            subtitle="Promovido:"
-            subtitleDate="Data:"
-            body="LeilosNew"
-            date="12/09/2023"
-          />
+          {cardItems.map((card, index) => (
+            <CardMarked key={index} card={card} />
+          ))}
           <img src={ArrowRight} alt="Arrow Right" className="sm:flex hidden" />
         </div>
       </div>
 
       <div
-        className="sm:w-[1780px] sm:h-[660px] w-[400px] h-full sm:flex sm:flex-row flex-col sm:items-center sm:pl-[160px] sm:justify-center "
+        className="w-full lg:h-[660px] h-full lg:flex lg:flex-row flex-col lg:items-center lg:justify-center "
         id="section03"
       >
-        <div className="sm:w-[410px] text-[#fff] sm:ml-16 ml-6 text-shadow-[2px]">
-          <h2 className="sm:text-[38px] text-[20px] font-semibold text-shadow-[2px] leading-normal tracking-wide">
+        <div className="lg:w-[410px] w-full text-[#fff] lg:ml-16 ml-6 text-shadow-[2px]">
+          <h2 className="lg:text-[38px] text-[20px] font-semibold text-shadow-[2px] leading-normal tracking-wide">
             Produtos em <br />
             leilão por categoria
           </h2>
@@ -85,134 +199,118 @@ function Section03() {
             laboriosam.
           </span>
         </div>
-        <div class="sm:w-[975px] w-[390px] sm:h-[450px] h-auto pl-1 sm:mr-7 sm:ml-4 sm:mt-0 mt-4 rounded-[12px] bg-[#1D1D1D] relative">
-          <div id="ferrari" class="relative">
-            <img
-              src={ArrowLeft}
-              alt="Arrow Left"
-              class="absolute left-0 sm:left-[-4px] top-[190px] z-20 transform[-50%]"
-            />
-            <div class="sm:w-[524px] w-[390px] sm:h-[450px] h-[380px] sm:pl-10 pl-14 sm:pt-10 pt-20 rounded-[12px] bg-gradient-to-r from-[#1C1C1C] via-[rgba(28, 28, 28, 0.71)] to-transparent relative">
-              <div class="text-[#FFF] text-shadow-[2px] sm:pl-14">
-                <span class="text-[20px] sm:text-[22px] font-semibold block sm:mb-4 mb-2">
-                  Ferrari única
-                </span>
-                <span class="text-[12px] sm:text-[14px] leading-[1.47px] text-shadow-[2px]">
-                  Lorem ipsum dolor sit amet, consectetur <br />
-                  adipisci elit, sed eiusmod tempor incidunt ut
-                  <br /> labore et dolore magna aliqua. Ut enim ad <br /> minim
-                  veniam, quis nostrum <br /> exercitationem ullam corporis
-                  suscipit <br />
-                  laboriosam.
-                </span>
-                <button class="block sm:mt-4 mt-2 w-[161px] sm:w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal">
-                  DAR UM LANCE
-                </button>
-              </div>
-              <img
-                src={ArrowRight}
-                alt="Arrow Right"
-                class="absolute right-0 sm:right-[-366px] top-[190px] z-20 transform[-50%]"
-              />
-            </div>
-          </div>
+        <div class="lg:w-[975px] w-full lg:h-[450px] h-auto pl-2 lg:mr-7 lg:ml-4 lg:mt-0 mt-4 rounded-[12px] bg-[#1D1D1D] relative">
+          <img
+            src={ArrowLeft}
+            alt="Arrow Left"
+            class="absolute left-2 top-[190px] z-20 transform[-50%] cursor-pointer"
+            onClick={handlePrev}
+          />
+          <CardCategory card={currentCard} />
+          <img
+            src={ArrowRight}
+            alt="Arrow Right"
+            class="absolute right-0 top-[190px] z-20 transform[-50%] cursor-pointer"
+            onClick={handleNext}
+          />
         </div>
 
-        <div className="sm:w-[250px] h-[660px]  bg-[#F5F5F5]">
-          <div className="items-center justify-center mb-4 sm:mb-0 sm:pl-7 pl-20 pt-10  ">
+        <div className="lg:w-[250px] h-[660px]  bg-[#F5F5F5]">
+          <div className="items-center justify-center mb-4 lg:mb-0 lg:pl-7 pl-20 pt-10  ">
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 1 ? 'active' : ''
+                activeCategory === "Joia" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(1)}
+              onClick={() => handleCategoryClick("Joia")}
             >
               Jóias e tesouros
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 2 ? 'active ' : 'active'
+                activeCategory === "veiculos" ? "active" : "active"
               }`}
-              onClick={() => handleLinkClick(2)}
+              onClick={() => handleCategoryClick("veiculos")}
             >
               Veículos
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 3 ? 'active' : ''
+                activeCategory === "Miniaturas" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(3)}
+              onClick={() => handleCategoryClick("Miniaturas")}
             >
               Miniaturas
             </span>
+
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 4 ? 'active' : ''
+                activeCategory === "Roupas" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(4)}
+              onClick={() => handleCategoryClick("Roupas")}
             >
               Roupas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 5 ? 'active' : ''
+                activeCategory === "Brinquedos" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(5)}
+              onClick={() => handleCategoryClick("Brinquedos")}
             >
               Brinquedos
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 6 ? 'active' : ''
+                activeCategory === "Antiguidades" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(6)}
+              onClick={() => handleCategoryClick("Antiguidades")}
             >
               Antiguidades
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 7 ? 'active' : ''
+                activeCategory === "Espadas" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(7)}
+              onClick={() => handleCategoryClick("Espadas")}
             >
               Espadas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 8 ? 'active pl-4' : ''
+                activeCategory === "Replicas" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(8)}
+              onClick={() => handleCategoryClick("Replicas")}
             >
               Réplicas
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 9 ? 'active' : ''
+                activeCategory === "Quadros" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(9)}
+              onClick={() => handleCategoryClick("Quadros")}
             >
               Quadros
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 10 ? 'active' : ''
+                activeCategory === "Livro" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(10)}
+              onClick={() => handleCategoryClick("Livro")}
             >
               Livros
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 11 ? 'active' : ''
+                activeCategory === "Arte" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(12)}
+              onClick={() => handleCategoryClick("Arte")}
             >
               Arte moderna
             </span>
             <span
               className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${
-                activeLink === 12 ? 'active' : ''
+                activeCategory === "Musica" ? "active" : ""
               }`}
-              onClick={() => handleLinkClick(13)}
+              onClick={() => handleCategoryClick("Musica")}
             >
               Instrumento Musical
             </span>
