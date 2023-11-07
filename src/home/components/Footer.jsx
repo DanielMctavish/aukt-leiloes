@@ -4,7 +4,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 
 function Footer() {
   return (
-    <section className="sm:w-full sm:h-[820px] h-full border-t-[100px] border-[#1E1E1E] bg-[#012038] overflow-hidden">
+    <section className="lg:w-full sm:h-[820px] h-full border-t-[100px] border-[#1E1E1E] bg-[#012038] overflow-hidden">
       <div className="items-center justify-center p-[20px]">
         <div className="mt-[10px]">
           <span className="text-[#FFFFFF1F] text-[77px] pl-10 font-bold leading-[30.415px]">
@@ -16,8 +16,8 @@ function Footer() {
             A U K T
           </span>
         </div>
-        <div className="flex items-center justify-center sm:ml-[100px] sm:p-[90px] flex-wrap">
-          <div className="w-1/2 sm:w-1/4 p-4">
+        <div className="flex items-center justify-center lg:ml-[100px] lg:p-[90px] flex-wrap">
+          <div className="w-1/2 lg:w-1/4 p-4">
             <span className="text-[#fff] text-[16px] block mb-2">
               Podemos Ajudar
             </span>
@@ -46,7 +46,7 @@ function Footer() {
               Acesso anunciante
             </span>
           </div>
-          <div className="w-1/2 sm:w-1/4 p-4">
+          <div className="w-1/2 lg:w-1/4 p-4">
             <span className="text-[#fff] text-[16px] block mb-2">
               Podemos Ajudar
             </span>
@@ -75,7 +75,7 @@ function Footer() {
               Acesso anunciante
             </span>
           </div>
-          <div className="w-1/2 sm:w-1/4 p-4">
+          <div className="w-1/2 lg:w-1/4 p-4">
             <span className="text-[#fff] text-[16px] block mb-2">
               Podemos Ajudar
             </span>
@@ -104,7 +104,7 @@ function Footer() {
               Acesso anunciante
             </span>
           </div>
-          <div className="w-1/2 sm:w-1/4 p-4">
+          <div className="w-1/2 lg:w-1/4 p-4">
             <span className="text-[#fff] text-[16px] block mb-2">
               Podemos Ajudar
             </span>
