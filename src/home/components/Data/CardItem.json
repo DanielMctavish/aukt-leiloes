@@ -1,0 +1,34 @@
+[
+    {
+        "title": "Primeiro Card",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+        "urlCover":
+          "https://cdn.motor1.com/images/mgl/Znnm7r/s1/ferrari-sp48-unica.webp"
+      },
+      {
+        "title": "Segundo card",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.conteúdo do card2",
+        "urlCover":
+          "https://fotos-jornaldocarro-estadao.nyc3.cdn.digitaloceanspaces.com/wp-content/uploads/2022/09/19125632/Ferrari-Purosangue-2.jpg"
+      },
+      {
+        "title": "Terceiro Card",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+        "urlCover":
+          "https://cdn.motor1.com/images/mgl/Znnm7r/s1/ferrari-sp48-unica.webp"
+      },
+      {
+        "title": "Quarto Card",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+        "urlCover":
+          "https://fotos-jornaldocarro-estadao.nyc3.cdn.digitaloceanspaces.com/wp-content/uploads/2022/09/19125632/Ferrari-Purosangue-2.jpg"
+      },
+      {
+        "title": "Quinto Card",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
+        "urlCover":
+          "https://a-static.mlcdn.com.br/450x450/kit-4-beyblade-burst-com-lancador-rantaro-daigo-shu-e-outros-lianfa-toys/sandrapresentes/131987245p/a9d09d53d21ca135b055fd62879ce28a.jpeg"
+      }
+    
+  ]
+  
