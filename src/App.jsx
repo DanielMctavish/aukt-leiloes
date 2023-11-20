@@ -3,6 +3,11 @@ import Home from './home/components/Home'
 import AdminDashboard from "./admin/AdminDashboard";
 import Login from "./access/Login";
 import Register from "./access/Register";
+import { AdvertiserAddProduct } from "./advertiser/addProduct/AdvertiserAddProduct";
+import { AdvertiserAuctions } from "./advertiser/auctions/AdvertiserAuctions";
+import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial";
+import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
+import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser";
 
 function App() {
 
@@ -10,10 +15,21 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
+          {/* Home AUK */}
           <Route Component={Home} path="/" exact />
           <Route Component={AdminDashboard} path="/dashboard-admin" exact />
           <Route Component={Register} path="/register" exact />
           <Route Component={Login} path="/login" exact />
+
+          {/* Anunciante */}
+          <Route Component={DashboardAdvertiser} path="/advertiser" exact />
+          <Route Component={AdvertiserAddProduct} path="/advertiser/add-product" exact />
+          <Route Component={AdvertiserAddProduct} path="/advertiser/add-product" exact />
+          <Route Component={AdvertiserAuctions} path="/advertiser/auctions" exact />
+          <Route Component={AdvertiserFinancial} path="/advertiser/advertiser-financial" exact />
+          <Route Component={AdvertiserProductsList} path="/advertiser/products" exact />
+
+          {/* ADMIN */}
         </Routes>
       </BrowserRouter>
     </>
