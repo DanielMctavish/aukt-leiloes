@@ -20,7 +20,7 @@ function Home() {
 
   return (
     <div
-      className="App flex flex-col justify-start items-center w-full h-full bg-zinc-100 overflow-x-hidden">
+      className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden">
       <Navigation />
 
       <Section01 />

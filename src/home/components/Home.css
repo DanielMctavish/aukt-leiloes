@@ -10,13 +10,7 @@
   background-size: cover;
 }
 
-#ferrari {
-  width: 873px;
-  height: 450px;
-  flex-shrink: 0;
-  background: url("/src/home/medias/backgrounds/ferrari.png"), no-repeat;
-  box-shadow: 1px 4px 12px 0px rgba(0, 0, 0, 0.25);
-}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 12px;
 }
