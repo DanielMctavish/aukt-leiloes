@@ -37,6 +37,7 @@ function LastAuctsTable() {
                     <td className="px-6 py-4 text-left text-[14px] font-bold">R$ 43.298,99</td>
                 </tr>
             </tbody>
+            
         </table>
     )
 }

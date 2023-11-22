@@ -14,7 +14,8 @@ function AdminDashboard() {
     const [totalUsers, setTotalUsers] = useState()
 
     useEffect(() => {
-        GetStaticUsers(1000, 300, 200)
+        // INPUT DO GRAFICO CIRCULAR................................................
+        GetStaticUsers(800, 50100, 200)
     }, [])
 
     const GetStaticUsers = (advertisers, clients, adms) => {
@@ -121,6 +122,7 @@ function AdminDashboard() {
                         <div className="w-full p-3">
                             <h2>Últimos leilões realizados.</h2>
                         </div>
+                        {/* INPUT INFORMAÇÔES DE TABELAS */}
                         <LastAuctsTable />
 
                     </div>
