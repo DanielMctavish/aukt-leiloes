@@ -21,23 +21,23 @@ export const GraphElement = () => {
 
     const data = {
         labels: [
-            "Jan 1",
-            "Jan 2",
-            "Jan 3",
-            "Jan 4",
-            "Jan 5",
-            "Jan 6",
-            "Jan 7",
-            "Jan 8",
-            "Jan 9",
-            "Jan 10",
-            "Jan 11",
-            "Jan 12",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
         ],
         datasets: [{
-            data: [35000, 37000, 39000, 32000, 38000, 32000, 25000,35000, 35000, 35000, 35000, 105000, 105000],
+            data: [300, 5000, 5000, 1000, 5000, 3000, 5000, 5000, 5000, 12000, 5000, 5000, 5000],
             backgroundColor: 'transparent',
-            borderColor: '#b74900'
+            borderColor: '#6400C8'
         }]
     }
     const options = {
@@ -63,16 +63,18 @@ export const GraphElement = () => {
             },
             y: {
                 min: 0,
-                max: 100000,
+                max: 12000,
                 legend: false,
                 ticks: {
                     stepSize: () => {
-                        return 5000
+                        return 2000
                     },
                     callback: (value) => {
                         //console.log('obs value >> ', value);
 
-                        return "R$ " + value
+                        if (value > 1000) {
+                            return "R$ " + value / 1000 + 'k'
+                        }
 
                     },
                     display: true
@@ -86,7 +88,7 @@ export const GraphElement = () => {
 
     return (
         <div className="w-full h-[90%]">
-            < Line data={data} options={options} width={200} height={50}></Line >
+            < Line data={data} options={options} width={300} height={90}></Line >
         </div >
     );
 }

@@ -1,10 +1,10 @@
-import { AccountCircle, Menu } from "@mui/icons-material"
+import {  Menu, ArrowDropDown } from "@mui/icons-material"
 import { useState } from "react"
 
 function NavAdmin() {
     const [navigationMenu, setNavigationMenu] = useState(false)
 
-    const tailwindItems = "flex justify-center items-center p-2 gap-3"
+    //const tailwindItems = "flex justify-center items-center p-2 gap-3"
 
     const hideNavigation = () => {
 
@@ -33,9 +33,11 @@ function NavAdmin() {
         fixed
         lg:w-full
         w-[220px] 
-        lg:h-[48px]
+        lg:h-[72px]
         h-[100vh] 
-        bg-[#012038] 
+        bg-[#FFFFFF]
+        shadow-lg
+        shadow-[#1b1b1b23] 
         lg:flex-col
         flex-row
         lg:flex
@@ -70,7 +72,7 @@ function NavAdmin() {
             <section className="
             lg:w-[97%] 
             w-full 
-            lg:h-[48px]
+            lg:h-[72px]
             h-[100vh] 
             flex 
             flex-col 
@@ -81,14 +83,12 @@ function NavAdmin() {
             lg:gap-0
             gap-3">
 
-                <span className="text-[22px]">AUKT LEILÕES</span>
+                <span className="text-[22px] text-zinc-600 font-bold">Bem vindo, João!</span>
 
-                <section className="flex lg:flex-row flex-col justify-center items-center gap-3">
-                    <span style={{ letterSpacing: '4px' }} className="text-[18px] font-semibold ">R$10.245,44</span>
-                    <button className={tailwindItems}>
-                        <AccountCircle />
-                        Administrador
-                    </button>
+                <section className="flex lg:flex-row flex-col justify-center items-center gap-6 text-zinc-600">
+                    <img src="" alt="foto-perfil" className="w-[40px] h-[40px] bg-zinc-300 rounded-full overflow-hidden" />
+                    <span>User Name</span>
+                    <ArrowDropDown/>
                 </section>
 
             </section>
