@@ -24,6 +24,10 @@ function AssideAdmin(props) {
 
   //console.log('observando props... ->>', props.MenuSelected);
 
+  const navigateTo = (route) => {
+    window.location.href = route;
+  };
+
   return (
     <nav
       className="w-[253px] h-[100vh] bg-[#191F2F]
@@ -33,6 +37,7 @@ function AssideAdmin(props) {
       <button
         id="menu-1"
         className="w-full flex justify-between items-center p-2 text-white mt-6"
+        onClick={() => navigateTo("/dashboard-admin")}
       >
         <Dashboard />
         <span>Dashboard</span>
@@ -40,6 +45,7 @@ function AssideAdmin(props) {
       <button
         id="menu-2"
         className="w-full flex justify-between items-center p-2 text-white"
+        onClick={() => navigateTo("/auctions-admin")}
       >
         <LocalAtm />
         <span>Leilões</span>

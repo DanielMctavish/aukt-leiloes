@@ -1,35 +1,52 @@
 import TbodyAucts from "./tbody/tbodyAucts";
+import ArrowDown from "../statics-elements/arrowDown";
 
 function TableAucts() {
   return (
-    <table className="w-[98%] bg-white ml-4">
+    <table className="w-[98%] bg-white p-4 ml-2">
       <thead>
         <tr className="border-b-[.4px] border-zinc-300">
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Nº
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            ID - Leilão
-          </th>
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Anunciante
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Publicação
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold ">
+            <div className="flex items-center justify-between">
+              Nº
+              <ArrowDown  />
+            </div>
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Arremate
+            <div className="flex items-center justify-between">
+              ID-Leilão
+              <ArrowDown />
+            </div>
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Título
+            <div className="flex items-center justify-between">
+              Anunciante <ArrowDown />
+            </div>
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Status
+            <div className="flex items-center justify-between">
+              Publicação <ArrowDown />
+            </div>
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Vendas
+            <div className="flex items-center justify-between">
+              Arremate <ArrowDown />
+            </div>
+          </th>
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <div className="flex items-center justify-between">
+              Título <ArrowDown />
+            </div>
+          </th>
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <div className="flex items-center justify-between" >
+              Status <ArrowDown />
+            </div>
+          </th>
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <div className="flex items-center justify-between">
+              Vendas <ArrowDown />
+            </div>
           </th>
         </tr>
       </thead>
