@@ -8,6 +8,7 @@ import { AdvertiserAuctions } from "./advertiser/auctions/AdvertiserAuctions";
 import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial";
 import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
 import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser";
+import AdminAuctions from "./admin/AdminAuctions";
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
           <Route Component={AdminDashboard} path="/dashboard-admin" exact />
+          <Route Component={AdminAuctions} path="/auctions-admin" exact />
           <Route Component={Register} path="/register" exact />
           <Route Component={Login} path="/login" exact />
 

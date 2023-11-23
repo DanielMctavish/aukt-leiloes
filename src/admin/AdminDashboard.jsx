@@ -52,7 +52,7 @@ function AdminDashboard() {
                 <section className="w-[90%] h-[20vh] flex justify-center items-center gap-6">
 
                     {/* Display Saldo */}
-                    <div className="w-[30%] h-[80%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3">
+                    <div className="w-[30%] h-[84%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3">
                         <div className="flex flex-col justify-start items-start gap-3 border-l-[4px] border-[#314B8E]">
                             <span className="text-[16px] ml-3">Carteira</span>
                             <span className="text-[22px] ml-3">R$ 20.000,00</span>
@@ -67,7 +67,7 @@ function AdminDashboard() {
 
                 </section>
 
-                <section className="w-[90%] h-[40vh] flex justify-center items-center gap-6">
+                <section className="w-[90%] h-[48vh] flex justify-center items-center gap-6">
                     {/* Círculo de estatística */}
                     <div className="w-[40%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] relative">
 

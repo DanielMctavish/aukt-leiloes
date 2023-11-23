@@ -1,18 +1,23 @@
-import AuctsTableInfo from "./tbody/tbodyLastAucts";
+import TbodyAucts from "./tbody/tbodyAucts";
 
-function LastAuctsTable() {
+function TableAucts() {
   return (
-    <table className="w-full bg-white">
+    <table className="w-[98%] bg-white ml-4">
       <thead>
         <tr className="border-b-[.4px] border-zinc-300">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Nº
           </th>
+
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             ID - Leilão
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Anunciante
+          </th>
+
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            Publicação
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Arremate
@@ -21,17 +26,17 @@ function LastAuctsTable() {
             Título
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Ficha
+            Status
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Venda
+            Vendas
           </th>
         </tr>
       </thead>
 
-      <AuctsTableInfo />
+      <TbodyAucts />
     </table>
   );
 }
 
-export default LastAuctsTable;
+export default TableAucts;
