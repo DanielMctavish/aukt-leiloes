@@ -9,8 +9,8 @@ import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial"
 import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
 import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser";
 import AdminAuctions from "./admin/AdminAuctions";
-import AuctsDetail  from "./admin/AuctsDetail";
-import AuctsDetailsProducts from "./admin/AuctsDetails/AuctsDetailsProduct";
+import AuctsDetail  from "./admin/AdminAuctsDetail";
+import AdminAdvertisers from "./admin/AdminAdvertisers";
 
 function App() {
 
@@ -35,7 +35,7 @@ function App() {
           {/* ADMIN */}
           <Route Component={AdminAuctions} path="/auctions-admin" exact />
           <Route Component={AuctsDetail} path="/aucts-detail" exact />
-          <Route Component={AuctsDetailsProducts} path="/aucts-details-product" exact />
+          <Route Component={AdminAdvertisers} path="/advertisers-admin" exact />
         </Routes>
       </BrowserRouter>
     </>
