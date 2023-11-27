@@ -11,6 +11,7 @@ import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser
 import AdminAuctions from "./admin/AdminAuctions";
 import AuctsDetail  from "./admin/AdminAuctsDetail";
 import AdminAdvertisers from "./admin/AdminAdvertisers";
+import AdminClient from "./admin/AdminClient";
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
           <Route Component={AdminAuctions} path="/auctions-admin" exact />
           <Route Component={AuctsDetail} path="/aucts-detail" exact />
           <Route Component={AdminAdvertisers} path="/advertisers-admin" exact />
+          <Route Component={AdminClient} path="/client-admin" exact />
         </Routes>
       </BrowserRouter>
     </>
