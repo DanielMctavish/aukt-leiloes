@@ -9,6 +9,8 @@ import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial"
 import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
 import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser";
 import AdminAuctions from "./admin/AdminAuctions";
+import AuctsDetail  from "./admin/AuctsDetail";
+import AuctsDetailsProducts from "./admin/AuctsDetails/AuctsDetailsProduct";
 
 function App() {
 
@@ -19,7 +21,6 @@ function App() {
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
           <Route Component={AdminDashboard} path="/dashboard-admin" exact />
-          <Route Component={AdminAuctions} path="/auctions-admin" exact />
           <Route Component={Register} path="/register" exact />
           <Route Component={Login} path="/login" exact />
 
@@ -32,6 +33,9 @@ function App() {
           <Route Component={AdvertiserProductsList} path="/advertiser/products" exact />
 
           {/* ADMIN */}
+          <Route Component={AdminAuctions} path="/auctions-admin" exact />
+          <Route Component={AuctsDetail} path="/aucts-detail" exact />
+          <Route Component={AuctsDetailsProducts} path="/aucts-details-product" exact />
         </Routes>
       </BrowserRouter>
     </>
