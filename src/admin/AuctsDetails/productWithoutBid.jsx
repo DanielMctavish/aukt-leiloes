@@ -1,7 +1,7 @@
 import DetailProduct from "../dados/DetailProduct.json";
 import ArrowDown from "../statics-elements/arrowDown";
 
-function AuctsDetailsProducts() {
+function productWithoutBid() {
   return (
     <table className="w-full bg-white min-h-[200px] overflow-y-auto">
       <thead>
@@ -30,10 +30,7 @@ function AuctsDetailsProducts() {
       </thead>
       <tbody>
         {DetailProduct.map((produto) => (
-          <tr
-            key={produto.id}
-            className="text-zinc-400"
-          >
+          <tr key={produto.id} className="text-zinc-400">
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {produto.numero}
             </td>
@@ -52,12 +49,6 @@ function AuctsDetailsProducts() {
               R$ {produto.valor}
             </td>
             <td className="px-6 py-4 text-left space-x-3">
-              <span className="bg-[#FA3A3A7D] px-5 text-[#AF0000] font-bold rounded-full p-2 text-[12px] cursor-pointer">
-                {produto.excluir}
-              </span>
-              <span className="bg-[#3AFA4D7D] px-5 text-[#007004] font-bold rounded-full p-2 text-[12px] cursor-pointer">
-                {produto.editar}
-              </span>
               <span className="bg-[#EEF1F7] px-5 text-[#747474 font-bold rounded-full p-2 text-[12px] cursor-pointer">
                 {produto.ver}
               </span>
@@ -68,4 +59,5 @@ function AuctsDetailsProducts() {
     </table>
   );
 }
-export default AuctsDetailsProducts;
+
+export default productWithoutBid;

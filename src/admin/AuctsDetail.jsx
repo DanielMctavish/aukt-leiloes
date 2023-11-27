@@ -5,6 +5,8 @@ import CardAuctsDetails from "./cards/cardAuctsDetails";
 import AuctsDetailsProducts from "./AuctsDetails/AuctsDetailsProduct";
 import InforAucts from "./AuctsDetails/inforAucts";
 import AuctionedProduct from "./AuctsDetails/auctionedProduct";
+import ProductWithoutBid from "./AuctsDetails/productWithoutBid";
+import AuctsVisits from "./AuctsDetails/AuctsVisits";
 
 function AuctsDetail() {
   const [activeComponent, setActiveComponent] = useState("Produtos - Lista");
@@ -65,12 +67,18 @@ function AuctsDetail() {
                 <span className="p-6 "> Visitas</span>
               </button>
             </nav>
-            <div className="w-[98%] max-h-[44vh] overflow-y-auto custom-scrollbar">
+            <div className="w-[98%] max-h-[42.3vh] overflow-y-auto custom-scrollbar">
               {activeComponent === "Produtos - Lista" && (
                 <AuctsDetailsProducts />
               )}
               {activeComponent === "Produtos Leiloados" && (
                 <AuctionedProduct />
+              )}
+              {activeComponent === "Produtos sem Lance" && (
+                <ProductWithoutBid />
+              )}
+               {activeComponent === "Visitas" && (
+                <AuctsVisits />
               )}
             </div>
           </div>

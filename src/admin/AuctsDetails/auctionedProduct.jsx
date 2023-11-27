@@ -5,7 +5,7 @@ function auctionedProduct () {
     return (
         <table className="w-full bg-white min-h-[200px] overflow-y-auto">
         <thead>
-          <tr className="border-b-[.4px] border-zinc-300">
+          <tr className="">
             <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
               Nº
               <ArrowDown  />
@@ -30,7 +30,7 @@ function auctionedProduct () {
         </thead>
         <tbody>
         {DetailProduct.map((produto) => (
-          <tr key={produto.id} className="border-b-[.4px] border-zinc-300  text-zinc-400">
+          <tr key={produto.id} className="text-zinc-400">
             <td className="px-6 py-4 text-left text-[14px] font-bold">{produto.numero}</td>
             <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
               <img src={produto.imagem} alt="" className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full" />
