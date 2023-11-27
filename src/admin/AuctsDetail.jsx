@@ -4,7 +4,7 @@ import NavAdmin from "./navigation/NavAdmin";
 import CardAuctsDetails from "./cards/cardAuctsDetails";
 import AuctsDetailsProducts from "./AuctsDetails/AuctsDetailsProduct";
 import InforAucts from "./AuctsDetails/inforAucts";
-
+import AuctionedProduct from "./AuctsDetails/auctionedProduct";
 
 function AuctsDetail() {
   const [activeComponent, setActiveComponent] = useState("Produtos - Lista");
@@ -68,6 +68,9 @@ function AuctsDetail() {
             <div className="w-[98%] max-h-[44vh] overflow-y-auto custom-scrollbar">
               {activeComponent === "Produtos - Lista" && (
                 <AuctsDetailsProducts />
+              )}
+              {activeComponent === "Produtos Leiloados" && (
+                <AuctionedProduct />
               )}
             </div>
           </div>
