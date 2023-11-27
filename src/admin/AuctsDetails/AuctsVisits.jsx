@@ -1,41 +1,45 @@
-import DetailProduct from "../dados/DetailProduct.json";
+import Visits from "../dados/Visits.json";
 import ArrowDown from "../statics-elements/arrowDown";
 
-function AuctsDetailsProducts() {
+function AuctsVisits() {
   return (
     <table className="w-full bg-white min-h-[200px] overflow-y-auto">
       <thead>
-        <tr className="">
+        <tr className="border-b-[.4px] border-zinc-300">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Nº
             <ArrowDown />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Produto
+           Nome
             <ArrowDown />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Quantidade
+           Empresa
             <ArrowDown />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Valor
+            Email
             <ArrowDown />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Ações
+           nº de Compras
+            <ArrowDown />
+          </th>
+          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+           Total de Compras
             <ArrowDown />
           </th>
         </tr>
       </thead>
       <tbody>
-        {DetailProduct.map((produto) => (
-          <tr
-            key={produto.id}
-            className="text-zinc-400"
-          >
+        {Visits.map((produto) => (
+          <tr key={produto.id} className="text-zinc-400 border-b-[.4px] border-zinc-300">
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {produto.numero}
+            </td>
+            <td className="px-6 py-4 text-left text-[14px] font-bold">
+              {produto.nome}
             </td>
             <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
               <img
@@ -43,24 +47,16 @@ function AuctsDetailsProducts() {
                 alt=""
                 className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full"
               />
-              <span className=" font-bold text-[14px]">{produto.nome}</span>
+              <span className=" font-bold text-[14px]">{produto.empresa}</span>
             </td>
             <td className="px-6 py-4 text-left text-[14px] font-bold">
-              {produto.quantidade}
+              {produto.email}
             </td>
             <td className="px-6 py-4 text-left text-[14px] font-bold">
-              R$ {produto.valor}
+              {produto.nºcompras}
             </td>
-            <td className="px-6 py-4 text-left space-x-3">
-              <span className="bg-[#FA3A3A7D] px-5 text-[#AF0000] font-bold rounded-full p-2 text-[12px] cursor-pointer">
-                {produto.excluir}
-              </span>
-              <span className="bg-[#3AFA4D7D] px-5 text-[#007004] font-bold rounded-full p-2 text-[12px] cursor-pointer">
-                {produto.editar}
-              </span>
-              <span className="bg-[#EEF1F7] px-5 text-[#747474 font-bold rounded-full p-2 text-[12px] cursor-pointer">
-                {produto.ver}
-              </span>
+            <td className="px-6 py-4 text-left text-[14px] font-bold">
+              {produto.total}
             </td>
           </tr>
         ))}
@@ -68,4 +64,5 @@ function AuctsDetailsProducts() {
     </table>
   );
 }
-export default AuctsDetailsProducts;
+
+export default AuctsVisits;
