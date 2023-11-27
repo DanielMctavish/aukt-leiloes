@@ -1,23 +1,40 @@
 function inforAucts () {
+
+  const inforArray = [
+    {
+      img: "",
+      title: "12º leilão de instrumentos raros",
+      tipo: "Promotor:",
+      site: "www.danstudio.com.br",
+      data: "12/09/23",
+    }
+  ];
+
     return (
-        <div className="flex  justify-start items-start gap-3 p-2">
+      
+        <div>
+          {inforArray.map((auction, index) => (
+            <div key={index} className="flex  justify-start items-start gap-3 p-2">
           <img
-            src=""
+            src={auction.img}
             alt="foto-perfil"
             className="w-[60px] h-[60px] bg-zinc-300 rounded-lg overflow-hidden"
           />
           <div className="flex flex-col text-[#424242] text-[14px] font-semibold">
-            <span>12º leilão de instrumentos raros</span>
+            <span>{auction.title}</span>
             <span>
-              Promotor:{" "}
-              <span className="text-[#00A3FF]">www.danstudio.com.br</span>
+              {auction.tipo}
+              <span className="text-[#00A3FF] ml-2">{auction.site}</span>
             </span>
             <span>
               Data do evento:{" "}
-              <span className="text-[#00A3FF]">12/09/23</span>
+              <span className="text-[#00A3FF]">{auction.data}</span>
             </span>
           </div>
+          </div>
+           ))}
         </div>
+     
      
     )
 }
