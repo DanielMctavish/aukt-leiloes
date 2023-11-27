@@ -10,6 +10,7 @@ import {
   Person,
   Logout,
 } from "@mui/icons-material";
+import { useNavigate } from 'react-router-dom';
 
 
 function AssideAdmin(props) {
@@ -24,9 +25,11 @@ function AssideAdmin(props) {
 
   //console.log('observando props... ->>', props.MenuSelected);
 
-  const navigateTo = (route) => {
-    window.location.href = route;
-  };
+  const navigate = useNavigate();
+
+  function handleClick(route) {
+    navigate(route);
+  }
 
   return (
     <nav
@@ -37,7 +40,7 @@ function AssideAdmin(props) {
       <button
         id="menu-1"
         className="w-full flex justify-between items-center p-2 text-white mt-6"
-        onClick={() => navigateTo("/dashboard-admin")}
+        onClick={() => handleClick("/dashboard-admin")}
       >
         <Dashboard />
         <span>Dashboard</span>
@@ -45,7 +48,7 @@ function AssideAdmin(props) {
       <button
         id="menu-2"
         className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => navigateTo("/auctions-admin")}
+        onClick={() => handleClick("/auctions-admin")}
       >
         <LocalAtm />
         <span>Leilões</span>
