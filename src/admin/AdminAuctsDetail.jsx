@@ -67,19 +67,18 @@ function AuctsDetail() {
                 <span className="p-6 "> Visitas</span>
               </button>
             </nav>
-            <div className="w-[98%] max-h-[42.3vh] overflow-y-auto custom-scrollbar">
+            <div
+              className="w-[98%] max-h-[42.3vh] overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
+                    shadow-lg shadow-[#17171722]"
+            >
               {activeComponent === "Produtos - Lista" && (
                 <AuctsDetailsProducts />
               )}
-              {activeComponent === "Produtos Leiloados" && (
-                <AuctionedProduct />
-              )}
+              {activeComponent === "Produtos Leiloados" && <AuctionedProduct />}
               {activeComponent === "Produtos sem Lance" && (
                 <ProductWithoutBid />
               )}
-               {activeComponent === "Visitas" && (
-                <AuctsVisits />
-              )}
+              {activeComponent === "Visitas" && <AuctsVisits />}
             </div>
           </div>
         </section>

@@ -3,7 +3,8 @@ import ArrowDown from "../statics-elements/arrowDown";
 
 function AuctsVisits() {
   return (
-    <table className="w-full bg-white min-h-[200px] overflow-y-auto">
+    <div className="p-4">
+      <table className="w-full bg-white min-h-[200px] overflow-y-auto">
       <thead>
         <tr className="border-b-[.4px] border-zinc-300">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
@@ -62,6 +63,7 @@ function AuctsVisits() {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 

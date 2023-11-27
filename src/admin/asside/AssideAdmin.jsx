@@ -56,6 +56,7 @@ function AssideAdmin(props) {
       <button
         id="menu-3"
         className="w-full flex justify-between items-center p-2 text-white"
+        onClick={() => handleClick("/advertisers-admin")}
       >
         <Group />
         <span>Anunciantes</span>
