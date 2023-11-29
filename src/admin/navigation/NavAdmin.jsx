@@ -1,29 +1,29 @@
-import {  Menu, ArrowDropDown } from "@mui/icons-material"
-import { useState } from "react"
+import { Menu, ArrowDropDown } from "@mui/icons-material";
+import UserInfor from "../dados/userInfor.json";
+import { useState } from "react";
 
 function NavAdmin() {
-    const [navigationMenu, setNavigationMenu] = useState(false)
+  const [navigationMenu, setNavigationMenu] = useState(false);
 
-    //const tailwindItems = "flex justify-center items-center p-2 gap-3"
+  //const tailwindItems = "flex justify-center items-center p-2 gap-3"
 
-    const hideNavigation = () => {
+  const hideNavigation = () => {
+    const navigationAuk = document.querySelector(".nav-auk");
 
-        const navigationAuk = document.querySelector(".nav-auk")
-
-        if (!navigationMenu) {
-            navigationAuk.style.marginLeft = '-40vh'
-            navigationAuk.style.transition = '.6s'
-            setNavigationMenu(!navigationMenu)
-        } else {
-            navigationAuk.style.marginLeft = '0vh'
-            navigationAuk.style.transition = '.2s'
-            setNavigationMenu(!navigationMenu)
-        }
-
+    if (!navigationMenu) {
+      navigationAuk.style.marginLeft = "-40vh";
+      navigationAuk.style.transition = ".6s";
+      setNavigationMenu(!navigationMenu);
+    } else {
+      navigationAuk.style.marginLeft = "0vh";
+      navigationAuk.style.transition = ".2s";
+      setNavigationMenu(!navigationMenu);
     }
+  };
 
-    return (
-        <nav className="
+  return (
+    <nav
+      className="
         lg:ml-0
         ml-[-40vh]
         nav-auk
@@ -47,11 +47,11 @@ function NavAdmin() {
         gap-2 
         text-white 
         text-[12px]
-        cursor-pointer">
-
-            <span
-                style={{ fontSize: '26px' }}
-                className="flex 
+        cursor-pointer"
+    >
+      <span
+        style={{ fontSize: "26px" }}
+        className="flex 
             fixed 
             top-1 
             right-1 
@@ -65,11 +65,13 @@ function NavAdmin() {
             h-[44px] 
             justify-center
             items-center"
-                onClick={hideNavigation}>
-                <Menu />
-            </span>
-
-            <section className="
+        onClick={hideNavigation}
+      >
+        <Menu />
+      </span>
+      {UserInfor.map((auction, index) => (
+        <section
+          className="
             lg:w-[97%] 
             w-full 
             lg:h-[72px]
@@ -81,19 +83,26 @@ function NavAdmin() {
             justify-start 
             items-center
             lg:gap-0
-            gap-3">
+            gap-3"
+            key={index}
+        >
+          <span className="text-[22px] text-zinc-600 font-bold">
+            Bem vindo, {auction.firtName}!
+          </span>
 
-                <span className="text-[22px] text-zinc-600 font-bold">Bem vindo, João!</span>
-
-                <section className="flex lg:flex-row flex-col justify-center items-center gap-6 text-zinc-600">
-                    <img src="" alt="foto-perfil" className="w-[40px] h-[40px] bg-zinc-300 rounded-full overflow-hidden" />
-                    <span>User Name</span>
-                    <ArrowDropDown/>
-                </section>
-
-            </section>
-        </nav>
-    )
+          <section className="flex lg:flex-row flex-col justify-center items-center gap-6 text-zinc-600">
+            <img
+              src={auction.imagem}
+              alt="foto-perfil"
+              className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden"
+            />
+            <span className="text-[#012038] font-semibold text-[18px]">{auction.firtName}</span>
+            <ArrowDropDown />
+          </section>
+        </section>
+      ))}
+    </nav>
+  );
 }
 
-export default NavAdmin
+export default NavAdmin;

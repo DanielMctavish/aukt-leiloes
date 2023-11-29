@@ -72,6 +72,7 @@ function AssideAdmin(props) {
       <button
         id="menu-5"
         className="w-full flex justify-between items-center p-2 text-white"
+        onClick={() => handleClick("")}
       >
         <AccountBalanceWallet />
         <span>Carteira</span>
@@ -84,6 +85,7 @@ function AssideAdmin(props) {
       <button
         id="menu-6"
         className="w-full flex justify-between items-center p-2 text-white mt-6"
+        onClick={() => handleClick("/profile-admin")}
       >
         <Person />
         <span>Perfil</span>

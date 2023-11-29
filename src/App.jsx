@@ -12,6 +12,7 @@ import AdminAuctions from "./admin/AdminAuctions";
 import AuctsDetail  from "./admin/AdminAuctsDetail";
 import AdminAdvertisers from "./admin/AdminAdvertisers";
 import AdminClient from "./admin/AdminClient";
+import AdminProfile from "./admin/AdminProfile";
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
           <Route Component={AuctsDetail} path="/aucts-detail" exact />
           <Route Component={AdminAdvertisers} path="/advertisers-admin" exact />
           <Route Component={AdminClient} path="/client-admin" exact />
+          <Route Component={AdminProfile} path="/profile-admin" exact/>
         </Routes>
       </BrowserRouter>
     </>
