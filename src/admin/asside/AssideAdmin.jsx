@@ -72,7 +72,7 @@ function AssideAdmin(props) {
       <button
         id="menu-5"
         className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => handleClick("")}
+        onClick={() => handleClick("/wallet-admin")}
       >
         <AccountBalanceWallet />
         <span>Carteira</span>
