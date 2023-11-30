@@ -31,7 +31,7 @@ function AdminProfile() {
         bg-[#D8DEE8] text-zinc-600 overflow-hidden
         flex justify-start items-start"
     >
-      <AssideAdmin MenuSelected="menu-5" />
+      <AssideAdmin MenuSelected="menu-6" />
       <section className="w-full h-auto flex flex-col justify-start items-center ">
         <NavAdmin />
         <section className="w-[90%] h-full pt-6 flex justify-center items-center gap-6">
