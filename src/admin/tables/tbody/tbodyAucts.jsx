@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Aucts from "../../dados/Aucts.json";
 import Pagination from "../Pagination";
+import { useNavigate } from 'react-router-dom';
 
 function TbodyAucts() {
   const itemsPerPage = 6;
@@ -27,15 +28,23 @@ function TbodyAucts() {
     }
   };
 
+  const navigate = useNavigate();
+
+  function handleClick(route) {
+    navigate(route);
+  }
+
+
   return (
     <>
       <tbody>
         {currentAucts.map((auction, index) => (
           <tr
             key={index}
-            className={`border-b-[.4px] border-zinc-300 ${
+            className={`border-b-[.4px] border-zinc-300 cursor-pointer ${
               index === currentAucts.length - 1 ? "border-b-0" : ""
             }`}
+            onClick={() => handleClick("/aucts-detail")}
           >
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {auction.number}
