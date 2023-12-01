@@ -14,7 +14,7 @@ import AdminAdvertisers from "./admin/AdminAdvertisers";
 import AdminClient from "./admin/AdminClient";
 import AdminProfile from "./admin/AdminProfile";
 import AdminWallet from "./admin/AdminWallet";
-
+import AuctionedProductDetails from "./admin/AuctsDetails/auctionedProductDetails";
 function App() {
   return (
     <>
@@ -61,6 +61,7 @@ function App() {
           <Route Component={AdminClient} path="/client-admin" exact />
           <Route Component={AdminWallet} path="/wallet-admin" exact />
           <Route Component={AdminProfile} path="/profile-admin" exact />
+          <Route Component={AuctionedProductDetails} path="/auctioned-product-details" exact />
         </Routes>
       </BrowserRouter>
     </>
