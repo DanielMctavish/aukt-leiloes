@@ -52,11 +52,11 @@ function TbodyAucts() {
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {auction.id_aucts}
             </td>
-            <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
+            <td className="px-6 py-4 text-left flex justify-start items-center gap-2 ">
               <img
-                src={""}
+                src={auction.imagem}
                 alt=""
-                className="w-[32px] h-[32px] object-cover rounded-full"
+                className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full"
               />
               <span className="text-zinc-400 font-bold text-[14px]">
                 {auction.advertiser}

@@ -18,7 +18,7 @@ function inforAucts () {
           <img
             src={auction.img}
             alt="foto-perfil"
-            className="w-[60px] h-[60px] bg-zinc-300 rounded-lg overflow-hidden"
+            className="w-[60px] h-[60px] bg-zinc-300  overflow-hidden shadow-sm shadow-zinc-600 rounded-full"
           />
           <div className="flex flex-col text-[#424242] text-[14px] font-semibold">
             <span>{auction.title}</span>
