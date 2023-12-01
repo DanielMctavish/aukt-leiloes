@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import logo_aukt from "../../media/logo_aukt.png";
+import AppsIcon from '@mui/icons-material/Apps';
 import {
   Dashboard,
   LocalAtm,
@@ -10,10 +11,11 @@ import {
   Person,
   Logout,
 } from "@mui/icons-material";
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
 
 function AssideAdmin(props) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
     if (menuBtn) {
@@ -31,73 +33,151 @@ function AssideAdmin(props) {
     navigate(route);
   }
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleVoltarClick = () => {
+    toggleSidebar();
+  };
+
+  const iconStyle = {
+    fontSize: "64px",
+  };
   return (
-    <nav
-      className="w-[253px] h-[100vh] bg-[#191F2F]
-        flex flex-col justify-start items-center gap-3"
-    >
-      <img src={logo_aukt} alt="Logo-auk" className="w-[120px] object-cover" />
-      <button
-        id="menu-1"
-        className="w-full flex justify-between items-center p-2 text-white mt-6"
-        onClick={() => handleClick("/dashboard-admin")}
-      >
-        <Dashboard />
-        <span>Dashboard</span>
+    <div>
+      <button onClick={toggleSidebar} className="lg:hidden p-4 text-[#191F2F]">
+        <AppsIcon style={{fontSize:"40px"}}/>
       </button>
-      <button
-        id="menu-2"
-        className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => handleClick("/auctions-admin")}
-      >
-        <LocalAtm />
-        <span>Leilões</span>
-      </button>
-      <button
-        id="menu-3"
-        className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => handleClick("/advertisers-admin")}
-      >
-        <Group />
-        <span>Anunciantes</span>
-      </button>
-      <button
-        id="menu-4"
-        className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => handleClick("/client-admin")}
-      >
-        <Group />
-        <span>Clientes</span>
-      </button>
-      <button
-        id="menu-5"
-        className="w-full flex justify-between items-center p-2 text-white"
-        onClick={() => handleClick("/wallet-admin")}
-      >
-        <AccountBalanceWallet />
-        <span>Carteira</span>
-      </button>
+      {isSidebarOpen && (
+        <nav className="lg:hidden bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
+          <div className="bg-[#191F2F] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
+            <div className="flex flex-wrap justify-center items-center gap-6 ">
+              <button
+                onClick={() => handleClick("/dashboard-admin")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Dashboard style={iconStyle} />
+                <span className="mt-1 text-xs">Dashboard</span>
+              </button>
+              <button
+                onClick={() => handleClick("/auctions-admin")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <LocalAtm style={iconStyle} />
+                <span className="mt-1 text-xs">Leilões</span>
+              </button>
+              <button
+                onClick={() => handleClick("/advertisers-admin")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Group style={iconStyle} />
+                <span className="mt-1 text-xs">Anunciantes</span>
+              </button>
+              <button
+                onClick={() => handleClick("/client-admin")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Group style={iconStyle} />
+                <span className="mt-1 text-xs">Clientes</span>
+              </button>
+              <button
+                onClick={() => handleClick("/profile-admin")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Person style={iconStyle} />
+              </button>
+              <button
+                id="menu-7"
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+                onClick={() => handleClick("/logout")}
+              >
+                <Logout style={iconStyle} />
+                <span className="mt-1 text-xs">Logout</span>
+              </button>
+            </div>
+            <div className="absolute bottom-6 left-6 mb-6 ml-7">
+              <button
+                onClick={handleVoltarClick}
+                className="text-[#FFFFFF] text-[15px]"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </nav>
+      )}
 
-      <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7">
-        <span>Configuração e suporte</span>
-      </div>
+      <nav
+        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#191F2F] flex-col justify-start items-center gap-3`}
+      >
+        <img
+          src={logo_aukt}
+          alt="Logo-auk"
+          className="w-[120px] object-cover"
+        />
+        <button
+          id="menu-1"
+          className="w-full flex justify-between items-center p-2 text-white mt-6"
+          onClick={() => handleClick("/dashboard-admin")}
+        >
+          <Dashboard />
+          <span>Dashboard</span>
+        </button>
+        <button
+          id="menu-2"
+          className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/auctions-admin")}
+        >
+          <LocalAtm />
+          <span>Leilões</span>
+        </button>
+        <button
+          id="menu-3"
+          className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/advertisers-admin")}
+        >
+          <Group />
+          <span>Anunciantes</span>
+        </button>
+        <button
+          id="menu-4"
+          className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/client-admin")}
+        >
+          <Group />
+          <span>Clientes</span>
+        </button>
+        <button
+          id="menu-5"
+          className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/wallet-admin")}
+        >
+          <AccountBalanceWallet />
+          <span>Carteira</span>
+        </button>
 
-      <button
-        id="menu-6"
-        className="w-full flex justify-between items-center p-2 text-white mt-6"
-        onClick={() => handleClick("/profile-admin")}
-      >
-        <Person />
-        <span>Perfil</span>
-      </button>
-      <button
-        id="menu-7"
-        className="w-full flex justify-between items-center p-2 text-white"
-      >
-        <Logout />
-        <span>Logout</span>
-      </button>
-    </nav>
+        <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7">
+          <span>Configuração e suporte</span>
+        </div>
+
+        <button
+          id="menu-6"
+          className="w-full flex justify-between items-center p-2 text-white mt-6"
+          onClick={() => handleClick("/profile-admin")}
+        >
+          <Person />
+          <span>Perfil</span>
+        </button>
+        <button
+          id="menu-7"
+          className="w-full flex justify-between items-center p-2 text-white"
+        >
+          <Logout />
+          <span>Logout</span>
+        </button>
+      </nav>
+    </div>
   );
 }
 
