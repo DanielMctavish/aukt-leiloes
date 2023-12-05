@@ -89,7 +89,7 @@ function TbodyAucts() {
       <tfoot>
         <tr>
           <td colSpan="8" className="p-4">
-            <div className="flex justify-center items-center">
+            <div className="flex lg:justify-center items-center">
               <Pagination
                 currentPage={currentPage}
                 totalPages={Math.ceil(Aucts.length / itemsPerPage)}
