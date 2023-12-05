@@ -15,6 +15,7 @@ import AdminClient from "./admin/AdminClient";
 import AdminProfile from "./admin/AdminProfile";
 import AdminWallet from "./admin/AdminWallet";
 import AuctionedProductDetails from "./admin/AuctsDetails/auctionedProductDetails";
+import AssideAdmin from "./admin/asside/AssideAdmin";
 function App() {
   return (
     <>
@@ -62,6 +63,7 @@ function App() {
           <Route Component={AdminWallet} path="/wallet-admin" exact />
           <Route Component={AdminProfile} path="/profile-admin" exact />
           <Route Component={AuctionedProductDetails} path="/auctioned-product-details" exact />
+          <Route Component={AssideAdmin} path="asside-admin" exact />
         </Routes>
       </BrowserRouter>
     </>
