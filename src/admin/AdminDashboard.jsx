@@ -46,16 +46,16 @@ function AdminDashboard() {
   return (
     <div
       className="w-full lg:h-[100vh] h-auto 
-        bg-[#D8DEE8] text-zinc-600 overflow-hidden
+        bg-[#D8DEE8] text-zinc-600 lg:overflow-hidden overflow-x-hidden
         flex justify-start items-start"
     >
-      <AssideAdmin MenuSelected="menu-1" />
+        <AssideAdmin MenuSelected="menu-1"  />
       <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
 
-        <section className="w-[90%] h-[20vh] flex justify-center items-center gap-6">
+        <section className="lg:w-[90%] w-full h-[20vh] flex lg:justify-center lg:items-center lg:gap-6 lg:pt-0 pt-24 flex-col lg:flex-wrap lg:mr-0 mr-14 mb-7 lg:mb-0">
           {/* Display Saldo */}
-          <div className="w-[30%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3">
+          <div className="w-[80%] lg:w-[30%] lg:h-[90%] h-[40vh]  bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 mb-4 lg:mb-0">
             <div className="flex flex-col justify-start items-start gap-3 border-l-[4px] border-[#314B8E]">
               <span className="text-[16px] ml-3">Carteira</span>
               <span className="text-[22px] ml-3">R$ 20.000,00</span>
@@ -66,79 +66,90 @@ function AdminDashboard() {
           </div>
 
           {/* Display Ao vivo */}
-          <div className="w-[70%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 relative">
+          <div className="w-[70%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 relative lg:block hidden">
             <h2 className="bg-[#FA3A3A]/40 text-[#AF0000] p-1 rounded-full w-[80px] font-bold text-center">
               ao vivo
             </h2>
           </div>
         </section>
 
-        <section className="w-[90%] h-[60vh] flex justify-center items-center gap-6">
+        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex lg:justify-center lg:items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-14 lg:mr-0 mr-14 ">
           {/* Círculo de estatística */}
-          <div className="w-[40%] h-[34vh] bg-[#fff] mt-3 rounded-md shadow-lg shadow-[#17171722] relative">
-            <TimerComponent
-              advertiser_percentage={usersPorcentage.porcentageAdvertiser}
-              clients_percentage={usersPorcentage.porcentageClients}
-              adms_percentage={usersPorcentage.porcentageAdms}
-              totalUsers={totalUsers}
-            />
+          <div className="w-[80%] lg:w-[40%] h-full mt-3 bg-[#fff] rounded-md shadow-lg shadow-[#17171722] relative flex flex-row">
+            <div>
+              <TimerComponent
+                advertiser_percentage={usersPorcentage.porcentageAdvertiser}
+                clients_percentage={usersPorcentage.porcentageClients}
+                adms_percentage={usersPorcentage.porcentageAdms}
+                totalUsers={totalUsers}
+              />
+            </div>
 
-            <div className="w-[48%] h-[80%] absolute right-0 top-6 flex flex-col justify-between items-center p-6">
-              <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
-                <span>
-                  Anunciantes -{" "}
-                  {typeof usersPorcentage.porcentageAdvertiser === "number"
-                    ? usersPorcentage.porcentageAdvertiser.toFixed(1)
-                    : ""}
-                  %
-                </span>
-                <li className="text-[#000000] ml-3">
-                  {usersCount.advertisers}
-                </li>
-              </div>
+            <div>
+              <div className="w-full flex flex-col justify-start gap-3 lg:mt-6 mt-12 lg:ml-4 ml-3 lg:p-6 p-3">
+                <div className="w-full flex flex-col justify-start gap-3 lg:text-[14px] text-[12px] ">
+                  <span className="lg:inline hidden">
+                    Anunciantes -{" "}
+                    <span>
+                      {typeof usersPorcentage.porcentageAdvertiser === "number"
+                        ? usersPorcentage.porcentageAdvertiser.toFixed(1)
+                        : ""}
+                    </span>
+                    %
+                  </span>
+                  <li className="text-[#000000] ml-3">
+                    {usersCount.advertisers}
+                  </li>
+                </div>
 
-              <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
-                <span>
-                  Clientes -{" "}
-                  {typeof usersPorcentage.porcentageClients === "number"
-                    ? usersPorcentage.porcentageClients.toFixed(1)
-                    : ""}
-                  %
-                </span>
-                <li className="text-[#6400C8] ml-3">{usersCount.clients}</li>
-              </div>
+                <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
+                  <span>
+                    Clientes{" "}
+                    <span className="lg:inline hidden">
+                      -
+                      {typeof usersPorcentage.porcentageClients === "number"
+                        ? usersPorcentage.porcentageClients.toFixed(1)
+                        : ""}
+                      %
+                    </span>
+                  </span>
+                  <li className="text-[#6400C8] ml-3">{usersCount.clients}</li>
+                </div>
 
-              <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
-                <span>
-                  Administradores -{" "}
-                  {typeof usersPorcentage.porcentageAdms === "number"
-                    ? usersPorcentage.porcentageAdms.toFixed(1)
-                    : ""}
-                  %
-                </span>
-                <li className="text-[#D87400] ml-3">{usersCount.adms}</li>
+                <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
+                  <span>
+                    Administradores{" "}
+                    <span className="lg:inline hidden">
+                      {typeof usersPorcentage.porcentageAdms === "number"
+                        ? usersPorcentage.porcentageAdms.toFixed(1)
+                        : ""}
+                      %
+                    </span>
+                  </span>
+                  <li className="text-[#D87400] ml-3">{usersCount.adms}</li>
+                </div>
               </div>
             </div>
           </div>
           {/* Gráfico */}
-          <div className="w-[60%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722]">
-            <PanelGraph />
+          <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 overflow-y-hidden">
+              <PanelGraph />
           </div>
         </section>
 
-        <section className="w-[90%] h-[40vh] mt-9 flex flex-col justify-start items-start">
+        <section className="lg:w-[90%] w-full lg:h-[40vh]  h-full  flex flex-col lg:justify-start lg:items-start lg:flex-wrap lg:mt-0 lg:mr-0 mr-14">
           {/* Tabela de Ultimos Leilões realizados */}
           <div
-            className="w-full h-[80%] bg-[#fff] rounded-md 
+            className="w-full lg:h-[80%] h-auto lg:mt-7 mt-10 bg-[#fff] rounded-md 
                     shadow-lg shadow-[#17171722] flex 
-                    flex-col justify-start items-center "
+                    flex-col justify-start items-center  lg:mb-0 mb-6"
           >
             <div className="w-full p-3">
               <h2>Últimos leilões realizados.</h2>
             </div>
             {/* INPUT INFORMAÇÔES DE TABELAS */}
             <div
-              className="  w-[98%] max-h-[40vh] overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
+              className="lg:w-[98%] w-full lg:max-h-[40vh] max-h-[full] lg:overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
                     shadow-lg shadow-[#17171722]"
             >
               <LastAuctsTable />

@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 function AssideAdmin(props) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
     if (menuBtn) {
@@ -33,24 +34,28 @@ function AssideAdmin(props) {
     navigate(route);
   }
 
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+    console.log('Botão clicado!');
   };
 
   const handleVoltarClick = () => {
-    toggleSidebar();
+    setIsSidebarOpen(false);
   };
-
   const iconStyle = {
     fontSize: "64px",
   };
   return (
     <div>
-      <button onClick={toggleSidebar} className="lg:hidden p-4 text-[#191F2F]">
+     <button
+        onClick={toggleSidebar}
+       className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
+      >
         <AppsIcon style={{fontSize:"40px"}}/>
       </button>
-      {isSidebarOpen && (
-        <nav className="lg:hidden bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
+      {isSidebarOpen ? (
+        <nav className="bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
           <div className="bg-[#191F2F] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
             <div className="flex flex-wrap justify-center items-center gap-6 ">
               <button
@@ -106,8 +111,7 @@ function AssideAdmin(props) {
             </div>
           </div>
         </nav>
-      )}
-
+     ) : null}
       <nav
         className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#191F2F] flex-col justify-start items-center gap-3`}
       >
@@ -177,6 +181,7 @@ function AssideAdmin(props) {
           <span>Logout</span>
         </button>
       </nav>
+      
     </div>
   );
 }

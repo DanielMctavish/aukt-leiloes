@@ -3,7 +3,7 @@ import ArrowDown
  from "../statics-elements/arrowDown";
 function LastAuctsTable() {
   return (
-    <table className="w-full bg-white">
+    <table className="w-full bg-white ">
       <thead>
         <tr className="border-b-[.4px] border-zinc-300">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
