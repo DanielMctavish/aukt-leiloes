@@ -8,13 +8,13 @@ function AdminAuctions() {
     <div
       className="w-full lg:h-[100vh] h-auto 
     bg-[#D8DEE8] text-zinc-600 overflow-hidden
-     flex flex-col lg:flex-row justify-start items-start"
+     flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-2" />
-      <section className="w-full h-auto flex flex-col lg:justify-start lg:items-center ">
+      <section className="w-full h-auto flex flex-col justify-start items-center">
         <NavAdmin />
 
-        <section className="w-[90%] pt-6 flex lg:justify-center lg:items-center lg:gap-6 lg:mr-0 mr-18 lg:flex-row flex-col">
+        <section className="w-[90%] pt-6 flex lg:justify-center lg:items-center lg:gap-6 lg:flex-row flex-col">
           <div
             className="w-full bg-[#D8DEE8] lg:bg-white  rounded-md 
                     lg:shadow-lg lg:shadow-[#17171722] flex 
@@ -27,7 +27,6 @@ function AdminAuctions() {
               </span>
             </div>
             <TableAucts />
-            
           </div>
         </section>
       </section>
