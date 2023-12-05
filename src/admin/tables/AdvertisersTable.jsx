@@ -17,22 +17,22 @@ function AdvertisersTable() {
 
   return (
     <div className="p-4">
-      <table className="w-full bg-white min-h-[200px] overflow-y-auto">
+      <table className="w-full bg-[#D8DEE8] lg:bg-white min-h-[200px] overflow-y-auto">
         <thead>
           <tr className="border-b-[.4px] border-zinc-300">
-            <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <th className="lg:px-6 py-3 text-left text-zinc-400 font-semibold">
               Nº
               <ArrowDown />
             </th>
-            <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <th className="lg:px-6 px-2 py-3 text-left text-zinc-400 font-semibold">
               Nome
               <ArrowDown />
             </th>
-            <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <th className="lg:px-6 py-4 text-left text-zinc-400 font-semibold">
               Empresa
               <ArrowDown />
             </th>
-            <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
+            <th className="lg:px-6 px-12 py-3 text-left text-zinc-400 font-semibold">
               Email
               <ArrowDown />
             </th>
@@ -50,7 +50,7 @@ function AdvertisersTable() {
           {currentVisits.map((produto, index) => (
             <tr
               key={produto.id}
-              className="text-zinc-400 border-b-[.4px] border-zinc-300"
+              className="text-zinc-400 lg:border-b-[.4px] border-zinc-300"
             >
               <td className="px-6 py-4 text-left text-[14px] font-bold">
                 {produto.numero}
@@ -58,7 +58,7 @@ function AdvertisersTable() {
               <td className="px-6 py-4 text-left text-[14px] font-bold">
                 {produto.nome}
               </td>
-              <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
+              <td className="px-6 py-4 text-left flex justify-start items-center gap-2 ">
                 <img
                   src={produto.imagem}
                   alt=""
@@ -83,7 +83,7 @@ function AdvertisersTable() {
         <tfoot>
           <tr>
             <td colSpan="8" className="p-4">
-              <div className="flex justify-center items-center">
+              <div className="flex lg:justify-center items-center">
                 <Pagination
                   currentPage={currentPage}
                   totalPages={Math.ceil(Visits.length / itemsPerPage)}
