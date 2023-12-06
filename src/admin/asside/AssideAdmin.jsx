@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import logo_aukt from "../../media/logo_aukt.png";
-import AppsIcon from '@mui/icons-material/Apps';
+import AppsIcon from "@mui/icons-material/Apps";
 import {
   Dashboard,
   LocalAtm,
@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 
 function AssideAdmin(props) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
 
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
@@ -34,10 +33,9 @@ function AssideAdmin(props) {
     navigate(route);
   }
 
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    console.log('Botão clicado!');
+    console.log("Botão clicado!");
   };
 
   const handleVoltarClick = () => {
@@ -48,11 +46,11 @@ function AssideAdmin(props) {
   };
   return (
     <div>
-     <button
+      <button
         onClick={toggleSidebar}
-       className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
+        className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
       >
-        <AppsIcon style={{fontSize:"40px"}}/>
+        <AppsIcon style={{ fontSize: "40px" }} />
       </button>
       {isSidebarOpen ? (
         <nav className="bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
@@ -93,6 +91,15 @@ function AssideAdmin(props) {
                 <Person style={iconStyle} />
               </button>
               <button
+                id="menu-5"
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+                onClick={() => handleClick("/wallet-admin")}
+              >
+                <AccountBalanceWallet />
+                <span>Carteira</span>
+              </button>
+
+              <button
                 id="menu-7"
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
                 onClick={() => handleClick("/logout")}
@@ -111,7 +118,7 @@ function AssideAdmin(props) {
             </div>
           </div>
         </nav>
-     ) : null}
+      ) : null}
       <nav
         className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#191F2F] flex-col justify-start items-center gap-3`}
       >
@@ -181,7 +188,6 @@ function AssideAdmin(props) {
           <span>Logout</span>
         </button>
       </nav>
-      
     </div>
   );
 }

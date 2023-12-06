@@ -1,11 +1,9 @@
 import React from "react";
 
-function Form({ formData, handleChange, handleSubmit }){
- 
-
+function Form({ formData, handleChange, handleSubmit }) {
   return (
-    <form className="max-w-full mt-8 pl-20" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-2 gap-12">
+    <form className="max-w-full mt-8 lg:pl-20 pl-4" onSubmit={handleSubmit}>
+      <div className="grid lg:grid-cols-2 g grid-cols-1 gap-12">
         <div>
           <div className="mb-4">
             <label
@@ -18,48 +16,11 @@ function Form({ formData, handleChange, handleSubmit }){
               type="text"
               id="firstName"
               name="firstName"
-              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
+              className="w-full border border-solid lg:border-gray-300 border-[#012038] p-2 bg-transparent lg:rounded-none rounded-[30px]"
               value={formData.firstName}
               onChange={handleChange}
             />
           </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="phoneNumber"
-              className="text-zinc-400 text-[12px] font-medium"
-            >
-              Número de Telefone
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="state"
-              className="text-zinc-400 text-[12px] font-medium"
-            >
-              Estado
-            </label>
-            <input
-              type="text"
-              id="state"
-              name="state"
-              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
-              value={formData.state}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        <div>
           <div className="mb-4">
             <label
               htmlFor="lastName"
@@ -71,7 +32,7 @@ function Form({ formData, handleChange, handleSubmit }){
               type="text"
               id="lastName"
               name="lastName"
-              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
+              className="w-full border border-solid lg:border-gray-300 border-[#012038] p-2 bg-transparent lg:rounded-none rounded-[30px]"
               value={formData.lastName}
               onChange={handleChange}
             />
@@ -88,13 +49,64 @@ function Form({ formData, handleChange, handleSubmit }){
               type="email"
               id="email"
               name="email"
-              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
+              className="w-full border border-solid lg:border-gray-300 border-[#012038] p-2 bg-transparent lg:rounded-none rounded-[30px]"
               value={formData.email}
               onChange={handleChange}
             />
           </div>
+          <div className="mb-4 lg:hidden inline">
+            <label
+              htmlFor="phoneNumber"
+              className="text-zinc-400 text-[12px] font-medium"
+            >
+              Número de Telefone
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              className="w-full border border-solid lg:border-gray-300 border-[#012038] p-2 bg-transparent lg:rounded-none rounded-[30px]"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
 
-          <div className="mb-4">
+        <div>
+          <div className="mb-4 lg:inline hidden">
+            <label
+              htmlFor="phoneNumber"
+              className="text-zinc-400 text-[12px] font-medium"
+            >
+              Número de Telefone
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              className="w-full border border-solid lg:border-gray-300 border-[#012038] p-2 bg-transparent lg:rounded-none rounded-[30px]"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mb-4 lg:inline hidden">
+            <label
+              htmlFor="state"
+              className="text-zinc-400 text-[12px] font-medium"
+            >
+              Estado
+            </label>
+            <input
+              type="text"
+              id="state"
+              name="state"
+              className="w-full border border-solid border-gray-300 p-2 bg-transparent"
+              value={formData.state}
+              onChange={handleChange}
+            />
+          </div>
+  
+          <div className="mb-4 lg:inline hidden">
             <label
               htmlFor="city"
               className="text-zinc-400 text-[12px] font-medium"
@@ -112,12 +124,6 @@ function Form({ formData, handleChange, handleSubmit }){
           </div>
         </div>
       </div>
-
-     
-
-
-
-
     </form>
   );
 }
