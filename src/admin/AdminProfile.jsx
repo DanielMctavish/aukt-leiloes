@@ -69,7 +69,7 @@ function AdminProfile() {
                 handleSubmit={handleSubmit}
               />
             </div>
-            <div className="col-span-2 flex flex-col lg:flex-row justify-between lg:mt-10  mb-2 pl-4 lg:pl-10 pr-4 lg:pr-10">
+            <div className="col-span-2 flex flex-col lg:flex-row justify-between lg:mt-10  mb-2 pl-14 lg:pl-10 pr-16 lg:pr-10">
               <button className="text-[#C43030] text-[14px] font-semibold lg:mb-0 m-4">
                 Altera senha
               </button>
