@@ -5,7 +5,7 @@ function AuctsDetailsProducts() {
   return (
     <table className="w-full bg-white min-h-[200px] overflow-y-auto">
       <thead>
-        <tr className="">
+       <tr className="lg:flex lg:gap-16 hidden">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Nº
             <ArrowDown />
@@ -28,16 +28,16 @@ function AuctsDetailsProducts() {
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="">
         {DetailProduct.map((produto) => (
           <tr
             key={produto.id}
-            className="text-zinc-400"
+            className="text-zinc-400 flex flex-wrap lg:flex-nowrap lg:gap-16"
           >
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {produto.numero}
             </td>
-            <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
+            <td className="px-10 py-4 text-left flex justify-start items-center gap-2">
               <img
                 src={produto.imagem}
                 alt=""
@@ -45,13 +45,13 @@ function AuctsDetailsProducts() {
               />
               <span className=" font-bold text-[14px]">{produto.nome}</span>
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-6 py-4 text-left text-[14px] font-bold lg:flex hidden">
               {produto.quantidade}
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-7 ml-16 py-4 text-left text-[14px] font-bold lg:flex hidden">
               R$ {produto.valor}
             </td>
-            <td className="px-6 py-4 text-left space-x-3">
+            <td className="px-2 py-4 text-left space-x-3 lg:flex hidden">
               <span className="bg-[#FA3A3A7D] px-5 text-[#AF0000] font-bold rounded-full p-2 text-[12px] cursor-pointer">
                 {produto.excluir}
               </span>

@@ -6,7 +6,7 @@ function AuctsVisits() {
     <div className="p-4">
       <table className="w-full bg-white min-h-[200px] overflow-y-auto">
       <thead>
-        <tr className="border-b-[.4px] border-zinc-300">
+        <tr className="border-b-[.4px] border-zinc-300 lg:flex lg:gap-16 hidden ">
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
             Nº
             <ArrowDown />
@@ -32,17 +32,18 @@ function AuctsVisits() {
             <ArrowDown />
           </th>
         </tr>
+        
       </thead>
       <tbody>
         {Visits.map((produto) => (
-          <tr key={produto.id} className="text-zinc-400 border-b-[.4px] border-zinc-300">
+          <tr key={produto.id} className="text-zinc-400 lg:border-b-[.4px] lg:border-zinc-300 flex flex-wrap lg:flex-nowrap lg:gap-16">
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {produto.numero}
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-6 lg:ml-7 py-4 text-left text-[14px] font-bold">
               {produto.nome}
             </td>
-            <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
+            <td className="lg:px-6 px-3 py-4 text-left flex justify-start items-center gap-2">
               <img
                 src={produto.imagem}
                 alt=""
@@ -50,13 +51,13 @@ function AuctsVisits() {
               />
               <span className=" font-bold text-[14px]">{produto.empresa}</span>
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-6 py-4 text-left text-[14px] font-bold lg:flex hidden">
               {produto.email}
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-6 py-4 text-left text-[14px] font-bold lg:flex hidden">
               {produto.nºcompras}
             </td>
-            <td className="px-6 py-4 text-left text-[14px] font-bold">
+            <td className="px-10 ml-16 py-4 text-left text-[14px] font-bold lg:flex hidden">
               {produto.total}
             </td>
           </tr>

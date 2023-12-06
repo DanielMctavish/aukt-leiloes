@@ -19,12 +19,12 @@ function cardAuctsDetails() {
   ];
 
   return (
-    <div className="flex w-full ml-2 mt-2">
+    <div className="flex lg:flex-row flex-col w-full ml-2 mt-2">
       
   {auctionDetailsArray.map((auction, index) => (
     <div
       key={index}
-      className="w-[26%] rounded-lg bg-[#E9EFFA] p-3 mb-3 mr-4 "
+      className="lg:w-[26%] w-full rounded-lg bg-[#E9EFFA] p-3 mb-3 mr-4 "
     >
       <span className="flex flex-col justify-start items-start  border-l-[4px] gap-1 border-[#314B8E]">
         <span className="text-[#848484] uppercase text-[16px] ml-4">{auction.title}</span>
