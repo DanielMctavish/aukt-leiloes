@@ -11,7 +11,7 @@ function auctionedProductDetails({ productId, DetailProduct }) {
     return null;
   }
   return (
-    <div className="flex flex-col pl-6 gap-8 text-[#2C2C2C] bg-white">
+    <div className="flex flex-col lg:pl-6 gap-8 text-[#2C2C2C] bg-white">
       <div className="flex flex-col">
         <span className="font-semibold text-[16px]">
           14º LEILÃO DE ANTIGUIDADES E COLEÇÕES
@@ -20,7 +20,7 @@ function auctionedProductDetails({ productId, DetailProduct }) {
           20 DE NOVEMBRO DE 2023
         </span>
       </div>
-      <div className="flex space-x-24">
+      <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-24">
         <div className="flex items-center">
           <img
             src={selectedProduct.imagem}

@@ -7,16 +7,16 @@ import InputTable from "./tables/inputTable";
 function AdminAdvertisers() {
   return (
     <div
-      className="w-full lg:h-[100vh] h-auto 
+      className="w-full lg:h-[100vh] h-auto
         bg-[#D8DEE8] text-zinc-600 overflow-hidden
         flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-3" />
-      <section className="w-full h-auto flex flex-col justify-start items-center ">
+      <section className="w-full h-full flex flex-col justify-start items-center lg:mb-0 mb-14">
         <NavAdmin />
         <section className="w-[90%] pt-6 flex justify-center items-center gap-6">
           <div
-            className="lg:w-full w-[78%] bg-[#D8DEE8] lg:bg-white  rounded-md 
+            className="lg:w-full w-[98%] lg:bg-white rounded-md 
             lg:shadow-lg lg:shadow-[#17171722] flex 
                     flex-col overflow-x-hidden"
           >
