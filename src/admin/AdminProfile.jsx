@@ -29,24 +29,24 @@ function AdminProfile() {
     <div
       className="w-full lg:h-[100vh] h-auto 
         bg-[#D8DEE8] text-zinc-600 overflow-hidden
-        flex justify-start items-start"
+        flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-6" />
       <section className="w-full h-auto flex flex-col justify-start items-center ">
         <NavAdmin />
         <section className="w-[90%] h-full pt-6 flex justify-center items-center gap-6">
           <div
-            className="w-full bg-white  rounded-md 
-                    shadow-lg shadow-[#17171722] flex 
+            className="w-full lg:bg-white bg-[#D8DEE8]  rounded-md 
+                    lg:shadow-lg lg:shadow-[#17171722] flex
                     flex-col "
           >
-            <div className="relative bg-gradient-to-r from-[#191F2F] via-[#2B344E] to-[#12141A] p-4 rounded-t h-[30vh]">
+            <div className="relative lg:flex hidden bg-gradient-to-r from-[#191F2F] via-[#2B344E] to-[#12141A] p-4 rounded-t h-[30vh]">
               <span className="text-white text-[16px] font-bold">
                 Configuração da conta
               </span>
             </div>
             {UserInfor.map((auction) => (
-              <section className="absolute bottom-0 ml-[78px] top-[280px] flex flex-col items-center ">
+              <section className="absolute lg:bottom-0 lg:ml-[78px] ml-[36%] lg:top-[280px] flex flex-col items-center ">
                 <img
                   src={auction.imagem}
                   alt="foto-perfil"
@@ -62,15 +62,15 @@ function AdminProfile() {
               </section>
             ))}
 
-            <div className="flex justify-start mt-14">
+            <div className="flex justify-start lg:mt-14 mt-24">
               <Form
                 formData={formData}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
               />
             </div>
-            <div className="col-span-2 flex justify-between mt-10 mb-2 pl-10 pr-10">
-              <button className="text-[#C43030] text-[14px] font-semibold">
+            <div className="col-span-2 flex flex-col lg:flex-row justify-between lg:mt-10  mb-2 pl-4 lg:pl-10 pr-4 lg:pr-10">
+              <button className="text-[#C43030] text-[14px] font-semibold lg:mb-0 m-4">
                 Altera senha
               </button>
               <button
