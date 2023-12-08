@@ -4,6 +4,7 @@ import NavAdmin from "./navigation/NavAdmin";
 import TimerComponent from "./statics-elements/TimerComponent";
 import PanelGraph from "./panels/PanelGraph";
 import LastAuctsTable from "./tables/LastAuctsTable";
+
 // import PanelLives from "./panels/PanelLives"
 // import PanelUsers from "./panels/PanelUsers"
 // import { Money, People, MonetizationOn } from "@mui/icons-material"
@@ -46,10 +47,10 @@ function AdminDashboard() {
   return (
     <div
       className="w-full lg:h-[100vh] h-auto 
-        bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
+        bg-[#D8DEE8] text-zinc-600 lg:overflow-x-hidden custom-scrollbar overflow-x-auto
         flex justify-start items-start lg:flex-row flex-col"
     >
-        <AssideAdmin MenuSelected="menu-1"  />
+      <AssideAdmin MenuSelected="menu-1" />
       <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
 
@@ -73,7 +74,7 @@ function AdminDashboard() {
           </div>
         </section>
 
-        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex justify-center items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-3">
+        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex justify-center items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-3 ">
           {/* Círculo de estatística */}
           <div className="w-[80%] lg:w-[40%] h-full mt-3 bg-[#fff] rounded-md shadow-lg shadow-[#17171722] relative flex flex-row">
             <div>
@@ -132,9 +133,9 @@ function AdminDashboard() {
             </div>
           </div>
           {/* Gráfico */}
-          <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 overflow-y-hidden lg:ml-0 ml-16">
+            <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 lg:ml-0 ml-16 ">
               <PanelGraph />
-          </div>
+            </div>
         </section>
 
         <section className="lg:w-[90%] w-full lg:h-[40vh]  h-full  flex flex-col lg:justify-start lg:items-start lg:flex-wrap lg:mt-0 lg:ml-0 ml-16">

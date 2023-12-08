@@ -87,7 +87,7 @@ export const GraphElement = () => {
     }
 
     return (
-        <div className="w-full h-[90%]">
+        <div className="w-full lg:h-[90%] h-full">
             < Line data={data} options={options} width={300} height={90}></Line >
         </div >
     );
