@@ -7,7 +7,7 @@ function AdminWallet() {
   return (
     <div
       className="w-full lg:h-[100vh] h-auto 
-        bg-[#D8DEE8] text-zinc-600 overflow-hidden
+        bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
         flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-5" />

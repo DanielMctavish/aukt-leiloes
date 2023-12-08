@@ -46,14 +46,14 @@ function AdminDashboard() {
   return (
     <div
       className="w-full lg:h-[100vh] h-auto 
-        bg-[#D8DEE8] text-zinc-600 lg:overflow-hidden overflow-x-hidden
+        bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
         flex justify-start items-start lg:flex-row flex-col"
     >
         <AssideAdmin MenuSelected="menu-1"  />
       <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
 
-        <section className="lg:w-[90%] w-full h-[20vh] flex justify-center items-center lg:gap-6 lg:pt-0 pt-12 flex-col lg:flex-wrap mb-7 lg:mb-0">
+        <section className="lg:w-[90%] w-full h-[20vh] flex justify-center items-center lg:gap-6 lg:pt-0 pt-10 flex-col lg:flex-wrap mb-7 lg:mb-0">
           {/* Display Saldo */}
           <div className="w-[80%] lg:w-[30%] lg:h-[90%] h-[40vh]  bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 mb-4 lg:mb-0">
             <div className="flex flex-col justify-start items-start gap-3 border-l-[4px] border-[#314B8E]">

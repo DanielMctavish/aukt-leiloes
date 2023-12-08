@@ -18,21 +18,30 @@
   -webkit-text-size-adjust: 100%;
 }
 
+
 a {
   text-decoration: inherit;
 }
+/* Hide the default scrollbar for Firefox */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
 
 
-.custom-scrollbar {
+.custom-scrollbar,
+body {
   scrollbar-width: thin;
   scrollbar-color: #012038 #f0f0f0; 
 }
 
-.custom-scrollbar::-webkit-scrollbar {
+.custom-scrollbar::-webkit-scrollbar,
+body::-webkit-scrollbar{
   width: 6px; 
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
+.custom-scrollbar::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
   background-color: #012038;
   width: 6px; 
   height: 10px;
