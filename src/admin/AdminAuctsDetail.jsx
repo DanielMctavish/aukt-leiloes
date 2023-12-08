@@ -25,7 +25,7 @@ function AuctsDetail() {
       flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-2" />
-      <section className="w-full h-auto flex flex-col justify-start items-center ">
+      <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
 
         <section className="w-full h-[full] mt-4 flex flex-col justify-center items-center gap-6">
