@@ -12,7 +12,7 @@ function AdminAdvertisers() {
         flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-3" />
-      <section className="w-full h-full flex flex-col justify-start items-center lg:mb-0 mb-14">
+      <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
         <section className="w-[90%] pt-6 flex justify-center items-center gap-6">
           <div

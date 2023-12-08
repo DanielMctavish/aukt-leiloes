@@ -32,9 +32,9 @@ function AdminProfile() {
         flex lg:flex-row flex-col justify-start items-start"
     >
       <AssideAdmin MenuSelected="menu-6" />
-      <section className="w-full h-auto flex flex-col justify-start items-center ">
+      <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdmin />
-        <section className="w-[90%] h-full pt-6 flex justify-center items-center gap-6">
+        <section className="w-[90%] h-full flex justify-center items-center gap-6">
           <div
             className="w-full lg:bg-white bg-[#D8DEE8]  rounded-md 
                     lg:shadow-lg lg:shadow-[#17171722] flex
@@ -62,7 +62,7 @@ function AdminProfile() {
               </section>
             ))}
 
-            <div className="flex justify-start lg:mt-14 mt-24">
+            <div className="flex justify-start lg:mt-14 mt-20">
               <Form
                 formData={formData}
                 handleChange={handleChange}

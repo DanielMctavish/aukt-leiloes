@@ -1,6 +1,7 @@
 import { Menu, ArrowDropDown } from "@mui/icons-material";
 import UserInfor from "../dados/userInfor.json";
 import { useState } from "react";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 function NavAdmin() {
   const [navigationMenu, setNavigationMenu] = useState(false);
@@ -27,15 +28,17 @@ function NavAdmin() {
         ml-0
         nav-auk
         lg:left-auto
-        left-0
-        lg:relative
-        fixed
-        w-full
-        h-[72px]
-        lg:bg-[#FFFFFF]
+        left-[34%]
+        lg:bottom-0
+        bottom-[6%]
+        relative
+        lg:w-full
+        lg:h-[72px]
+        h-[2vh]
+       lg:bg-[#FFFFFF]
         lg:shadow-lg
         lg:shadow-[#1b1b1b23] 
-        flex-col
+        flex-row
         flex
         lg:justify-center
         justify-start 
@@ -53,29 +56,33 @@ function NavAdmin() {
             lg:h-[72px]
             h-[100vh] 
             flex 
-            flex-col 
-            lg:flex-row 
+            flex-row 
             lg:justify-between
             justify-start 
             items-center
             lg:gap-0
             gap-3"
-            key={index}
+          key={index}
         >
-          <span className="text-[22px] text-zinc-600 font-bold lg:block hidden">
+          <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
             Bem vindo, {auction.firtName}!
           </span>
 
-          <section className="flex lg:flex-row flex-col justify-center items-center gap-6 text-zinc-600">
+          <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">
+            <span>
+              <NotificationsIcon className="text-[#012038]" />
+            </span>
             <img
               src={auction.imagem}
               alt="foto-perfil"
               className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden"
             />
-            <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">{auction.firtName}</span>
-           <span className="lg:flex hidden">
-           <ArrowDropDown />
-           </span>
+            <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">
+              {auction.firtName}
+            </span>
+            <span className="lg:flex hidden">
+              <ArrowDropDown />
+            </span>
           </section>
         </section>
       ))}
@@ -84,7 +91,6 @@ function NavAdmin() {
 }
 
 export default NavAdmin;
-
 
 // const hideNavigation = () => {
 //   const navigationAuk = document.querySelector(".nav-auk");
@@ -111,37 +117,37 @@ export default NavAdmin;
 //       lg:relative
 //       fixed
 //       lg:w-full
-//       w-[220px] 
+//       w-[220px]
 //       lg:h-[72px]
-//       h-[100vh] 
+//       h-[100vh]
 //       bg-[#FFFFFF]
 //       shadow-lg
-//       shadow-[#1b1b1b23] 
+//       shadow-[#1b1b1b23]
 //       lg:flex-col
 //       flex-row
 //       lg:flex
 //       justify-center
-//       lg:justify-start 
-//       items-center 
-//       gap-2 
-//       text-white 
+//       lg:justify-start
+//       items-center
+//       gap-2
+//       text-white
 //       text-[12px]
 //       cursor-pointer"
 //   >
 //     <span
 //       style={{ fontSize: "26px" }}
-//       className="flex 
-//           fixed 
-//           top-1 
-//           right-1 
-//           lg:hidden 
-//           text-[#012038] 
-//           bg-white 
-//           p-1 
-//           rounded-md 
-//           z-40 
-//           w-[44px] 
-//           h-[44px] 
+//       className="flex
+//           fixed
+//           top-1
+//           right-1
+//           lg:hidden
+//           text-[#012038]
+//           bg-white
+//           p-1
+//           rounded-md
+//           z-40
+//           w-[44px]
+//           h-[44px]
 //           justify-center
 //           items-center"
 //       onClick={hideNavigation}
@@ -151,15 +157,15 @@ export default NavAdmin;
 //     {UserInfor.map((auction, index) => (
 //       <section
 //         className="
-//           lg:w-[97%] 
-//           w-full 
+//           lg:w-[97%]
+//           w-full
 //           lg:h-[72px]
-//           h-[100vh] 
-//           flex 
-//           flex-col 
-//           lg:flex-row 
+//           h-[100vh]
+//           flex
+//           flex-col
+//           lg:flex-row
 //           lg:justify-between
-//           justify-start 
+//           justify-start
 //           items-center
 //           lg:gap-0
 //           gap-3"
