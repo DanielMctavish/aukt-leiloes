@@ -1,4 +1,3 @@
-import Scrollbar from "../statics-elements/scroll"
 import { GraphElement } from "./GraphElement"
 import {ArrowDropDown} from "@mui/icons-material"
 
