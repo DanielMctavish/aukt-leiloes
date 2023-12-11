@@ -74,7 +74,7 @@ function AdminDashboard() {
           </div>
         </section>
 
-        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex justify-center items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-3 ">
+        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex justify-center items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-3">
           {/* Círculo de estatística */}
           <div className="w-[80%] lg:w-[40%] h-full mt-3 bg-[#fff] rounded-md shadow-lg shadow-[#17171722] relative flex flex-row">
             <div>
@@ -151,7 +151,7 @@ function AdminDashboard() {
             {/* INPUT INFORMAÇÔES DE TABELAS */}
             <div
               className="lg:w-[98%] w-full lg:max-h-[40vh] max-h-[full] lg:overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
-                    shadow-lg shadow-[#17171722]"
+                    shadow-lg shadow-[#17171722]" 
             >
               <LastAuctsTable />
             </div>
