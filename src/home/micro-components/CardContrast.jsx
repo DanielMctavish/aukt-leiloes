@@ -1,8 +1,13 @@
 import React from "react";
 
 function CardContrast(props) {
+  
+
   return (
-    <div  key={props.index} class="w-[361px] h-[337px] flex-shrink-0 border-2 items-center justify-center pt-4 border-gray-300 rounded-[2px] bg-[#EEEEEE]">
+    <div
+      key={props.index}
+      class="w-[361px] h-[337px] flex-shrink-0 border-2 items-center justify-center pt-4 border-gray-300 rounded-[2px] bg-[#EEEEEE]"
+    >
       <span className="w-[270px] h-[213px]">
         <img src={props.card.imagem} alt="" className="object-cover pl-10" />
       </span>
