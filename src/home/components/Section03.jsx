@@ -1,47 +1,14 @@
 import React, { useState } from "react";
 import "./Home.css";
 import CardMarked from "../micro-components/CardMarked";
-import Car from "../medias/backgrounds/car.png";
+
 import Ferrari from "../medias/backgrounds/ferrari.png";
 import ArrowLeft from "../medias/vector/arrow-left.svg";
 import ArrowRight from "../medias/vector/arrow-right.svg";
 import CardCategory from "../micro-components/CardCategory";
 
 function Section03() {
-  const cardItems = [
-    {
-      imagem: Car,
-      title: "Leilão antiguida...",
-      subtitle: "Promovido:",
-      subtitleDate: "Data:",
-      body: "LeilosNew",
-      date: "12/09/2023",
-    },
-    {
-      imagem: Car,
-      title: "Leilão antiguida...",
-      subtitle: "Promovido:",
-      subtitleDate: "Data:",
-      body: "LeilosNew",
-      date: "12/09/2023",
-    },
-    {
-      imagem: Car,
-      title: "Leilão antiguida...",
-      subtitle: "Promovido:",
-      subtitleDate: "Data:",
-      body: "LeilosNew",
-      date: "12/09/2023",
-    },
-    {
-      imagem: Car,
-      title: "Leilão antiguida...",
-      subtitle: "Promovido:",
-      subtitleDate: "Data:",
-      body: "LeilosNew",
-      date: "12/09/2023",
-    },
-  ];
+  
 
   const cardCategories = [
     {
@@ -174,12 +141,8 @@ function Section03() {
             laboriosam.
           </span>
         </div>
-        <div className="lg:flex space-x-4 lg:mr-10 flex-col lg:flex-row lg:mt-0 mt-4">
-          <img src={ArrowLeft} alt="Arrow Left" className="sm:flex hidden" />
-          {cardItems.map((card, index) => (
-            <CardMarked key={index} card={card} />
-          ))}
-          <img src={ArrowRight} alt="Arrow Right" className="sm:flex hidden" />
+        <div>
+          <CardMarked />
         </div>
       </div>
 
