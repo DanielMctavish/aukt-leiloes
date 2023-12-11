@@ -110,7 +110,7 @@ function CardMarked() {
   }, [offset, cardItems.length]);
   return (
     <div className="lg:flex space-x-4 lg:mr-10 flex-col lg:flex-row lg:mt-0 mt-">
-      <img src={ArrowLeft} alt="Arrow Left" className="sm:flex hidden cursor-pointer" onClick={handlePrevCard}/>
+      <img src={ArrowLeft} alt="Arrow Left" className=" cursor-pointer" onClick={handlePrevCard}/>
       {cardsSelecteds.map((card, index) => (
         <div
           key={index}
@@ -145,7 +145,7 @@ function CardMarked() {
           </div>
         </div>
       ))}
-      <img src={ArrowRight} alt="Arrow Right" className="sm:flex hidden cursor-pointer" onClick={handleNextCard} />
+      <img src={ArrowRight} alt="Arrow Right" className=" cursor-pointer" onClick={handleNextCard} />
     </div>
   );
 }
