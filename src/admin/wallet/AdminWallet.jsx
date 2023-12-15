@@ -1,7 +1,7 @@
-import AssideAdmin from "./asside/AssideAdmin";
-import NavAdmin from "./navigation/NavAdmin";
-import CardWallet from "./cards/cardWallet";
-import Transactions from "./statics-elements/Transactions";
+import AssideAdmin from "../asside/AssideAdmin";
+import NavAdmin from "../navigation/NavAdmin";
+import CardWallet from "../cards/cardWallet";
+import Transactions from "../statics-elements/Transactions";
 
 function AdminWallet() {
   return (
@@ -43,7 +43,8 @@ function AdminWallet() {
             </div>
             <CardWallet />
           </div>
-          <div className="lg:w-[70%] w-full h-[auto] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-2 relative ">
+
+          <div className="lg:w-[70%] w-full h-[100%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-2 relative ">
             <div className="flex border-b border-[#C9C9C9] p-2">
               <span>Transações bancárias</span>
             </div>
@@ -51,6 +52,7 @@ function AdminWallet() {
               <Transactions />
             </div>
           </div>
+
         </section>
       </section>
     </div>

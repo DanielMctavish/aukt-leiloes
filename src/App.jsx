@@ -13,9 +13,11 @@ import AuctsDetail from "./admin/AdminAuctsDetail";
 import AdminAdvertisers from "./admin/AdminAdvertisers";
 import AdminClient from "./admin/AdminClient";
 import AdminProfile from "./admin/AdminProfile";
-import AdminWallet from "./admin/AdminWallet";
+import AdminWallet from "./admin/wallet/AdminWallet";
 import AuctionedProductDetails from "./admin/AuctsDetails/auctionedProductDetails";
 import AssideAdmin from "./admin/asside/AssideAdmin";
+import AdvertiserClients from "./advertiser/clients/AdvertiserClients";
+import AdvertiserWallet from "./advertiser/Wallet/AdvertiserWallet";
 function App() {
   return (
     <>
@@ -59,6 +61,16 @@ function App() {
           <Route
             Component={AdvertiserProductsList}
             path="/advertiser/products"
+            exact
+          />
+          <Route
+            Component={AdvertiserClients}
+            path="/advertiser/clients"
+            exact
+          />
+          <Route
+            Component={AdvertiserWallet}
+            path="/advertiser/wallet"
             exact
           />
 

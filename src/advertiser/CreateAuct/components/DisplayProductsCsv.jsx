@@ -4,6 +4,7 @@ function DisplayProductsCsv() {
 
     return (
         <div className="w-[33%] h-[100%]
+        hover:z-[77] hover:scale-[1.02] transition-[1s]
         flex flex-col justify-center items-center 
         bg-white rounded-md relative
         shadow-2xl shadow-[#00000039] p-3">

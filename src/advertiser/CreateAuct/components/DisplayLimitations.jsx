@@ -6,7 +6,8 @@
 function DisplayLimitations(){
 
     return(
-        <div className="w-[33%] h-[100%] bg-white 
+        <div className="w-[33%] h-[100%] bg-white
+        hover:z-[77] hover:scale-[1.02] transition-[1s] 
         rounded-md shadow-2xl shadow-[#00000039] 
         p-3 relative flex flex-col justify-around">
             <h2 className="font-bold">Limitações</h2>

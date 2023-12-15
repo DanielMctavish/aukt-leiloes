@@ -152,7 +152,7 @@ function AssideAdvertiser(props) {
         <button
           id="menu-3"
           className="w-full flex justify-between items-center p-2 text-white"
-          onClick={() => handleClick("/advertiser/aucts")}
+          onClick={() => handleClick("/advertiser/auctions")}
         >
           <Group />
           <span>Leilões</span>
