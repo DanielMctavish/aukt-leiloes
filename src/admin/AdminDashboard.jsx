@@ -46,12 +46,12 @@ function AdminDashboard() {
 
   return (
     <div
-      className="w-full lg:h-[100vh] h-auto 
+      className="w-full lg:h-[100vh] h-auto
         bg-[#D8DEE8] text-zinc-600 lg:overflow-x-hidden custom-scrollbar overflow-x-auto
         flex justify-start items-start lg:flex-row flex-col"
     >
       <AssideAdmin MenuSelected="menu-1" />
-      <section className="w-full h-[100vh] flex flex-col justify-start items-center">
+      <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
         <NavAdmin />
 
         <section className="lg:w-[90%] w-full h-[20vh] flex justify-center items-center lg:gap-6 lg:pt-0 pt-10 flex-col lg:flex-wrap mb-7 lg:mb-0">
@@ -132,10 +132,12 @@ function AdminDashboard() {
               </div>
             </div>
           </div>
+
           {/* Gráfico */}
-            <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 lg:ml-0 ml-16 ">
-              <PanelGraph />
-            </div>
+          <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 lg:ml-0 ml-16 ">
+            <PanelGraph />
+          </div>
+          
         </section>
 
         <section className="lg:w-[90%] w-full lg:h-[40vh]  h-full  flex flex-col lg:justify-start lg:items-start lg:flex-wrap lg:mt-0 lg:ml-0 ml-16">
@@ -151,7 +153,7 @@ function AdminDashboard() {
             {/* INPUT INFORMAÇÔES DE TABELAS */}
             <div
               className="lg:w-[98%] w-full lg:max-h-[40vh] max-h-[full] lg:overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
-                    shadow-lg shadow-[#17171722]" 
+                    shadow-lg shadow-[#17171722]"
             >
               <LastAuctsTable />
             </div>

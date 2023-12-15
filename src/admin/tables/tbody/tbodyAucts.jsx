@@ -44,7 +44,7 @@ function TbodyAucts() {
             className={`border-b-[.4px] border-zinc-300 cursor-pointer ${
               index === currentAucts.length - 1 ? "border-b-0" : ""
             }`}
-            onClick={() => handleClick("/aucts-detail")}
+            onClick={() => handleClick("/admin/aucts/details")}
           >
             <td className="px-6 py-4 text-left text-[14px] font-bold">
               {auction.number}

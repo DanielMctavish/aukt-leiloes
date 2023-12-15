@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+//import React, { useState } from "react";
 import AssideAdmin from "./asside/AssideAdmin";
 import NavAdmin from "./navigation/NavAdmin";
 import Form from "./statics-elements/Form";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import UserInfor from "./dados/userInfor.json";
+import { useState } from "react";
 function AdminProfile() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -45,18 +46,18 @@ function AdminProfile() {
                 Configuração da conta
               </span>
             </div>
-            {UserInfor.map((auction) => (
-              <section className="absolute lg:bottom-0 lg:ml-[78px] ml-[36%] lg:top-[280px] flex flex-col items-center ">
+            {UserInfor.map((auction, index) => (
+              <section key={index} className="absolute lg:bottom-0 lg:ml-[78px] ml-[36%] lg:top-[280px] flex flex-col items-center ">
                 <img
                   src={auction.imagem}
                   alt="foto-perfil"
-                  className="w-[80px] h-[80px] bg-zinc-300 rounded-full overflow-hidden"
+                  className="w-[80px] h-[80px] bg-zinc-300 rounded-full overflow-hidden object-cover"
                 />
                 <span className="absolute top-12 left-12 pl-1 text-[white] bg-[#1E293B] border-4 w-10 h-10 border-white rounded-full cursor-pointer flex items-center">
                   <PhotoCameraIcon style={{ width: "24px" }} />
                 </span>
 
-                <span className="text-[#000000] font-bold text-[16px] mt-2">
+                <span className="text-[#dfdfdf] font-bold text-[16px] mt-2">
                   {auction.firtName} {auction.lastName}
                 </span>
               </section>

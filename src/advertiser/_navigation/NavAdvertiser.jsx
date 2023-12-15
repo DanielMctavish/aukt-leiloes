@@ -1,9 +1,9 @@
 import {  ArrowDropDown } from "@mui/icons-material";
-import UserInfor from "../dados/userInfor.json";
+import UserInfor from "../data/userInfor";
 //import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
-function NavAdmin() {
+function NavAdvertiser() {
  // const [navigationMenu, setNavigationMenu] = useState(false);
 
   //const tailwindItems = "flex justify-center items-center p-2 gap-3"
@@ -51,8 +51,7 @@ function NavAdmin() {
       {UserInfor.map((auction, index) => (
         <section
           className="
-            lg:w-[97%] 
-            w-full 
+            w-[98%] 
             lg:h-[72px]
             h-[100vh] 
             flex 
@@ -90,5 +89,5 @@ function NavAdmin() {
   );
 }
 
-export default NavAdmin;
+export default NavAdvertiser;
 

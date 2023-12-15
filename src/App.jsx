@@ -3,7 +3,7 @@ import Home from "./home/components/Home";
 import AdminDashboard from "./admin/AdminDashboard";
 import Login from "./access/Login";
 import Register from "./access/Register";
-import { AdvertiserAddProduct } from "./advertiser/addProduct/AdvertiserAddProduct";
+import {  AdvertiserCreateAuct } from "./advertiser/CreateAuct/AdvertiserCreateAuct";
 import { AdvertiserAuctions } from "./advertiser/auctions/AdvertiserAuctions";
 import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial";
 import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
@@ -23,20 +23,27 @@ function App() {
         <Routes>
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
-          <Route Component={AdminDashboard} path="/dashboard-admin" exact />
           <Route Component={Register} path="/register" exact />
           <Route Component={Login} path="/login" exact />
 
+          {/* ADMIN */}
+          <Route Component={AdminDashboard} path="/admin/dashboard" exact />
+          <Route Component={AdminAuctions} path="/admin/aucts" exact />
+          <Route Component={AdminAdvertisers} path="/admin/advertisers" exact />
+          <Route Component={AdminClient} path="/admin/clients" exact />
+          <Route Component={AdminProfile} path="/admin/profile" exact />
+          <Route Component={AuctsDetail} path="/admin/aucts/details" exact />
+          <Route Component={AdminWallet} path="/admin/wallet" exact />
+          <Route Component={AuctionedProductDetails} path="/admin/products/details" exact />
+          <Route Component={AssideAdmin} path="asside-admin" exact />
+
           {/* Anunciante */}
-          <Route Component={DashboardAdvertiser} path="/advertiser" exact />
+          <Route Component={DashboardAdvertiser}
+            path="/advertiser/dashboard"
+            exact />
           <Route
-            Component={AdvertiserAddProduct}
-            path="/advertiser/add-product"
-            exact
-          />
-          <Route
-            Component={AdvertiserAddProduct}
-            path="/advertiser/add-product"
+            Component={AdvertiserCreateAuct}
+            path="/advertiser/create-auct"
             exact
           />
           <Route
@@ -55,15 +62,6 @@ function App() {
             exact
           />
 
-          {/* ADMIN */}
-          <Route Component={AdminAuctions} path="/auctions-admin" exact />
-          <Route Component={AuctsDetail} path="/aucts-detail" exact />
-          <Route Component={AdminAdvertisers} path="/advertisers-admin" exact />
-          <Route Component={AdminClient} path="/client-admin" exact />
-          <Route Component={AdminWallet} path="/wallet-admin" exact />
-          <Route Component={AdminProfile} path="/profile-admin" exact />
-          <Route Component={AuctionedProductDetails} path="/auctioned-product-details" exact />
-          <Route Component={AssideAdmin} path="asside-admin" exact />
         </Routes>
       </BrowserRouter>
     </>
