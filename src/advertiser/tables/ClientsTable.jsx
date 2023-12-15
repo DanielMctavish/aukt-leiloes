@@ -1,10 +1,10 @@
-import  { useState } from "react";
-import Visits from "../dados/Visits.json";
-import ArrowDown from "../statics-elements/arrowDown";
-import Pagination from "../tables/Pagination";
+import { useState } from "react";
+import Visits from "../data/Visits.json"
+import {ArrowDropDown} from "@mui/icons-material";
+import Pagination from "./Pagination";
 
-function AdvertisersTable() {
-  const itemsPerPage = 6;
+function ClientsTable() {
+  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -22,27 +22,35 @@ function AdvertisersTable() {
           <tr className="border-b-[.4px] border-zinc-300 flex lg:gap-12">
             <th className="lg:px-6 px-2 py-3 text-left text-zinc-400 font-semibold">
               Nº
-              <ArrowDown />
+              <ArrowDropDown />
             </th>
             <th className="lg:px-6  px-2 py-3 text-left text-zinc-400 font-semibold">
               Nome
-              <ArrowDown />
+              <ArrowDropDown />
             </th>
             <th className="lg:px-6 px-4  py-4 text-left text-zinc-400 font-semibold">
               Empresa
-              <ArrowDown />
+              <ArrowDropDown />
             </th>
             <th className="lg:px-6 px-12 py-3 text-left text-zinc-400 font-semibold lg:flex hidden">
               Email
-              <ArrowDown />
+              <ArrowDropDown />
             </th>
             <th className="px-6 py-3 text-left text-zinc-400 font-semibold lg:flex hidden">
               nº de Compras
-              <ArrowDown />
+              <ArrowDropDown />
             </th>
             <th className="px-6 py-3 text-left text-zinc-400 font-semibold lg:flex hidden">
               Total de Compras
-              <ArrowDown />
+              <ArrowDropDown />
+            </th>
+            <th className="px-6 py-3 text-left text-zinc-400 font-semibold lg:flex hidden">
+              ações
+              <ArrowDropDown />
+            </th>
+            <th className="px-6 py-3 text-left text-zinc-400 font-semibold lg:flex hidden">
+              plano
+              <ArrowDropDown />
             </th>
           </tr>
         </thead>
@@ -50,7 +58,7 @@ function AdvertisersTable() {
           {currentVisits.map((produto) => (
             <tr
               key={produto.id}
-              className="text-zinc-400 lg:border-b-[.4px] border-zinc-300 flex flex-wrap lg:flex-nowrap lg:gap-12"
+              className="text-zinc-400 lg:border-b-[.4px] border-zinc-300 flex flex-wrap lg:flex-nowrap lg:gap-12 cursor-pointer hover:bg-[#eeeeee]"
             >
               <td className="lg:px-6 px-2 py-4 text-left text-[14px] font-bold">
                 {produto.numero}
@@ -98,4 +106,4 @@ function AdvertisersTable() {
   );
 }
 
-export default AdvertisersTable;
+export default ClientsTable;

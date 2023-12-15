@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./Home.css";
 import CardMarked from "../micro-components/CardMarked";
 
@@ -162,18 +162,18 @@ function Section03() {
             laboriosam.
           </span>
         </div>
-        <div class="lg:w-[975px] w-full lg:h-[450px] h-auto pl-2 lg:mr-7 lg:ml-4 lg:mt-0 mt-4 rounded-[12px] bg-[#1D1D1D] relative">
+        <div className="lg:w-[975px] w-full lg:h-[450px] h-auto pl-2 lg:mr-7 lg:ml-4 lg:mt-0 mt-4 rounded-[12px] bg-[#1D1D1D] relative">
           <img
             src={ArrowLeft}
             alt="Arrow Left"
-            class="absolute left-2 top-[190px] z-20 transform[-50%] cursor-pointer"
+            className="absolute left-2 top-[190px] z-20 transform[-50%] cursor-pointer"
             onClick={handlePrev}
           />
           <CardCategory card={currentCard} />
           <img
             src={ArrowRight}
             alt="Arrow Right"
-            class="absolute right-0 top-[190px] z-20 transform[-50%] cursor-pointer"
+            className="absolute right-0 top-[190px] z-20 transform[-50%] cursor-pointer"
             onClick={handleNext}
           />
         </div>

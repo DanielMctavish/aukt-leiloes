@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+const PaginationAdvertiser = ({ currentPage, totalPages, onPageChange }) => {
   const visiblePages = Array.from({ length: Math.min(totalPages, 7) });
 
   return (
@@ -41,4 +41,4 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
-export default Pagination;
+export default PaginationAdvertiser;
