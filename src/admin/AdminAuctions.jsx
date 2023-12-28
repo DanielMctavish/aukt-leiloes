@@ -4,6 +4,7 @@ import TableAucts from "./tables/TableAucts";
 import InputTable from "./tables/inputTable";
 
 function AdminAuctions() {
+
   return (
     <div
       className="w-full lg:h-[100vh] h-auto
@@ -32,6 +33,7 @@ function AdminAuctions() {
       </section>
     </div>
   );
+  
 }
 
 export default AdminAuctions;

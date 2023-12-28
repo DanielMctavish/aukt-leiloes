@@ -35,7 +35,7 @@ function NavAdmin() {
         lg:w-full
         lg:h-[72px]
         h-[2vh]
-       lg:bg-[#FFFFFF]
+       lg:bg-[#191919]
         lg:shadow-lg
         lg:shadow-[#1b1b1b23] 
         flex-row
@@ -44,7 +44,7 @@ function NavAdmin() {
         justify-start 
         items-center 
         gap-2 
-        text-white 
+        text-zinc-800 
         text-[12px]
         cursor-pointer"
     >
@@ -64,23 +64,23 @@ function NavAdmin() {
             gap-3"
           key={index}
         >
-          <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
+          <span className="text-[22px] text-white font-bold lg:flex hidden">
             Bem vindo, {auction.firtName}!
           </span>
 
-          <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">
+          <section className="flex flex-row justify-center items-center gap-6 text-white">
             <span>
-              <NotificationsIcon className="text-[#012038]" />
+              <NotificationsIcon className="text-[#dedede]" />
             </span>
             <img
               src={auction.imagem}
               alt="foto-perfil"
               className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
             />
-            <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">
+            <span className="text-[#f4f4f4] font-semibold text-[18px] lg:flex hidden">
               {auction.firtName}
             </span>
-            <span className="lg:flex hidden">
+            <span className="lg:flex hidden text-white">
               <ArrowDropDown />
             </span>
           </section>
