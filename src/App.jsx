@@ -1,9 +1,7 @@
 import { Route, Routes, BrowserRouter } from "react-router-dom";
 import Home from "./home/components/Home";
 import AdminDashboard from "./admin/AdminDashboard";
-import Login from "./access/Login";
-import Register from "./access/Register";
-import {  AdvertiserCreateAuct } from "./advertiser/CreateAuct/AdvertiserCreateAuct";
+import { AdvertiserCreateAuct } from "./advertiser/CreateAuct/AdvertiserCreateAuct";
 import { AdvertiserAuctions } from "./advertiser/auctions/AdvertiserAuctions";
 import { AdvertiserFinancial } from "./advertiser/financial/AdvertiserFinancial";
 import { AdvertiserProductsList } from "./advertiser/productsList/AdvertiserProductsList";
@@ -18,6 +16,14 @@ import AuctionedProductDetails from "./admin/AuctsDetails/auctionedProductDetail
 import AssideAdmin from "./admin/asside/AssideAdmin";
 import AdvertiserClients from "./advertiser/clients/AdvertiserClients";
 import AdvertiserWallet from "./advertiser/Wallet/AdvertiserWallet";
+import ClientRegister from "./access/client/ClientRegister";
+import ClientLogin from "./access/client/ClientLogin";
+import AdvertiserRegister from "./access/advertiser/AdvertiserRegister";
+import AdvertiserLogin from "./access/advertiser/AdvertiserLogin";
+import AuctFloor from "./a-floor/AuctFloor";
+import AdvertiserProfile from "./advertiser/profile/AdvertiserProfile";
+
+
 function App() {
   return (
     <>
@@ -25,8 +31,12 @@ function App() {
         <Routes>
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
-          <Route Component={Register} path="/register" exact />
-          <Route Component={Login} path="/login" exact />
+
+          {/* ACCESS */}
+          <Route Component={ClientRegister} path="/client/register" exact />
+          <Route Component={ClientLogin} path="/client/login" exact />
+          <Route Component={AdvertiserRegister} path="/advertiser/register" exact />
+          <Route Component={AdvertiserLogin} path="/advertiser/login" exact />
 
           {/* ADMIN */}
           <Route Component={AdminDashboard} path="/admin/dashboard" exact />
@@ -73,6 +83,14 @@ function App() {
             path="/advertiser/wallet"
             exact
           />
+          <Route
+            Component={AdvertiserProfile}
+            path="/advertiser/profile"
+            exact
+          />
+
+          {/* AUCT FLOOR */}
+          <Route Component={AuctFloor} path="/floor" exact />
 
         </Routes>
       </BrowserRouter>

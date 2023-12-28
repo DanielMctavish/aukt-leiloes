@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import logo_aukt from "../../media/logo_aukt.png";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
@@ -48,13 +48,13 @@ function AssideAdmin(props) {
     <div>
       <button
         onClick={toggleSidebar}
-        className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
+        className="lg:hidden p-4 text-[#141414] block cursor-pointer"
       >
         <AppsIcon style={{ fontSize: "40px" }} />
       </button>
       {isSidebarOpen ? (
         <nav className="bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
-          <div className="bg-[#191F2F] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
+          <div className="bg-[#181818] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
             <div className="flex flex-wrap justify-center items-center gap-6 ">
               <button
                 onClick={() => handleClick("/admin/dashboard")}
@@ -120,7 +120,7 @@ function AssideAdmin(props) {
         </nav>
       ) : null}
       <nav
-        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#191F2F] flex-col justify-start items-center gap-3`}
+        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#161616] flex-col justify-start items-center gap-3`}
       >
         <img
           src={logo_aukt}
