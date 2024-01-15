@@ -1,26 +1,23 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {  ArrowDropDown } from "@mui/icons-material";
-import UserInfor from "../dados/userInfor.json";
-//import { useState } from "react";
+import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { useNavigate } from "react-router-dom";
 
 function NavAdmin() {
- // const [navigationMenu, setNavigationMenu] = useState(false);
+ const [adminLocal, setAdminLocal] = useState(false);
+const navigate = useNavigate()
 
-  //const tailwindItems = "flex justify-center items-center p-2 gap-3"
+  useEffect(() => {
+    //get admin local
+    const adminLocal = JSON.parse(localStorage.getItem('auct-admin-session'))
+    setAdminLocal(adminLocal)
 
-  // const hideNavigation = () => {
-  //   const navigationAuk = document.querySelector(".nav-auk");
+    if (!adminLocal) {
+      navigate("/admin/login")
+    }
 
-  //   if (!navigationMenu) {
-  //     navigationAuk.style.marginLeft = "-40vh";
-  //     navigationAuk.style.transition = ".6s";
-  //     setNavigationMenu(!navigationMenu);
-  //   } else {
-  //     navigationAuk.style.marginLeft = "0vh";
-  //     navigationAuk.style.transition = ".2s";
-  //     setNavigationMenu(!navigationMenu);
-  //   }
-  // };
+  }, []);
 
   return (
     <nav
@@ -48,8 +45,7 @@ function NavAdmin() {
         text-[12px]
         cursor-pointer"
     >
-      {UserInfor.map((auction, index) => (
-        <section
+      <section
           className="
             lg:w-[97%] 
             w-full 
@@ -62,10 +58,9 @@ function NavAdmin() {
             items-center
             lg:gap-0
             gap-3"
-          key={index}
         >
           <span className="text-[22px] text-white font-bold lg:flex hidden">
-            Bem vindo, {auction.firtName}!
+            Bem vindo, {adminLocal.name}!
           </span>
 
           <section className="flex flex-row justify-center items-center gap-6 text-white">
@@ -73,19 +68,18 @@ function NavAdmin() {
               <NotificationsIcon className="text-[#dedede]" />
             </span>
             <img
-              src={auction.imagem}
+              src=""
               alt="foto-perfil"
               className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
             />
             <span className="text-[#f4f4f4] font-semibold text-[18px] lg:flex hidden">
-              {auction.firtName}
+              {adminLocal.name}
             </span>
             <span className="lg:flex hidden text-white">
               <ArrowDropDown />
             </span>
           </section>
         </section>
-      ))}
     </nav>
   );
 }

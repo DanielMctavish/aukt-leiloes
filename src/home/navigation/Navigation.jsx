@@ -8,9 +8,11 @@ import {
   Menu,
 } from "@mui/icons-material";
 import { useState } from "react";
+import {useNavigate} from "react-router-dom"
 
 function Navigation() {
   const [navigationMenu, setNavigationMenu] = useState(false);
+  const navigate = useNavigate()
 
   const tailwindItems = "flex justify-center items-center p-2 gap-3";
 
@@ -27,6 +29,10 @@ function Navigation() {
       setNavigationMenu(!navigationMenu);
     }
   };
+
+  const handleAdvertiser = ()=>{
+    navigate("/advertiser/register")
+  }
 
   return (
     <nav
@@ -131,7 +137,9 @@ function Navigation() {
         </section>
 
         <section>
-          <button className={tailwindItems}>
+          <button
+          onClick={handleAdvertiser} 
+          className={tailwindItems}>
             <AccountCircle />
             ANUNCIAR
           </button>

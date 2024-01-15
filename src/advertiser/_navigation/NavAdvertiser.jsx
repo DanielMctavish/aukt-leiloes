@@ -2,25 +2,20 @@ import {  ArrowDropDown } from "@mui/icons-material";
 import UserInfor from "../data/userInfor";
 //import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { useEffect, useState } from "react";
 
 function NavAdvertiser() {
- // const [navigationMenu, setNavigationMenu] = useState(false);
+  const [AdvertiserInfor,setAdvertiserInfor] = useState({})
 
-  //const tailwindItems = "flex justify-center items-center p-2 gap-3"
+  useEffect(()=>{
+    const currentAdvertiserSession = localStorage.getItem("advertiser-session-aukt")
 
-  // const hideNavigation = () => {
-  //   const navigationAuk = document.querySelector(".nav-auk");
+    if(currentAdvertiserSession){
+      const currentAdvertiser = JSON.parse(currentAdvertiserSession)
+      setAdvertiserInfor(currentAdvertiser)
+    }
 
-  //   if (!navigationMenu) {
-  //     navigationAuk.style.marginLeft = "-40vh";
-  //     navigationAuk.style.transition = ".6s";
-  //     setNavigationMenu(!navigationMenu);
-  //   } else {
-  //     navigationAuk.style.marginLeft = "0vh";
-  //     navigationAuk.style.transition = ".2s";
-  //     setNavigationMenu(!navigationMenu);
-  //   }
-  // };
+  },[])
 
   return (
     <nav
@@ -64,7 +59,7 @@ function NavAdvertiser() {
           key={index}
         >
           <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
-            Bem vindo, {auction.firtName}!
+            Bem vindo, {AdvertiserInfor.name}!
           </span>
 
           <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">
@@ -72,12 +67,12 @@ function NavAdvertiser() {
               <NotificationsIcon className="text-[#012038]" />
             </span>
             <img
-              src={auction.imagem}
+              src={AdvertiserInfor.url_profile_cover}
               alt="foto-perfil"
               className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
             />
             <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">
-              {auction.firtName}
+              {AdvertiserInfor.name}
             </span>
             <span className="lg:flex hidden">
               <ArrowDropDown />

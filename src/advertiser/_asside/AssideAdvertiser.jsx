@@ -23,7 +23,7 @@ function AssideAdvertiser(props) {
         "linear-gradient(90deg, #4D5BD4 0.03%, #76D057 99.17%)";
       menuBtn.style.borderRadius = "4px";
     }
-  }, []);
+  }, [])
 
   //console.log('observando props... ->>', props.MenuSelected);
 
@@ -36,14 +36,21 @@ function AssideAdvertiser(props) {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     console.log("Botão clicado!");
-  };
+  }
 
   const handleVoltarClick = () => {
     setIsSidebarOpen(false);
-  };
+  }
+
+  const handleLogoutAdveriser = ()=>{
+    localStorage.removeItem("advertiser-session-aukt")
+    navigate("/")
+  }
+
   const iconStyle = {
     fontSize: "64px",
-  };
+  }
+
   return (
     <div>
       <button
@@ -101,7 +108,7 @@ function AssideAdvertiser(props) {
               <button
                 id="menu-7"
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-                onClick={() => handleClick("/logout")}
+                onClick={handleLogoutAdveriser}
               >
                 <Logout style={iconStyle} />
                 <span className="mt-1 text-xs">Logout</span>
@@ -199,6 +206,7 @@ function AssideAdvertiser(props) {
         </button>
         <button
           id="menu-7"
+          onClick={handleLogoutAdveriser}
           className="w-full flex justify-between items-center p-2 text-white"
         >
           <Logout />

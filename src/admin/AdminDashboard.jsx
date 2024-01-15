@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import AssideAdmin from "./asside/AssideAdmin";
 import NavAdmin from "./navigation/NavAdmin";
 import TimerComponent from "./statics-elements/TimerComponent";
 import PanelGraph from "./panels/PanelGraph";
 import LastAuctsTable from "./tables/LastAuctsTable";
+import { useNavigate } from "react-router-dom"
 
 // import PanelLives from "./panels/PanelLives"
 // import PanelUsers from "./panels/PanelUsers"
@@ -17,10 +19,19 @@ function AdminDashboard() {
     porcentageAdms: "",
   });
   const [totalUsers, setTotalUsers] = useState();
+  const navigate = useNavigate()
 
   useEffect(() => {
     // INPUT DO GRAFICO CIRCULAR................................................
     GetStaticUsers(800, 50100, 200);
+
+    //get admin local
+    const adminLocal = JSON.parse(localStorage.getItem('auct-admin-session'))
+
+    if (!adminLocal) {
+      navigate("/admin/login")
+    }
+
   }, []);
 
   const GetStaticUsers = (advertisers, clients, adms) => {
@@ -137,7 +148,7 @@ function AdminDashboard() {
           <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 lg:ml-0 ml-16 ">
             <PanelGraph />
           </div>
-          
+
         </section>
 
         <section className="lg:w-[90%] w-full lg:h-[40vh]  h-full  flex flex-col lg:justify-start lg:items-start lg:flex-wrap lg:mt-0 lg:ml-0 ml-16">
