@@ -41,9 +41,16 @@ function AssideAdmin(props) {
   const handleVoltarClick = () => {
     setIsSidebarOpen(false);
   };
+
+  const handleLogoutAdmin = () => {
+    localStorage.removeItem('auct-admin-session')
+    navigate('/admin/login')
+  }
+
   const iconStyle = {
     fontSize: "64px",
   };
+
   return (
     <div>
       <button
@@ -102,7 +109,7 @@ function AssideAdmin(props) {
               <button
                 id="menu-7"
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-                onClick={() => handleClick("/logout")}
+                onClick={handleLogoutAdmin}
               >
                 <Logout style={iconStyle} />
                 <span className="mt-1 text-xs">Logout</span>
@@ -181,6 +188,7 @@ function AssideAdmin(props) {
           <span>Perfil</span>
         </button>
         <button
+          onClick={handleLogoutAdmin}
           id="menu-7"
           className="w-full flex justify-between items-center p-2 text-white"
         >

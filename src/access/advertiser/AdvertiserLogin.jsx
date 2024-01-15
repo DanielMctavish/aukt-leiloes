@@ -1,10 +1,59 @@
+import axios from "axios"
+import { useState } from "react"
+import { useRef } from "react"
+import { useNavigate } from "react-router-dom"
 
+function AdvertiserLogin() {
+    const [messageDisplay, setMessageDisplay] = useState("")
+    const refEmail = useRef()
+    const refPassword = useRef()
+    const navigate = useNavigate()
 
-function AdvertiserLogin(){
+    const handeAdvertiserLogin = async () => {
+        const email = refEmail.current.value
+        const password = refPassword.current.value
 
-    return(
+        if (!email) {
+            setMessageDisplay("Preencha o email")
+            return
+        }
+
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/login`, {
+            email: email,
+            password: password
+        }).then(res => {
+
+            console.log("resposta login advertiser --> ", res)
+            setMessageDisplay("logado com sucesso!")
+
+            const currentAdvertiser = {
+                name: res.data.user.name,
+                CPF: res.data.user.CPF,
+                nickname: res.data.user.nickname,
+                email: res.data.user.email,
+                url_profile_cover: res.data.user.url_profile_cover,
+                token: res.data.token
+            }
+
+            localStorage.setItem("advertiser-session-aukt", JSON.stringify(currentAdvertiser))
+            navigate("/advertiser/dashboard")
+
+        }).catch(err => {
+            console.log("erro login advertiser --> ", err.response.status)
+            if (err.response.status === 401 || err.response.status === 404) {
+                setMessageDisplay("Usuário ou senha inválidos")
+            } else {
+                setMessageDisplay("Erro ao conectar com o servidor")
+            }
+        })
+
+    }
+
+    return (
 
         <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3">
+
+            <span className="text-zinc-600">{messageDisplay}</span>
 
             <section className="w-[80%] h-[90vh] flex bg-[#012038] rounded-[4px] relative overflow-hidden shadow-2xl">
                 <div className="w-[50%] h-[100%] bg-white"></div>
@@ -13,15 +62,15 @@ function AdvertiserLogin(){
 
                     <div className="flex flex-col justify-start items-start">
                         <span>email</span>
-                        <input type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        <input ref={refEmail} type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
                     <div className="flex flex-col justify-start items-start">
                         <span>senha</span>
-                        <input type="password" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        <input ref={refPassword} type="password" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <button className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
+                    <button onClick={handeAdvertiserLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
                     <button>não tem uma conta? Registre-se</button>
                 </div>
             </section>

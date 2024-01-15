@@ -22,6 +22,7 @@ import AdvertiserRegister from "./access/advertiser/AdvertiserRegister";
 import AdvertiserLogin from "./access/advertiser/AdvertiserLogin";
 import AuctFloor from "./a-floor/AuctFloor";
 import AdvertiserProfile from "./advertiser/profile/AdvertiserProfile";
+import AdminLogin from "./access/admin/AdminLogin";
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
           <Route Component={AdminWallet} path="/admin/wallet" exact />
           <Route Component={AuctionedProductDetails} path="/admin/products/details" exact />
           <Route Component={AssideAdmin} path="asside-admin" exact />
+          <Route Component={AdminLogin} path="/admin/login" exact />
 
           {/* Anunciante */}
           <Route Component={DashboardAdvertiser}
