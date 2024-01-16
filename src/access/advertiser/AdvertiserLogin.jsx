@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRef } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -8,6 +9,13 @@ function AdvertiserLogin() {
     const refEmail = useRef()
     const refPassword = useRef()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
+        if (currentLocalAdvertiser) {
+            navigate('/advertiser/dashboard')
+        }
+    }, [])
 
     const handeAdvertiserLogin = async () => {
         const email = refEmail.current.value
