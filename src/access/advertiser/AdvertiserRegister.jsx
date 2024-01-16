@@ -1,4 +1,5 @@
-import { useState } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react"
 import { useRef } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
@@ -22,6 +23,13 @@ function AdvertiserRegister() {
     const [messageDisplay, setMessageDisplay] = useState("")
 
     const navigate = useNavigate()
+
+    useEffect(() => {
+        const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
+        if (currentLocalAdvertiser) {
+            navigate('/advertiser/dashboard')
+        }
+    }, [])
 
     const handleRegisterAdvertiser = async () => {
 
