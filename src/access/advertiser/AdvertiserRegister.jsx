@@ -8,11 +8,12 @@ import { useNavigate } from "react-router-dom"
 function AdvertiserRegister() {
     const refName = useRef()
     const refCpf = useRef()
-    const refNickname = useRef()
+    const refCNPJ = useRef()
+    const refCompanyName = useRef()
     const refEmail = useRef()
     const refPassword = useRef()
     const refPasswordConfirm = useRef()
-    const [fakeUrl, setFakeUrl] = useState()
+
     //address fields
     const refState = useRef()
     const refCity = useRef()
@@ -58,11 +59,11 @@ function AdvertiserRegister() {
         await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/create-advertiser`, {
             name: refName.current.value,
             CPF: refCpf.current.value,
-            nickname: refNickname.current.value,
+            CNPJ: refCNPJ.current.value,
+            company_name: refCompanyName.current.value,
+            company_adress:JSON.stringify(addressInformations),
             email: refEmail.current.value,
             password: refPassword.current.value,
-            url_fake_cover: fakeUrl,
-            url_profile_cover: fakeUrl,
             address: JSON.stringify(addressInformations)
         }).then((res) => {
 
@@ -75,18 +76,20 @@ function AdvertiserRegister() {
         })
     }
 
-    const handleSelectFakeAvatar = (event) => {
-
-        setFakeUrl(event.target.src)
-
-        const allImgs = document.querySelectorAll("#all-profile-imgs img")
-
-        allImgs.forEach(img => {
-            img.style.border = 'none'
+    const handleGetAddress = (event) => {
+        //console.log('observando target ->', event.target.value);
+        //API CEP https://viacep.com.br/ws/53409400/json/
+        const cep = event.target.value
+        const url = `https://viacep.com.br/ws/${cep}/json/`
+        axios.get(url).then(res => {
+            console.log('res ai ->', res.data);
+            refState.current.value = res.data.uf
+            refCity.current.value = res.data.localidade
+            refStreet.current.value = res.data.logradouro
+        }).catch(err => {
+            console.log(err.response);
         })
 
-        const currentProfile = document.getElementById(event.target.id)
-        currentProfile.style.border = "3px solid white"
     }
 
 
@@ -108,11 +111,6 @@ function AdvertiserRegister() {
                     <div className="flex flex-col justify-start items-start">
                         <span>nome</span>
                         <input ref={refName} type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
-                    </div>
-
-                    <div className="flex flex-col justify-start items-start">
-                        <span>nickname</span>
-                        <input ref={refNickname} type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
                     <div className="flex flex-col justify-start items-start">
@@ -142,26 +140,12 @@ function AdvertiserRegister() {
                 </div>
 
                 <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative">
-                    <span className="font-bold">Avatar Provisório</span>
 
-                    <div className="flex gap-3 justify-center items-center" id="all-profile-imgs">
-
-                        <img id="batman" src="https://i.pinimg.com/474x/d6/e2/b9/d6e2b92c45c41819cbd4000bb447c50e.jpg" alt="avatar-batman"
-                            onClick={handleSelectFakeAvatar}
-                            className="w-[63px] h-[63px] object-cover rounded-full cursor-pointer hover:w-[73px] hover:h-[73px] transition-all" />
-                        <img id="iron-man" src="https://pbs.twimg.com/profile_images/1347424672808275968/DAdlTKTM_400x400.jpg" alt="avatar-batman"
-                            onClick={handleSelectFakeAvatar}
-                            className="w-[63px] h-[63px] object-cover rounded-full cursor-pointer hover:w-[73px] hover:h-[73px] transition-all" />
-                        <img id="wonder" src="https://avatarfiles.alphacoders.com/249/249759.jpg" alt="avatar-batman"
-                            onClick={handleSelectFakeAvatar}
-                            className="w-[63px] h-[63px] object-cover rounded-full cursor-pointer hover:w-[73px] hover:h-[73px] transition-all" />
-                        <img id="spider" src="https://cdn.openart.ai/uploads/image_kPtAojaB_1692809575664_512.webp" alt="avatar-batman"
-                            onClick={handleSelectFakeAvatar}
-                            className="w-[63px] h-[63px] object-cover rounded-full cursor-pointer hover:w-[73px] hover:h-[73px] transition-all" />
-
+                    <div onChange={handleGetAddress} className="flex flex-col justify-start items-start">
+                        <span>Cep</span>
+                        <input ref={refCep} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <span className="font-bold">Endereço</span>
                     <div className="flex flex-col justify-start items-start">
                         <span>Estado</span>
                         <input ref={refState} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
@@ -182,10 +166,17 @@ function AdvertiserRegister() {
                         <input ref={refNumber} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Cep</span>
-                        <input ref={refCep} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
-                    </div>
+
+                    <section className="w-[80%] flex flex-col justify-around items-center rounded-md bg-[#144e7b8c] gap-6 p-6">
+                        <div className="flex flex-col justify-start items-start">
+                            <span>Nome da Empresa</span>
+                            <input ref={refCompanyName} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        </div>
+                        <div className="flex flex-col justify-start items-start">
+                            <span>CNPJ</span>
+                            <input ref={refCNPJ} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        </div>
+                    </section>
 
                 </div>
 

@@ -1,6 +1,58 @@
-
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useRef, useState } from "react";
+import * as XLSX from "xlsx"
+import { useDispatch } from "react-redux";
+import { addProducts } from "../../../features/product/Products";
 
 function DisplayProductsCsv() {
+    const [productsCount, setProductsCount] = useState(0)
+    const [columns, setColumns] = useState([])
+    const [values, setValues] = useState([])
+
+    const refFile = useRef()
+    const dispatch = useDispatch()
+
+
+    useEffect(() => {
+        // Utilize useEffect para garantir que o estado seja atualizado antes do dispatch
+        dispatch(addProducts({ columns, values }));
+        setProductsCount(values.length)
+    }, []);
+
+
+    const handleImportProducts = async () => {
+        refFile.current.click()
+
+
+        refFile.current.addEventListener('change', () => {
+            const currentFile = refFile.current.files
+            console.log('arquivo carregado com sucesso... ', currentFile[0]);
+            importExcelOperation(currentFile[0])
+        });
+
+
+    }
+
+    const importExcelOperation = (currentFile) => {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            // Aqui você pode acessar os dados do arquivo Excel
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            setColumns(excelData[0])
+
+            // Filtra as linhas em branco antes de definir os valores
+            const filteredValues = excelData.filter((row, index) => index !== 0 && row.some(cell => cell !== ""));
+            setValues(filteredValues);
+        };
+
+        reader.readAsArrayBuffer(currentFile);
+    }
 
     return (
         <div className="w-[33%] h-[100%]
@@ -17,8 +69,12 @@ function DisplayProductsCsv() {
                     <button>adicionar produto</button>
                 </div>
             </section>
-            <button className="p-1 w-[150px] h-[40px] bg-[#e8e8e8] rounded-md">importar CSV</button>
-
+            <input type="file" ref={refFile} className="hidden" />
+            <button onClick={handleImportProducts} className="p-1 w-[150px] h-[40px] bg-[#e8e8e8] rounded-md">importar CSV</button>
+            <div className="flex justify-center items-center gap-3 mt-7">
+                <span className="font-bold">{productsCount}</span>
+                <span>produtos preparados</span>
+            </div>
         </div>
     )
 }
