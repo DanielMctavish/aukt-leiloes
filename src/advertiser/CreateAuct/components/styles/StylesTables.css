@@ -1,0 +1,17 @@
+.span-error {
+    animation: animationError 2s infinite;
+}
+
+
+/* animation loop background changes */
+
+@keyframes animationError {
+    0% {
+        background: rgb(210, 60, 60);
+        color: white
+    }
+
+    100% {
+        background: rgba(255, 0, 0, 0.319);
+    }
+}

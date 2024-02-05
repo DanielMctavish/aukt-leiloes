@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx"
 import { useDispatch } from "react-redux";
 import { addProducts } from "../../../features/product/Products";
+import { addAuct } from "../../../features/auct/Auct";
 
 function DisplayProductsCsv() {
     const [productsCount, setProductsCount] = useState(0)
@@ -16,8 +17,21 @@ function DisplayProductsCsv() {
     useEffect(() => {
         // Utilize useEffect para garantir que o estado seja atualizado antes do dispatch
         dispatch(addProducts({ columns, values }));
+
+        const product_list = []
+        //create and push into array product_list objects, where the keys are columns and values are "values"
+        for (let i = 0; i < values.length; i++) {
+            const product = {}
+            for (let j = 0; j < values[i].length; j++) {
+                product[columns[j]] = values[i][j]
+            }
+            product_list.push(product)
+        }
+        //console.log(product_list);
+        dispatch(addAuct({ product_list: product_list }));
+
         setProductsCount(values.length)
-    }, []);
+    }, [values]);
 
 
     const handleImportProducts = async () => {
@@ -63,7 +77,7 @@ function DisplayProductsCsv() {
             <h2 className="font-bold absolute top-3 left-3">Produtos</h2>
 
             <section className="flex gap-3 justify-center items-center">
-                <span className="font-bold text-[63px]">10</span>
+                <span className="font-bold text-[63px]">{productsCount}</span>
                 <div className="flex flex-col">
                     <span>TOTAL</span>
                     <button>adicionar produto</button>
@@ -71,10 +85,6 @@ function DisplayProductsCsv() {
             </section>
             <input type="file" ref={refFile} className="hidden" />
             <button onClick={handleImportProducts} className="p-1 w-[150px] h-[40px] bg-[#e8e8e8] rounded-md">importar CSV</button>
-            <div className="flex justify-center items-center gap-3 mt-7">
-                <span className="font-bold">{productsCount}</span>
-                <span>produtos preparados</span>
-            </div>
         </div>
     )
 }
