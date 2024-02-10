@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unreachable */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useRef, useState } from "react"
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import logo from '../../media/logo_aukt.png'
 import axios from "axios"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
@@ -16,10 +17,13 @@ import DisplayMethodsPayments from "./components/DisplayMethodsPayments"
 import DisplayLimitations from "./components/DisplayLimitations"
 import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
+import { getCurrentFile } from "./functions/handleImageChange"
+
 
 export const AdvertiserCreateAuct = () => {
     const state = useSelector(state => state.aucts)
     const [progressBar, setProgressBar] = useState(0)
+    const [aucts, setAucts] = useState([])
 
     const navigate = useNavigate()
 
@@ -28,9 +32,12 @@ export const AdvertiserCreateAuct = () => {
     const logoElement = useRef()
 
     useEffect(() => {
-        //console.log('aucts state geral --> ', state)
+
+        setAucts(state)
 
     }, [state])
+
+
 
     const handleSaveAuct = async () => {
         //Load Operation -------------------------------------------------------------------------------------------------------------------------------
@@ -39,46 +46,63 @@ export const AdvertiserCreateAuct = () => {
         loadScreen.current.style.display = 'flex'
         //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
 
+        const formData = new FormData();
+        formData.append("cover-auct-image", getCurrentFile());
+        let currentUploadedImage
+
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
+            "Content-Type": "multipart/form-data"
+        }).then(response => {
+            console.log('resposta ao upar imagem -> ', response.data.currentImage);
+            currentUploadedImage = response.data.currentImage
+        }).catch(err => {
+            console.log('err ao tentar upor cover foto auct', err)
+        })
 
 
         //Create Auct Operation-------------------------------------------------------------------------------------------------------------------------
-        const currentAdvertiserStorage = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+        const currentAdvertiserStorage = await JSON.parse(localStorage.getItem("advertiser-session-aukt"))
         const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
-        console.log('observando advertiser ', getAdvertiser.data);
+        //console.log('observando advertiser ', getAdvertiser.data);
 
         let currentAuctId
+        let currentAuctNanoId
 
         await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/create-auct`, {
             creator_id: getAdvertiser.data.id,
             advertiser_id: getAdvertiser.data.id,
-            title: state.title,
-            tags: state.tags,
-            auct_cover_img: state.auct_cover_img,
-            descriptions_informations: state.descriptions_informations,
-            terms_conditions: state.terms_conditions,
-            auct_dates: state.auct_dates,
+            title: aucts.title,
+            tags: aucts.tags,
+            auct_cover_img: currentUploadedImage,
+            descriptions_informations: aucts.descriptions_informations,
+            terms_conditions: aucts.terms_conditions,
+            auct_dates: aucts.auct_dates,
             limit_client: false,
             limit_date: false,
-            accept_payment_methods: state.accept_payment_methods,
+            accept_payment_methods: aucts.accept_payment_methods,
             value: '0',
             status: 'cataloged',
             product_timer_seconds: 30
         }).then(response => {
-            console.log('resposta ao criar leilão -> ', response.data);
-            currentAuctId = response.data.id
+            //console.log('resposta ao criar leilão -> ', response.data);
+            currentAuctId = response.data.currentAuct.id
+            currentAuctNanoId = response.data.currentAuct.nano_id
         }).catch(err => {
             console.log('erro ao criar leilão -> ', err.response);
         })
         // create Products Operation
-        const productsCount = state.product_list.length;
+        const productsCount = aucts.product_list.length;
         let productsCreated = 0;
 
 
 
-        for (const product of state.product_list) {
+        for (const product of aucts.product_list) {
+            console.log('observando produto data -> ', product);
+
             try {
                 const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create`, {
                     advertiser_id: getAdvertiser.data.id,
+                    auct_nanoid: currentAuctNanoId,
                     auct_id: currentAuctId,
                     title: product.title,
                     description: product.description,
@@ -89,7 +113,9 @@ export const AdvertiserCreateAuct = () => {
                     color: product.color,
                     width: product.width,
                     height: product.height,
-                    weight: product.weight
+                    weight: product.weight,
+                    cover_img_url: "string",
+                    highlight_product: true
                 });
 
                 // Atualiza o estado da barra de progresso
@@ -97,9 +123,9 @@ export const AdvertiserCreateAuct = () => {
                 const progress = Math.floor((productsCreated / productsCount) * 100);
                 setProgressBar(progress);
 
-                console.log('resposta ao criar produto -> ', response.data);
+                //console.log('resposta ao criar produto -> ', response.data);
             } catch (err) {
-                console.log('erro ao criar produto -> ', err.response);
+                console.log('erro ao criar produto -> ', err);
             }
         }
 

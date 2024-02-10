@@ -1,0 +1,13 @@
+.cover-auct-image{
+    animation: animationCover 12s infinite alternate-reverse;
+}
+
+
+@keyframes animationCover{
+    0%{
+        min-width: 300vh;
+    }
+    100%{
+        min-width: 180vh;
+    }
+}

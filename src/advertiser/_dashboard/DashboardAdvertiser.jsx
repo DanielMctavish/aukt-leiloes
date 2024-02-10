@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import PanelGraph from "../../admin/panels/PanelGraph"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
 import NavAdvertiser from "../_navigation/NavAdvertiser"
@@ -5,10 +6,19 @@ import LastAdvertisersAuctsTable from "../tables/LastAdvertisersAuctsTable"
 import CircleStatisticDisplay from "./components/CircleStatisticDisplay"
 import DisplayBalance from "./components/DisplayBalance"
 import DisplayLive from "./components/DisplayLive"
-
+import {useNavigate} from "react-router-dom"
 
 
 export const DashboardAdvertiser = () => {
+
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+        const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
+        if (!currentLocalAdvertiser) {
+            navigate('/advertiser/login')
+        }
+    })
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">

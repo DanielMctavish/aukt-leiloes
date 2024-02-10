@@ -23,6 +23,7 @@ import AdvertiserLogin from "./access/advertiser/AdvertiserLogin";
 import AuctFloor from "./a-floor/AuctFloor";
 import AdvertiserProfile from "./advertiser/profile/AdvertiserProfile";
 import AdminLogin from "./access/admin/AdminLogin";
+import AdvertiserAuctDetails from "./advertiser/auctions/AdvertiserAuctDetails";
 
 
 function App() {
@@ -63,6 +64,11 @@ function App() {
           <Route
             Component={AdvertiserAuctions}
             path="/advertiser/auctions"
+            exact
+          />
+          <Route
+            Component={AdvertiserAuctDetails}
+            path="/advertiser/auctions-details"
             exact
           />
           <Route

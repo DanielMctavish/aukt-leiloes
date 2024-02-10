@@ -1,22 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import "./styles/StylesTables.css"
 import { ArrowDropDown } from "@mui/icons-material";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 function DisplayTableProducts() {
     const state = useSelector(state => state.products.products)
+    const [products, setProducts] = useState({ columns: [], values: [] })
     const refMessage = useRef()
 
     useEffect(() => {
         //console.log("observando estado tabelas -> ", state.values);
-    }, [state.products])
+        setProducts(state)
+    }, [state])
 
     //VALIDAR CAMPOS DO TOPO........................................................................................................................
     const validateMainColumns = (column, index) => {
         //console.log('observando colunas state -> ', state.columns.length);
 
-        if (state.columns.length < 10) {
+        if (products.columns.length < 10) {
 
             refMessage.current.style.display = 'flex'
             refMessage.current.innerHTML = 'São necessárias 10 colunas de informações'
@@ -38,7 +40,7 @@ function DisplayTableProducts() {
     const validateFields = (field, index) => {
         let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[200px] justify-between"
 
-        if (index === 4 || index === 5 || index === 6 || index === 8 || index === 9) {
+        if (index === 3 || index === 4 || index === 5 || index === 7 || index === 8) {
 
             if (field < 0) {
                 tailwindCode = "p-2 text-left text-[14px] font-bold min-w-[200px] justify-between span-error"
@@ -65,13 +67,13 @@ function DisplayTableProducts() {
             <div>
                 <div className="w-full flex gap-1">
 
-                    {state.columns.map((column, index) => validateMainColumns(column, index))}
+                    {products.columns.map((column, index) => validateMainColumns(column, index))}
 
                 </div>
 
                 <div className="w-full flex flex-col">
 
-                    {state.values.map((value, index) => (
+                    {products.values.map((value, index) => (
 
                         <div className="w-full flex justify-between items-center gap-1" key={index}>
                             {value.map(((field, index) => validateFields(field, index)))}
