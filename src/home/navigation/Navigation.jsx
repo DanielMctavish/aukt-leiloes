@@ -8,7 +8,8 @@ import {
   Menu,
 } from "@mui/icons-material";
 import { useState } from "react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+import hammer from "../../media/icons/Hammer.png"
 
 function Navigation() {
   const [navigationMenu, setNavigationMenu] = useState(false);
@@ -30,7 +31,7 @@ function Navigation() {
     }
   };
 
-  const handleAdvertiser = ()=>{
+  const handleAdvertiser = () => {
     navigate("/advertiser/register")
   }
 
@@ -136,10 +137,13 @@ function Navigation() {
           </button>
         </section>
 
-        <section>
+        <section className="flex gap-2 justify-center items-center">
+          <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor")}>
+            <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
+          </span>
           <button
-          onClick={handleAdvertiser} 
-          className={tailwindItems}>
+            onClick={handleAdvertiser}
+            className={tailwindItems}>
             <AccountCircle />
             ANUNCIAR
           </button>

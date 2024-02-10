@@ -2,6 +2,7 @@ import { Close, PhotoCamera } from "@mui/icons-material"
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
+import { handleImageChange } from "../functions/handleImageChange";
 
 function DisplayCreateEvent() {
     const [imageSrc, setImageSrc] = useState(null);
@@ -11,17 +12,6 @@ function DisplayCreateEvent() {
 
     const dispatch = useDispatch()
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImageSrc(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
     //REGISTRANDO TAGS PARA UMA LISTA
 
@@ -53,6 +43,8 @@ function DisplayCreateEvent() {
     function handleDispatchCategories() {
         dispatch(addAuct({ categories: refCategories.current.value }));
     }
+
+
 
     return (
         <div className="w-[30%] h-[100%] bg-white rounded-md p-2
@@ -290,7 +282,11 @@ function DisplayCreateEvent() {
             </section>
 
             <section className="w-full h-[30%] flex flex-col gap-2 justify-center items-center mt-6">
-                <label htmlFor="upload" className="w-full h-[20vh] border-[1px] border-zinc-300 rounded-lg flex justify-center items-center cursor-pointer">
+                <label htmlFor="upload-auct-cover"
+                    className="w-full h-[20vh] 
+                                border-[1px] border-zinc-300 
+                                rounded-lg flex justify-center 
+                                items-center cursor-pointer">
                     {imageSrc ? (
                         <img src={imageSrc} alt="Capa do leilão" className="w-full h-full object-cover rounded-lg" />
                     ) : (
@@ -302,10 +298,10 @@ function DisplayCreateEvent() {
                 </label>
                 <input
                     type="file"
-                    id="upload"
+                    id="upload-auct-cover"
                     accept="image/*"
                     style={{ display: 'none' }}
-                    onChange={handleImageChange}
+                    onChange={(e) => handleImageChange(e, setImageSrc)}
                 />
             </section>
 

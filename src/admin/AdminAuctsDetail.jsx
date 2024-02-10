@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import AssideAdmin from "./asside/AssideAdmin";
 import NavAdmin from "./navigation/NavAdmin";
 import CardAuctsDetails from "./cards/cardAuctsDetails";
@@ -50,33 +50,29 @@ function AuctsDetail() {
                     handleClick("Produtos - Lista");
                     setMobileNavOpen(false);
                   }}
-                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                    activeComponent === "Produtos - Lista" ? "bg-white" : ""
-                  }`}
+                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos - Lista" ? "bg-white" : ""
+                    }`}
                 >
                   <span className="p-6">Produtos - Lista</span>
                 </button>
                 <button
                   onClick={() => handleClick("Produtos Leiloados")}
-                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                    activeComponent === "Produtos Leiloados" ? "bg-white" : ""
-                  }`}
+                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos Leiloados" ? "bg-white" : ""
+                    }`}
                 >
                   <span className="p-6 ">Produtos Leiloados</span>
                 </button>
                 <button
                   onClick={() => handleClick("Produtos sem Lance")}
-                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                    activeComponent === "Produtos sem Lance" ? "bg-white" : ""
-                  }`}
+                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos sem Lance" ? "bg-white" : ""
+                    }`}
                 >
                   <span className="p-6 ">Produtos sem Lance</span>
                 </button>
                 <button
                   onClick={() => handleClick("Visitas")}
-                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                    activeComponent === "Visitas" ? "bg-white" : ""
-                  }`}
+                  className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Visitas" ? "bg-white" : ""
+                    }`}
                 >
                   <span className="p-6 "> Visitas</span>
                 </button>
@@ -85,33 +81,29 @@ function AuctsDetail() {
             <nav className="lg:flex hidden bg-[#EEF1F6] w-[98%] text-[#51586B] text-[14px font-semibold]">
               <button
                 onClick={() => handleClick("Produtos - Lista")}
-                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                  activeComponent === "Produtos - Lista" ? "bg-white" : ""
-                }`}
+                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos - Lista" ? "bg-white" : ""
+                  }`}
               >
                 <span className="p-6 ">Produtos - Lista</span>
               </button>
               <button
                 onClick={() => handleClick("Produtos Leiloados")}
-                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                  activeComponent === "Produtos Leiloados" ? "bg-white" : ""
-                }`}
+                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos Leiloados" ? "bg-white" : ""
+                  }`}
               >
                 <span className="p-6 ">Produtos Leiloados</span>
               </button>
               <button
                 onClick={() => handleClick("Produtos sem Lance")}
-                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                  activeComponent === "Produtos sem Lance" ? "bg-white" : ""
-                }`}
+                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Produtos sem Lance" ? "bg-white" : ""
+                  }`}
               >
                 <span className="p-6 ">Produtos sem Lance</span>
               </button>
               <button
                 onClick={() => handleClick("Visitas")}
-                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${
-                  activeComponent === "Visitas" ? "bg-white" : ""
-                }`}
+                className={`p-2 border border-solid border-gray-300 rounded-sm focus:outline-none ${activeComponent === "Visitas" ? "bg-white" : ""
+                  }`}
               >
                 <span className="p-6 "> Visitas</span>
               </button>
