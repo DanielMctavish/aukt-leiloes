@@ -38,7 +38,7 @@ function DisplayTableProducts() {
 
     //VALIDAR VALORES DOS CAMPOS..................................................................................................................
     const validateFields = (field, index) => {
-        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[200px] justify-between"
+        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[200px] min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between"
 
         if (index === 3 || index === 4 || index === 5 || index === 7 || index === 8) {
 
@@ -71,7 +71,7 @@ function DisplayTableProducts() {
 
                 </div>
 
-                <div className="w-full flex flex-col">
+                <div className="w-full flex flex-col gap-1">
 
                     {products.values.map((value, index) => (
 

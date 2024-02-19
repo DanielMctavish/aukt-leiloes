@@ -42,7 +42,7 @@ function AssideAdvertiser(props) {
     setIsSidebarOpen(false);
   }
 
-  const handleLogoutAdveriser = ()=>{
+  const handleLogoutAdveriser = () => {
     localStorage.removeItem("advertiser-session-aukt")
     navigate("/")
   }
@@ -86,6 +86,14 @@ function AssideAdvertiser(props) {
               >
                 <Group style={iconStyle} />
                 <span className="mt-1 text-xs">Leilões</span>
+              </button>
+
+              <button
+                onClick={() => handleClick("/admin/advertisers")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Group style={iconStyle} />
+                <span className="mt-1 text-xs">Arremates</span>
               </button>
 
               <button
@@ -168,6 +176,15 @@ function AssideAdvertiser(props) {
         <button
           id="menu-4"
           className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/advertiser/auctions")}
+        >
+          <Group />
+          <span>Arremates</span>
+        </button>
+
+        <button
+          id="menu-5"
+          className="w-full flex justify-between items-center p-2 text-white"
           onClick={() => handleClick("/advertiser/clients")}
         >
           <Group />
@@ -175,7 +192,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-5"
+          id="menu-6"
           className="w-full flex justify-between items-center p-2 text-white"
           onClick={() => handleClick("/advertiser/wallet")}
         >
@@ -184,7 +201,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-5"
+          id="menu-7"
           className="w-full flex justify-between items-center p-2 text-white"
           onClick={() => handleClick("/advertiser/templates")}
         >
@@ -197,21 +214,23 @@ function AssideAdvertiser(props) {
         </div>
 
         <button
-          id="menu-6"
+          id="menu-8"
           className="w-full flex justify-between items-center p-2 text-white mt-6"
           onClick={() => handleClick("/advertiser/profile")}
         >
           <Person />
           <span>Perfil</span>
         </button>
+
         <button
-          id="menu-7"
+          id="menu-9"
           onClick={handleLogoutAdveriser}
           className="w-full flex justify-between items-center p-2 text-white"
         >
           <Logout />
           <span>Logout</span>
         </button>
+
       </nav>
     </div>
   );

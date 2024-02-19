@@ -45,7 +45,7 @@ export const AdvertiserCreateAuct = () => {
         refGeneralBody.current.style.display = 'none'
         loadScreen.current.style.display = 'flex'
         //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
-
+ 
         const formData = new FormData();
         formData.append("cover-auct-image", getCurrentFile());
         let currentUploadedImage
