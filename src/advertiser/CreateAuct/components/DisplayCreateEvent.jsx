@@ -1,16 +1,29 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { Close, PhotoCamera } from "@mui/icons-material"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { handleImageChange } from "../functions/handleImageChange";
 
-function DisplayCreateEvent() {
+function DisplayCreateEvent({ currentAuct }) {
     const [imageSrc, setImageSrc] = useState(null);
     const [tagList, setTagList] = useState([])
     const refTitle = useRef()
     const refCategories = useRef()
 
     const dispatch = useDispatch()
+
+    useEffect(() => {
+
+        if (currentAuct) {
+            refTitle.current.value = currentAuct.title
+            refCategories.current.value = currentAuct.categorie
+            setTagList(currentAuct.tags)
+            setImageSrc(currentAuct.auct_cover_img)
+        }
+
+    }, [])
 
 
     //REGISTRANDO TAGS PARA UMA LISTA
@@ -47,7 +60,7 @@ function DisplayCreateEvent() {
 
 
     return (
-        <div className="w-[30%] h-[100%] bg-white rounded-md p-2
+        <div className="min-w-[30%] h-[100%] bg-white rounded-md p-2
         hover:z-[77] hover:scale-[1.02] transition-[1s]  overflow-y-auto
         shadow-2xl shadow-[#00000039] relative">
             <h2 className="font-bold absolute left-2 top-2">Criação de Evento</h2>
@@ -55,7 +68,9 @@ function DisplayCreateEvent() {
             <section className="w-full h-[20%] flex flex-col gap-2 justify-center items-center mt-4">
                 <div className="w-[80%] flex flex-col gap-3">
                     <span>Títullo do leilão</span>
-                    <input onChange={handleDispatchTitle} ref={refTitle} type="text" className="w-full h-[40px] p-2 border-[1px] border-zinc-300 bg-transparent" />
+                    <input onChange={handleDispatchTitle} ref={refTitle}
+                        type="text"
+                        className="w-full h-[40px] p-2 border-[1px] border-zinc-300 bg-transparent" />
                 </div>
             </section>
             {/* TAGS */}
@@ -81,7 +96,10 @@ function DisplayCreateEvent() {
             <section className="w-full h-[26%] flex flex-col gap-2 justify-center items-center mt-6">
                 <div className="w-[80%] flex flex-col gap-3">
                     <span>Categoria do leilão</span>
-                    <select onChange={handleDispatchCategories} ref={refCategories} className="w-full bg-transparent h-[40px] p-2 border-[1px] border-zinc-300">
+                    <select onChange={handleDispatchCategories}
+                        ref={refCategories}
+                        defaultValue={refCategories.current ? refCategories.current.value : ""}
+                        className="w-full bg-transparent h-[40px] p-2 border-[1px] border-zinc-300">
                         <option value="">selecione</option>
                         <option value="Abajur">Abajur</option>
                         <option value="Acessórios femininos">Acessórios femininos</option>

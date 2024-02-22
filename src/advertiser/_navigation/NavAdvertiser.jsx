@@ -1,21 +1,22 @@
-import {  ArrowDropDown } from "@mui/icons-material";
+/* eslint-disable react/prop-types */
+import { ArrowDropDown } from "@mui/icons-material";
 import UserInfor from "../data/userInfor";
 //import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useEffect, useState } from "react";
 
-function NavAdvertiser() {
-  const [AdvertiserInfor,setAdvertiserInfor] = useState({})
+function NavAdvertiser({ path }) {
+  const [AdvertiserInfor, setAdvertiserInfor] = useState({})
 
-  useEffect(()=>{
+  useEffect(() => {
     const currentAdvertiserSession = localStorage.getItem("advertiser-session-aukt")
 
-    if(currentAdvertiserSession){
+    if (currentAdvertiserSession) {
       const currentAdvertiser = JSON.parse(currentAdvertiserSession)
       setAdvertiserInfor(currentAdvertiser)
     }
 
-  },[])
+  }, [])
 
   return (
     <nav
@@ -60,6 +61,10 @@ function NavAdvertiser() {
         >
           <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
             Bem vindo, {AdvertiserInfor.name}!
+          </span>
+
+          <span className="flex text-zinc-600 text-[12px]">
+            {path}
           </span>
 
           <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">

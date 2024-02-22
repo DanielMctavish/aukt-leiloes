@@ -8,10 +8,7 @@ import axios from "axios"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
 import NavAdvertiser from "../_navigation/NavAdvertiser"
 import DisplayCreateEvent from "./components/DisplayCreateEvent"
-import DisplayTableProducts from "./components/DisplayTableProducts"
-import DisplayProductsCsv from "./components/DisplayProductsCsv"
 import DisplayInformations from "./components/DisplayInformations"
-import DisplayLocalHour from "./components/DisplayLocalHour"
 import DisplayTermsConditions from "./components/DisplayTermsConditions"
 import DisplayMethodsPayments from "./components/DisplayMethodsPayments"
 import DisplayLimitations from "./components/DisplayLimitations"
@@ -20,8 +17,11 @@ import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
 
 
-export const AdvertiserCreateAuct = () => {
+export const AdvertiserEdtiAuct = () => {
+
     const state = useSelector(state => state.aucts)
+    const stateAuctToEdit = useSelector(state => state.auctEdit)
+
     const [progressBar, setProgressBar] = useState(0)
     const [aucts, setAucts] = useState([])
 
@@ -35,17 +35,19 @@ export const AdvertiserCreateAuct = () => {
 
         setAucts(state)
 
-    }, [state])
+    }, [state, stateAuctToEdit])
+    
 
+    const handleEditAuct = async () => {
 
-
-    const handleSaveAuct = async () => {
+        console.log('observando update dos states -> ', state)
+        return
         //Load Operation -------------------------------------------------------------------------------------------------------------------------------
 
         refGeneralBody.current.style.display = 'none'
         loadScreen.current.style.display = 'flex'
         //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
- 
+
         const formData = new FormData();
         formData.append("cover-auct-image", getCurrentFile());
         let currentUploadedImage
@@ -67,8 +69,8 @@ export const AdvertiserCreateAuct = () => {
 
         let currentAuctId
         let currentAuctNanoId
-
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/create-auct`, {
+        // UPDATE AUCT
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/edit-auct`, {
             creator_id: getAdvertiser.data.id,
             advertiser_id: getAdvertiser.data.id,
             title: aucts.title,
@@ -85,60 +87,23 @@ export const AdvertiserCreateAuct = () => {
             product_timer_seconds: 30
         }).then(response => {
             //console.log('resposta ao criar leilão -> ', response.data);
+            setProgressBar(100)
             currentAuctId = response.data.currentAuct.id
             currentAuctNanoId = response.data.currentAuct.nano_id
         }).catch(err => {
             console.log('erro ao criar leilão -> ', err.response);
         })
-        // create Products Operation
-        const productsCount = aucts.product_list.length;
-        let productsCreated = 0;
-
-
-
-        for (const product of aucts.product_list) {
-            console.log('observando produto data -> ', product);
-
-            try {
-                const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create`, {
-                    advertiser_id: getAdvertiser.data.id,
-                    auct_nanoid: currentAuctNanoId,
-                    auct_id: currentAuctId,
-                    title: product.title,
-                    description: product.description,
-                    categorie: product.categorie,
-                    initial_value: product.initial_value,
-                    final_value: product.final_value,
-                    reserve_value: product.reserve_value,
-                    color: product.color,
-                    width: product.width,
-                    height: product.height,
-                    weight: product.weight,
-                    cover_img_url: "string",
-                    highlight_product: true
-                });
-
-                // Atualiza o estado da barra de progresso
-                productsCreated++;
-                const progress = Math.floor((productsCreated / productsCount) * 100);
-                setProgressBar(progress);
-
-                //console.log('resposta ao criar produto -> ', response.data);
-            } catch (err) {
-                console.log('erro ao criar produto -> ', err);
-            }
-        }
+        
 
         refGeneralBody.current.style.display = 'flex';
         loadScreen.current.style.display = 'none';
         navigate("/advertiser/auctions")
-
     }
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
 
-            <AssideAdvertiser MenuSelected="menu-2" />
+            <AssideAdvertiser MenuSelected="menu-3" />
 
             <section ref={loadScreen} className="w-full h-[100vh] hidden flex-col justify-center items-center overflow-y-auto bg-zinc-800 gap-1">
                 <h1>criando leilão! aguarde... </h1>
@@ -151,21 +116,17 @@ export const AdvertiserCreateAuct = () => {
             </section>
 
             <section ref={refGeneralBody} className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto text-zinc-600 gap-1">
-                <NavAdvertiser path='anunciante > criar leilão'  />
+                <NavAdvertiser path='anunciante > leilões > editar leilão' />
 
-                <section className="w-full min-h-[60%] relative p-3 flex gap-2">
-                    <DisplayCreateEvent />
-                    <DisplayTableProducts />
+                <section className="w-full min-h-[60%] relative p-3 flex justify-between gap-2">
+
+                    <DisplayCreateEvent currentAuct={stateAuctToEdit} />
+                    <DisplayInformations currentAuct={stateAuctToEdit} />
+
                 </section>
 
-                <section className="w-full min-h-[40vh] p-3 flex gap-2">
-                    <DisplayProductsCsv />
-                    <DisplayInformations />
-                    <DisplayLocalHour />
-                </section>
-
-                <section className="w-full min-h-[40vh] p-3 flex gap-2">
-                    <DisplayTermsConditions />
+                <section className="w-full min-h-[60%] relative p-3 flex justify-between gap-2">
+                    <DisplayTermsConditions currentAuct={stateAuctToEdit}/>
                 </section>
 
                 <section className="w-full min-h-[20vh]
@@ -177,7 +138,7 @@ export const AdvertiserCreateAuct = () => {
                 </section>
 
                 <section className="w-full min-h-[10vh] p-2 flex justify-center items-center">
-                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md">confirmar</button>
+                    <button onClick={handleEditAuct} className="w-[160px] h-[50px] bg-[#012038] text-white rounded-md">confirmar edição</button>
                 </section>
 
             </section>

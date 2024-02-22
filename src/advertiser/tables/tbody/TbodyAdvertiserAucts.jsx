@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import dayjs from "dayjs"
 import axios from "axios"
 import PaginationAdvertiser from "../Pagination";
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,8 @@ function TbodyAdvertiserAucts() {
   const navigate = useNavigate();
   const dispatch = useDispatch()
 
+  const currentAdvertiserStorage = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+
   useEffect(() => {
 
     getAuctionsList()
@@ -26,8 +29,8 @@ function TbodyAdvertiserAucts() {
 
   const getAuctionsList = async () => {
 
-    const currentAdvertiserStorage = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
     const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
+
     await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${getAdvertiser.data.id}`).then(response => {
 
       getSumProducts(response.data)
@@ -77,70 +80,76 @@ function TbodyAdvertiserAucts() {
 
   return (
     <>
-      <tbody>
+      <div className="w-full">
         {currentAucts.length === 0 ?
-          <div className="">nenhum leilão criado</div>
-          : currentAucts.map((auction, index) => (
-            <tr
-              key={index}
-              className={`border-b-[.4px] hover:bg-[#223a54]/70
-            transition-all hover:shadow-lg shadow-[#00000077]  
-            hover:text-white border-zinc-300 
-            cursor-pointer ${index === currentAucts.length - 1 ? "border-b-0" : ""
-                }`}
-              onClick={() => handleClick("/advertiser/auctions-details", auction.id)}
-            >
-              <td className="p-2 text-center text-[14px] font-bold">
-                {index + 1}
-              </td>
-              <td className="p-2 text-center text-[14px] font-bold">
-                {auction.title}
-              </td>
-              <td className=" text-center">
-                <span className="text-zinc-400 font-bold text-[14px]">
+          <span className="">nenhum leilão criado</span>
+          : currentAucts.map((auction, index) => {
+
+            return (
+              <div
+                key={index}
+                className="w-full flex justify-between items-center gap-1 text-[12px] p-2 cursor-pointer hover:bg-[#2f7fa48d] hover:text-white"
+                onClick={() => handleClick("/advertiser/auctions-details", auction.id)}
+              >
+                <div className="flex items-center justify-between min-w-[70px] p-2">
+                  {index + 1}
+                </div>
+
+                <div className="flex items-center justify-between min-w-[180px] max-w-[180px]  p-2 overflow-x-auto">
+                  {auction.title}
+                </div>
+
+                <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden font-bold">
                   {auction.nano_id}
-                </span>
-              </td>
-              <td className="p-2 text-center text-[14px] font-bold">
-                {auction.advertiser_id}
-              </td>
-              <td className="p-2 text-center text-[14px] font-bold">
-                {auction.created_at}
-              </td>
-              <td className="p-2 text-center text-[14px] font-bold">
-                {auction.product_list.length}
-              </td>
-              <td className="p-2 text-center">
-                <span
-                  className={`font-bold rounded-full p-2 text-[12px] px-4 cursor-pointer ${getStatusColor(
-                    auction.status
-                  )}`}
-                >
-                  {auction.status}
-                </span>
-              </td>
-              <td className="text-center text-[14px] font-bold">
-                {auction.value}
-              </td>
-              <td className="text-center text-[14px] font-bold">
-                {productsValueList[index]}
-              </td>
-            </tr>
-          ))}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colSpan="8" className="p-4">
-            <div className="flex lg:justify-center items-center">
-              <PaginationAdvertiser
-                currentPage={currentPage}
-                totalPages={Math.ceil(Aucts.length / itemsPerPage)}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          </td>
-        </tr>
-      </tfoot>
+                </div>
+
+                <div className="flex items-center justify-start gap-2 min-w-[180px] p-1 overflow-hidden">
+                  <img src={auction.Advertiser.url_profile_cover} alt="perfil do anunciante" className=" flex w-[20px] h-[20px] object-cover rounded-full" />
+                  <span>{auction.Advertiser.email}</span>
+                </div>
+
+                <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden text-zinc-400">
+                  {dayjs(auction.created_at).format("DD MM YYYY - HH:mm")}
+                </div>
+
+                <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden">
+                  {auction.product_list.length}
+                </div>
+
+                <div className="min-w-[180px] p-2 overflow-hidden flex justify-center items-center">
+                  <span
+                    className={`font-bold rounded-full p-[1px] text-[12px] px-4 cursor-pointer ${getStatusColor(
+                      auction.status
+                    )}`}
+                  >
+                    {auction.status}
+                  </span>
+                </div>
+
+                <div className="text-center text-[14px] font-bold min-w-[180px] p-2 overflow-hidden">
+                  {auction.value}
+                </div>
+
+                <div className="text-center text-[14px] font-bold min-w-[180px] p-2 overflow-hidden">
+                  {productsValueList[index]}
+                </div>
+
+              </div>
+            )
+          })}
+      </div>
+
+      <div>
+
+        <div className=" w-full flex lg:justify-center items-center">
+          <PaginationAdvertiser
+            currentPage={currentPage}
+            totalPages={Math.ceil(Aucts.length / itemsPerPage)}
+            onPageChange={handlePageChange}
+          />
+        </div>
+
+      </div>
     </>
   );
 }

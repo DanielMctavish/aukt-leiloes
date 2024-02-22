@@ -2,17 +2,20 @@
 import { useEffect, useState } from "react";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Timelapse, NoPhotography } from "@mui/icons-material"
+import { Timelapse, NoPhotography, EditNote } from "@mui/icons-material"
 import axios from "axios"
 import dayjs from "dayjs"
 import "./StyleAuctDetails.css"
+
+import { editAuct } from "../../../features/auct/AuctToEdit";
 
 function AdvertiserAuctDetails() {
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
     const [currentAdvertiser, setCurrentAdvertiser] = useState({})
     const state = useSelector(state => state)
+    const dispatch = useDispatch()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -23,7 +26,7 @@ function AdvertiserAuctDetails() {
 
         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${state.selectedAuct}`)
             .then(async response => {
-                console.log('leilão atual - >', response.data);
+                // console.log('leilão atual - >', response.data);
 
                 await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?advertiser_id=${response.data.advertiser_id}`)
                     .then(async response => {
@@ -37,11 +40,17 @@ function AdvertiserAuctDetails() {
                 await setCurrentAuct(response.data)
 
             }).catch(err => {
-                console.log('err get auct >>', err.response)
+                console.log('err get auct >>', err.response.status)
+                if (err.response.status === 404) {
+                    navigate('/advertiser/auctions')
+                }
             })
 
+    }
 
-
+    async function editCurrentAuct() {
+        dispatch(editAuct(currentAuct))
+        navigate('/advertiser/edit-auct')
     }
 
     const redirectToProductDetails = (product_id) => {
@@ -54,26 +63,26 @@ function AdvertiserAuctDetails() {
             <AssideAdvertiser MenuSelected="menu-3" />
 
             <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
-                <NavAdvertiser />
+                <NavAdvertiser path={"anunciante > leilões > detalhes"} />
 
                 <div className="w-full h-[100vh] relative
                flex flex-col justify-start items-center bg-[#091925]">
 
                     {/* HEADER LEILÃO INFORMACIONAL */}
                     <section className="w-[97%] h-[27vh] bg-white rounded-md mt-3 relative flex flex-col justify-center gap-6 items-center overflow-hidden">
-                        <img src={currentAuct.auct_cover_img} alt="auct-cover" className="object-cover cover-auct-image absolute opacity-50" />
+                        <img src={currentAuct.auct_cover_img} alt="auct-cover" className="object-cover cover-auct-image absolute opacity-20" />
 
                         <h1 style={{ textShadow: "2px 2px 12px black" }} className="text-[18px] font-bold absolute left-1 top-1">{currentAuct.nano_id}</h1>
                         <div className="absolute text-zinc-700 flex right-1 top-1 gap-2 z-[99]">
-                            <button>editar</button>
-                            <button>excluir</button>
+                            <button onClick={editCurrentAuct} className="w-[100px] h-[30px] flex justify-center items-center bg-zinc-700 rounded-md text-white text-[12px]">editar</button>
+                            <button className="w-[100px] h-[30px] flex justify-center items-center bg-red-700 rounded-md text-white text-[12px]">excluir</button>
                         </div>
 
                         <div className="flex gap-2 z-[99]">
                             <img src={currentAdvertiser.url_profile_cover} alt="" className="rounded-md w-[80px] h-[80px] object-cover" />
                             <div className="flex flex-col text-zinc-900 font-bold">
                                 <span className="text-[18px]">{currentAuct.title}</span>
-                                <div>Promotor: <span className="text-[#00A3FF]">{currentAdvertiser.email}</span></div>
+                                <div>Promotor: <span style={{ textShadow: '2px 2px 6px #0000003d' }} className="text-[#315fa3]">{currentAdvertiser.email}</span></div>
                                 <div className="flex gap-2">
                                     {currentAuct.auct_dates ?
                                         currentAuct.auct_dates.map((date, index) => (
@@ -128,21 +137,25 @@ function AdvertiserAuctDetails() {
                                     <div className="w-full flex hover:border-[1px] border-zinc-300 cursor-pointer p-1 rounded-lg"
                                         onClick={() => redirectToProductDetails(product.id)}
                                         key={index}>
-                                        <span>
+                                        <span className="text-[16px] font-bold w-[20px] flex justify-center items-center overflow-hidden p-2">
+                                            {index + 1}
+                                        </span>
+                                        <span className="text-[16px] font-bold w-screen flex justify-center items-center overflow-hidden p-2">
+                                            {product.title}
+                                        </span>
+                                        {/* <span className="text-[16px] font-bold w-screen flex justify-start items-center overflow-hidden">
+                                            R$ {product.initial_value.toFixed(2)}
+                                        </span> */}
+                                        <span className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
                                             {product.cover_img_url === "string" ? <NoPhotography /> :
                                                 <img src={product.cover_img_url} alt=""
                                                     className="min-w-[40px] min-h-[40px] bg-[#474747] object-cover rounded-full" />
                                             }
 
                                         </span>
-                                        <span className="text-[16px] font-bold w-screen flex justify-center items-center overflow-hidden p-2">
-                                            {product.title}
+                                        <span className="min-w-[40px] min-h-[40px] flex justify-center items-center">
+                                            <EditNote style={{ fontSize: "30px" }} />
                                         </span>
-                                        <span className="text-[16px] font-bold w-screen flex justify-start items-center overflow-hidden">
-                                            R$ {product.initial_value.toFixed(2)}
-                                        </span>
-                                        <button className="min-w-[120px]">editar</button>
-                                        <button className="min-w-[120px]">excluir</button>
                                     </div>
                                 ))
                             }
@@ -153,8 +166,6 @@ function AdvertiserAuctDetails() {
                 </div>
 
             </section>
-
-
         </div>
     )
 }

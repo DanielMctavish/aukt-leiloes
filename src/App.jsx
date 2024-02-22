@@ -25,6 +25,7 @@ import AdvertiserProfile from "./advertiser/profile/AdvertiserProfile";
 import AdminLogin from "./access/admin/AdminLogin";
 import AdvertiserAuctDetails from "./advertiser/auctions/details/AdvertiserAuctDetails";
 import AdvertiserProductDetails from "./advertiser/auctions/details/AdvertiserProductDetails";
+import { AdvertiserEdtiAuct } from "./advertiser/CreateAuct/AdvertiserEdtiAuct";
 
 
 function App() {
@@ -60,6 +61,11 @@ function App() {
           <Route
             Component={AdvertiserCreateAuct}
             path="/advertiser/create-auct"
+            exact
+          />
+          <Route
+            Component={AdvertiserEdtiAuct}
+            path="/advertiser/edit-auct"
             exact
           />
           <Route

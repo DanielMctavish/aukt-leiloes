@@ -52,7 +52,7 @@ function AssideAdvertiser(props) {
   }
 
   return (
-    <div>
+    <div className="flex">
       <button
         onClick={toggleSidebar}
         className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
@@ -135,7 +135,7 @@ function AssideAdvertiser(props) {
         </nav>
       ) : null}
       <nav
-        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#012038] flex-col justify-start items-center gap-3`}
+        className={` lg:min-w-[273px] h-[100vh] lg:block hidden bg-[#012038] flex-col justify-start items-center gap-3`}
       >
         <section className="w-full flex justify-center items-center p-2">
           <img
