@@ -6,72 +6,53 @@ function TableAdvertiserAucts() {
 
 
   return (
-    <table className="w-[98%] lg:bg-white lg:p-4 lg:ml-2">
-      <thead>
-        <tr className="border-b-[.4px] border-zinc-300">
+    <section className="w-full flex flex-col justify-start items-center overflow-x-auto absolute">
 
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              Nº
-              <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              Título <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="lg:px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              ID-Leilão
-              <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              Anunciante <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              Publicação <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between">
-              Produtos <ArrowDropDown />
-            </div>
-          </th>
-         
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between" >
-              Status <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between" >
-              Valor (Lucro) <ArrowDropDown />
-            </div>
-          </th>
-
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            <div className="flex items-center justify-between" >
-              Previsão <ArrowDropDown />
-            </div>
-          </th>
+      <div className="w-full flex justify-between items-center gap-1 text-[12px] p-2">
 
 
-        </tr>
-      </thead>
+        <div className="flex items-center justify-between min-w-[70px] p-2">
+          Nº
+          <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2">
+          Título <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2">
+          ID-Leilão
+          <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2">
+          Anunciante <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2">
+          Publicação <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2">
+          Produtos <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2" >
+          Status <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2" >
+          Valor (Lucro) <ArrowDropDown />
+        </div>
+
+        <div className="flex items-center justify-between min-w-[180px] overflow-hidden p-2" >
+          Previsão <ArrowDropDown />
+        </div>
+
+      </div>
 
       <TbodyAdvertiserAucts />
-    </table>
+    </section>
   );
 }
 

@@ -1,10 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
-function DisplayTermsConditions() {
+function DisplayTermsConditions({currentAuct}) {
     const refTermsConditions = useRef()
     const dispatch = useDispatch()
+
+    useEffect(()=>{
+
+        if(currentAuct) refTermsConditions.current.value = currentAuct.terms_conditions
+
+    },[])
+
+
     const handleDispatchTermsConditions = () => {
         dispatch(addAuct({ terms_conditions: refTermsConditions.current.value }))
     }

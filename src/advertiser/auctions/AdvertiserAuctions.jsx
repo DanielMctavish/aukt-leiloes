@@ -22,8 +22,8 @@ export const AdvertiserAuctions = () => {
     const getAuctionsList = async (currentLocalAdvertiser) => {
 
         const currentAdvertiserStorage = JSON.parse(currentLocalAdvertiser)
-        const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}
-        /advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
+        const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
+
         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${getAdvertiser.data.id}`)
             .then(response => {
                 setAucts(response.data)
@@ -35,10 +35,10 @@ export const AdvertiserAuctions = () => {
     }
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
+        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative overflow-hidden">
             <AssideAdvertiser MenuSelected="menu-3" />
             <section className="w-full h-[100vh] text-zinc-600 flex flex-col justify-start items-center">
-                <NavAdvertiser />
+                <NavAdvertiser path='anunciante > leilões'/>
                 {/* PESQUISAS */}
                 <div className="w-[97%] flex justify-start p-3">
                     <input type="text" placeholder="pesquisar ID" className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />
@@ -56,7 +56,9 @@ export const AdvertiserAuctions = () => {
                             </div> :
                             
                     } */}
-                    <TableAdvertiserAucts />
+                    <div className="w-[99%] bg-[#4e7fd9]/10 flex justify-start items-start overflow-x-auto relative">
+                        <TableAdvertiserAucts />
+                    </div>
                 </section>
             </section>
         </div>
