@@ -3,6 +3,7 @@ import { productSliceReducer } from './product/Products';
 import { auctSliceReducer } from './auct/Auct';
 import { auctSelectedSliceReducer } from './auct/SelectedAuct';
 import { auctEditReducer } from './auct/AuctToEdit';
+import { auctListReducer } from './auct/AuctList';
 
 
 const store = configureStore({
@@ -10,7 +11,8 @@ const store = configureStore({
         products: productSliceReducer,
         aucts: auctSliceReducer,
         selectedAuct: auctSelectedSliceReducer,
-        auctEdit: auctEditReducer
+        auctEdit: auctEditReducer,
+        auctList: auctListReducer
     }
 })
 

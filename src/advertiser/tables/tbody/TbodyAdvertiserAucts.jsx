@@ -1,49 +1,43 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import dayjs from "dayjs"
-import axios from "axios"
 import PaginationAdvertiser from "../Pagination";
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectedAuct } from "../../../features/auct/SelectedAuct";
 
 function TbodyAdvertiserAucts() {
-  const [Aucts, setAucts] = useState([])
+  const [auctList, setAucts] = useState([])
+  const stateAucts = useSelector(state => state.auctList)
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+
   const [productsValueList, setProductsValueList] = useState([])
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
+    if (!currentLocalAdvertiser) {
+      navigate('/advertiser/login')
+    }
+
+    setAucts(stateAucts)
+    getSumProducts()
+
+  }, [stateAucts])
+
+
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAucts = Aucts.slice(indexOfFirstItem, indexOfLastItem);
-  const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const currentAucts = auctList.slice(indexOfFirstItem, indexOfLastItem)
 
-  const currentAdvertiserStorage = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
 
-  useEffect(() => {
+  const getSumProducts = () => {
 
-    getAuctionsList()
-
-  }, [])
-
-  const getAuctionsList = async () => {
-
-    const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
-
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${getAdvertiser.data.id}`).then(response => {
-
-      getSumProducts(response.data)
-      setAucts(response.data)
-
-    }).catch(err => {
-      console.log('erro ao tentar lista leilões >>', err.response)
-    })
-
-  }
-
-  const getSumProducts = (aucts) => {
-    const sumProductsValues = aucts.map(auct => {
+    const sumProductsValues = auctList.map(auct => {
       return auct.product_list.reduce((total, product) => {
         return total + product.initial_value;
       }, 0);
@@ -141,10 +135,10 @@ function TbodyAdvertiserAucts() {
 
       <div>
 
-        <div className=" w-full flex lg:justify-center items-center">
+        <div className=" w-full flex lg:justify-center items-center p-3">
           <PaginationAdvertiser
             currentPage={currentPage}
-            totalPages={Math.ceil(Aucts.length / itemsPerPage)}
+            totalPages={Math.ceil(auctList.length / itemsPerPage)}
             onPageChange={handlePageChange}
           />
         </div>

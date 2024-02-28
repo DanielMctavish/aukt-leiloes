@@ -1,14 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
-import axios from "axios"
+import { useDispatch } from "react-redux"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
 import NavAdvertiser from "../_navigation/NavAdvertiser"
 import TableAdvertiserAucts from "../tables/TableAdvertiserAucts"
 import { useNavigate } from "react-router-dom"
+import getAuctionsList from "../functions/GetAuctionsList"
+import { listAuct } from "../../features/auct/AuctList"
 
 
 export const AdvertiserAuctions = () => {
-    const [, setAucts] = useState([])
+    const [auctList, setAucts] = useState([])
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     useEffect(() => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
@@ -16,29 +20,22 @@ export const AdvertiserAuctions = () => {
             navigate('/advertiser/login')
         }
 
-        getAuctionsList(currentLocalAdvertiser)
-    })
+        getAuctionsList(currentLocalAdvertiser, setAucts)
+    }, [])
 
-    const getAuctionsList = async (currentLocalAdvertiser) => {
+    useEffect(() => {
 
-        const currentAdvertiserStorage = JSON.parse(currentLocalAdvertiser)
-        const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
+        dispatch(listAuct(auctList))
 
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${getAdvertiser.data.id}`)
-            .then(response => {
-                setAucts(response.data)
-            }).catch(err => {
-                console.log('erro ao tentar lista leilões >>', err.response)
-            })
+    }, [auctList])
 
 
-    }
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative overflow-hidden">
             <AssideAdvertiser MenuSelected="menu-3" />
             <section className="w-full h-[100vh] text-zinc-600 flex flex-col justify-start items-center">
-                <NavAdvertiser path='anunciante > leilões'/>
+                <NavAdvertiser path='anunciante > leilões' />
                 {/* PESQUISAS */}
                 <div className="w-[97%] flex justify-start p-3">
                     <input type="text" placeholder="pesquisar ID" className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />

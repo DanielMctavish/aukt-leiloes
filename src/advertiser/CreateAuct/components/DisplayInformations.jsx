@@ -4,23 +4,24 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 
-function DisplayInformations({ currentAuct }){
+function DisplayInformations({ currentAuct }) {
     const refInformations = useRef()
     const dispatch = useDispatch()
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        if(currentAuct){
+        if (currentAuct) {
             refInformations.current.value = currentAuct.descriptions_informations
+            dispatch(addAuct({ descriptions_informations: currentAuct.descriptions_informations }))
         }
 
-    },[])
+    }, [])
 
-    const handleDispatchInformations = ()=>{
+    const handleDispatchInformations = () => {
         dispatch(addAuct({ descriptions_informations: refInformations.current.value }))
     }
 
-    return(
+    return (
         <div className="w-full h-[100%] bg-white rounded-md
         hover:z-[77] hover:scale-[1.02] transition-[1s] 
         shadow-2xl shadow-[#00000039] p-3">

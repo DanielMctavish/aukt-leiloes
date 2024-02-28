@@ -36,7 +36,7 @@ export const AdvertiserEdtiAuct = () => {
         setAucts(state)
 
     }, [state, stateAuctToEdit])
-    
+
 
     const handleEditAuct = async () => {
 
@@ -93,7 +93,7 @@ export const AdvertiserEdtiAuct = () => {
         }).catch(err => {
             console.log('erro ao criar leilão -> ', err.response);
         })
-        
+
 
         refGeneralBody.current.style.display = 'flex';
         loadScreen.current.style.display = 'none';
@@ -126,13 +126,13 @@ export const AdvertiserEdtiAuct = () => {
                 </section>
 
                 <section className="w-full min-h-[60%] relative p-3 flex justify-between gap-2">
-                    <DisplayTermsConditions currentAuct={stateAuctToEdit}/>
+                    <DisplayTermsConditions currentAuct={stateAuctToEdit} />
                 </section>
 
                 <section className="w-full min-h-[20vh]
                 justify-between items-center gap-3 
                 p-3 flex">
-                    <DisplayMethodsPayments />
+                    <DisplayMethodsPayments currentAuct={stateAuctToEdit} />
                     <DisplayLimitations />
                     <DisplayDateLimite />
                 </section>

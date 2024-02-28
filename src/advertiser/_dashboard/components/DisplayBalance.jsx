@@ -5,7 +5,7 @@ function DisplayBalance() {
 
     return (
 
-        < div className="w-[80%] lg:w-[20%] lg:h-[90%]
+        < div className="w-full lg:w-[20%] lg:h-[90%]
         flex flex-col justify-center items-start 
         h-[40vh] bg-[#fff] rounded-md shadow-lg 
         shadow-[#17171722] p-3 mb-4 lg:mb-0" >

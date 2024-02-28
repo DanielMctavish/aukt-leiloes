@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
@@ -10,6 +11,7 @@ import dayjs from "dayjs"
 import "./StyleAuctDetails.css"
 
 import { editAuct } from "../../../features/auct/AuctToEdit";
+import AddProductMod from "../mod/AddProductMod";
 
 function AdvertiserAuctDetails() {
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
@@ -17,36 +19,53 @@ function AdvertiserAuctDetails() {
     const state = useSelector(state => state)
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
+    const localAdvertiser = JSON.parse(currentLocalAdvertiser)
 
     useEffect(() => {
-        getCurrentAuctById()
+        if (!currentLocalAdvertiser) {
+            navigate('/advertiser/login')
+        }
+
+        getCurrentAuctById(currentLocalAdvertiser)
     }, [state.selectedAuct])
 
     const getCurrentAuctById = async () => {
 
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${state.selectedAuct}`)
-            .then(async response => {
-                // console.log('leilão atual - >', response.data);
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${state.selectedAuct}`, {
+            headers: {
+                'Authorization': `Bearer ${localAdvertiser.token}`
+            }
+        }).then(async response => {
 
-                await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?advertiser_id=${response.data.advertiser_id}`)
-                    .then(async response => {
+            setCurrentAuct(response.data)
 
-                        await setCurrentAdvertiser(response.data)
+        }).catch(err => {
+            console.log('err get auct >>', err.message)
+            if (err.response.status === 404) {
+                navigate('/advertiser/auctions')
+            }
+        })
 
-                    }).catch(err => {
-                        console.log('err get advertiser >>', err.response)
-                    })
 
-                await setCurrentAuct(response.data)
-
-            }).catch(err => {
-                console.log('err get auct >>', err.response.status)
-                if (err.response.status === 404) {
-                    navigate('/advertiser/auctions')
-                }
-            })
 
     }
+
+    useEffect(() => {
+        const getAdvertiser = async () => {
+            if (currentAuct.advertiser_id)
+                await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?advertiser_id=${currentAuct.advertiser_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localAdvertiser.token}`
+                    }
+                }).then(response => { setCurrentAdvertiser(response.data) }).catch(err => {
+                    console.log('err get advertiser >>', err.message)
+                })
+        }
+        getAdvertiser()
+    }, [currentAuct])
+
+
 
     async function editCurrentAuct() {
         dispatch(editAuct(currentAuct))
@@ -57,12 +76,22 @@ function AdvertiserAuctDetails() {
         navigate(`/advertiser/product-details/${product_id}`)
     }
 
+    const handleShowPhotoAdd = () => {
+
+    }
+
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
 
             <AssideAdvertiser MenuSelected="menu-3" />
 
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
+            <section
+                style={{ backdropFilter: "blur(3px)"}}
+                className="absolute flex justify-center items-center w-full h-[100vh] z-[999]">
+                <AddProductMod />
+            </section>
+
+            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto relative">
                 <NavAdvertiser path={"anunciante > leilões > detalhes"} />
 
                 <div className="w-full h-[100vh] relative
@@ -146,8 +175,11 @@ function AdvertiserAuctDetails() {
                                         {/* <span className="text-[16px] font-bold w-screen flex justify-start items-center overflow-hidden">
                                             R$ {product.initial_value.toFixed(2)}
                                         </span> */}
-                                        <span className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
-                                            {product.cover_img_url === "string" ? <NoPhotography /> :
+                                        <span
+                                            onClick={handleShowPhotoAdd}
+                                            className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
+                                            {product.cover_img_url === "string" ?
+                                                <NoPhotography /> :
                                                 <img src={product.cover_img_url} alt=""
                                                     className="min-w-[40px] min-h-[40px] bg-[#474747] object-cover rounded-full" />
                                             }

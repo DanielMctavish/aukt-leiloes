@@ -21,25 +21,33 @@ function DisplayCreateEvent({ currentAuct }) {
             refCategories.current.value = currentAuct.categorie
             setTagList(currentAuct.tags)
             setImageSrc(currentAuct.auct_cover_img)
+
+            dispatch(addAuct({
+                title: currentAuct.title,
+                categorie: currentAuct.categorie,
+                tags: currentAuct.tags,
+                auct_cover_img: currentAuct.auct_cover_img
+            }))
         }
 
     }, [])
 
+    useEffect(() => {
+        dispatch(addAuct({ tags: tagList }));
+    }, [tagList])
+
 
     //REGISTRANDO TAGS PARA UMA LISTA
 
-    async function HandleCreationTags(event) {
+    function HandleCreationTags(event) {
         const currentTag = event.target.value.split('')
         const currentWord = event.target.value
         const tagsInput = document.querySelector(".tags-input")
 
         if (currentTag[currentTag.length - 1] === ',') {
             //console.log('tag encontrada -> ', currentWord.split(",")[0]);
-            await setTagList(prevArray => [...prevArray, currentWord.split(",")[0]])
-            //console.log('lista de tags ->>', tagList);
-
+            setTagList(prevArray => [...prevArray, currentWord.split(",")[0]])
             tagsInput.value = ''
-            dispatch(addAuct({ tags: tagList }));
         }
 
     }

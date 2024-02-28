@@ -3,6 +3,7 @@ import "./styles/StylesTables.css"
 import { ArrowDropDown } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { HomeMax } from "@mui/icons-material"
 
 function DisplayTableProducts() {
     const state = useSelector(state => state.products.products)
@@ -61,11 +62,35 @@ function DisplayTableProducts() {
         )
     }
 
+    // Maximizar tabela
+
+    const refTableWindow = useRef()
+    const handleMaximizeWindow = () => {
+        refTableWindow.current.style.display = "absolute"
+        refTableWindow.current.style.width = '60%'
+        refTableWindow.current.style.height = '30%'
+
+        setTimeout(() => {
+            refTableWindow.current.style.transition = '2s'
+            refTableWindow.current.style.width = '84%'
+            refTableWindow.current.style.height = '88%'
+            refTableWindow.current.style.position = "fixed"
+
+        }, 100);
+
+    }
+
     return (
-        <div className="bg-white w-full rounded-md overflow-x-auto shadow-md shadow-[#1b1b1b2a]">
-            <span ref={refMessage} className="w-full min-h-[40px] p-1 justify-start items-center text-red-800 text-[12px] hidden">mensagem</span>
+        <div ref={refTableWindow} className="bg-white w-full rounded-md  shadow-md shadow-[#1b1b1b2a] relative z-[99] overflow-y-auto">
+            <span className="w-[100%] min-h-[40px] flex bg-zinc-600 relative">
+                <button onClick={handleMaximizeWindow} className="absolute right-2 top-1 cursor-pointer text-white">
+                    <HomeMax />
+                </button>
+                <span ref={refMessage} className="w-full min-h-[40px] p-1 justify-start items-center text-red-200 text-[12px] hidden">mensagem</span>
+            </span>
+
             <div>
-                <div className="w-full flex gap-1">
+                <div className="w-full h-max-[100px] flex gap-1">
 
                     {products.columns.map((column, index) => validateMainColumns(column, index))}
 
