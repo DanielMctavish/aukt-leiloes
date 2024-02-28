@@ -4,15 +4,18 @@ import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { useEffect, useRef } from "react";
 
-function DisplayTermsConditions({currentAuct}) {
+function DisplayTermsConditions({ currentAuct }) {
     const refTermsConditions = useRef()
     const dispatch = useDispatch()
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        if(currentAuct) refTermsConditions.current.value = currentAuct.terms_conditions
+        if (currentAuct) {
+            refTermsConditions.current.value = currentAuct.terms_conditions
+            dispatch(addAuct({ terms_conditions: currentAuct.terms_conditions }))
+        }
 
-    },[])
+    }, [])
 
 
     const handleDispatchTermsConditions = () => {

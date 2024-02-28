@@ -20,8 +20,8 @@ function CircleStatisticDisplay() {
     }
 
     return (
-        <div className="w-[80%] lg:w-[40%] h-[40vh] 
-        mt-3 p-2 bg-[#fff] text-zinc-600 
+        <div className="w-full lg:w-[40%] h-[40vh] 
+        p-1 bg-[#fff] text-zinc-600 
         shadow-lg shadow-[#17171722] relative 
         rounded-md
         flex flex-col justify-center items-center">
