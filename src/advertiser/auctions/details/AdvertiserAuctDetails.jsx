@@ -1,6 +1,6 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,7 +15,6 @@ import AddProductMod from "../mod/AddProductMod";
 
 function AdvertiserAuctDetails() {
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
-    const [currentAdvertiser, setCurrentAdvertiser] = useState({})
     const state = useSelector(state => state)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -47,24 +46,7 @@ function AdvertiserAuctDetails() {
             }
         })
 
-
-
     }
-
-    useEffect(() => {
-        const getAdvertiser = async () => {
-            if (currentAuct.advertiser_id)
-                await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?advertiser_id=${currentAuct.advertiser_id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localAdvertiser.token}`
-                    }
-                }).then(response => { setCurrentAdvertiser(response.data) }).catch(err => {
-                    console.log('err get advertiser >>', err.message)
-                })
-        }
-        getAdvertiser()
-    }, [currentAuct])
-
 
 
     async function editCurrentAuct() {
@@ -76,7 +58,18 @@ function AdvertiserAuctDetails() {
         navigate(`/advertiser/product-details/${product_id}`)
     }
 
-    const handleShowPhotoAdd = () => {
+    const refAddProdut = useRef()
+
+    const handleShowPhotoAdd = (product_id) => {
+        refAddProdut.current.style.display = "flex";
+        refAddProdut.current.style.opacity = "0";
+        setTimeout(() => {
+            refAddProdut.current.style.opacity = "1";
+            refAddProdut.current.style.transition = ".3s";
+        }, 100);
+
+        //redux set current product
+        console.log(product_id);
 
     }
 
@@ -86,8 +79,9 @@ function AdvertiserAuctDetails() {
             <AssideAdvertiser MenuSelected="menu-3" />
 
             <section
-                style={{ backdropFilter: "blur(3px)"}}
-                className="absolute flex justify-center items-center w-full h-[100vh] z-[999]">
+                ref={refAddProdut}
+                style={{ backdropFilter: "blur(3px)" }}
+                className="absolute hidden justify-center items-center w-full h-[100vh] z-[999] section-add-product">
                 <AddProductMod />
             </section>
 
@@ -108,10 +102,15 @@ function AdvertiserAuctDetails() {
                         </div>
 
                         <div className="flex gap-2 z-[99]">
-                            <img src={currentAdvertiser.url_profile_cover} alt="" className="rounded-md w-[80px] h-[80px] object-cover" />
+                            <img src={currentAuct.Advertiser ? currentAuct.Advertiser.url_profile_cover : ''} alt="" className="rounded-md w-[80px] h-[80px] object-cover" />
                             <div className="flex flex-col text-zinc-900 font-bold">
                                 <span className="text-[18px]">{currentAuct.title}</span>
-                                <div>Promotor: <span style={{ textShadow: '2px 2px 6px #0000003d' }} className="text-[#315fa3]">{currentAdvertiser.email}</span></div>
+                                <div>
+                                    Promotor:
+                                    <span style={{ textShadow: '2px 2px 6px #0000003d' }} className="text-[#315fa3]">
+                                        {currentAuct.Advertiser ? currentAuct.Advertiser.email : ''}
+                                    </span>
+                                </div>
                                 <div className="flex gap-2">
                                     {currentAuct.auct_dates ?
                                         currentAuct.auct_dates.map((date, index) => (
@@ -164,7 +163,6 @@ function AdvertiserAuctDetails() {
                             {
                                 currentAuct.product_list.map((product, index) => (
                                     <div className="w-full flex hover:border-[1px] border-zinc-300 cursor-pointer p-1 rounded-lg"
-                                        onClick={() => redirectToProductDetails(product.id)}
                                         key={index}>
                                         <span className="text-[16px] font-bold w-[20px] flex justify-center items-center overflow-hidden p-2">
                                             {index + 1}
@@ -176,18 +174,21 @@ function AdvertiserAuctDetails() {
                                             R$ {product.initial_value.toFixed(2)}
                                         </span> */}
                                         <span
-                                            onClick={handleShowPhotoAdd}
+                                            onClick={() => handleShowPhotoAdd(product.id)}
                                             className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
                                             {product.cover_img_url === "string" ?
                                                 <NoPhotography /> :
                                                 <img src={product.cover_img_url} alt=""
                                                     className="min-w-[40px] min-h-[40px] bg-[#474747] object-cover rounded-full" />
                                             }
-
                                         </span>
-                                        <span className="min-w-[40px] min-h-[40px] flex justify-center items-center">
+
+                                        <span
+                                            onClick={() => redirectToProductDetails(product.id)}
+                                            className="min-w-[40px] min-h-[40px] flex justify-center items-center">
                                             <EditNote style={{ fontSize: "30px" }} />
                                         </span>
+
                                     </div>
                                 ))
                             }
