@@ -11,6 +11,7 @@ import dayjs from "dayjs"
 import "./StyleAuctDetails.css"
 
 import { editAuct } from "../../../features/auct/AuctToEdit";
+import { selectProduct } from "../../../features/product/ProductAddPhoto";
 import AddProductMod from "../mod/AddProductMod";
 
 function AdvertiserAuctDetails() {
@@ -60,7 +61,7 @@ function AdvertiserAuctDetails() {
 
     const refAddProdut = useRef()
 
-    const handleShowPhotoAdd = (product_id) => {
+    const handleShowPhotoAdd = (product) => {
         refAddProdut.current.style.display = "flex";
         refAddProdut.current.style.opacity = "0";
         setTimeout(() => {
@@ -69,7 +70,7 @@ function AdvertiserAuctDetails() {
         }, 100);
 
         //redux set current product
-        console.log(product_id);
+        dispatch(selectProduct(product))
 
     }
 
@@ -162,6 +163,7 @@ function AdvertiserAuctDetails() {
                         <div className="w-full p-2 flex flex-col justify-between items-center gap-3">
                             {
                                 currentAuct.product_list.map((product, index) => (
+
                                     <div className="w-full flex hover:border-[1px] border-zinc-300 cursor-pointer p-1 rounded-lg"
                                         key={index}>
                                         <span className="text-[16px] font-bold w-[20px] flex justify-center items-center overflow-hidden p-2">
@@ -174,12 +176,12 @@ function AdvertiserAuctDetails() {
                                             R$ {product.initial_value.toFixed(2)}
                                         </span> */}
                                         <span
-                                            onClick={() => handleShowPhotoAdd(product.id)}
+                                            onClick={() => handleShowPhotoAdd(product)}
                                             className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
                                             {product.cover_img_url === "string" ?
                                                 <NoPhotography /> :
                                                 <img src={product.cover_img_url} alt=""
-                                                    className="min-w-[40px] min-h-[40px] bg-[#474747] object-cover rounded-full" />
+                                                    className="w-[40px] h-[40px] bg-[#474747] object-cover rounded-full" />
                                             }
                                         </span>
 
@@ -190,6 +192,7 @@ function AdvertiserAuctDetails() {
                                         </span>
 
                                     </div>
+
                                 ))
                             }
 

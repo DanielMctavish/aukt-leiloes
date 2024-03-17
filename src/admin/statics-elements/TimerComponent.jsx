@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 
-
 function TimerComponent({ advertiser_percentage, clients_percentage, adms_percentage, totalUsers }) {
     const circumference = 2 * Math.PI * 80;
 
