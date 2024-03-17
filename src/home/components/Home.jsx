@@ -1,5 +1,5 @@
 import Navigation from "../navigation/Navigation";
-import tempLogo from "../medias/temp-logo.png"
+//import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
 import Section02 from "./Section02";
 import Section03 from "./Section03";
@@ -9,13 +9,13 @@ import './Home.css';
 function Home() {
 
 
-  const hiddenNav = () => {
-    if (window.innerWidth < 1025) {
-      const navigationAuk = document.querySelector(".nav-auk")
-      navigationAuk.style.marginLeft = '-40vh'
-      navigationAuk.style.transition = '.2s'
-    }
-  }
+  // const hiddenNav = () => {
+  //   if (window.innerWidth < 1025) {
+  //     const navigationAuk = document.querySelector(".nav-auk")
+  //     navigationAuk.style.marginLeft = '-40vh'
+  //     navigationAuk.style.transition = '.2s'
+  //   }
+  // }
 
 
   return (

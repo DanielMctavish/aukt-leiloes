@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState } from "react";
 import Aucts from "../../dados/Aucts.json";
 import Pagination from "../Pagination";
 import { useNavigate } from 'react-router-dom';
