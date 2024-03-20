@@ -71,7 +71,6 @@ function AdvertiserAuctDetails() {
 
         //redux set current product
         dispatch(selectProduct(product))
-
     }
 
     return (

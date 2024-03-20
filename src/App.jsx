@@ -26,6 +26,11 @@ import AdminLogin from "./access/admin/AdminLogin";
 import AdvertiserAuctDetails from "./advertiser/auctions/details/AdvertiserAuctDetails";
 import AdvertiserProductDetails from "./advertiser/auctions/details/AdvertiserProductDetails";
 import { AdvertiserEdtiAuct } from "./advertiser/CreateAuct/AdvertiserEdtiAuct";
+import DashboardClient from "./Clients/Dashboard/DashboardClient";
+import ClientArremates from "./Clients/arremates/ClientArremates";
+import ClientAucts from "./Clients/aucts/ClientAucts";
+import ClientWallet from "./Clients/wallet/ClientWallet";
+import ClientProfile from "./Clients/profile/ClientProfile";
 
 
 function App() {
@@ -42,6 +47,16 @@ function App() {
           <Route Component={AdvertiserRegister} path="/advertiser/register" exact />
           <Route Component={AdvertiserLogin} path="/advertiser/login" exact />
 
+          {/* CLIENTS */}
+          <Route Component={DashboardClient} path="/client/dashboard" exact />
+          <Route Component={ClientArremates} path="/client/arremates" exact />
+          <Route Component={ClientAucts} path="/client/aucts" exact />
+          <Route Component={ClientWallet} path="/client/wallet" exact />
+
+          <Route Component={ClientProfile} path="/client/profile" exact />
+          <Route Component={ClientLogin} path="/client/login " exact />
+          <Route Component={ClientRegister} path="/client/register" exact />
+
           {/* ADMIN */}
           <Route Component={AdminDashboard} path="/admin/dashboard" exact />
           <Route Component={AdminAuctions} path="/admin/aucts" exact />
@@ -55,59 +70,17 @@ function App() {
           <Route Component={AdminLogin} path="/admin/login" exact />
 
           {/* Anunciante */}
-          <Route Component={DashboardAdvertiser}
-            path="/advertiser/dashboard"
-            exact />
-          <Route
-            Component={AdvertiserCreateAuct}
-            path="/advertiser/create-auct"
-            exact
-          />
-          <Route
-            Component={AdvertiserEdtiAuct}
-            path="/advertiser/edit-auct"
-            exact
-          />
-          <Route
-            Component={AdvertiserAuctions}
-            path="/advertiser/auctions"
-            exact
-          />
-          <Route
-            Component={AdvertiserAuctDetails}
-            path="/advertiser/auctions-details"
-            exact
-          />
-          <Route
-            Component={AdvertiserProductDetails}
-            path="/advertiser/product-details/:param"
-            exact
-          />
-          <Route
-            Component={AdvertiserFinancial}
-            path="/advertiser/advertiser-financial"
-            exact
-          />
-          <Route
-            Component={AdvertiserProductsList}
-            path="/advertiser/products"
-            exact
-          />
-          <Route
-            Component={AdvertiserClients}
-            path="/advertiser/clients"
-            exact
-          />
-          <Route
-            Component={AdvertiserWallet}
-            path="/advertiser/wallet"
-            exact
-          />
-          <Route
-            Component={AdvertiserProfile}
-            path="/advertiser/profile"
-            exact
-          />
+          <Route Component={DashboardAdvertiser} path="/advertiser/dashboard" exact />
+          <Route Component={AdvertiserCreateAuct} path="/advertiser/create-auct" exact />
+          <Route Component={AdvertiserEdtiAuct} path="/advertiser/edit-auct" exact />
+          <Route Component={AdvertiserAuctions} path="/advertiser/auctions" exact />
+          <Route Component={AdvertiserAuctDetails} path="/advertiser/auctions-details" exact />
+          <Route Component={AdvertiserProductDetails} path="/advertiser/product-details/:param" exact />
+          <Route Component={AdvertiserFinancial} path="/advertiser/advertiser-financial" exact />
+          <Route Component={AdvertiserProductsList} path="/advertiser/products" exact />
+          <Route Component={AdvertiserClients} path="/advertiser/clients" exact />
+          <Route Component={AdvertiserWallet} path="/advertiser/wallet" exact />
+          <Route Component={AdvertiserProfile} path="/advertiser/profile" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={AuctFloor} path="/floor" exact />
