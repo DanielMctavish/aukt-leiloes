@@ -30,7 +30,6 @@ function DisplayProductsCsv() {
         }
         //console.log(product_list);
         dispatch(addAuct({ product_list: product_list }));
-
         setProductsCount(values.length)
     }, [values]);
 
@@ -41,7 +40,7 @@ function DisplayProductsCsv() {
 
         refFile.current.addEventListener('change', () => {
             const currentFile = refFile.current.files
-            console.log('arquivo carregado com sucesso... ', currentFile[0]);
+            // console.log('arquivo carregado com sucesso... ', currentFile[0]);
             importExcelOperation(currentFile[0])
         });
 
@@ -50,6 +49,7 @@ function DisplayProductsCsv() {
 
     const importExcelOperation = (currentFile) => {
         const reader = new FileReader();
+        dispatch(addProducts({ columns: [], values: [] }));
 
         reader.onload = function (e) {
             const data = new Uint8Array(e.target.result);
@@ -68,6 +68,7 @@ function DisplayProductsCsv() {
 
         reader.readAsArrayBuffer(currentFile);
     }
+
 
     return (
         <div className="w-[33%] h-[100%]
