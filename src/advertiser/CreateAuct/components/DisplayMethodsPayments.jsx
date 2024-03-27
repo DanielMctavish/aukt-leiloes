@@ -47,7 +47,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <input
                         type="checkbox"
                         name="method"
-                        value="pix"
+                        value="Pix"
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-zinc-600"
                     />
@@ -58,7 +58,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <input
                         type="checkbox"
                         name="method"
-                        value="credit"
+                        value="Credit"
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-zinc-600"
                     />
@@ -69,7 +69,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <input
                         type="checkbox"
                         name="method"
-                        value="debit"
+                        value="Debit"
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-zinc-600"
                     />
@@ -80,7 +80,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <input
                         type="checkbox"
                         name="method"
-                        value="ticket"
+                        value="Ticket"
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-zinc-600"
                     />

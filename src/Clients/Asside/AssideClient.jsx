@@ -132,11 +132,13 @@ function AssideClient(props) {
       <nav
         className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#143514] flex-col justify-start items-center gap-3`}
       >
-        <img
-          src={logo_aukt_green}
-          alt="Logo-auk"
-          className="w-[100px] object-cover"
-        />
+        <div className="w-full p-2 flex justify-center items-center">
+          <img
+            src={logo_aukt_green}
+            alt="Logo-auk"
+            className="w-[100px] object-cover cursor-pointer"
+          />
+        </div>
 
         <button
           id="menu-1"

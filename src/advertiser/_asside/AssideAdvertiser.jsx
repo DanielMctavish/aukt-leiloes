@@ -2,7 +2,9 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import logo_aukt_blue from "../../media/logos/logos-auk/aukt_blue.png";
+import logo_auk_white from "../../media/logos/logos-auk/logo_model01_white.png"
 import AppsIcon from "@mui/icons-material/Apps";
+import { Leaderboard, Event, Gavel, Web } from "@mui/icons-material"
 import {
   Dashboard,
   LocalAtm,
@@ -19,8 +21,8 @@ function AssideAdvertiser(props) {
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
     if (menuBtn) {
-      menuBtn.style.background =
-        "linear-gradient(90deg, #4D5BD4 0.03%, #76D057 99.17%)";
+      menuBtn.style.background = "linear-gradient(90deg, #4D5BD4 0.03%, #76D057 99.17%)";
+      menuBtn.style.border = "solid 1px #99a3ff4d"
       menuBtn.style.borderRadius = "4px";
     }
   }, [])
@@ -92,7 +94,7 @@ function AssideAdvertiser(props) {
                 onClick={() => handleClick("/admin/advertisers")}
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
               >
-                <Group style={iconStyle} />
+                <Gavel style={iconStyle} />
                 <span className="mt-1 text-xs">Arremates</span>
               </button>
 
@@ -135,7 +137,7 @@ function AssideAdvertiser(props) {
         </nav>
       ) : null}
       <nav
-        className={` lg:min-w-[273px] h-[100vh] lg:block hidden bg-[#012038] flex-col justify-start items-center gap-3`}
+        className={` lg:min-w-[273px] h-[100vh] lg:block hidden bg-[#012038] flex-col justify-start items-center gap-3 p-2`}
       >
         <section className="w-full flex justify-center items-center p-2">
           <img
@@ -148,43 +150,43 @@ function AssideAdvertiser(props) {
 
         <button
           id="menu-1"
-          className="w-full flex justify-between items-center p-2 text-white mt-6"
+          className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/dashboard")}
         >
-          <Dashboard />
+          <Leaderboard />
           <span>Dashboard</span>
         </button>
 
         <button
           id="menu-2"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/create-auct")}
         >
-          <LocalAtm />
+          <Event />
           <span>Criar Evento</span>
         </button>
 
         <button
           id="menu-3"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
           onClick={() => handleClick("/advertiser/auctions")}
         >
-          <Group />
+          <img src={logo_auk_white} alt="" className="object-cover w-[40px] ml-[-10px]" />
           <span>Leilões</span>
         </button>
 
         <button
           id="menu-4"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/auctions")}
         >
-          <Group />
+          <Gavel />
           <span>Arremates</span>
         </button>
 
         <button
           id="menu-5"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/clients")}
         >
           <Group />
@@ -193,7 +195,7 @@ function AssideAdvertiser(props) {
 
         <button
           id="menu-6"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/wallet")}
         >
           <AccountBalanceWallet />
@@ -202,20 +204,20 @@ function AssideAdvertiser(props) {
 
         <button
           id="menu-7"
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/templates")}
         >
-          <AccountBalanceWallet />
+          <Web />
           <span>Site e template</span>
         </button>
 
-        <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7">
+        <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7 ">
           <span>Configuração e suporte</span>
         </div>
 
         <button
           id="menu-8"
-          className="w-full flex justify-between items-center p-2 text-white mt-6"
+          className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/profile")}
         >
           <Person />
@@ -225,7 +227,7 @@ function AssideAdvertiser(props) {
         <button
           id="menu-9"
           onClick={handleLogoutAdveriser}
-          className="w-full flex justify-between items-center p-2 text-white"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
         >
           <Logout />
           <span>Logout</span>

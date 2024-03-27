@@ -44,13 +44,18 @@ export const AdvertiserCreateAuct = () => {
 
 
     const handleSaveAuct = async () => {
-        try {
+        const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+        const configAuth = {
+            headers: {
+                "Authorization": `Bearer ${currentSession.token}`
+            }
+        }
 
-            console.log('observando auct >>> ', aucts);
+        try {
 
             if (!aucts.title) {
                 throw new Error("necessário ter um título.")
-            }else if (!aucts.categories) {
+            } else if (!aucts.categories) {
                 throw new Error("selecione uma categoria.")
             } else if (aucts.tags.length === 0 || !aucts.tags) {
                 throw new Error("necessário adicionar tags.")
@@ -60,9 +65,9 @@ export const AdvertiserCreateAuct = () => {
                 throw new Error("necessário adicionar os termos e condições.")
             } else if (!aucts.auct_dates || aucts.auct_dates.length === 0) {
                 throw new Error("não se esqueça das datas!")
-            } else if (!aucts.accept_payment_methods || aucts.accept_payment_methods.length === 0) {
+            } else if (!aucts.methods_payments || aucts.methods_payments.length === 0) {
                 throw new Error("por favor, selecione as formas de pagamento para este leilão.")
-            } else if(aucts.product_list.length ===0){
+            } else if (aucts.product_list.length === 0) {
                 throw new Error("por favor, selecione uma planilha de produtos.")
             }
 
@@ -77,7 +82,7 @@ export const AdvertiserCreateAuct = () => {
             formData.append("cover-auct-image", getCurrentFile());
             let currentUploadedImage
 
-            // REQUEST01@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            // REQUEST01
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
                 "Content-Type": "multipart/form-data"
             }).then(response => {
@@ -89,16 +94,14 @@ export const AdvertiserCreateAuct = () => {
                 throw new Error("necessário enviar uma imagem de leilão")
             })
 
-
-
             //Create Auct Operation-------------------------------------------------------------------------------------------------------------------------
-            const currentAdvertiserStorage = await JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-            // REQUEST02@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
+
+            // REQUEST02
+            const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentSession.email}`, configAuth)
             //console.log('observando advertiser ', getAdvertiser.data);
 
-            if (!getAdvertiser.advertiser_id) {
-                throw new Error("erro ao tentar identificar anunciante.")
+            if (!getAdvertiser) {
+                throw new Error("erro ao tentar identificar anunciante.", getAdvertiser, currentSession)
             }
 
             let currentAuctId
@@ -113,14 +116,14 @@ export const AdvertiserCreateAuct = () => {
                 auct_cover_img: currentUploadedImage,
                 descriptions_informations: aucts.descriptions_informations,
                 terms_conditions: aucts.terms_conditions,
-                auct_dates: aucts.auct_dates,
+                auct_dates: aucts.auct_dates,//datas e grupos
                 limit_client: false,
                 limit_date: false,
                 accept_payment_methods: aucts.accept_payment_methods,
                 value: '0',
                 status: 'cataloged',
                 product_timer_seconds: 30
-            }).then(response => {
+            }, configAuth).then(response => {
                 //console.log('resposta ao criar leilão -> ', response.data);
                 currentAuctId = response.data.currentAuct.id
                 currentAuctNanoId = response.data.currentAuct.nano_id
@@ -136,35 +139,35 @@ export const AdvertiserCreateAuct = () => {
             for (const product of aucts.product_list) {
                 console.log('observando produto data -> ', product);
 
-                try {
-
-                    // REQUEST03@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                    await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create`, {
-                        advertiser_id: getAdvertiser.data.id,
-                        auct_nanoid: currentAuctNanoId,
-                        auct_id: currentAuctId,
-                        title: product.title,
-                        description: product.description,
-                        categorie: product.categorie,
-                        initial_value: product.initial_value,
-                        final_value: product.final_value,
-                        reserve_value: product.reserve_value,
-                        color: product.color,
-                        width: product.width,
-                        height: product.height,
-                        weight: product.weight,
-                        cover_img_url: "string",
-                        highlight_product: true
-                    });
-
-                    // Atualiza o estado da barra de progresso
-                    productsCreated++;
-                    const progress = Math.floor((productsCreated / productsCount) * 100);
-                    setProgressBar(progress);
-
-                } catch (err) {
+                // REQUEST03
+                await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create-product`, {
+                    advertiser_id: getAdvertiser.data.id,
+                    group: product.Group,
+                    auct_nanoid: currentAuctNanoId,
+                    auct_id: currentAuctId,
+                    title: product.title,
+                    description: product.description,
+                    categorie: product.categorie,
+                    initial_value: product.initial_value,
+                    final_value: product.final_value,
+                    reserve_value: product.reserve_value,
+                    color: product.color,
+                    width: 0,
+                    height: 0,
+                    weight: 0,
+                    cover_img_url: "string",
+                    highlight_product: true
+                }, configAuth).then(response => {
+                    console.log('produto criado', response.data);
+                }).catch(err => {
+                    console.log('erro ao criar produto >>> ', err.response);
                     throw new Error(err.response.data)
-                }
+                })
+
+                // Atualiza o estado da barra de progresso
+                productsCreated++;
+                const progress = Math.floor((productsCreated / productsCount) * 100);
+                setProgressBar(progress);
             }
 
 
@@ -250,7 +253,9 @@ export const AdvertiserCreateAuct = () => {
                 </section>
 
                 <section className="w-full min-h-[10vh] p-2 flex justify-center items-center">
-                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md">confirmar</button>
+                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md">
+                        confirmar
+                    </button>
                 </section>
 
             </section>

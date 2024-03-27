@@ -9,13 +9,14 @@ import { Timelapse, NoPhotography, EditNote } from "@mui/icons-material"
 import axios from "axios"
 import dayjs from "dayjs"
 import "./StyleAuctDetails.css"
-
 import { editAuct } from "../../../features/auct/AuctToEdit";
 import { selectProduct } from "../../../features/product/ProductAddPhoto";
 import AddProductMod from "../mod/AddProductMod";
 
+
 function AdvertiserAuctDetails() {
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
+    const [resumeValues, setResumeValues] = useState({ value_balance: 0, initial_value_sum: 0 })
     const state = useSelector(state => state)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -29,6 +30,12 @@ function AdvertiserAuctDetails() {
 
         getCurrentAuctById(currentLocalAdvertiser)
     }, [state.selectedAuct])
+
+    useEffect(() => {
+
+        setResumeValues(state.auctResume)
+
+    }, [state.auctResume])
 
     const getCurrentAuctById = async () => {
 
@@ -101,8 +108,8 @@ function AdvertiserAuctDetails() {
                             <button className="w-[100px] h-[30px] flex justify-center items-center bg-red-700 rounded-md text-white text-[12px]">excluir</button>
                         </div>
 
-                        <div className="flex gap-2 z-[99]">
-                            <img src={currentAuct.Advertiser ? currentAuct.Advertiser.url_profile_cover : ''} alt="" className="rounded-md w-[80px] h-[80px] object-cover" />
+                        <div className="flex gap-2 z-[99] justify-start items-center">
+                            <img src={currentAuct.Advertiser ? currentAuct.Advertiser.url_profile_cover : ''} alt="" className="rounded-full bg-zinc-600 w-[80px] h-[80px] object-cover" />
                             <div className="flex flex-col text-zinc-900 font-bold">
                                 <span className="text-[18px]">{currentAuct.title}</span>
                                 <div>
@@ -136,13 +143,13 @@ function AdvertiserAuctDetails() {
                             </div>
                             <div className="flex flex-col justify-center items-center text-zinc-600
                             w-[308px] h-[80px] bg-[#E9EFFA] rounded-md shadow-lg shadow-[#1313131e]">
-                                <span className="text-[12px]">Valor Base</span>
-                                <span className="text-[18px]">R$</span>
+                                <span className="text-[12px]">Valor Estimado</span>
+                                <span className="text-[18px] font-bold">R$ {resumeValues.initial_value_sum.toFixed(2)}</span>
                             </div>
                             <div className="flex flex-col justify-center items-center text-zinc-600
                             w-[308px] h-[80px] bg-[#E9EFFA] rounded-md shadow-lg shadow-[#1313131e]">
                                 <span className="text-[12px]">Valor Vendido</span>
-                                <span className="text-[18px]">R$</span>
+                                <span className="text-[18px] font-bold">R$ {resumeValues.value_balance}</span>
                             </div>
                         </div>
 

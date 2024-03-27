@@ -5,7 +5,9 @@ import { auctSelectedSliceReducer } from './auct/SelectedAuct';
 import { auctEditReducer } from './auct/AuctToEdit';
 import { auctListReducer } from './auct/AuctList';
 import { productSelectedReducer } from './product/ProductAddPhoto';
-
+import { groupDateSliceReducer } from './GroupDates/GroupDate';
+import { errorSliceSliceReducer } from './errors/ReportErrorAtCreateAuct';
+import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
 
 const store = configureStore({
     reducer: {
@@ -14,7 +16,10 @@ const store = configureStore({
         selectedAuct: auctSelectedSliceReducer,
         auctEdit: auctEditReducer,
         auctList: auctListReducer,
-        selectedProduct: productSelectedReducer
+        selectedProduct: productSelectedReducer,
+        groupDate: groupDateSliceReducer,
+        errorReports: errorSliceSliceReducer,
+        auctResume: resumeAuctSliceReducer
     }
 })
 
