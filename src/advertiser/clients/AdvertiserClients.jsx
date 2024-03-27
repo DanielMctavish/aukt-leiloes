@@ -10,7 +10,7 @@ function AdvertiserClients() {
         bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
         flex lg:flex-row flex-col justify-start items-start">
 
-            <AssideAdvertiser MenuSelected="menu-4" />
+            <AssideAdvertiser MenuSelected="menu-5" />
             <section className="w-full h-[100vh] text-zinc-600 flex flex-col justify-start items-center">
                 <NavAdvertiser />
                 <section className="w-full h-[100%] flex p-2">

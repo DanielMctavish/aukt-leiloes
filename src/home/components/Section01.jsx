@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import {useNavigate} from "react-router-dom"
 import Submenu from "../navigation/Submenu";
 import ArrowLeft from "../medias/vector/arrow-left.svg";
 import ArrowRight from "../medias/vector/arrow-right.svg";
@@ -7,6 +8,8 @@ import ArrowRight from "../medias/vector/arrow-right.svg";
 function Section01() {
   const [offset, setOffset] = useState(0);
   const [cardsSelecteds, setCardsSelecteds] = useState([]);
+
+  const navigate = useNavigate()
 
   const myCards = [
     {
@@ -106,8 +109,8 @@ function Section01() {
             </div>
 
             <div
-              className="absolute  text-[#FFF] bg-zinc-300/60 flex flex-col justify-center items-center p-3
-    lg:mr-60 text-shadow-md font-inter lg:pb-[70px] overflow-hidden rounded-md"
+              className="absolute backdrop-blur-md text-[#FFF] bg-zinc-300/60 flex flex-col justify-center items-center p-3
+               lg:mr-60 text-shadow-md font-inter lg:pb-[70px] overflow-hidden rounded-md"
             >
               <h1 className="lg:text-[22px] text-[16px] lg:mb-2 font-bold overflow-hidden drop-shadow-md shadow-[#060606]">
                 {card.title}
@@ -115,7 +118,8 @@ function Section01() {
               <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden">
                 {card.body}
               </p>
-              <button className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal`">
+              <button onClick={()=>navigate("/client/register")} 
+              className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal`">
                 DAR UM LANCE
               </button>
             </div>

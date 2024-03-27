@@ -4,12 +4,13 @@ import * as XLSX from "xlsx"
 import { useDispatch } from "react-redux";
 import { addProducts } from "../../../features/product/Products";
 import { addAuct } from "../../../features/auct/Auct";
-
+import { addGroupDate } from "../../../features/GroupDates/GroupDate";
 
 function DisplayProductsCsv() {
     const [productsCount, setProductsCount] = useState(0)
     const [columns, setColumns] = useState([])
     const [values, setValues] = useState([])
+
 
     const refFile = useRef()
     const dispatch = useDispatch()
@@ -31,6 +32,7 @@ function DisplayProductsCsv() {
         //console.log(product_list);
         dispatch(addAuct({ product_list: product_list }));
         setProductsCount(values.length)
+        identifyAndSetGroupDates()
     }, [values]);
 
 
@@ -68,6 +70,23 @@ function DisplayProductsCsv() {
 
         reader.readAsArrayBuffer(currentFile);
     }
+
+    const identifyAndSetGroupDates = () => {
+        let groupDates = [];
+        let uniqueValues = new Set();
+
+        values.forEach(line => {
+            line.map((value, index) => {
+                if (index === 5 && !uniqueValues.has(value)) {
+                    uniqueValues.add(value);
+                    groupDates.push(value);
+                }
+            });
+        });
+
+        dispatch(addGroupDate({ groupDates }));
+    };
+
 
 
     return (

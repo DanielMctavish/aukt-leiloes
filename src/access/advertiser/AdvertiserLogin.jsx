@@ -4,6 +4,9 @@ import { useEffect, useState } from "react"
 import { useRef } from "react"
 import { useNavigate } from "react-router-dom"
 
+import backgroundSocial from "../../media/backgrounds/social_bg_wall.jpg"
+import auctLogo from "../../media/logos/logos-auk/aukt_blue.png"
+
 function AdvertiserLogin() {
     const [messageDisplay, setMessageDisplay] = useState("")
     const refEmail = useRef()
@@ -59,12 +62,19 @@ function AdvertiserLogin() {
 
     return (
 
-        <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3">
+        <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 relative">
+            <img src={backgroundSocial} alt="" className="absolute w-full h-full object-cover opacity-30 saturate-0" />
 
             <span className="text-zinc-600">{messageDisplay}</span>
 
-            <section className="w-[80%] h-[90vh] flex bg-[#012038] rounded-[4px] relative overflow-hidden shadow-2xl">
-                <div className="w-[50%] h-[100%] bg-white"></div>
+            <section className="w-[80%] h-[90vh] flex bg-[#012038cd] backdrop-blur-sm rounded-[4px] relative overflow-hidden shadow-2xl">
+
+                <div className="flex flex-col w-[50%] h-[100%] bg-white text-zinc-600 justify-center items-center gap-4">
+                    <span>Bem vindo! Que bom que deu tudo certo.</span>
+                    <span className="text-[33px] font-bold">Prepare-se para criar seus leilões</span>
+                    <img src={auctLogo} alt="" className="w-[300px]" />
+                </div>
+
                 <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative">
                     <h1 className="text-left font-bold text-[33px] w-[300px]">BEM VINDO!</h1>
 
@@ -79,7 +89,7 @@ function AdvertiserLogin() {
                     </div>
 
                     <button onClick={handeAdvertiserLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
-                    <button onClick={()=>navigate("/advertiser/register")}>não tem uma conta? Registre-se</button>
+                    <button onClick={() => navigate("/advertiser/register")}>não tem uma conta? Registre-se</button>
                 </div>
             </section>
 

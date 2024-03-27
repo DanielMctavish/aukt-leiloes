@@ -12,7 +12,7 @@ const initialState = {
     auct_dates: [],
     limit_client: false,
     limit_date: false,
-    accept_payment_methods: 'Credit',
+    methods_payments: ['Credit'],
     value: 0,
     status: "",
     product_timer_seconds: 30

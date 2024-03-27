@@ -113,8 +113,8 @@ function DisplayTableProducts() {
                     const errorKey = 'A categoria precisa ser um texto não vazio';
                     updateOrAddError(errorKey, errorCounts, newErrors);
                 }
-                if (index === 2 && value.length > 3) {
-                    const errorKey = 'A categoria precisa ter no máximo 3 caracteres';
+                if (index === 2 && value.length > 4) {
+                    const errorKey = 'A categoria precisa ter no máximo 4 caracteres';
                     updateOrAddError(errorKey, errorCounts, newErrors);
                 }
                 if (index === 3 && (typeof value !== 'number' || isNaN(value))) {
@@ -159,9 +159,17 @@ function DisplayTableProducts() {
 
     //Renderizar CAMPOS..................................................................................................................
     const RenderFields = (field, index) => {
-        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 w-full min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between"
+        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 w-full min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between hover:bg-white cursor-pointer"
 
-        if (index === 6) tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[100px] min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between"
+        if (index === 6) tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[100px] min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between hover:bg-white cursor-pointer"
+
+        if (index === 3 || index === 4) {
+            return (
+                <span key={index} className={tailwindCode}>
+                    R$ {field}
+                </span>
+            )
+        }
 
         return (
             <span key={index} className={tailwindCode}>
@@ -208,9 +216,9 @@ function DisplayTableProducts() {
     return (
         <div
             ref={refTableWindow}
-            className="flex flex-col bg-white w-full 
+            className="flex flex-col bg-[#e4f4ffe8] w-full 
         h-[100%] rounded-md  shadow-md shadow-[#1b1b1b2a] 
-        relative z-[99] overflow-hidden">
+        relative z-[99] overflow-hidden backdrop-blur-[16px]">
 
             <span className="flex w-[100%] h-auto  bg-zinc-600 relative">
                 <button onClick={handleMaximizeWindow} className="absolute right-2 top-1 cursor-pointer text-white">
@@ -239,7 +247,7 @@ function DisplayTableProducts() {
                     {products.columns.map((column, index) => RenderMainColumns(column, index))}
 
                 </div>
-
+                    
                 <div className="w-full flex flex-col gap-1">
 
                     {products.values.map((value, index) => (

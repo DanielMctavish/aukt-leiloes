@@ -6,6 +6,7 @@ import PaginationAdvertiser from "../Pagination";
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import { selectedAuct } from "../../../features/auct/SelectedAuct";
+import { addResume } from "../../../features/auct/ResumeAuctBalance";
 
 function TbodyAdvertiserAucts() {
   const [auctList, setAucts] = useState([])
@@ -44,6 +45,7 @@ function TbodyAdvertiserAucts() {
     });
 
     setProductsValueList(sumProductsValues);
+
   };
 
 
@@ -66,8 +68,12 @@ function TbodyAdvertiserAucts() {
 
 
 
-  function handleClick(route, id) {
+  function handleClick(route, id, sum, value) {
     dispatch(selectedAuct({ auct_id: id }))
+    dispatch(addResume({
+      value_balance: value,
+      initial_value_sum: sum
+    }))
     navigate(route);
   }
 
@@ -76,14 +82,14 @@ function TbodyAdvertiserAucts() {
     <>
       <div className="w-full">
         {currentAucts.length === 0 ?
-          <span className="">nenhum leilão criado</span>
+          <span className="text-zinc-600">nenhum leilão criado</span>
           : currentAucts.map((auction, index) => {
 
             return (
               <div
                 key={index}
                 className="w-full flex justify-between items-center gap-1 text-[12px] p-2 cursor-pointer hover:bg-[#2f7fa48d] hover:text-white"
-                onClick={() => handleClick("/advertiser/auctions-details", auction.id)}
+                onClick={() => handleClick("/advertiser/auctions-details", auction.id, productsValueList[index], auction.value)}
               >
                 <div className="flex items-center justify-between min-w-[70px] p-2">
                   {index + 1}
@@ -98,8 +104,7 @@ function TbodyAdvertiserAucts() {
                 </div>
 
                 <div className="flex items-center justify-start gap-2 min-w-[180px] p-1 overflow-hidden">
-                  <img src={auction.Advertiser.url_profile_cover} alt="perfil do anunciante" className=" flex w-[20px] h-[20px] object-cover rounded-full" />
-                  <span>{auction.Advertiser.email}</span>
+                  <span className="font-bold">{auction.Advertiser.email}</span>
                 </div>
 
                 <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden text-zinc-400">
@@ -121,11 +126,12 @@ function TbodyAdvertiserAucts() {
                 </div>
 
                 <div className="text-center text-[14px] font-bold min-w-[180px] p-2 overflow-hidden">
-                  {auction.value}
+                  R$ {typeof auction.value === 'number' ? auction.value.toFixed(2) : '0.00'}
                 </div>
 
+
                 <div className="text-center text-[14px] font-bold min-w-[180px] p-2 overflow-hidden">
-                  {productsValueList[index]}
+                  R$ {productsValueList[0] ? productsValueList[index].toFixed(2) : '0.00'}
                 </div>
 
               </div>

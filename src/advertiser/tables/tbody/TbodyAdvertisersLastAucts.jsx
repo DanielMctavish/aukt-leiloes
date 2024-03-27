@@ -1,11 +1,31 @@
 import LastAucts from "../../data/LastAucts";
+import axios from "axios"
 
 function TbodyAdvertisersLastAucts() {
 
+    const getListCurrentAdvertiserAucts = async () => {
+
+        const currentAdvertiserStorage = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+        const configAuth = {
+            headers: {
+                "Authorization": `Bearer ${currentAdvertiserStorage.token}`
+            }
+        }
+
+        
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`, configAuth)
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiserStorage.id}`, configAuth)
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
-       
-            <tbody className=" overflow-y-auto">
-                {LastAucts.map((auction, index) => (
+
+        <tbody className=" overflow-y-auto">
+            {LastAucts.map((auction, index) => (
                 <tr className="border-b-[.4px] border-zinc-300 text-zinc-600" key={index}>
                     {/* Número */}
                     <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.numero}</td>
@@ -27,9 +47,9 @@ function TbodyAdvertisersLastAucts() {
                     {/* Venda */}
                     <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.valor}</td>
                 </tr>
-                ))}
-            </tbody>
-            
+            ))}
+        </tbody>
+
     )
 }
 

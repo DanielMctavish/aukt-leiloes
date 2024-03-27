@@ -68,7 +68,7 @@ function ClientsTable() {
               </td>
               <td className="px-0 py-4 text-left flex justify-start items-center gap-2 ">
                 <img
-                  src={produto.imagem}
+                  src="https://i.ytimg.com/vi/DEBz3Sb_MaI/maxresdefault.jpg"
                   alt=""
                   className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full lg:flex hidden"
                 />
