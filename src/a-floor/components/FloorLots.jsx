@@ -1,16 +1,31 @@
+import { useEffect, useState } from "react"
 
 
-function FloorLots(){
+function FloorLots() {
+    const [productLots, setProductsLots] = useState([1])
 
-    return(
+    useEffect(() => {
+        setProductsLots([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    }, [])
+
+    return (
         <div className="w-full h-[20vh] 
-        bg-[#B7C2D4] flex
-        justify-start items-center relative p-3 gap-3 overflow-x-auto">
+        flex rounded-[22px] justify-start items-center relative p-3 
+        gap-3 overflow-x-auto overflow-y-hidden bg-[#d2d2d2ad] 
+        backdrop-blur-lg shadow-xl shadow-[#1414143a] 
+        border-t-[2px] border-[#e3e3e3] z-[2]">
 
-            <div className="w-[140px] h-[140px] object-cover overflow-hidden rounded-md relative flex justify-center items-center">
-                <span className="absolute bottom-2 bg-white p-2 rounded-md shadow-lg">Lote 1</span>
-                <img src="https://www.totalcarminiaturas.com.br/wp-content/uploads/2019/09/Batman_DC_Gallaery.jpg" alt="" />
-            </div>
+            {
+                productLots.map((lot, index) => {
+                    return (
+                        <div key={index} className="w-[120px] h-[120px] bg-white flex justify-center items-center relative rounded-md">
+                            <span className="absolute text-zinc-600 text-[12px] top-2">lote 01</span>
+                            <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
+                                className="object-cover w-[120px]" />
+                        </div>
+                    )
+                })
+            }
 
         </div>
     )
