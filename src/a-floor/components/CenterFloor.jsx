@@ -1,60 +1,45 @@
-import {AccountCircle} from "@mui/icons-material"
 
 
 function CenterFloor() {
 
     return (
-        <section className="w-full h-[100%] flex justify-center items-center">
+        <section className="w-full h-full flex 
+        justify-center items-center rounded-[22px] bg-[#d2d2d2ad] 
+        backdrop-blur-lg shadow-xl shadow-[#1414143a] 
+        border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3">
 
-            <div className="w-[50%] h-[100%] flex flex-col relative justify-center items-center gap-2">
-                <h2>Miniatura Ferrari</h2>
+            <div className="w-[40%] h-[80%] flex flex-col relative justify-center items-center gap-2">
 
-                <div className="w-[80%] h-[80%] relative fex justify-center items-center overflow-hidden p-2 rounded-md">
-
-                    <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
-                        className="w-full h-full object-cover rounded-md" />
-
-                    <section className="w-full h-[130px] flex justify-start items-center gap-3 p-2 absolute bottom-0 overflow-x-auto">
-
-                        <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
-                            className="w-[100px] h-[100px] object-cover rounded-md shadow-md" />
-
-                        <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
-                            className="w-[100px] h-[100px] object-cover rounded-md shadow-md" />
-
-                        <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
-                            className="w-[100px] h-[100px] object-cover rounded-md shadow-md" />
-
-                    </section>
-
-                </div>
+                <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
+                    className="w-full h-full object-cover rounded-[2px]" />
 
             </div>
 
-            <div className="w-[40%] h-[100%] flex flex-col justify-center items-center p-1">
+            <div className="w-[50%] h-[80%] flex flex-col justify-start items-center p-1 bg-[#393939] gap-1">
+                <h1 className="font-bold text-[44px] text-white drop-shadow-lg">TÍTULO DO LEILÃO | AO VIVO</h1>
 
-                <div className="w-full flex flex-col gap-3">
-                    <span className="text-[#191F2F] font-bold">1/100 - Lotes</span>
+                <section className="flex w-[90%] justify-end h-[100px] relative">
 
-                    <span className="w-full h-[17px] bg-white rounded-md relative">
-                        <span className="w-[70%] h-[17px] flex bg-[#00D42F] rounded-md relative"></span>
-                    </span>
-                </div>
-
-                <div className="w-full flex flex-col justify-start items-start gap-3">
-                    <span className="text-[#9D9D9D] font-bold text-[16px]">Ranked - Arremates</span>
-
-                    <div className="w-full h-[140px] rounded-md bg-white shadow-md flex justify-around items-center relative">
-                        <div className="flex flex-col justify-center items-center gap-2">
-                            <AccountCircle style={{fontSize:'60px'}}/>
-                            <span>Daniel Arruda</span>
-                        </div>
-                        <div className="w-[60%] h-[80%] bg-[#C8CCD3] flex rounded-md">
-
-                        </div>
+                    <div className="flex justify-end items-end bg-[#135680] 
+                    w-[80%] h-full rounded-md text-white text-[26px] p-2">
+                        <p className="text-right">
+                            peças relevantes e raras no mundo das miniaturas.
+                        </p>
                     </div>
 
-                </div>
+                </section>
+
+                <section className="w-[90%] h-[50%] overflow-y-auto">
+                    <p className="text-white drop-shadow-md shadow-[#0c0c0c99]">
+                        Prepare-se para um evento emocionante! Nesta noite, às 19:00, teremos um leilão imperdível de miniaturas de carros raros e exclusivos. Se você é um colecionador apaixonado por automóveis, esta é a sua chance de adquirir peças únicas para a sua coleção.
+
+                        Entre os destaques do leilão estão modelos clássicos e contemporâneos, em perfeito estado de conservação e com detalhes incríveis. Os entusiastas de carros antigos encontrarão modelos vintage que remontam décadas de história automotiva, enquanto os fãs de carros modernos poderão disputar modelos mais recentes e colecionáveis.
+
+                        O leilão será conduzido por um experiente leiloeiro, garantindo que cada lance seja emocionante e justo. Não perca a oportunidade de participar deste evento único e levar para casa uma miniatura que irá encantar e impressionar qualquer colecionador de carros.
+
+                        O evento acontecerá em nosso salão de leilões, localizado na [endereço]. As inscrições começam às 18:00 e o leilão terá início pontualmente às 19:00. Venha fazer parte desta experiência incrível e quem sabe sair daqui com a miniatura dos seus sonhos. Esperamos por você!
+                    </p>
+                </section>
 
             </div>
 
