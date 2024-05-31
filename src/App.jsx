@@ -31,6 +31,7 @@ import ClientArremates from "./Clients/arremates/ClientArremates";
 import ClientAucts from "./Clients/aucts/ClientAucts";
 import ClientWallet from "./Clients/wallet/ClientWallet";
 import ClientProfile from "./Clients/profile/ClientProfile";
+import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
 
 
 function App() {
@@ -40,6 +41,8 @@ function App() {
         <Routes>
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
+          {/* Home Advertiser */}
+          <Route Component={HomeAdvertiser} path="/advertiser/:advertiser_id" exact />
 
           {/* ACCESS */}
           <Route Component={ClientRegister} path="/client/register" exact />
@@ -75,7 +78,7 @@ function App() {
           <Route Component={AdvertiserEdtiAuct} path="/advertiser/edit-auct" exact />
           <Route Component={AdvertiserAuctions} path="/advertiser/auctions" exact />
           <Route Component={AdvertiserAuctDetails} path="/advertiser/auctions-details" exact />
-          <Route Component={AdvertiserProductDetails} path="/advertiser/product-details/:param" exact />
+          <Route Component={AdvertiserProductDetails} path="/advertiser/product-details/:product_id" exact />
           <Route Component={AdvertiserFinancial} path="/advertiser/advertiser-financial" exact />
           <Route Component={AdvertiserProductsList} path="/advertiser/products" exact />
           <Route Component={AdvertiserClients} path="/advertiser/clients" exact />

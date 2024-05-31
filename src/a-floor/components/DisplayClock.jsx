@@ -41,7 +41,7 @@ function DisplayClock() {
   }, [currentMessageIndex, displayMessage, messages]);
 
   return (
-    <div className="w-[400px] h-[40px] bg-[#323227] text-[#00D42F] flex justify-start items-center p-1 overflow-hidden rounded-md relative">
+    <div className="w-[400px] h-[40px] text-[#1e2e65] flex justify-start items-center p-1 overflow-hidden rounded-md relative">
       <span
         ref={refClockMsg}
         style={{ fontFamily: "alarm clock" }}

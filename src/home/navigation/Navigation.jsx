@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import hammer from "../../media/icons/Hammer.png"
+import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
 
 function Navigation() {
   const [navigationMenu, setNavigationMenu] = useState(false);
@@ -111,9 +112,7 @@ function Navigation() {
                 text-white"
         >
           <div className="flex items-center sm:ml-[-120px] sm:mr-[100px]">
-            <span className="text-[#FFF] text-[18px] leading-[7.11px] font-bold">
-              A U T K
-            </span>
+            <img src={logoAuk} alt="" className="w-[60px] object-cover"/>
           </div>
           <button className={tailwindItems}>
             <Home />

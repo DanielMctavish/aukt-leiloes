@@ -4,8 +4,6 @@ const initialState = {
     product: {}
 }
 
-
-
 const productSlice = createSlice({
     name: "product_selected",
     initialState,

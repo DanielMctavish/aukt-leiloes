@@ -10,9 +10,6 @@ import NavAdvertiser from "../_navigation/NavAdvertiser"
 import DisplayCreateEvent from "./components/DisplayCreateEvent"
 import DisplayInformations from "./components/DisplayInformations"
 import DisplayTermsConditions from "./components/DisplayTermsConditions"
-import DisplayMethodsPayments from "./components/DisplayMethodsPayments"
-import DisplayLimitations from "./components/DisplayLimitations"
-import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
 
@@ -20,6 +17,7 @@ import { getCurrentFile } from "./functions/handleImageChange"
 export const AdvertiserEdtiAuct = () => {
 
     const state = useSelector(state => state.aucts)
+    const stateCurrentEditAuk = useSelector(state => state)
     const stateAuctToEdit = useSelector(state => state.auctEdit)
 
     const [progressBar, setProgressBar] = useState(0)
@@ -41,58 +39,63 @@ export const AdvertiserEdtiAuct = () => {
     const handleEditAuct = async () => {
 
         console.log('observando update dos states -> ', state)
-        return
+        console.log('leilão selecionado -> ', stateCurrentEditAuk.selectedAuct)
+
+
         //Load Operation -------------------------------------------------------------------------------------------------------------------------------
 
         refGeneralBody.current.style.display = 'none'
         loadScreen.current.style.display = 'flex'
         //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
-
-        const formData = new FormData();
-        formData.append("cover-auct-image", getCurrentFile());
         let currentUploadedImage
+        if (getCurrentFile()) {
 
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
-            "Content-Type": "multipart/form-data"
-        }).then(response => {
-            console.log('resposta ao upar imagem -> ', response.data.currentImage);
-            currentUploadedImage = response.data.currentImage
-        }).catch(err => {
-            console.log('err ao tentar upor cover foto auct', err)
-        })
+            axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-cover-auct?url=${state.auct_cover_img}&auct_id=${stateCurrentEditAuk.selectedAuct}`)
+                .then(response => {
+                    console.log(response.data);
+                })
 
+            const formData = new FormData();
+            formData.append("cover-auct-image", getCurrentFile());
 
-        //Create Auct Operation-------------------------------------------------------------------------------------------------------------------------
-        const currentAdvertiserStorage = await JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-        const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`)
-        //console.log('observando advertiser ', getAdvertiser.data);
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
+                "Content-Type": "multipart/form-data"
+            }).then(response => {
+                console.log('resposta ao upar imagem -> ', response.data.currentImage);
+                currentUploadedImage = response.data.currentImage
+            }).catch(err => {
+                console.log('err ao tentar upar cover foto auct', err)
+            })
+
+        }
+
+        //EDIT Auct Operation-------------------------------------------------------------------------------------------------------------------------
+        const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+        const configAuth = {
+            headers: {
+                "Authorization": `Bearer ${currentSession.token}`
+            }
+        }
 
         let currentAuctId
         let currentAuctNanoId
-        // UPDATE AUCT
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/edit-auct`, {
-            creator_id: getAdvertiser.data.id,
-            advertiser_id: getAdvertiser.data.id,
+        // UPDATE AUCT --> Title | tags | categorie | description | terms_conditions |
+        await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${stateCurrentEditAuk.selectedAuct}`, {
             title: aucts.title,
             tags: aucts.tags,
-            auct_cover_img: currentUploadedImage,
+            auct_cover_img: !currentUploadedImage ? state.auct_cover_img : currentUploadedImage,
             descriptions_informations: aucts.descriptions_informations,
             terms_conditions: aucts.terms_conditions,
-            auct_dates: aucts.auct_dates,
-            limit_client: false,
-            limit_date: false,
-            accept_payment_methods: aucts.accept_payment_methods,
-            value: '0',
-            status: 'cataloged',
-            product_timer_seconds: 30
-        }).then(response => {
-            //console.log('resposta ao criar leilão -> ', response.data);
-            setProgressBar(100)
-            currentAuctId = response.data.currentAuct.id
-            currentAuctNanoId = response.data.currentAuct.nano_id
-        }).catch(err => {
-            console.log('erro ao criar leilão -> ', err.response);
-        })
+        }, configAuth)
+            .then(response => {
+                console.log('resposta ao editar leilão -> ', response.data);
+                setProgressBar(100)
+                currentAuctId = response.data.currentAuct.id
+                currentAuctNanoId = response.data.currentAuct.nano_id
+            }).catch(err => {
+                setProgressBar(100)
+                console.log('erro ao editar o leilão -> ', err);
+            })
 
 
         refGeneralBody.current.style.display = 'flex';
@@ -129,13 +132,13 @@ export const AdvertiserEdtiAuct = () => {
                     <DisplayTermsConditions currentAuct={stateAuctToEdit} />
                 </section>
 
-                <section className="w-full min-h-[20vh]
+                {/* <section className="w-full min-h-[20vh]
                 justify-between items-center gap-3 
                 p-3 flex">
                     <DisplayMethodsPayments currentAuct={stateAuctToEdit} />
                     <DisplayLimitations />
                     <DisplayDateLimite />
-                </section>
+                </section> */}
 
                 <section className="w-full min-h-[10vh] p-2 flex justify-center items-center">
                     <button onClick={handleEditAuct} className="w-[160px] h-[50px] bg-[#012038] text-white rounded-md">confirmar edição</button>
