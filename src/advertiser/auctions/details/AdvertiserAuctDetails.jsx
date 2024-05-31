@@ -24,12 +24,13 @@ function AdvertiserAuctDetails() {
     const localAdvertiser = JSON.parse(currentLocalAdvertiser)
 
     useEffect(() => {
+
         if (!currentLocalAdvertiser) {
             navigate('/advertiser/login')
         }
 
         getCurrentAuctById(currentLocalAdvertiser)
-    }, [state.selectedAuct])
+    }, [state.selectedAuct, state.finishedUpload])
 
     useEffect(() => {
 
@@ -69,6 +70,7 @@ function AdvertiserAuctDetails() {
     const refAddProdut = useRef()
 
     const handleShowPhotoAdd = (product) => {
+        document.querySelector(".mod-add-product").style.display = "flex";
         refAddProdut.current.style.display = "flex";
         refAddProdut.current.style.opacity = "0";
         setTimeout(() => {
@@ -88,7 +90,7 @@ function AdvertiserAuctDetails() {
             <section
                 ref={refAddProdut}
                 style={{ backdropFilter: "blur(3px)" }}
-                className="absolute hidden justify-center items-center w-full h-[100vh] z-[999] section-add-product">
+                className="absolute hidden justify-center items-center w-full h-[100vh] z-[999] section-add-product main-window-blur-add">
                 <AddProductMod />
             </section>
 
@@ -144,12 +146,12 @@ function AdvertiserAuctDetails() {
                             <div className="flex flex-col justify-center items-center text-zinc-600
                             w-[308px] h-[80px] bg-[#E9EFFA] rounded-md shadow-lg shadow-[#1313131e]">
                                 <span className="text-[12px]">Valor Estimado</span>
-                                <span className="text-[18px] font-bold">R$ {resumeValues.initial_value_sum.toFixed(2)}</span>
+                                <span className="text-[18px] font-bold">R$ {resumeValues.initial_value_sum && resumeValues.initial_value_sum.toFixed(2)}</span>
                             </div>
                             <div className="flex flex-col justify-center items-center text-zinc-600
                             w-[308px] h-[80px] bg-[#E9EFFA] rounded-md shadow-lg shadow-[#1313131e]">
                                 <span className="text-[12px]">Valor Vendido</span>
-                                <span className="text-[18px] font-bold">R$ {resumeValues.value_balance}</span>
+                                <span className="text-[18px] font-bold">R$ {resumeValues.initial_value_sum && resumeValues.value_balance}</span>
                             </div>
                         </div>
 

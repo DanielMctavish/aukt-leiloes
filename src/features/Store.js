@@ -8,6 +8,7 @@ import { productSelectedReducer } from './product/ProductAddPhoto';
 import { groupDateSliceReducer } from './GroupDates/GroupDate';
 import { errorSliceSliceReducer } from './errors/ReportErrorAtCreateAuct';
 import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
+import {uploadConfirmationReducer} from "./product/UploadFinished"
 
 const store = configureStore({
     reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
         selectedProduct: productSelectedReducer,
         groupDate: groupDateSliceReducer,
         errorReports: errorSliceSliceReducer,
-        auctResume: resumeAuctSliceReducer
+        auctResume: resumeAuctSliceReducer,
+        finishedUpload: uploadConfirmationReducer
     }
 })
 

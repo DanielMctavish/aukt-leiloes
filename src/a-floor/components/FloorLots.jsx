@@ -1,12 +1,18 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react-hooks/exhaustive-deps */
+import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 
 
-function FloorLots() {
+function FloorLots({ products, currentProduct }) {
     const [productLots, setProductsLots] = useState([1])
 
     useEffect(() => {
-        setProductsLots([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    }, [])
+        const newOrderProducts = products?.sort((a, b) => {
+            return dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf()
+        })
+        setProductsLots(newOrderProducts)
+    }, [products])
 
     return (
         <div className="w-full h-[20vh] 
@@ -16,15 +22,31 @@ function FloorLots() {
         border-t-[2px] border-[#e3e3e3] z-[2]">
 
             {
-                productLots.map((lot, index) => {
+                Array.isArray(productLots) ? productLots.map((lot, index) => {
+
+                    if (lot.group !== currentProduct.group) return false;
+
+                    if (lot.id === currentProduct.id) {
+                        return (
+                            <div key={index} className="min-w-[120px] h-[120px] bg-white overflow-hidden
+                            flex justify-center items-center relative rounded-md shadow-xl shadow-[#16161632]">
+                                <span style={{textShadow:"1px 2px 1px #60e0ee"}} 
+                                className="absolute text-zinc-100 bg-[#13326b] p-2 font-bold rounded-lg text-[16px] bottom-1 left-1">
+                                    {index + 1}
+                                </span>
+                                <img src={lot.cover_img_url} alt=""
+                                    className="object-cover w-full h-full" />
+                            </div>
+                        )
+                    }
                     return (
-                        <div key={index} className="w-[120px] h-[120px] bg-white flex justify-center items-center relative rounded-md">
-                            <span className="absolute text-zinc-600 text-[12px] top-2">lote 01</span>
-                            <img src="https://http2.mlstatic.com/D_NQ_NP_687960-MLU72010442633_092023-O.webp" alt=""
-                                className="object-cover w-[120px]" />
+                        <div key={index} className="min-w-[100px] h-[100px] bg-[#c4c4c4] opacity-60
+                        flex justify-center items-center relative rounded-md saturate-0 overflow-hidden">
+                            <img src={lot.cover_img_url} alt=""
+                                className="object-cover w-full h-full" />
                         </div>
                     )
-                })
+                }) : ''
             }
 
         </div>

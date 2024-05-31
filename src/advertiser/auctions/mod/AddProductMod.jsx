@@ -1,12 +1,16 @@
 import axios from "axios"
 import { Close } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useDropzone } from "react-dropzone";
+import { uploadFinished } from "../../../features/product/UploadFinished";
 
 function AddProductMod() {
+    const [isLoading, setIsLoading] = useState(false)
     const [files, setFiles] = useState([]);
     const stateSelectedProduct = useSelector(state => state.selectedProduct)
+    const dispatch = useDispatch();
+    const refCurrentWindow = useRef()
     //const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
     //const localAdvertiser = JSON.parse(currentLocalAdvertiser)
 
@@ -39,7 +43,7 @@ function AddProductMod() {
     };
 
     useEffect(() => {
-        console.log('observando files -> ', files);
+        //console.log('observando files -> ', files);
     }, [files]);
 
     const handleCloseCurrentWindow = () => {
@@ -53,6 +57,7 @@ function AddProductMod() {
 
     const handleUploadProductImages = async () => {
 
+        setIsLoading(true)
         const formDataSingle = new FormData();
         formDataSingle.append("aukt-product-img", files[0]);
 
@@ -67,19 +72,27 @@ function AddProductMod() {
             //ADICIONANDO MULTIPLES IMAGE..............................................................
             if (files.length > 1) {
                 const filesOutIndex0 = await files.filter((_, i) => i !== 0)
-                console.log('observando imagens filtradas',filesOutIndex0);
+                console.log('observando imagens filtradas', filesOutIndex0);
                 const formDataMultiples = new FormData();
-                filesOutIndex0.forEach((image)=>{
+                filesOutIndex0.forEach((image) => {
                     formDataMultiples.append("aukt-products-imgs", image);
                 })
 
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/upload-products-imgs?product_id=${stateSelectedProduct.product.id}`, formDataMultiples)
                     .then(() => {
                         console.log('upload multiples sucess!');
+                        dispatch(uploadFinished({
+                            payload: true
+                        }))
                     }).catch(err => {
                         console.log('segunda requisição -> ', err.response.data);
                     })
             }
+
+            setIsLoading(false)
+            refCurrentWindow.current.style.display = 'none';
+            document.querySelector(".main-window-blur-add").style.display = 'none';
+            setFiles([])
             // //ATUALIZANDO PRODUTO.....................................................................
             // await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/products/update?product_id=${stateSelectedProduct.product.id}`, {
             //     cover_img_url: currentProductCover,
@@ -89,14 +102,28 @@ function AddProductMod() {
             // })
 
         } catch (error) {
+            setFiles([])
+            setIsLoading(false)
+            refCurrentWindow.current.style.display = 'none';
+            document.querySelector(".main-window-blur-add").style.display = 'none';
             console.log('erro ao tentar adicionar fotos ao produto ->');
         }
     }
 
     const { getRootProps, getInputProps, isDragActive } = dropzone;
 
+    if (isLoading) {
+        return (
+            <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] text-zinc-700 
+            justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
+                <h1>Adicionando imagens, aguarde... </h1>
+            </div>
+        )
+    }
+
     return (
-        <div className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
+        <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] mod-add-product 
+        justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
             <span onClick={handleCloseCurrentWindow} className="absolute top-1 right-1 text-zinc-800 cursor-pointer z-[99]">
                 <Close />
             </span>
