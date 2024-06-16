@@ -61,7 +61,7 @@ function Section01() {
     console.log("cards atuais -> ", cardsSelecteds)
   }, [newCardsOrganization])
 
-  
+
 
 
   return (
@@ -113,7 +113,7 @@ function Section01() {
               <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden">
                 {card.description}
               </p>
-              <button onClick={() => navigate("/client/register")}
+              <button onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
                 className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal hover:space-x-3">
                 ver este lote
               </button>

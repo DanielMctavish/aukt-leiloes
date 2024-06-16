@@ -37,7 +37,6 @@ function AssideAdvertiser(props) {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    console.log("Botão clicado!");
   }
 
   const handleVoltarClick = () => {
@@ -235,6 +234,7 @@ function AssideAdvertiser(props) {
 
       </nav>
     </div>
+    
   );
 }
 

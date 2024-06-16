@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
-
+import { setFiles } from "../functions/MiddlewareTransferFile"
 
 function UploadProfileFile() {
-    const [profilePicture, setProfilePicture, setCurrentAdvertiserProfileFile] = useState()
+    const [profilePicture, setProfilePicture] = useState()
 
     //UPLOAD FILES OPERATIONS................................................................
     const handleDragOver = (event) => {
@@ -23,7 +23,7 @@ function UploadProfileFile() {
 
     const onDrop = useCallback((acceptedFiles) => {
         setProfilePicture(acceptedFiles[0]);
-        setCurrentAdvertiserProfileFile(acceptedFiles[0])
+        setFiles(acceptedFiles[0])
     }, []);
 
     const dropzone = useDropzone({
@@ -37,7 +37,7 @@ function UploadProfileFile() {
     });
 
     useEffect(() => {
-        console.log("foto de perfil -> ", profilePicture)
+        //console.log("foto de perfil -> ", profilePicture)
     }, [profilePicture])
 
     const { getRootProps, getInputProps, isDragActive } = dropzone;
@@ -57,7 +57,7 @@ function UploadProfileFile() {
                 : <img src={URL.createObjectURL(profilePicture)} className=" w-[140px] h-[140px] object-cover rounded-full border-[3px] border-white" />
             }
 
-            <input {...getInputProps()} type="file" className="hidden" />
+            <input onChange={() => { }} {...getInputProps()} type="file" className="hidden" />
 
         </>
     )

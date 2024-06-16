@@ -1,7 +1,20 @@
-import LastAucts from "../../data/LastAucts";
+import { useEffect, useState } from "react";
 import axios from "axios"
 
 function TbodyAdvertisersLastAucts() {
+    const [aucts, setAucts] = useState([])
+
+    const sumAllProductsValue = (productsList) => {
+        let sum = 0
+
+        productsList.forEach(product => {
+            sum += product.initial_value
+        })
+
+        console.log("productsList: ",sum)
+
+        return parseFloat(sum);
+    }
 
     const getListCurrentAdvertiserAucts = async () => {
 
@@ -12,40 +25,43 @@ function TbodyAdvertisersLastAucts() {
             }
         }
 
-        
+
         try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`, configAuth)
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiserStorage.id}`, configAuth)
+            const currentAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`, configAuth)
+
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.data.id}`, configAuth).then(result => {
+                console.log("rsult -> ", result.data)
+                setAucts(result.data)
+            })
 
         } catch (error) {
-            console.log(error)
+            console.log('error at try get auctions -> ', error.message)
         }
     }
+
+    useEffect(() => {
+        getListCurrentAdvertiserAucts()
+    }, [])
 
     return (
 
         <tbody className=" overflow-y-auto">
-            {LastAucts.map((auction, index) => (
+            {aucts.map((auction, index) => (
                 <tr className="border-b-[.4px] border-zinc-300 text-zinc-600" key={index}>
-                    {/* Número */}
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.numero}</td>
-                    {/* ID - Leilão */}
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.idLeilão}</td>
-                    {/* Anunciante */}
+
+                    <td className="px-6 py-4 text-left text-[14px] font-bold">{index + 1}</td>
+                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.nano_id}</td>
                     <td className="px-6 py-4 text-left flex justify-start items-center gap-2">
-                        <img src={auction.imagem} alt="" className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full" />
-                        <span className="text-zinc-400 font-bold text-[14px]">{auction.nome}</span>
+                        <img src={auction.auct_cover_img} alt="" className="w-[32px] h-[32px] object-cover shadow-sm shadow-zinc-600 rounded-full" />
+                        <span className="text-zinc-400 font-bold text-[14px]">{auction.title}</span>
                     </td>
-                    {/* Arremate */}
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.arremate}</td>
-                    {/* Título */}
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.titulo}</td>
-                    {/* Ficha */}
-                    <td className="px-6 py-4 text-left">
-                        <span className="bg-[#6400C836] text-[#B66CFF] font-bold rounded-full p-2 text-[12px] cursor-pointer">{auction.ficha}</span>
-                    </td>
-                    {/* Venda */}
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.valor}</td>
+                    <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.product_list.length}</td>
+                    <td className="px-6 py-4 text-left text-[14px] font-bold">R$ {
+                        sumAllProductsValue(auction.product_list).toFixed(2)
+                    }</td>
+                    <td className="px-6 py-4 text-left text-[14px] font-bold">{0}</td>
+
+
                 </tr>
             ))}
         </tbody>

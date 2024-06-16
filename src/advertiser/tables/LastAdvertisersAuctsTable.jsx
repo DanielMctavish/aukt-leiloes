@@ -15,23 +15,19 @@ function LastAdvertisersAuctsTable() {
             <ArrowDropDown  />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Anunciante
+            título
             <ArrowDropDown  />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Arremate
+            lotes quant.
             <ArrowDropDown  />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Título
+            Avaliação
             <ArrowDropDown  />
           </th>
           <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Ficha
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left text-zinc-400 font-semibold">
-            Venda
+            Estimativa
             <ArrowDropDown  />
           </th>
         </tr>

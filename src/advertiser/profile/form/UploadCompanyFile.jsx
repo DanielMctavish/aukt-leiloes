@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { setFiles } from "../functions/MiddlewareTransferFile"
 
-
-function UploadCompanyFile() {
-    const [profileCompany, setProfileCompany, setCurrentAdvertiserCompanyFile] = useState()
+function UploadCompanyFile({ currentAdvertiser }) {
+    const [profileCompany, setProfileCompany] = useState()
 
     //UPLOAD FILES OPERATIONS................................................................
     const handleDragOver = (event) => {
@@ -23,7 +24,7 @@ function UploadCompanyFile() {
 
     const onDrop = useCallback((acceptedFiles) => {
         setProfileCompany(acceptedFiles[0]);
-        setCurrentAdvertiserCompanyFile(acceptedFiles[0]);
+        setFiles(false, acceptedFiles[0])
     }, []);
 
     const dropzone = useDropzone({
@@ -37,7 +38,7 @@ function UploadCompanyFile() {
     });
 
     useEffect(() => {
-        console.log("foto da empresa -> ", profileCompany)
+        //console.log("foto da empresa -> ", profileCompany)
     }, [profileCompany])
 
     const { getRootProps, getInputProps, isDragActive } = dropzone;
@@ -45,6 +46,7 @@ function UploadCompanyFile() {
     return (
         <>
             {!profileCompany ?
+
                 <div {...getRootProps({ className: "dropzone" })}
                     ref={refLabelZoneArea}
                     onDragOver={handleDragOver}
@@ -54,9 +56,16 @@ function UploadCompanyFile() {
                     {isDragActive ? (<h2>solte o arquivo</h2>) : (<h2 className="text-center">arraste e solte a foto da empresa</h2>)}
                 </div> :
                 <img src={URL.createObjectURL(profileCompany)} className="object-cover w-[220px] h-[220px] rounded-full" />
+
             }
 
-            <input {...getInputProps()} type="file" className="hidden" />
+            {
+                currentAdvertiser.url_profile_company_logo_cover &&
+                <img src={currentAdvertiser.url_profile_company_logo_cover} 
+                className="object-cover w-[80px] h-[80px] rounded-full absolute top-1 left-2 bg-white border-[3px] border-zinc-600" />
+            }
+
+            <input onChange={() => { }} {...getInputProps()} type="file" className="hidden" />
         </>
     )
 }

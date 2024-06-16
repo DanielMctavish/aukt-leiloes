@@ -32,6 +32,7 @@ import ClientAucts from "./Clients/aucts/ClientAucts";
 import ClientWallet from "./Clients/wallet/ClientWallet";
 import ClientProfile from "./Clients/profile/ClientProfile";
 import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
+import ProductDetailAdv from "./home/advertiser-home/ProductDetailAdv";
 
 
 function App() {
@@ -42,7 +43,8 @@ function App() {
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
           {/* Home Advertiser */}
-          <Route Component={HomeAdvertiser} path="/advertiser/:advertiser_id" exact />
+          <Route Component={HomeAdvertiser} path="/advertiser/home/:advertiser_id" exact />
+          <Route Component={ProductDetailAdv} path="/advertiser/home/product/:product_id" exact />
 
           {/* ACCESS */}
           <Route Component={ClientRegister} path="/client/register" exact />
@@ -57,7 +59,7 @@ function App() {
           <Route Component={ClientWallet} path="/client/wallet" exact />
 
           <Route Component={ClientProfile} path="/client/profile" exact />
-          <Route Component={ClientLogin} path="/client/login " exact />
+          <Route Component={ClientLogin} path="/client/login" exact />
           <Route Component={ClientRegister} path="/client/register" exact />
 
           {/* ADMIN */}

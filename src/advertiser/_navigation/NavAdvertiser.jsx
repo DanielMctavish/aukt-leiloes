@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
+import axios from "axios"
 import { ArrowDropDown } from "@mui/icons-material";
-import UserInfor from "../data/userInfor";
 //import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useEffect, useState } from "react";
@@ -9,14 +9,31 @@ function NavAdvertiser({ path }) {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({})
 
   useEffect(() => {
-    const currentAdvertiserSession = localStorage.getItem("advertiser-session-aukt")
+    getAdvertiserInformations()
+  }, [])
 
-    if (currentAdvertiserSession) {
-      const currentAdvertiser = JSON.parse(currentAdvertiserSession)
-      setAdvertiserInfor(currentAdvertiser)
+  const getAdvertiserInformations = async () => {
+    const currentAdvertiserSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+
+    const configAuth = {
+      headers: {
+        "Authorization": `Bearer ${currentAdvertiserSession.token}`
+      }
     }
 
-  }, [])
+    try {
+      await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserSession.email}`, configAuth)
+        .then(response => {
+          setAdvertiserInfor(response.data)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   return (
     <nav
@@ -44,9 +61,9 @@ function NavAdvertiser({ path }) {
         text-[12px]
         cursor-pointer"
     >
-      {UserInfor.map((auction, index) => (
-        <section
-          className="
+
+      <section
+        className="
             w-[98%] 
             lg:h-[72px]
             h-[100vh] 
@@ -57,34 +74,33 @@ function NavAdvertiser({ path }) {
             items-center
             lg:gap-0
             gap-3"
-          key={index}
-        >
-          <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
-            Bem vindo, {AdvertiserInfor.name}!
-          </span>
+      >
+        <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
+          Bem vindo, {AdvertiserInfor.name}!
+        </span>
 
-          <span className="flex text-zinc-600 text-[12px]">
-            {path}
-          </span>
+        <span className="flex text-zinc-600 text-[12px]">
+          {path}
+        </span>
 
-          <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">
-            <span>
-              <NotificationsIcon className="text-[#012038]" />
-            </span>
-            <img
-              src={AdvertiserInfor.url_profile_cover}
-              alt="foto-perfil"
-              className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
-            />
-            <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">
-              {AdvertiserInfor.name}
-            </span>
-            <span className="lg:flex hidden">
-              <ArrowDropDown />
-            </span>
-          </section>
+        <section className="flex flex-row justify-center items-center gap-6 text-zinc-600">
+          <span>
+            <NotificationsIcon className="text-[#012038]" />
+          </span>
+          <img
+            src={AdvertiserInfor.url_profile_cover}
+            alt="foto-perfil"
+            className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
+          />
+          <span className="text-[#012038] font-semibold text-[18px] lg:flex hidden">
+            {AdvertiserInfor.name}
+          </span>
+          <span className="lg:flex hidden">
+            <ArrowDropDown />
+          </span>
         </section>
-      ))}
+      </section>
+
     </nav>
   );
 }
