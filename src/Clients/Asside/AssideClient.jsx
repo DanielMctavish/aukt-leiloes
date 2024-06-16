@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 function AssideClient(props) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
@@ -27,7 +28,6 @@ function AssideClient(props) {
 
   //console.log('observando props... ->>', props.MenuSelected);
 
-  const navigate = useNavigate();
 
   function handleClick(route) {
     navigate(route);
@@ -42,14 +42,15 @@ function AssideClient(props) {
     setIsSidebarOpen(false);
   };
 
-  const handleLogoutAdmin = () => {
-    localStorage.removeItem('auct-admin-session')
-    navigate('/admin/login')
-  }
 
   const iconStyle = {
     fontSize: "64px",
   };
+
+  const handleLogoutClient = ()=>{
+    localStorage.removeItem('client-auk-session-login')
+    navigate('/')
+  }
 
   return (
     <div>
@@ -111,7 +112,7 @@ function AssideClient(props) {
 
               <button
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-                onClick={handleLogoutAdmin}
+                onClick={handleLogoutClient}
               >
                 <Logout style={iconStyle} />
                 <span className="mt-1 text-xs">Logout</span>
@@ -136,6 +137,7 @@ function AssideClient(props) {
           <img
             src={logo_aukt_green}
             alt="Logo-auk"
+            onClick={() => navigate("/")}
             className="w-[100px] object-cover cursor-pointer"
           />
         </div>
@@ -190,7 +192,7 @@ function AssideClient(props) {
         </button>
 
         <button
-          onClick={handleLogoutAdmin}
+          onClick={handleLogoutClient}
           id="menu-6"
           className="w-full flex justify-between items-center p-2 text-white"
         >

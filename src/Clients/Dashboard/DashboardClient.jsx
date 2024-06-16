@@ -1,12 +1,38 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import axios from "axios";
 import NavClient from "../navigation/NavClient";
 import AssideClient from "../Asside/AssideClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ClientTables from "../tables/ClientTables";
+import { useNavigate } from "react-router-dom";
 
 function DashboardClient() {
+    const [currentClient, setCurrentClient] = useState({})
     const [arrematesRecents, setArrematesRecents] = useState([1, 2, 3, 4, 5, 6])
 
-    
+    const navigate = useNavigate()
+    useEffect(() => {
+        getClientInformations()
+    }, [])
+
+    const getClientInformations = async () => {
+        const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"))
+        if (!currentSessionClient) {
+            navigate("/client/login")
+        }
+
+        await axios.get(`/api/client/find-client`, {
+            headers: {
+                "Authorization": `Bearer ${currentSessionClient.token}`
+            }
+        }).then((response) => {
+            console.log("dashboard client found -> ", response.data)
+            setCurrentClient(response.data)
+        }).catch(() => {
+            navigate("/client/login")
+        })
+
+    }
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
@@ -15,15 +41,15 @@ function DashboardClient() {
 
             <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2 text-zinc-600">
 
-                <NavClient />
+                <NavClient currentClient={currentClient} />
 
                 <section className="flex flex-col justify-between w-[98%] h-[30%] bg-white rounded-md shadow-md shadow-[#17171734] p-2">
 
                     <div className="flex w-full justify-start items-center gap-6">
                         <img src="" alt="" className="object-cover w-[70px] h-[70px] bg-zinc-200 rounded-full" />
-                        <div className="flex flex-col justify-start items-center gap-3">
-                            <span>nome do usuário</span>
-                            <span>email do usuário</span>
+                        <div className="flex flex-col justify-start items-start gap-1">
+                            <span className="text-[33px]">{currentClient.name}</span>
+                            <span>{currentClient.email}</span>
                         </div>
                     </div>
 
