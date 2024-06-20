@@ -32,8 +32,8 @@ function Navigation() {
     }
   };
 
-  const handleAdvertiser = () => {
-    navigate("/advertiser/register")
+  const handleClientAccess = () => {
+    navigate("/client/login")
   }
 
   return (
@@ -141,10 +141,10 @@ function Navigation() {
             <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
           </span>
           <button
-            onClick={handleAdvertiser}
+            onClick={handleClientAccess}
             className={tailwindItems}>
             <AccountCircle />
-            ANUNCIAR
+            entrar
           </button>
         </section>
       </div>
