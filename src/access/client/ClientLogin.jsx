@@ -19,7 +19,7 @@ function ClientLogin() {
 
     const handleClientLogin = async () => {
 
-        await axios.post(`/api/client/login`, {
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
             email: email,
             password: password,
         }).then(response => {
