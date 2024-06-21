@@ -75,9 +75,15 @@ function NavAdvertiser({ path }) {
             lg:gap-0
             gap-3"
       >
-        <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
-          Bem vindo, {AdvertiserInfor.name}!
-        </span>
+        <div className="flex justify-center items-center gap-3">
+          <span className="text-[22px] text-zinc-600 font-bold lg:flex hidden">
+            Bem vindo, {AdvertiserInfor.name}!
+          </span>
+
+          <span className="text-[22px] text-zinc-300 font-bold lg:flex hidden">
+            {AdvertiserInfor.nano_id}
+          </span>
+        </div>
 
         <span className="flex text-zinc-600 text-[12px]">
           {path}
