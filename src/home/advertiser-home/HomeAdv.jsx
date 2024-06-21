@@ -22,21 +22,22 @@ function HomeAdvertiser() {
 
     const getAdvertiserInformations = async () => {
         try {
-            await axios.get(`/api/advertiser/find?adv_id=${advertiser_id}`)
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?adv_id=${advertiser_id}`)
                 .then(result => {
                     setAdvertiser(result.data)
                 })
 
-            await axios.get(`/api/auct/list-auct?creator_id=${advertiser_id}`).then(result => {
-                result.data.forEach((auct) => {
-                    if (auct.status === "cataloged") {
-                        console.log("AUK >> ", auct)
-                        setDisplayAuct(auct)
-                        setDisplayProduct(auct.product_list)
-                        return false
-                    }
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${advertiser_id}`)
+                .then(result => {
+                    result.data.forEach((auct) => {
+                        if (auct.status === "cataloged") {
+                            console.log("AUK >> ", auct)
+                            setDisplayAuct(auct)
+                            setDisplayProduct(auct.product_list)
+                            return false
+                        }
+                    })
                 })
-            })
         } catch (error) {
             navigate("/")
         }
