@@ -23,12 +23,13 @@ function ProductDetailAdv() {
     }, [successBid])
 
     const getProductInformations = async () => {
-        await axios.get(`/api/products/find?product_id=${product_id}`).then((response) => {
-            //console.log("product get: ", response.data)
-            setCurrentProduct(response.data)
-            setCurrentAuct(response.data.Auct)
-            setCurrentAdvertiser(response.data.Advertiser)
-        })
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
+            .then((response) => {
+                //console.log("product get: ", response.data)
+                setCurrentProduct(response.data)
+                setCurrentAuct(response.data.Auct)
+                setCurrentAdvertiser(response.data.Advertiser)
+            })
     }
 
     const handleBidproduct = async () => {
@@ -60,7 +61,7 @@ function ProductDetailAdv() {
             return
         }
 
-        await axios.post(`/api/client/bid-auct`, {
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
             value: parseFloat(bidValue),
             client_id: currentClient.id,
             auct_id: currentAuct.id,
