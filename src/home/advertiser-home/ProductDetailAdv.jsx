@@ -107,7 +107,6 @@ function ProductDetailAdv() {
     }
 
 
-
     return (
         <div className="flex flex-col justify-start items-center w-full h-[132vh] bg-gradient-to-b from-[#94365D] to-[#6B4AB0] relative">
 
