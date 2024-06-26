@@ -16,9 +16,10 @@ function AuctFloor() {
 
     useEffect(() => {
 
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_API}`);
+        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
         socket.on('aukt-server-floor-live', (message) => {
 
+            console.log("conectado ao socket com sucesso -> ", message)
             setSocketMessage(message)
 
             if (!currentAuct) {

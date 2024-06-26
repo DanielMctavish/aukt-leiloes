@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 function DashboardClient() {
     const [currentClient, setCurrentClient] = useState({})
-    const [arrematesRecents, setArrematesRecents] = useState([1, 2, 3, 4, 5, 6])
+    const [arrematesRecents, setArrematesRecents] = useState([1, 2, 3])
 
     const navigate = useNavigate()
     useEffect(() => {
