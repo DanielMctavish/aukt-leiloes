@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import NavClient from "../navigation/NavClient";
@@ -21,7 +22,7 @@ function DashboardClient() {
             navigate("/client/login")
         }
 
-        await axios.get(`/api/client/find-client`, {
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client`, {
             headers: {
                 "Authorization": `Bearer ${currentSessionClient.token}`
             }
@@ -29,6 +30,7 @@ function DashboardClient() {
             console.log("dashboard client found -> ", response.data)
             setCurrentClient(response.data)
         }).catch(() => {
+            localStorage.removeItem("client-auk-session-login")
             navigate("/client/login")
         })
 

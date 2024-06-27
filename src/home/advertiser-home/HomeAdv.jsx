@@ -107,10 +107,10 @@ function HomeAdvertiser() {
             </div>
 
             {/* SECTION 01 ------------------------------------------------------------------------------------------------------------------------- */}
-            <section className="flex flex-col justify-start items-center w-full h-[100vh] bg-gradient-to-b from-[#94365D] to-[#6B4AB0] relative">
+            <section className="flex flex-col justify-start items-center w-full h-[100vh] bg-gradient-to-b from-[#f2fcff] to-[#ddcdff] relative">
                 <div className="w-[98%] h-[32vh] bg-white border-[#aaaaaaf5] 
                 border-[1px] rounded-md top-2 flex justify-center items-center mt-3 
-                relative overflow-hidden shadow-lg shadow-[#13131361]">
+                relative overflow-hidden shadow-lg shadow-[#13131361] ">
                     <span
                         onClick={() => showMenuHome()}
                         className="fixed top-1 left-1 z-20 cursor-pointer shadow-sm bg-[#252525cc] p-1 rounded-md"><Menu /></span>
@@ -123,7 +123,7 @@ function HomeAdvertiser() {
                     <div className="md:w-[30%] w-full h-[70%] flex flex-col justify-center items-left text-left gap-2">
                         <span className="text-[16px] font-bold text-[#B695EC]">Grandes Oportunidades Esperam por Você</span>
                         <h1 style={{ textShadow: "1px 2px 4px #0e0e0e77" }} className="text-[26px] font-bold">NÃO PERCA OS PRÓXIMOS LEILÕES</h1>
-                        <p className="text-[12px]">
+                        <p className="text-[12px] text-zinc-600">
                             Prepare-se para os leilões mais emocionantes da nossa plataforma! Fique ligado nas datas e não deixe passar a chance de arrematar itens exclusivos a preços incríveis. Cadastre-se agora e seja o primeiro a saber das novidades. Cada leilão é uma nova oportunidade, não perca!
                         </p>
                     </div>

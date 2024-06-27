@@ -107,13 +107,18 @@ function ProductDetailAdv() {
     }
 
 
+
     return (
         <div className="flex flex-col justify-start items-center w-full h-[132vh] bg-gradient-to-b from-[#94365D] to-[#6B4AB0] relative">
 
             <span ref={messageRef} className="flex h-[30px] w-full justify-center items-center mt-[-30px] bg-white">mensagens de span</span>
 
             <div className="flex w-full h-[32vh] relative overflow-hidden justify-center items-center">
-                <button onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
+                <button
+                style={{
+                    textShadow:"1px 2px 1px #101010a2"
+                }}
+                 onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
                     className="flex absolute top-1 left-3 z-20">
                     voltar
                 </button>

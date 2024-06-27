@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom"
 
 
 function AdvertiserRegister() {
+    const [cpf, setCpf] = useState("")
+    const [cnpj, setCnpj] = useState("")
     const refName = useRef()
-    const refCpf = useRef()
-    const refCNPJ = useRef()
     const refCompanyName = useRef()
     const refEmail = useRef()
     const refPassword = useRef()
@@ -58,10 +58,10 @@ function AdvertiserRegister() {
 
         await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/create-advertiser`, {
             name: refName.current.value,
-            CPF: refCpf.current.value,
-            CNPJ: refCNPJ.current.value,
+            CPF: cpf,
+            CNPJ: cnpj,
             company_name: refCompanyName.current.value,
-            company_adress:JSON.stringify(addressInformations),
+            company_adress: JSON.stringify(addressInformations),
             email: refEmail.current.value,
             password: refPassword.current.value,
             address: JSON.stringify(addressInformations)
@@ -92,6 +92,36 @@ function AdvertiserRegister() {
 
     }
 
+    const verifyCpf = (e) => {
+        let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
+
+        if (input.length > 11) {
+            input = input.slice(0, 11); // Limita o input a 11 caracteres
+        }
+
+        if (input.length === 11) {
+            setCpf(input.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "$1.$2.$3-$4"));
+        } else {
+            setCpf(input); // Define o valor do CPF sem formatação enquanto está incompleto
+        }
+    };
+
+
+    const verifyCnpj = (e) => {
+        let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
+
+        if (input.length > 14) {
+            input = input.slice(0, 14); // Limita o input a 14 caracteres
+        }
+
+        if (input.length === 14) {
+            setCnpj(input.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "$1.$2.$3/$4-$5"));
+        } else {
+            setCnpj(input); // Define o valor do CNPJ sem formatação enquanto está incompleto
+        }
+    };
+
+
 
     return (
 
@@ -120,7 +150,11 @@ function AdvertiserRegister() {
 
                     <div className="flex flex-col justify-start items-start">
                         <span>CPF</span>
-                        <input ref={refCpf} type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        <input
+                            value={cpf}
+                            type="text"
+                            onChange={verifyCpf}
+                            className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
                     <div className="flex flex-col justify-start items-start">
@@ -174,7 +208,10 @@ function AdvertiserRegister() {
                         </div>
                         <div className="flex flex-col justify-start items-start">
                             <span>CNPJ</span>
-                            <input ref={refCNPJ} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                            <input type="text"
+                                value={cnpj}
+                                onChange={verifyCnpj}
+                                className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                         </div>
                     </section>
 

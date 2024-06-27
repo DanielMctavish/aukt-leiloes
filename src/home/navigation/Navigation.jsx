@@ -1,9 +1,4 @@
 import {
-  Home,
-  Help,
-  People,
-  EventAvailable,
-  Category,
   AccountCircle,
   Menu,
 } from "@mui/icons-material";
@@ -39,29 +34,10 @@ function Navigation() {
   return (
     <nav
       className="
-        lg:ml-0
-        ml-[-40vh]
-        nav-auk
-        lg:left-auto
-        left-0
-        lg:relative
-        fixed
-        lg:w-full
-        w-[220px] 
-        lg:h-[48px]
-        h-[100vh] 
-        bg-[#012038] 
-        lg:flex-col
-        flex-row
-        lg:flex
-        sm:justify-center
-        lg:justify-start 
-        sm:items-center 
-        gap-2 
-        text-white 
-        text-[12px]
-        cursor-pointer
-        z-30"
+        lg:ml-0 ml-[-40vh] nav-auk lg:left-auto left-0
+        lg:relative fixed lg:w-[99%] w-[220px] lg:h-[62px]
+        h-[100vh] bg-[#012038] lg:flex-col flex-row flex justify-center items-center
+        gap-2 text-white text-[14px] cursor-pointer z-30 rounded-md mt-2"
     >
       <span
         style={{ fontSize: "26px" }}
@@ -86,7 +62,7 @@ function Navigation() {
 
       <div
         className="
-            lg:w-[80%] 
+            lg:w-[94%] 
             w-full 
             lg:h-[48px]
             h-[100vh] 
@@ -101,7 +77,7 @@ function Navigation() {
                 lg:mt-0
                 mt-[8vh]
                 h-[42px] 
-                lg:w-[60%]
+                lg:w-[80%]
                 w-full
                 lg:flex-row
                 flex-col
@@ -111,32 +87,13 @@ function Navigation() {
                 gap-2 
                 text-white"
         >
-          <div className="flex items-center sm:ml-[-120px] sm:mr-[100px]">
-            <img src={logoAuk} alt="" className="w-[60px] object-cover"/>
+          <div className="flex items-center sm:mr-[100px]">
+            <img src={logoAuk} alt="" className="w-[60px] object-cover" />
           </div>
-          <button className={tailwindItems}>
-            <Home />
-            HOME
-          </button>
-          <button className={tailwindItems}>
-            <People />
-            QUEM SOMOS
-          </button>
-          <button className={tailwindItems}>
-            <Help />
-            AJUDA
-          </button>
-          <button className={tailwindItems}>
-            <EventAvailable />
-            AGENDA
-          </button>
-          <button className={tailwindItems}>
-            <Category />
-            PRODUTOS
-          </button>
+
         </section>
 
-        <section className="flex gap-2 justify-center items-center">
+        <div className="flex gap-2 justify-center items-center ">
           <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor")}>
             <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
           </span>
@@ -146,8 +103,10 @@ function Navigation() {
             <AccountCircle />
             entrar
           </button>
-        </section>
+        </div>
+
       </div>
+
     </nav>
   );
 }

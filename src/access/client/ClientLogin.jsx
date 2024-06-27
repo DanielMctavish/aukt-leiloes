@@ -12,8 +12,8 @@ function ClientLogin() {
 
     useEffect(() => {
         const currentSessionClient = localStorage.getItem("client-auk-session-login");
-        if (currentSessionClient) {
-            navigate("/client/dashboard")
+        if (!currentSessionClient) {
+            navigate("/client/login")
         }
     }, [])
 
@@ -40,7 +40,7 @@ function ClientLogin() {
     return (
 
         <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 overflow-hidden relative">
-            <img src={background} className="object-cover w-full absolute opacity-60" />
+            <img src={background} className="object-cover w-full h-full absolute opacity-60" />
 
             <section className="w-[80%] h-[90vh] flex bg-transparent rounded-[4px] relative overflow-hidden shadow-2xl z-10">
                 <div className="w-[50%] h-[100%] bg-white/30 backdrop-blur-[12px] flex justify-center items-center">
