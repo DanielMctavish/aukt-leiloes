@@ -58,7 +58,7 @@ function Section01() {
 
   useEffect(() => {
     setCardsSelecteds(newCardsOrganization)
-    console.log("cards atuais -> ", cardsSelecteds)
+    //console.log("cards atuais -> ", cardsSelecteds)
   }, [newCardsOrganization])
 
 
