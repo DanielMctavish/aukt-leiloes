@@ -19,7 +19,7 @@ function AuctFloor() {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
         socket.on('aukt-server-floor-live', (message) => {
 
-            console.log("conectado ao socket com sucesso -> ", message)
+            // console.log("conectado ao socket com sucesso -> ", message)
             setSocketMessage(message)
 
             if (!currentAuct) {
@@ -70,7 +70,7 @@ function AuctFloor() {
 
             <div className="flex w-full h-full justify-between items-center gap-[2vh] z-[2]">
 
-                <section className="w-[70%] h-full flex flex-col justify-between items-center relative gap-[2vh]">
+                <section className="max-w-[70%] h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] overflow-y-auto">
 
                     <CenterFloor title={currentProduct.title}
                         cover={currentProduct.cover_img_url}

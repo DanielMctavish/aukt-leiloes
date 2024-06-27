@@ -16,7 +16,7 @@ function CenterFloor({ title, cover, description }) {
     }
 
     return (
-        <section className="w-full h-full flex 
+        <section className="w-full h-[60vh] flex 
         justify-center items-center rounded-[22px] bg-[#d2d2d2ad] 
         backdrop-blur-lg shadow-xl shadow-[#1414143a] 
         border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3">
@@ -28,7 +28,7 @@ function CenterFloor({ title, cover, description }) {
                         className="w-[40%] h-[80%] flex flex-col relative justify-center items-center gap-2">
 
                             <img src={cover} alt=""
-                                className="w-full  object-cover shadow-lg shadow-[#0a0a0a50] hover:scale-[1.2] transition duration-150 rounded-md" />
+                                className="h-[99%]  object-cover shadow-lg shadow-[#0a0a0a50] hover:scale-[1.2] transition duration-150 rounded-md" />
 
                         </div>
 
