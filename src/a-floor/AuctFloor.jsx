@@ -70,7 +70,7 @@ function AuctFloor() {
 
             <div className="flex lg:flex-row flex-col w-full h-full justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
 
-                <section className="ls:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh]">
+                <section className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh]">
 
                     <CenterFloor title={currentProduct.title}
                         cover={currentProduct.cover_img_url}
