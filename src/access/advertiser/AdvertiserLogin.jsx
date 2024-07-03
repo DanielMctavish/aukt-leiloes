@@ -89,7 +89,7 @@ function AdvertiserLogin() {
                     </div>
 
                     <button onClick={handeAdvertiserLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
-                    <button onClick={() => navigate("/advertiser/register")}>não tem uma conta? Registre-se</button>
+                    <button onClick={()=>navigate("/advertiser/register/x1x2x3x4x5")} className="w-[300px] h-[41px] p-2 bg-[#012038] rounded-md text-[#e3eff7]">registrar</button>
                 </div>
             </section>
 
