@@ -1,8 +1,10 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import { useRef } from "react"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import dayjs from "dayjs"
+import { useNavigate, useParams } from "react-router-dom"
 
 
 function AdvertiserRegister() {
@@ -14,6 +16,8 @@ function AdvertiserRegister() {
     const refPassword = useRef()
     const refPasswordConfirm = useRef()
 
+    const { register_token } = useParams()
+
     //address fields
     const refState = useRef()
     const refCity = useRef()
@@ -22,6 +26,7 @@ function AdvertiserRegister() {
     const refCep = useRef()
 
     const [messageDisplay, setMessageDisplay] = useState("")
+    const [timeTokenLeft, setTimeTokenLeft] = useState("")
 
     const navigate = useNavigate()
 
@@ -30,6 +35,7 @@ function AdvertiserRegister() {
         if (currentLocalAdvertiser) {
             navigate('/advertiser/dashboard')
         }
+        getSecurityTokenAccess()
     }, [])
 
     const handleRegisterAdvertiser = async () => {
@@ -121,11 +127,39 @@ function AdvertiserRegister() {
         }
     };
 
+    const getSecurityTokenAccess = () => {
+
+        const securityToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"))
+
+        if (!securityToken) {
+            navigate("/security-confirmation")
+            return
+        }
+
+        if (securityToken.token !== register_token) {
+            localStorage.removeItem("token-access-register-advertiser")
+            navigate("/security-confirmation")
+            return
+        }
+
+        const expirationDate = dayjs(securityToken.expiration).valueOf()
+        const currentMoment = dayjs().valueOf();
+        setTimeTokenLeft(dayjs(expirationDate - currentMoment).minute())
+
+        if (expirationDate < currentMoment) {
+            localStorage.removeItem("token-access-register-advertiser")
+            navigate("/security-confirmation")
+            return
+        }
+
+    }
+
 
 
     return (
 
-        <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3">
+        <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 relative">
+            <span className="absolute top-1 left-1 text-zinc-600 text-[10px]">tempo restante: {timeTokenLeft} minutos</span>
 
             <span className="text-zinc-700">{messageDisplay}</span>
 

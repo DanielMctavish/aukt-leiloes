@@ -12,6 +12,7 @@ import {
   AccountBalanceWallet,
   Person,
   Logout,
+  Gamepad
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -22,7 +23,7 @@ function AssideAdvertiser(props) {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
     if (menuBtn) {
       menuBtn.style.background = "linear-gradient(90deg, #4D5BD4 0.03%, #76D057 99.17%)";
-      menuBtn.style.border = "solid 1px #99a3ff4d"
+      menuBtn.style.border = "solid 1px #bdc3fe4d"
       menuBtn.style.borderRadius = "4px";
     }
   }, [])
@@ -87,6 +88,14 @@ function AssideAdvertiser(props) {
               >
                 <Group style={iconStyle} />
                 <span className="mt-1 text-xs">Leilões</span>
+              </button>
+
+              <button
+                onClick={() => handleClick("/advertiser/auctions-controls")}
+                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
+              >
+                <Gamepad style={iconStyle} />
+                <span className="mt-1 text-xs">Controles</span>
               </button>
 
               <button
@@ -176,6 +185,15 @@ function AssideAdvertiser(props) {
 
         <button
           id="menu-4"
+          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
+          onClick={() => handleClick("/advertiser/auctions-controls")}
+        >
+          <Gamepad />
+          <span>Controles</span>
+        </button>
+
+        <button
+          id="menu-5"
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/auctions")}
         >
@@ -184,7 +202,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-5"
+          id="menu-6"
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/clients")}
         >
@@ -193,7 +211,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-6"
+          id="menu-7"
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/wallet")}
         >
@@ -202,7 +220,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-7"
+          id="menu-8"
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/templates")}
         >
@@ -215,7 +233,7 @@ function AssideAdvertiser(props) {
         </div>
 
         <button
-          id="menu-8"
+          id="menu-9"
           className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
           onClick={() => handleClick("/advertiser/profile")}
         >
@@ -224,7 +242,7 @@ function AssideAdvertiser(props) {
         </button>
 
         <button
-          id="menu-9"
+          id="menu-10"
           onClick={handleLogoutAdveriser}
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
         >
@@ -234,7 +252,7 @@ function AssideAdvertiser(props) {
 
       </nav>
     </div>
-    
+
   );
 }
 
