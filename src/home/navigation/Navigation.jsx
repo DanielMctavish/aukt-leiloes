@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import hammer from "../../media/icons/Hammer.png"
 import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
+import logoAuk_white from "../../media/logos/logos-auk/logo_model01_white.png"
 
 function Navigation() {
   const [navigationMenu, setNavigationMenu] = useState(false);
@@ -97,15 +98,22 @@ function Navigation() {
         </section>
 
         <div className="flex gap-2 justify-center items-center ">
+
+          <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/register/8sf77-s9087-xx8s8")}>
+            <img src={logoAuk_white} alt="hammer" className="w-[48px] object-cover" />
+          </span>
+
           <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor")}>
             <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
           </span>
+
           <button
             onClick={handleClientAccess}
             className={tailwindItems}>
             <AccountCircle />
             entrar
           </button>
+
         </div>
 
       </div>
