@@ -11,7 +11,7 @@ function FloorBids({ timer, duration, auct_id, initial_value }) {
     }, [])
 
     return (
-        <div className="lg:w-[30%] w-[99%] lg:h-[94%] min-h-[60vh]
+        <div className="lg:min-w-[28%] w-[99%] lg:h-[94%] min-h-[60vh]
         flex flex-col justify-start items-center
         relative p-2 rounded-[22px] bg-[#d2d2d2ad] 
         backdrop-blur-lg shadow-xl shadow-[#1414143a] 
