@@ -99,7 +99,7 @@ function Navigation() {
 
         <div className="flex gap-2 justify-center items-center ">
 
-          <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/register/8sf77-s9087-xx8s8")}>
+          <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/login")}>
             <img src={logoAuk_white} alt="hammer" className="w-[48px] object-cover" />
           </span>
 

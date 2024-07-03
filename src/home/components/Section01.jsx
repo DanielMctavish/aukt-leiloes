@@ -69,7 +69,6 @@ function Section01() {
 
       <Submenu />
 
-
       {/* CARDS DE PRODUTOS */}
       <div className="w-full h-[80vh] flex justify-center items-center overflow-hidden gap-6">
 
