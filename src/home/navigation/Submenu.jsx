@@ -38,9 +38,9 @@ function Submenu() {
   }
 
   return (
-    <section className="lg:flex none items-center justify-center   w-full h-[70px] gap-3">
+    <section className="flex  items-center justify-center  w-full h-[70px] gap-3 md:mt-1 mt-12">
 
-      <div className="gap-6 items-center justify-center sm:mb-0">
+      <div className="md:flex hidden gap-6 items-center justify-center sm:mb-0">
         {
           Array.isArray(allCategories) &&
           allCategories.map((categorie, i) => (
@@ -52,13 +52,13 @@ function Submenu() {
 
       </div>
 
-      <div className="relative flex items-center mt-0">
+      <div className="relative flex justify-between items-center mt-0 w-[90%] gap-2">
         <input
           type="text"
           value={inputText}
           onChange={handleSearchProduct}
           placeholder="Pesquise por item ou categoria"
-          className="w-full sm:w-[270px] h-[30px] pr-12 p-2 bg-[#d9d9d994] text-[#898383] text-[14px] rounded-md"
+          className="md:w-full w-[90%] sm:w-[270px] h-[30px] pr-12 p-2 bg-[#d9d9d994] text-[#898383] text-[14px] rounded-md"
         />
         <span className="absolute right-0 inset-y-0 flex items-center w-[32px] p-1 bg-[#022A33] rounded-md">
           <SearchIcon />
