@@ -96,10 +96,10 @@ function Section01() {
             overflow-hidden flex justify-center 
             items-center gap-3 rounded-lg relative bg-zinc-200"
           >
-            <div className={`flex justify-center items-center h-[100%] overflow-hidden`}>
+            <div className={`flex w-full justify-center items-center h-[100%] overflow-hidden bg-purple-200`}>
               <img
                 src={card ? card.cover_img_url : ""}
-                className="object-cover rounded-lg h-[100%]"
+                className="object-cover rounded-lg h-[100%] w-full"
               />
             </div>
 
