@@ -33,6 +33,8 @@ import ClientWallet from "./Clients/wallet/ClientWallet";
 import ClientProfile from "./Clients/profile/ClientProfile";
 import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
 import ProductDetailAdv from "./home/advertiser-home/ProductDetailAdv";
+import DashboardAuctControl from "./advertiser/control/DashboardAuctControl";
+import SecurityConfirmation from "./access/security/SecurityConfirmation";
 
 
 function App() {
@@ -49,8 +51,9 @@ function App() {
           {/* ACCESS */}
           <Route Component={ClientRegister} path="/client/register" exact />
           <Route Component={ClientLogin} path="/client/login" exact />
-          <Route Component={AdvertiserRegister} path="/advertiser/register" exact />
+          <Route Component={AdvertiserRegister} path="/advertiser/register/:register_token" exact />
           <Route Component={AdvertiserLogin} path="/advertiser/login" exact />
+          <Route Component={SecurityConfirmation} path="/security-confirmation" exact />
 
           {/* CLIENTS */}
           <Route Component={DashboardClient} path="/client/dashboard" exact />
@@ -86,6 +89,7 @@ function App() {
           <Route Component={AdvertiserClients} path="/advertiser/clients" exact />
           <Route Component={AdvertiserWallet} path="/advertiser/wallet" exact />
           <Route Component={AdvertiserProfile} path="/advertiser/profile" exact />
+          <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={AuctFloor} path="/floor" exact />
