@@ -6,7 +6,7 @@ import { v4 } from "uuid";
 import "./SecurityStyles.css"
 
 function SecurityConfirmation() {
-    const [currentToken] = useState("ABC123!");
+    const [currentToken] = useState(import.meta.env.VITE_APP_TOKEN_SECURITY);
     const [tokenUUID, setUUID] = useState("")
     const [isTokenValid, setIsTokenValid] = useState(false);
     const navigate = useNavigate();
