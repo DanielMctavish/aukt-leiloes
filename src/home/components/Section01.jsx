@@ -75,13 +75,13 @@ function Section01() {
 
         {/* ------------------------Botões de passagem de produto ------------------------*/}
 
-        <div className="w-[220px] h-full flex justify-center items-center bg-gradient-to-r from-[#FFFFFF] to-[#ffffff00] absolute top-2 left-0 z-30">
+        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-r bg-transparent from-[#FFFFFF] to-[#ffffff00] absolute top-2 left-0 z-30">
           <button onClick={handlePrevCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowLeft} alt="" />
           </button>
         </div>
 
-        <div className="w-[220px] h-full flex justify-center items-center bg-gradient-to-l from-[#FFFFFF] to-[#ffffff00] absolute top-2 right-0 z-30">
+        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-l bg-transparent from-[#FFFFFF] to-[#ffffff00] absolute top-2 right-0 z-30">
           <button onClick={handleNextCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowRight} alt="" />
           </button>

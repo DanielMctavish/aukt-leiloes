@@ -39,9 +39,11 @@ function Navigation() {
         h-[100vh] bg-[#012038] lg:flex-col flex-row flex justify-center items-center
         gap-2 text-white text-[14px] cursor-pointer z-30 rounded-md mt-2"
     >
+      {/* MENU MOBILE */}
       <span
         style={{ fontSize: "26px" }}
-        className="flex 
+        className="
+            shadow-lg shadow-[#1414146b] 
             fixed 
             top-1 
             right-1 
@@ -50,9 +52,10 @@ function Navigation() {
             bg-white 
             p-2 
             rounded-md 
-            z-40 
+            z-[9999] 
             w-[44px] 
-            h-[44px] 
+            h-[44px]
+            flex 
             justify-center
             items-center"
         onClick={hideNavigation}

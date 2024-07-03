@@ -49,7 +49,7 @@ function FloorNavigation({ auction, group }) {
                 <span>
                     <AccountCircle style={{ fontSize: "36px" }} />
                 </span>
-                <span>usuário tal</span>
+                <span className="lg:flex hidden">usuário</span>
             </div>
         </div>
     );
