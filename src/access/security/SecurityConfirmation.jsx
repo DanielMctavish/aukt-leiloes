@@ -39,6 +39,12 @@ function SecurityConfirmation() {
 
             console.log("verify expiration -> ", dayjs(expirationDate).valueOf)
 
+            if (dayjs(expirationDate).valueOf < dayjs().valueOf) {
+                clearInterval(currentInterval);
+                localStorage.removeItem("token-access-register-advertiser");
+                navigate("/security-confirmation");
+            }
+
         }, 1000);
 
     }
