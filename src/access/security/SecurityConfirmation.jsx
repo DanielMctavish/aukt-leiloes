@@ -9,6 +9,7 @@ function SecurityConfirmation() {
     const [currentToken] = useState(import.meta.env.VITE_APP_TOKEN_SECURITY);
     const [tokenUUID, setUUID] = useState("")
     const [isTokenValid, setIsTokenValid] = useState(false);
+    const [tokenInput, setTokenInput] = useState("")
     const navigate = useNavigate();
     const refSpan = useRef();
 
@@ -26,21 +27,41 @@ function SecurityConfirmation() {
     }, []);
 
     const handleVerifyToken = (e) => {
-        const tokenInput = e.target.value;
+        setTokenInput(e.target.value)
+
+        if (tokenInput === currentToken) setIsTokenValid(true);
+    };
+
+    const intervalVerifyExpiration = () => {
+        const expirationDate = dayjs(JSON.parse(localStorage.getItem("token-access-register-advertiser")).expiration);
+
+        const currentInterval = setInterval(() => {
+
+            console.log("verify expiration -> ", dayjs(expirationDate).valueOf)
+
+        }, 1000);
+
+    }
+
+    const handleRefirectToRegister = () => {
 
         if (tokenInput === currentToken) {
             const currentUUID = v4()
             const tokenData = {
                 token: currentUUID,
-                expiration: dayjs().add(4, "minute").toISOString()
+                expiration: dayjs().add(2, "minute").toISOString()
             };
             localStorage.setItem("token-access-register-advertiser", JSON.stringify(tokenData));
-            setIsTokenValid(true);
             setUUID(currentUUID)
         } else {
             setIsTokenValid(false);
+            return
         }
-    };
+
+        navigate(`/advertiser/register/${tokenUUID}`)
+        intervalVerifyExpiration()
+
+    }
 
     return (
         <div className="w-full h-[100vh] flex flex-col justify-center items-center gap-3 bg-black text-green-400">
@@ -55,7 +76,7 @@ function SecurityConfirmation() {
             {isTokenValid && (
                 <div className="flex flex-col gap-3" ref={refSpan}>
                     <span className="font-bold text-[#10dc36] neon-text">Acesso garantido</span>
-                    <button onClick={() => navigate(`/advertiser/register/${tokenUUID}`)} className="neon-button">Ir para registro</button>
+                    <button onClick={() => handleRefirectToRegister} className="neon-button">Ir para registro</button>
                 </div>
             )}
         </div>
