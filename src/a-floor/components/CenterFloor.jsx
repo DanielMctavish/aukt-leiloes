@@ -19,7 +19,7 @@ function CenterFloor({ title, cover, description }) {
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
         lg:justify-center justify-start items-center rounded-[22px] bg-[#d2d2d2ad] 
         backdrop-blur-lg shadow-xl shadow-[#1414143a] 
-        border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3 overflow-y-auto">
+        border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3 overflow-y-auto overflow-x-auto">
 
             {
                 description ?
