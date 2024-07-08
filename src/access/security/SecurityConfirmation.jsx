@@ -7,7 +7,6 @@ import "./SecurityStyles.css"
 
 function SecurityConfirmation() {
     const [currentToken] = useState(import.meta.env.VITE_APP_TOKEN_SECURITY);
-    const [tokenUUID, setUUID] = useState("")
     const [isTokenValid, setIsTokenValid] = useState(false);
     const [tokenInput, setTokenInput] = useState("")
     const navigate = useNavigate();
@@ -15,59 +14,55 @@ function SecurityConfirmation() {
 
     useEffect(() => {
         const currentSessionToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"));
+        console.log("existe? ", currentSessionToken)
+
         if (currentSessionToken) {
-            const expiration = dayjs(currentSessionToken.expiration);
-            if (expiration.isAfter(dayjs())) {
+            const expiration = dayjs(currentSessionToken.expiration).valueOf()
+            const currentMoment = dayjs().valueOf()
+
+            if (expiration > currentMoment) {
                 navigate(`/advertiser/register/${currentSessionToken.token}`);
                 return;
-            } else {
-                localStorage.removeItem("token-access-register-advertiser");
             }
         }
+
     }, []);
 
     const handleVerifyToken = (e) => {
-        setTokenInput(e.target.value)
+        const value = e.target.value;
+        setTokenInput(value);
 
-        if (tokenInput === currentToken) setIsTokenValid(true);
+        if (value === currentToken) {
+            setIsTokenValid(true);
+        } else {
+            setIsTokenValid(false);
+        }
     };
 
-    const intervalVerifyExpiration = () => {
-        const expirationDate = dayjs(JSON.parse(localStorage.getItem("token-access-register-advertiser")).expiration);
 
-        const currentInterval = setInterval(() => {
-
-            console.log("verify expiration -> ", dayjs(expirationDate).valueOf)
-
-            if (dayjs(expirationDate).valueOf < dayjs().valueOf) {
-                clearInterval(currentInterval);
-                localStorage.removeItem("token-access-register-advertiser");
-                navigate("/security-confirmation");
-            }
-
-        }, 1000);
-
-    }
 
     const handleRefirectToRegister = () => {
 
+        console.log("obs -> ", tokenInput.toString() === currentToken.toString())
+
         if (tokenInput === currentToken) {
+            console.log("caiu na condição... ")
             const currentUUID = v4()
             const tokenData = {
                 token: currentUUID,
                 expiration: dayjs().add(2, "minute").toISOString()
             };
             localStorage.setItem("token-access-register-advertiser", JSON.stringify(tokenData));
-            setUUID(currentUUID)
+            navigate(`/advertiser/register/${currentUUID}`)
+
         } else {
             setIsTokenValid(false);
             return
         }
 
-        navigate(`/advertiser/register/${tokenUUID}`)
-        intervalVerifyExpiration()
 
     }
+
 
     return (
         <div className="w-full h-[100vh] flex flex-col justify-center items-center gap-3 bg-black text-green-400">
@@ -82,7 +77,7 @@ function SecurityConfirmation() {
             {isTokenValid && (
                 <div className="flex flex-col gap-3" ref={refSpan}>
                     <span className="font-bold text-[#10dc36] neon-text">Acesso garantido</span>
-                    <button onClick={() => handleRefirectToRegister} className="neon-button">Ir para registro</button>
+                    <button onClick={handleRefirectToRegister} className="neon-button">Ir para registro</button>
                 </div>
             )}
         </div>
