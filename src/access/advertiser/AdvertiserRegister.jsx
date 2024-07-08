@@ -2,14 +2,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import { useRef } from "react"
-import axios from "axios"
 import dayjs from "dayjs"
 import { useNavigate, useParams } from "react-router-dom"
+import { handleRegisterAdvertiser } from "./functions/handleRegisterAdvertiser"
+import { handleGetAddress } from "./functions/handleGetAddress"
+import { verifyCnpj, verifyCpf } from "./functions/verifyDocuments"
 
 
 function AdvertiserRegister() {
     const [cpf, setCpf] = useState("")
     const [cnpj, setCnpj] = useState("")
+    const [messageDisplay, setMessageDisplay] = useState("")
+    const [timeTokenLeft, setTimeTokenLeft] = useState("")
     const refName = useRef()
     const refCompanyName = useRef()
     const refEmail = useRef()
@@ -25,11 +29,10 @@ function AdvertiserRegister() {
     const refNumber = useRef()
     const refCep = useRef()
 
-    const [messageDisplay, setMessageDisplay] = useState("")
-    const [timeTokenLeft, setTimeTokenLeft] = useState("")
 
     const navigate = useNavigate()
 
+    useEffect(() => { }, [timeTokenLeft])
     useEffect(() => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
         if (currentLocalAdvertiser) {
@@ -38,97 +41,13 @@ function AdvertiserRegister() {
         getSecurityTokenAccess()
     }, [])
 
-    const handleRegisterAdvertiser = async () => {
-
-        if (!refName.current.value || !refEmail.current.value
-            || !refPassword.current.value || !refPasswordConfirm.current.value
-            || !refState.current.value || !refCity.current.value
-            || !refStreet.current.value || !refNumber.current.value
-            || !refCep.current.value) {
-            setMessageDisplay("Preencha todos os campos")
-            return
-        }
-
-        if (refPassword.current.value !== refPasswordConfirm.current.value) {
-            setMessageDisplay("As senhas não conferem")
-            return
-        }
-
-        const addressInformations = {
-            state: refState.current.value,
-            city: refCity.current.value,
-            street: refStreet.current.value,
-            number: refNumber.current.value,
-            cep: refCep.current.value
-        }
-
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/create-advertiser`, {
-            name: refName.current.value,
-            CPF: cpf,
-            CNPJ: cnpj,
-            company_name: refCompanyName.current.value,
-            company_adress: JSON.stringify(addressInformations),
-            email: refEmail.current.value,
-            password: refPassword.current.value,
-            address: JSON.stringify(addressInformations)
-        }).then((res) => {
-
-            setMessageDisplay("Usuário criado com sucesso!")
-            console.log(res.data);
-            navigate("/advertiser/login")
-
-        }).catch(err => {
-            console.log(err.response);
-        })
+    const dataRegister = {
+        refName, refEmail, refPassword, refPasswordConfirm,
+        refState, refCity, refStreet, refNumber, refCep,
+        refCompanyName, cpf, cnpj, setMessageDisplay, navigate
     }
-
-    const handleGetAddress = (event) => {
-        //console.log('observando target ->', event.target.value);
-        //API CEP https://viacep.com.br/ws/53409400/json/
-        const cep = event.target.value
-        const url = `https://viacep.com.br/ws/${cep}/json/`
-        axios.get(url).then(res => {
-            console.log('res ai ->', res.data);
-            refState.current.value = res.data.uf
-            refCity.current.value = res.data.localidade
-            refStreet.current.value = res.data.logradouro
-        }).catch(err => {
-            console.log(err.response);
-        })
-
-    }
-
-    const verifyCpf = (e) => {
-        let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
-
-        if (input.length > 11) {
-            input = input.slice(0, 11); // Limita o input a 11 caracteres
-        }
-
-        if (input.length === 11) {
-            setCpf(input.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "$1.$2.$3-$4"));
-        } else {
-            setCpf(input); // Define o valor do CPF sem formatação enquanto está incompleto
-        }
-    };
-
-
-    const verifyCnpj = (e) => {
-        let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
-
-        if (input.length > 14) {
-            input = input.slice(0, 14); // Limita o input a 14 caracteres
-        }
-
-        if (input.length === 14) {
-            setCnpj(input.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "$1.$2.$3/$4-$5"));
-        } else {
-            setCnpj(input); // Define o valor do CNPJ sem formatação enquanto está incompleto
-        }
-    };
 
     const getSecurityTokenAccess = () => {
-
         const securityToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"))
 
         if (!securityToken) {
@@ -143,23 +62,27 @@ function AdvertiserRegister() {
         }
 
         const expirationDate = dayjs(securityToken.expiration).valueOf()
-        const currentMoment = dayjs().valueOf();
-        setTimeTokenLeft(dayjs(expirationDate - currentMoment).minute())
+        const updateInterval = 1000
 
-        if (expirationDate < currentMoment) {
-            localStorage.removeItem("token-access-register-advertiser")
-            navigate("/security-confirmation")
-            return
-        }
+        const timeLeftInterval = setInterval(() => {
+            const currentMoment = dayjs().valueOf()
+            const timeLeft = expirationDate - currentMoment
 
+            if (timeLeft <= 0) {
+                clearInterval(timeLeftInterval)
+                localStorage.removeItem("token-access-register-advertiser")
+                navigate("/security-confirmation")
+                return
+            }
+
+            setTimeTokenLeft(dayjs(timeLeft).format("mm:ss"))
+        }, updateInterval)
     }
-
-
 
     return (
 
         <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 relative">
-            <span className="absolute top-1 left-1 text-zinc-600 text-[10px]">tempo restante: {timeTokenLeft} minutos</span>
+            <span className="absolute top-1 left-1 text-zinc-600 text-[10px]">tempo restante: {timeTokenLeft}</span>
 
             <span className="text-zinc-700">{messageDisplay}</span>
 
@@ -187,7 +110,7 @@ function AdvertiserRegister() {
                         <input
                             value={cpf}
                             type="text"
-                            onChange={verifyCpf}
+                            onChange={(e) => verifyCpf(e, { setCpf })}
                             className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
@@ -201,7 +124,7 @@ function AdvertiserRegister() {
                         <input ref={refPasswordConfirm} type="password" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <button onClick={handleRegisterAdvertiser} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">registrar</button>
+                    <button onClick={() => handleRegisterAdvertiser(dataRegister)} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">registrar</button>
                     <button onClick={() => {
                         navigate("/advertiser/login")
                     }}>já tem uma conta? Entrar</button>
@@ -209,7 +132,7 @@ function AdvertiserRegister() {
 
                 <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative">
 
-                    <div onChange={handleGetAddress} className="flex flex-col justify-start items-start">
+                    <div onChange={(e) => handleGetAddress(e, { refState, refCity, refStreet })} className="flex flex-col justify-start items-start">
                         <span>Cep</span>
                         <input ref={refCep} type="text" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
@@ -244,7 +167,7 @@ function AdvertiserRegister() {
                             <span>CNPJ</span>
                             <input type="text"
                                 value={cnpj}
-                                onChange={verifyCnpj}
+                                onChange={(e) => verifyCnpj(e, { setCnpj })}
                                 className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                         </div>
                     </section>
