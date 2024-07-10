@@ -5,9 +5,19 @@ import { AccountCircle, Notifications } from "@mui/icons-material";
 import "./floorStyles.css";
 import DisplayClock from "./DisplayClock";
 import aukLogo from "../../media/logos/logos-auk/aukt_blue.png"
+import { useEffect, useState } from "react";
 
 function FloorNavigation({ auction, group }) {
+    const [currentClient, setCurrentClient] = useState({})
     const navigate = useNavigate()
+
+    useEffect(() => {
+
+        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
+        setCurrentClient(currentSession)
+
+    }, [])
+
 
     return (
         <div className="w-full min-h-[100px] rounded-[22px] 
@@ -49,7 +59,13 @@ function FloorNavigation({ auction, group }) {
                 <span>
                     <AccountCircle style={{ fontSize: "36px" }} />
                 </span>
-                <span className="lg:flex hidden">usuário</span>
+                <span className="lg:flex hidden">
+                    {
+                        currentClient ?
+                            <span className="cursor-pointer" onClick={() => navigate("/client/dashboard")}>{currentClient.name}</span> :
+                            <span className="cursor-pointer" onClick={() => navigate("/client/login")}>acessar</span>
+                    }
+                </span>
             </div>
         </div>
     );

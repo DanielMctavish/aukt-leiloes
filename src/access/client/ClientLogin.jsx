@@ -2,7 +2,8 @@
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import background from "../../media/backgrounds/social_bg_wall.jpg"
-import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
+import logoAuk from "../../media/logos/logos-auk/aukt_greengreen.png"
+import logoAukBlue from "../../media/logos/logos-auk/aukt_blue.png"
 import { useEffect, useState } from "react"
 
 function ClientLogin() {
@@ -12,12 +13,14 @@ function ClientLogin() {
 
     useEffect(() => {
         const currentSessionClient = localStorage.getItem("client-auk-session-login");
-        if (!currentSessionClient) {
-            navigate("/client/login")
+        if (currentSessionClient) {
+            navigate("/client/dashboard")
         }
     }, [])
 
     const handleClientLogin = async () => {
+
+        localStorage.removeItem("client-auk-session-login")
 
         await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
             email: email,
@@ -40,14 +43,16 @@ function ClientLogin() {
     return (
 
         <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 overflow-hidden relative">
+            <img src={logoAukBlue} alt="logo-aukt" onClick={() => navigate("/")} className="w-[60px] h-[60px] object-cover 
+            z-[99] absolute top-2 left-6 cursor-pointer" />
             <img src={background} className="object-cover w-full h-full absolute opacity-60" />
 
             <section className="w-[80%] h-[90vh] flex bg-transparent rounded-[4px] relative overflow-hidden shadow-2xl z-10">
-                <div className="w-[50%] h-[100%] bg-white/30 backdrop-blur-[12px] flex justify-center items-center">
+                <div className="w-[50%] h-[100%] bg-[#24755799] backdrop-blur-[12px] flex justify-center items-center">
                     <img src={logoAuk} className="w-[360px] object-cover" />
                 </div>
 
-                <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative bg-zinc-600">
+                <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative bg-zinc-800">
                     <h1 className="text-left font-bold text-[33px] w-[300px]">BEM VINDO!</h1>
 
                     <div className="flex flex-col justify-start items-start">

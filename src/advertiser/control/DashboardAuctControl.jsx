@@ -84,6 +84,32 @@ function DashboardAuctControl() {
 
     }
 
+    const handleChangeTocataloged = async () => {
+        const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
+
+        try {
+
+            await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${selectedAuction.id}`, {
+                status: "cataloged"
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`
+                }
+            }).then(() => {
+                //console.log("Leilão alterado para cataloged com sucesso -> ", res.data)
+                getAdminInformations()
+                setSelectedAuction(false)
+                setSelectedGroup(false)
+            })
+
+        } catch (error) {
+
+            console.log("error at try change tocataloged: ", error.message)
+
+        }
+
+    }
+
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
@@ -147,6 +173,11 @@ function DashboardAuctControl() {
                             <span className="font-bold text-[#CA1515]">
                                 {selectedAuction && selectedAuction.status}
                             </span>
+                            {
+                                selectedAuction && selectedAuction.status !== "cataloged" &&
+                                <button className="p-2 bg-[#213F7E] text-white rounded-md border-[1px] border-[#b8ccf7]"
+                                    onClick={handleChangeTocataloged} >mandar para catálogo</button>
+                            }
                         </div>
 
                         <div className="flex w-[80%] h-[60%] justify-between items-center mt-[2vh] relative">

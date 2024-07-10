@@ -29,6 +29,8 @@ function AdvertiserLogin() {
             return
         }
 
+        localStorage.removeItem("advertiser-session-aukt")
+
         await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/login`, {
             email: email,
             password: password
@@ -80,16 +82,22 @@ function AdvertiserLogin() {
 
                     <div className="flex flex-col justify-start items-start">
                         <span>email</span>
-                        <input ref={refEmail} type="email" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        <input onKeyDown={(e) => { e.key === 'Enter' && handeAdvertiserLogin() }}
+                            ref={refEmail}
+                            type="email"
+                            className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
                     <div className="flex flex-col justify-start items-start">
                         <span>senha</span>
-                        <input ref={refPassword} type="password" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                        <input onKeyDown={(e) => { e.key === 'Enter' && handeAdvertiserLogin() }}
+                            ref={refPassword}
+                            type="password"
+                            className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
                     <button onClick={handeAdvertiserLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
-                    <button onClick={()=>navigate("/advertiser/register/x1x2x3x4x5")} className="w-[300px] h-[41px] p-2 bg-[#012038] rounded-md text-[#e3eff7]">registrar</button>
+                    <button onClick={() => navigate("/advertiser/register/x1x2x3x4x5")} className="w-[300px] h-[41px] p-2 bg-[#012038] rounded-md text-[#e3eff7]">registrar</button>
                 </div>
             </section>
 

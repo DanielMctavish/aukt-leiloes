@@ -33,7 +33,7 @@ function ProductDetailAdv() {
     }
 
     const handleBidproduct = async () => {
-        console.log("observando produto -> ", currentProduct.id)
+        //console.log("observando produto -> ", currentProduct.id)
 
         if (bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
             messageRef.current.style.transition = "1s"
@@ -115,10 +115,10 @@ function ProductDetailAdv() {
 
             <div className="flex w-full h-[32vh] relative overflow-hidden justify-center items-center">
                 <button
-                style={{
-                    textShadow:"1px 2px 1px #101010a2"
-                }}
-                 onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
+                    style={{
+                        textShadow: "1px 2px 1px #101010a2"
+                    }}
+                    onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
                     className="flex absolute top-1 left-3 z-20">
                     voltar
                 </button>
@@ -152,8 +152,8 @@ function ProductDetailAdv() {
                 w-[400px] h-[600px]  bg-zinc-200 rounded-md text-zinc-600">
 
                     <div className="flex w-full justify-between items-center">
-                        <span>Lances</span>
-                        <span>12</span>
+                        <span className="font-bold">Lances: </span>
+                        <span>{currentProduct.Bid ? currentProduct.Bid.length : 0}</span>
                     </div>
 
                     <div className="flex w-full justify-between items-center">
