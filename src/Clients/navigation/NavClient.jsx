@@ -1,23 +1,38 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ArrowDropDown } from "@mui/icons-material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 //import { useNavigate } from "react-router-dom";
+import avatar_01 from "../../media/avatar-floor/avatar_01.png";
+import avatar_02 from "../../media/avatar-floor/avatar_02.png";
+import avatar_03 from "../../media/avatar-floor/avatar_03.png";
+import avatar_04 from "../../media/avatar-floor/avatar_04.png";
+import avatar_05 from "../../media/avatar-floor/avatar_05.png";
+import avatar_06 from "../../media/avatar-floor/avatar_06.png";
+import avatar_07 from "../../media/avatar-floor/avatar_07.png";
+import avatar_08 from "../../media/avatar-floor/avatar_08.png";
 
-function NavClient() {
-  //const [adminLocal, setAdminLocal] = useState(false);
-  //const navigate = useNavigate()
+const avatars = [
+  avatar_01,
+  avatar_02,
+  avatar_03,
+  avatar_04,
+  avatar_05,
+  avatar_06,
+  avatar_07,
+  avatar_08
+];
+
+function NavClient({ currentClient }) {
+  const [avatarSrc, setAvatarSrc] = useState("");
 
   useEffect(() => {
-    //get admin local
-    // const adminLocal = JSON.parse(localStorage.getItem('auct-admin-session'))
-    // setAdminLocal(adminLocal)
-
-    // if (!adminLocal) {
-    //   navigate("/admin/login")
-    // }
-
-  }, []);
+    if (currentClient && currentClient.client_avatar) {
+      setAvatarSrc(avatars[currentClient.client_avatar]);
+    }
+    console.log("dentro do nav cliente -> ", currentClient.client_avatar);
+  }, [currentClient]);
 
   return (
     <nav
@@ -60,7 +75,7 @@ function NavClient() {
             gap-3"
       >
         <span className="text-[22px] font-bold lg:flex hidden">
-          Bem vindo, {'USUÁRIO cliente!'}
+          Bem vindo, {currentClient.nickname} !
         </span>
 
         <section className="flex flex-row justify-center items-center gap-6 ">
@@ -68,12 +83,12 @@ function NavClient() {
             <NotificationsIcon />
           </span>
           <img
-            src=""
+            src={avatarSrc}
             alt="foto-perfil"
             className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
           />
           <span className="font-semibold text-[18px] lg:flex hidden">
-            {'usuário'}
+            {currentClient && currentClient.name}
           </span>
           <span className="lg:flex hidden">
             <ArrowDropDown />
@@ -85,4 +100,3 @@ function NavClient() {
 }
 
 export default NavClient;
-

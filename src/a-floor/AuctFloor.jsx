@@ -13,19 +13,30 @@ function AuctFloor() {
     const [currentAuct, setCurrentAuct] = useState(false)
     const [currentProduct, setCurrentProduct] = useState(false)
     const [socketMessage, setSocketMessage] = useState()
+    const [socketWinner, setSocketWinner] = useState(false)
 
     useEffect(() => {
 
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+
+        //ouvindo mensagem de pregão ao vivo................................................................
         socket.on('aukt-server-floor-live', (message) => {
 
-            //console.log("conectado ao socket com sucesso -> ", message)
             setSocketMessage(message)
+            setSocketWinner(false)
 
             if (!currentAuct) {
                 getAuctionInformations(message.data.body.auct_id)
                 getCurrentProduct(message.data.body.current_product_id)
             }
+
+        })
+
+        //ouvindo mensagem de leilão finalizado..............................................................
+
+        socket.on('aukt-server-floor-winner', (message) => {
+            console.log("lolte vencedor - - - > ", message)
+            setSocketWinner(message)
 
         })
 
@@ -60,6 +71,18 @@ function AuctFloor() {
                 console.log('err get product >>', err.message)
             })
 
+    }
+
+    useEffect(() => { }, [currentProduct, currentAuct, socketWinner])
+
+    if (socketWinner) {
+        return (
+            <div className="flex flex-col w-full h-[100vh] justify-center items-center bg-gradient-to-r from-[#6fe46d] to-[#00570d]">
+                <span className="text-[23px]">vencedor do lote!</span>
+                <h1 style={{ textShadow: "2px 2px 1px #19191969" }} className="text-[38px]">{currentProduct.title}</h1>
+                <img src={currentProduct.cover_img_url} alt="" className="w-[300px] h-[300px] object-cover rounded-[22px]" />
+            </div>
+        )
     }
 
     return (

@@ -1,18 +1,23 @@
+import axios from "axios";
 import {
   AccountCircle,
   Menu,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"
 import hammer from "../../media/icons/Hammer.png"
 import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
 import logoAuk_white from "../../media/logos/logos-auk/logo_model01_white.png"
 
 function Navigation() {
+  const [currentClient, setCurrentClient] = useState({})
   const [navigationMenu, setNavigationMenu] = useState(false);
   const navigate = useNavigate()
-
   const tailwindItems = "flex justify-center items-center p-2 gap-3";
+
+  useEffect(() => {
+    getClientInformations()
+  }, [])
 
   const hideNavigation = () => {
     const navigationAuk = document.querySelector(".nav-auk");
@@ -30,6 +35,25 @@ function Navigation() {
 
   const handleClientAccess = () => {
     navigate("/client/login")
+  }
+
+  const getClientInformations = async () => {
+    const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
+
+    try {
+
+      await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
+        headers: {
+          "Authorization": `Bearer ${currentSessionClient.token}`
+        }
+      }).then((response) => {
+        //console.log("dashboard client found -> ", response.data)
+        setCurrentClient(response.data)
+      })
+    } catch (error) {
+      console.log(error.message)
+    }
+
   }
 
   return (
@@ -111,7 +135,13 @@ function Navigation() {
             onClick={handleClientAccess}
             className={tailwindItems}>
             <AccountCircle />
-            entrar
+            <span>
+              {
+                currentClient.nickname ?
+                  currentClient.nickname :
+                  <span onClick={() => navigate("/client/login")}>entrar</span>
+              }
+            </span>
           </button>
 
         </div>

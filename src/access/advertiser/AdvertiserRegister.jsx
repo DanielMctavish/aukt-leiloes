@@ -2,11 +2,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import { useRef } from "react"
-import dayjs from "dayjs"
 import { useNavigate, useParams } from "react-router-dom"
 import { handleRegisterAdvertiser } from "./functions/handleRegisterAdvertiser"
 import { handleGetAddress } from "./functions/handleGetAddress"
 import { verifyCnpj, verifyCpf } from "./functions/verifyDocuments"
+import { getSecurityTokenAccess } from "./functions/getSecurityTokenAccess"
 
 
 function AdvertiserRegister() {
@@ -38,45 +38,13 @@ function AdvertiserRegister() {
         if (currentLocalAdvertiser) {
             navigate('/advertiser/dashboard')
         }
-        getSecurityTokenAccess()
+        getSecurityTokenAccess(navigate, register_token, setTimeTokenLeft)
     }, [])
 
     const dataRegister = {
         refName, refEmail, refPassword, refPasswordConfirm,
         refState, refCity, refStreet, refNumber, refCep,
         refCompanyName, cpf, cnpj, setMessageDisplay, navigate
-    }
-
-    const getSecurityTokenAccess = () => {
-        const securityToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"))
-
-        if (!securityToken) {
-            navigate("/security-confirmation")
-            return
-        }
-
-        if (securityToken.token !== register_token) {
-            localStorage.removeItem("token-access-register-advertiser")
-            navigate("/security-confirmation")
-            return
-        }
-
-        const expirationDate = dayjs(securityToken.expiration).valueOf()
-        const updateInterval = 1000
-
-        const timeLeftInterval = setInterval(() => {
-            const currentMoment = dayjs().valueOf()
-            const timeLeft = expirationDate - currentMoment
-
-            if (timeLeft <= 0) {
-                clearInterval(timeLeftInterval)
-                localStorage.removeItem("token-access-register-advertiser")
-                navigate("/security-confirmation")
-                return
-            }
-
-            setTimeTokenLeft(dayjs(timeLeft).format("mm:ss"))
-        }, updateInterval)
     }
 
     return (
