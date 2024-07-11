@@ -3,6 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 
+//avatares import
+import avatar_01 from "../../media/avatar-floor/avatar_01.png"
+import avatar_02 from "../../media/avatar-floor/avatar_02.png"
+import avatar_03 from "../../media/avatar-floor/avatar_03.png"
+import avatar_04 from "../../media/avatar-floor/avatar_04.png"
+import avatar_05 from "../../media/avatar-floor/avatar_05.png"
+import avatar_06 from "../../media/avatar-floor/avatar_06.png"
+import avatar_07 from "../../media/avatar-floor/avatar_07.png"
+import avatar_08 from "../../media/avatar-floor/avatar_08.png"
+
+
 function ProductDetailAdv() {
     const [currentProduct, setCurrentProduct] = useState({})
     const [currentAuct, setCurrentAuct] = useState({})
@@ -12,8 +23,11 @@ function ProductDetailAdv() {
     const [bidValue, setBidValue] = useState(0)
     const [successBid, setSuccessBid] = useState(false)
 
+    const [bidInformations, setBidInformations] = useState([])
+
     const navigate = useNavigate()
     const messageRef = useRef()
+    const avatares_pessoas = [avatar_01, avatar_02, avatar_03, avatar_04, avatar_05, avatar_06, avatar_07, avatar_08]
 
     const { product_id } = useParams();
 
@@ -23,14 +37,47 @@ function ProductDetailAdv() {
     }, [successBid])
 
     const getProductInformations = async () => {
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
-            .then((response) => {
-                //console.log("product get: ", response.data)
-                setCurrentProduct(response.data)
-                setCurrentAuct(response.data.Auct)
-                setCurrentAdvertiser(response.data.Advertiser)
-            })
-    }
+        const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`);
+            const currentBids = response.data.Bid;
+
+            const bidPromises = currentBids.map(async (bid) => {
+                try {
+                    const currentClient = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${bid.client_id}`, {
+                        headers: {
+                            "Authorization": `Bearer ${currentSessionClient.token}`
+                        }
+                    });
+                    return {
+                        value: bid.value,
+                        client: currentClient.data,
+                        bidTime: bid.created_at // Supondo que há um campo 'created_at' para data do lance
+                    };
+                } catch (error) {
+                    console.log("Error at get client -> ", error.message);
+                    return null; // Retorne null em caso de erro para filtrar posteriormente
+                }
+            });
+
+            const bidResults = await Promise.all(bidPromises);
+            const validBids = bidResults.filter(bid => bid !== null);
+
+            // Ordenar os lances de forma que o mais recente esteja no topo
+            const sortedBids = validBids.sort((a, b) => new Date(b.bidTime) - new Date(a.bidTime));
+
+            setBidInformations(sortedBids);
+            setCurrentProduct(response.data);
+            setCurrentAuct(response.data.Auct);
+            setCurrentAdvertiser(response.data.Advertiser);
+        } catch (error) {
+            console.log("Error at get product information -> ", error.message);
+        }
+    };
+
+
+
+    useEffect(() => { }, [bidInformations])
 
     const handleBidproduct = async () => {
         //console.log("observando produto -> ", currentProduct.id)
@@ -106,14 +153,13 @@ function ProductDetailAdv() {
 
     }
 
-
-
     return (
-        <div className="flex flex-col justify-start items-center w-full h-[132vh] bg-gradient-to-b from-[#94365D] to-[#6B4AB0] relative">
+        <div className="flex flex-col justify-start items-center w-full h-[170vh] bg-gradient-to-b from-[#94365D] to-[#6B4AB0] relative">
 
             <span ref={messageRef} className="flex h-[30px] w-full justify-center items-center mt-[-30px] bg-white">mensagens de span</span>
 
-            <div className="flex w-full h-[32vh] relative overflow-hidden justify-center items-center">
+            {/* HEADER */}
+            <div className="flex w-full h-[30vh] relative overflow-hidden justify-center items-center">
                 <button
                     style={{
                         textShadow: "1px 2px 1px #101010a2"
@@ -126,11 +172,11 @@ function ProductDetailAdv() {
                 <img src={currentAuct.auct_cover_img} alt="" className="object-cover w-full absolute blur-[3px]" />
 
                 <section className="flex justify-center items-center 
-                w-[80%] h-[200px] relative rounded-lg gap-3">
+                    w-[80%] h-[200px] relative rounded-lg gap-3">
                     <img src={currentAdvertiser.url_profile_company_logo_cover}
                         className="object-cover w-[160px h-[160px] 
-                        bg-white/20 rounded-full backdrop-blur-[12px] 
-                        shadow-lg shadow-[#13131358] p-1" />
+                            bg-white/20 rounded-full backdrop-blur-[12px] 
+                            shadow-lg shadow-[#13131358] p-1" />
 
                     <div className="flex flex-col">
                         <h1 style={{ textShadow: "-2px 1px 1px #0a3e4c" }} className="text-[44px]">
@@ -142,14 +188,14 @@ function ProductDetailAdv() {
 
             </div>
 
-            <section className="flex justify-center items-center gap-3
-            w-[99%] h-[67vh] bg-white mt-1 shadow-lg shadow-[#15151589]">
+            {/* SESSION 01 */}
+            <section className="flex justify-center items-center gap-3 p-1
+                w-[99%] h-[57%] bg-white mt-1 shadow-lg shadow-[#15151589]">
                 <img src={currentProduct.cover_img_url} className="object-cover h-[600px] rounded-md" />
 
 
-
-                <div className="flex flex-col justify-start items-center p-2 
-                w-[400px] h-[600px]  bg-zinc-200 rounded-md text-zinc-600">
+                <div className="flex flex-col justify-start items-center p-2 overflow-x-auto
+                    w-[400px] h-[600px]  bg-zinc-200 rounded-md text-zinc-600">
 
                     <div className="flex w-full justify-between items-center">
                         <span className="font-bold">Lances: </span>
@@ -179,6 +225,22 @@ function ProductDetailAdv() {
                             </span>
                     }
 
+                </div>
+                {/* Mural de vencedores */}
+                <div className="flex flex-col w-[400px] h-[600px] bg-[#e6e6e6] rounded-md gap-1 p-1 overflow-y-auto">
+                    {
+                        Array.isArray(bidInformations) &&
+                        bidInformations.map((information, i) => {
+
+                            return (
+                                <div key={i} className="flex w-full justify-between items-center p-2 text-zinc-600 bg-white rounded-md">
+                                    <img src={avatares_pessoas[information.client.client_avatar]} alt="" className="w-[40px] h-[40px] object-cover" />
+                                    <span>{information.client.name}</span>
+                                    <span>{information.value}</span>
+                                </div>
+                            )
+                        })
+                    }
                 </div>
 
             </section>
