@@ -35,6 +35,7 @@ import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
 import ProductDetailAdv from "./home/advertiser-home/ProductDetailAdv";
 import DashboardAuctControl from "./advertiser/control/DashboardAuctControl";
 import SecurityConfirmation from "./access/security/SecurityConfirmation";
+import SubscriptionAdvertiser from "./home/forms/SubscriptionAdvertiser";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
           {/* Home Advertiser */}
           <Route Component={HomeAdvertiser} path="/advertiser/home/:advertiser_id" exact />
           <Route Component={ProductDetailAdv} path="/advertiser/home/product/:product_id" exact />
+          <Route Component={SubscriptionAdvertiser} path="/advertiser/form/subscription" exact />
 
           {/* ACCESS */}
           <Route Component={ClientRegister} path="/client/register" exact />

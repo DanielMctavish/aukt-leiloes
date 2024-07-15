@@ -25,6 +25,7 @@ function ProductDetailAdv() {
     const [successBid, setSuccessBid] = useState(false)
     const [bidInformations, setBidInformations] = useState([])
     const [displayBidWall, setDisplayBidWall] = useState(false)
+    const [isWinner, setIsWinner] = useState(false)
 
     const navigate = useNavigate()
     const messageRef = useRef()
@@ -33,11 +34,11 @@ function ProductDetailAdv() {
     const { product_id } = useParams();
 
     useEffect(() => {
-        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser)
+        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner)
         getClientSession(setSessionsClient, setCurrentClient)
     }, [successBid])
 
-    useEffect(() => { }, [bidInformations])
+    useEffect(() => { console.log("produto atual -> ", currentProduct) }, [bidInformations])
 
     const refBidWall = useRef()
 
@@ -51,7 +52,7 @@ function ProductDetailAdv() {
         } else {
             refBidWall.current.style.transition = "0.6s"
             refBidWall.current.style.position = "absolute"
-            refBidWall.current.style.marginRight = "-240vh"
+            refBidWall.current.style.marginRight = "-260vh"
             setDisplayBidWall(!displayBidWall)
         }
 
@@ -86,78 +87,94 @@ function ProductDetailAdv() {
                         <h1 style={{ textShadow: "-2px 1px 1px #0a3e4c" }} className="text-[44px]">
                             {currentAuct.title}
                         </h1>
-                        <span style={{textShadow:"2px 1px 2px #111111c1"}} className="text-[27px]">{currentAuct.nano_id}</span>
+                        <span style={{ textShadow: "2px 1px 2px #111111c1" }} className="text-[27px]">{currentAuct.nano_id}</span>
                     </div>
                 </section>
 
             </div>
 
             {/* SESSION 01 */}
-            <section className="flex justify-center items-center gap-3 p-1 overflow-hidden
+            {!isWinner ?
+                <section className="flex justify-center items-center gap-3 p-1 overflow-hidden
                 w-[99%] h-[57%] bg-white mt-1 shadow-lg shadow-[#15151589] relative">
-                <img src={currentProduct.cover_img_url} className="object-cover h-[600px] rounded-md" />
+                    <img src={currentProduct.cover_img_url} className="object-cover h-[600px] rounded-md" />
 
 
-                <div className="flex flex-col justify-start items-center p-2 overflow-x-auto
+                    <div className="flex flex-col justify-start items-center p-2 overflow-x-auto
                     w-[400px] h-[600px]  bg-zinc-200 rounded-md text-zinc-600">
 
-                    <div className="flex w-full justify-between items-center">
-                        <span className="font-bold">Lances: </span>
-                        <span onClick={handleShowBids}
-                            className="p-2 bg-white rounded-md cursor-pointer">
-                            {currentProduct.Bid ? currentProduct.Bid.length : 0}
-                        </span>
-                    </div>
-
-                    <div className="flex w-full justify-between items-center">
-                        <span>valor</span>
-                        <span>R$ {(currentProduct.initial_value && currentProduct.initial_value.toFixed(2))}</span>
-                    </div>
-
-                    {
-                        sessionClient ?
-                            <div className="flex flex-col w-full mt-[6vh] gap-2">
-                                <input onChange={(e) => setBidValue(e.target.value)} type="text"
-                                    value={bidValue}
-                                    placeholder="valor do lance" className="p-2 w-[99%] rounded-md text-zinc-300" />
-                                <button
-                                    onClick={() => handleBidproduct(bidValue, messageRef, currentProduct,
-                                        currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid)}
-                                    className="bg-[#94365D] flex justify-center items-center w-[99%] p-2 text-[#fff] rounded-md">
-                                    dar um lance
-                                </button>
-                            </div>
-                            :
-                            <span
-                                onClick={() => navigate("/client/login")}
-                                className="bg-[#4c4c4c] flex justify-center items-center w-[99%] p-2 text-[#fff] rounded-md cursor-pointer mt-[6vh]">
-                                Faça login para dar lances
+                        <div className="flex w-full justify-between items-center">
+                            <span className="font-bold">Lances: </span>
+                            <span onClick={handleShowBids}
+                                className="p-2 bg-white rounded-md cursor-pointer">
+                                {currentProduct.Bid ? currentProduct.Bid.length : 0}
                             </span>
+                        </div>
+
+                        <div className="flex w-full justify-between items-center">
+                            <span>valor</span>
+                            <span>R$ {(currentProduct.initial_value && currentProduct.initial_value.toFixed(2))}</span>
+                        </div>
+
+                        {
+                            sessionClient ?
+                                <div className="flex flex-col w-full mt-[6vh] gap-2">
+                                    <input onChange={(e) => setBidValue(e.target.value)} type="text"
+                                        value={bidValue}
+                                        placeholder="valor do lance" className="p-2 w-[99%] rounded-md text-zinc-300" />
+                                    <button
+                                        onClick={() => handleBidproduct(bidValue, messageRef, currentProduct,
+                                            currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid)}
+                                        className="bg-[#94365D] flex justify-center items-center w-[99%] p-2 text-[#fff] rounded-md">
+                                        dar um lance
+                                    </button>
+                                </div>
+                                :
+                                <span
+                                    onClick={() => navigate("/client/login")}
+                                    className="bg-[#4c4c4c] flex justify-center items-center w-[99%] p-2 text-[#fff] rounded-md cursor-pointer mt-[6vh]">
+                                    Faça login para dar lances
+                                </span>
+                        }
+
+                    </div>
+                    {/* Mural de vencedores */}
+                    {
+                        sessionClient &&
+                        <div ref={refBidWall} className="flex flex-col w-[400px] h-[600px] bg-[#e6e6e6] 
+                    rounded-md gap-1 p-1 overflow-y-auto mr-[-260vh] absolute">
+                            {
+                                Array.isArray(bidInformations) &&
+                                bidInformations.map((information, i) => {
+
+                                    return (
+                                        <div key={i} className="flex w-full justify-between items-center p-2 text-zinc-600 bg-white rounded-md">
+                                            <img src={avatares_pessoas[information.client.client_avatar]} alt="" className="w-[40px] h-[40px] object-cover" />
+                                            <span>{information.client.name}</span>
+                                            <span>{information.value}</span>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
                     }
 
-                </div>
-                {/* Mural de vencedores */}
-                {
-                    sessionClient &&
-                    <div ref={refBidWall} className="flex flex-col w-[400px] h-[600px] bg-[#e6e6e6] 
-                    rounded-md gap-1 p-1 overflow-y-auto mr-[-240vh] absolute">
-                        {
-                            Array.isArray(bidInformations) &&
-                            bidInformations.map((information, i) => {
+                </section> :
+                <section className="flex flex-col justify-center items-center gap-3 p-1 overflow-hidden
+                w-[99%] h-[57%] bg-white mt-1 shadow-lg shadow-[#15151589] relative">
+                    <h1 className="text-[#3e3e3e] text-[44px]">Agradecemos por você estar aqui!</h1>
+                    <span className="text-[#3e3e3e] text-[16px] w-[40%] text-center">
+                        É com muita alegria que te damos boas-vindas! Infelizmente, este produto já encontrou
+                        um novo destino, mas não fique desanimado. Em breve, teremos mais produtos como este em nosso catálogo.
+                    </span>
+                    <span className="text-[#3e3e3e] text-[16px] text-left font-bold w-[40%]">Por que não está mais disponível?</span>
+                    <span className="text-[#3e3e3e] text-[16px] w-[40%] text-left">
+                        Quando um produto é &quot;arrematado&quot; (ou seja, comprado), ele continua na nossa plataforma com o status de vencedor, 
+                        indicando que outro cliente conseguiu dar um lance durante o pregão ou catálogo.
+                    </span>
+                </section>
 
-                                return (
-                                    <div key={i} className="flex w-full justify-between items-center p-2 text-zinc-600 bg-white rounded-md">
-                                        <img src={avatares_pessoas[information.client.client_avatar]} alt="" className="w-[40px] h-[40px] object-cover" />
-                                        <span>{information.client.name}</span>
-                                        <span>{information.value}</span>
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                }
-
-            </section>
+            }
 
             {/* RODAPÉ ------------------------------------------------------------------------------------------------------------------------- */}
             <footer className="w-full h-[300px] flex justify-center items-center bg-gradient-to-r from-[#262626] to-[#2f2036] bottom-0 absolute">

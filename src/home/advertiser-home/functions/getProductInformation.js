@@ -1,12 +1,14 @@
 import axios from "axios"
 
-const getProductInformations = async (product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser) => {
+const getProductInformations = async (product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner) => {
 
     const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
 
     try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`);
         const currentBids = response.data.Bid;
+
+        if (response.data.Winner) { setIsWinner(true) }
 
         const bidPromises = currentBids.map(async (bid) => {
 
@@ -25,7 +27,7 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
                 console.log("Error at get client -> ", error.message);
                 return null; // Retorne null em caso de erro para filtrar posteriormente
             }
-            
+
         });
 
         const bidResults = await Promise.all(bidPromises);
@@ -41,7 +43,7 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
     } catch (error) {
         console.log("Error at get product information -> ", error.message);
     }
-    
+
 };
 
 export { getProductInformations }

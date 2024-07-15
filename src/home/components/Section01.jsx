@@ -19,7 +19,7 @@ function Section01() {
 
   const getProducts = async () => {
 
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list?offset=${15}`).then(response => {
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list?offset=${16}`).then(response => {
       setCardsSelecteds(response.data)
     })
 
@@ -74,13 +74,15 @@ function Section01() {
 
         {/* ------------------------Botões de passagem de produto ------------------------*/}
 
-        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-r bg-transparent from-[#FFFFFF] to-[#ffffff00] absolute top-2 left-0 z-30">
+        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-r bg-transparent from-[#FFFFFF] to-[#ffffff00] 
+        absolute top-2 left-0 z-30">
           <button onClick={handlePrevCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowLeft} alt="" />
           </button>
         </div>
 
-        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-l bg-transparent from-[#FFFFFF] to-[#ffffff00] absolute top-2 right-0 z-30">
+        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-l bg-transparent from-[#FFFFFF] to-[#ffffff00] 
+        absolute top-2 right-0 z-30">
           <button onClick={handleNextCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowRight} alt="" />
           </button>
