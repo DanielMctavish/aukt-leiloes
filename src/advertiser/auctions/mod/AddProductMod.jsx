@@ -7,7 +7,9 @@ import { uploadFinished } from "../../../features/product/UploadFinished";
 
 function AddProductMod() {
     const [isLoading, setIsLoading] = useState(false)
+    const [loadFinished, setLoadFinished] = useState(false)
     const [files, setFiles] = useState([]);
+    const [errMessage, setErrMessage] = useState('')
     const stateSelectedProduct = useSelector(state => state.selectedProduct)
     const dispatch = useDispatch();
     const refCurrentWindow = useRef()
@@ -44,7 +46,7 @@ function AddProductMod() {
 
     useEffect(() => {
         //console.log('observando files -> ', files);
-    }, [files]);
+    }, [files, loadFinished]);
 
     const handleCloseCurrentWindow = () => {
         const currentProductWindow = document.querySelector(".section-add-product");
@@ -60,14 +62,23 @@ function AddProductMod() {
         setIsLoading(true)
         const formDataSingle = new FormData();
         formDataSingle.append("aukt-product-img", files[0]);
+        const localErrors = []
 
         try {
             //ADICIONANDO SINGLE IMAGE..............................................................
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/upload-cover-img?product_id=${stateSelectedProduct.product.id}`, formDataSingle)
                 .then(() => {
                     console.log('upload single sucess!');
+                    setIsLoading(false)
+                    setLoadFinished(true)
                 }).catch(err => {
                     console.log('primeira requisição -> ', err.response.data);
+                    if (err.response.data === "O arquivo é muito grande, máximo 2MB") {
+                        setErrMessage(err.response.data)
+                        setIsLoading(false)
+                        localErrors.push(err.response.data)
+                        return
+                    }
                 })
             //ADICIONANDO MULTIPLES IMAGE..............................................................
             if (files.length > 1) {
@@ -81,18 +92,29 @@ function AddProductMod() {
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/upload-products-imgs?product_id=${stateSelectedProduct.product.id}`, formDataMultiples)
                     .then(() => {
                         console.log('upload multiples sucess!');
+                        setIsLoading(false)
                         dispatch(uploadFinished({
                             payload: true
                         }))
                     }).catch(err => {
-                        console.log('segunda requisição -> ', err.response.data);
+                        setIsLoading(false)
+                        if (err.response.data === "O arquivo é muito grande, máximo 2MB") {
+                            setErrMessage(err.response.data)
+                            setIsLoading(false)
+                            localErrors.push(err.response.data)
+                            return
+                        }
                     })
             }
 
-            setIsLoading(false)
-            refCurrentWindow.current.style.display = 'none';
-            document.querySelector(".main-window-blur-add").style.display = 'none';
-            setFiles([])
+            if (localErrors.length === 0) {
+                setErrMessage("")
+                setIsLoading(false)
+                setLoadFinished(false)
+                refCurrentWindow.current.style.display = 'none';
+                document.querySelector(".main-window-blur-add").style.display = 'none';
+                setFiles([])
+            }
             // //ATUALIZANDO PRODUTO.....................................................................
             // await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/products/update?product_id=${stateSelectedProduct.product.id}`, {
             //     cover_img_url: currentProductCover,
@@ -104,9 +126,6 @@ function AddProductMod() {
         } catch (error) {
             setFiles([])
             setIsLoading(false)
-            refCurrentWindow.current.style.display = 'none';
-            document.querySelector(".main-window-blur-add").style.display = 'none';
-            console.log('erro ao tentar adicionar fotos ao produto ->');
         }
     }
 
@@ -117,6 +136,15 @@ function AddProductMod() {
             <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] text-zinc-700 
             justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
                 <h1>Adicionando imagens, aguarde... </h1>
+            </div>
+        )
+    }
+
+    if (loadFinished) {
+        return (
+            <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#1b9c51] text-zinc-100 
+        justify-center items-center w-[60%] h-[80vh] bg-[#086c06] rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
+                <h1 className="font-bold">Imagens Enviadas! Aguarde</h1>
             </div>
         )
     }
@@ -145,21 +173,39 @@ function AddProductMod() {
 
             {/* ALL PHOTOS ADDED DISPLAY */}
             <div className="w-[80%] flex justify-start items-center gap-2 z-[100]">
-                {files.map((file, index) => (
-                    <div key={index} className="w-[80px] h-[80px] bg-red-300 rounded-md overflow-hidden flex justify-center relative">
-                        <span
-                            onClick={() => handleDeleteImageFromList(index)}
-                            className="absolute top-[1px] right-[1px] cursor-pointer">
-                            <Close />
-                        </span>
-                        <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover" />
-                    </div>
-                ))}
+                {files.map((file, index) => {
+                    if (index === 0) return (
+                        <div key={index} className="w-[100px] h-[100px] bg-white rounded-md overflow-hidden flex justify-center 
+                        relative border-[3px] border-[#811010] shadow-lg shadow-[#1515158e]">
+                            <span
+                                onClick={() => handleDeleteImageFromList(index)}
+                                className="absolute top-[1px] right-[1px] cursor-pointer">
+                                <Close sx={{ color: " #f00000fe" }} />
+                            </span>
+                            <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover" />
+                        </div>
+                    )
+
+                    return (
+                        <div key={index} className="w-[80px] h-[80px] bg-white rounded-md overflow-hidden flex justify-center relative shadow-md shadow-[#1515156b]">
+                            <span
+                                onClick={() => handleDeleteImageFromList(index)}
+                                className="absolute top-[1px] right-[1px] cursor-pointer">
+                                <Close />
+                            </span>
+                            <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover w-full" />
+                        </div>
+                    )
+
+                }
+                )}
             </div>
 
             <button
                 onClick={handleUploadProductImages}
                 className="text-zinc-600 bg-zinc-200 p-3 rounded-md">confirmar</button>
+
+            <span className="text-[#e36c6c] mt-[4vh]">{errMessage}</span>
         </div>
     );
 }

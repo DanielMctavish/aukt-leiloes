@@ -108,15 +108,17 @@ function HomeAdvertiser() {
 
             {/* SECTION 01 ------------------------------------------------------------------------------------------------------------------------- */}
             <section className="flex flex-col justify-start items-center w-full h-[100vh] bg-gradient-to-b from-[#f2fcff] to-[#ddcdff] relative">
-                <div className="w-[98%] h-[32vh] bg-white border-[#aaaaaaf5] 
-                border-[1px] rounded-md top-2 flex justify-center items-center mt-3 
+                <div className="w-[98%] h-[32vh] bg-white border-[1px] rounded-md top-2 flex justify-center items-center mt-[4vh] 
                 relative overflow-hidden shadow-lg shadow-[#13131361] ">
                     <span
                         onClick={() => showMenuHome()}
                         className="fixed top-1 left-1 z-20 cursor-pointer shadow-sm bg-[#252525cc] p-1 rounded-md"><Menu /></span>
                     <img src={yellowCar} className="object-cover w-full absolute blur-[7px] opacity-90" />
                     <img src={currentAdvertiser.url_profile_company_logo_cover} alt=""
-                        className="w-[300px] object-cover rounded-full z-10" />
+                        className="w-[200px] h-[200px] object-cover rounded-full z-10" />
+                    <span className="font-bold text-[73px] z-10">
+                        {currentAdvertiser.company_name}
+                    </span>
                 </div>
 
                 <div className="w-full h-[70vh] flex justify-center items-center gap-6">

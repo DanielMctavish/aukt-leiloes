@@ -5,15 +5,17 @@ import axios from "axios";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
 import { useEffect, useState } from "react";
+import { DeleteForever } from "@mui/icons-material"
 
 function AdvertiserProductDetails() {
     const [currentProduct, setCurrentProduct] = useState({})
+    const [deleteIsLoading, setDeleteIsLoading] = useState(false)
     const navigate = useNavigate()
     const { product_id } = useParams();
 
     useEffect(() => {
         getCurrentProduct()
-    }, [])
+    }, [deleteIsLoading])
 
     const getCurrentProduct = async () => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
@@ -26,7 +28,7 @@ function AdvertiserProductDetails() {
         }).then(async response => {
 
             setCurrentProduct(response.data)
-            console.log('produto: ', response.data);
+            // console.log('produto: ', response.data);
 
         }).catch(err => {
             console.log('err get auct >>', err.message)
@@ -36,6 +38,27 @@ function AdvertiserProductDetails() {
         })
 
     }
+
+    const handleDeleteProductImage = async (url, product_id) => {
+
+        setDeleteIsLoading(true)
+
+        try {
+            await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/products/delete-product-img`, {
+                params: {
+                    url_product: url,
+                    product_id: product_id
+                }
+            });
+            setDeleteIsLoading(false)
+        } catch (error) {
+            console.log('Error deleting image >>', error.message);
+            setDeleteIsLoading(false)
+        }
+    }
+
+
+
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
             <AssideAdvertiser MenuSelected="menu-3" />
@@ -44,18 +67,38 @@ function AdvertiserProductDetails() {
 
                 <section className="flex md:flex-row flex-col justify-start items-center w-full h-[99vh] relative bg-zinc-100 p-1 gap-1 text-zinc-600 overflow-hidden">
 
-                    <div className="md:w-[60%] w-full md:h-[100%] h-[50%] bg-[#4e91c4]/20 flex justify-center items-center">
-                        <img src={currentProduct.cover_img_url} alt="" className="max-h-[92%] object-cover rounded-md shadow-md shadow-[#07070738]" />
-                        <div className="flex flex-col w-[16%] justify-start items-center gap-2">
-                            {
-                                Array.isArray(currentProduct.group_imgs_url) && currentProduct.group_imgs_url.map((url, key) => {
-                                    return (
-                                        <img src={url} key={key} className="w-[100px] h-[100px] object-cover rounded-[4px] shadow-[#1010106a] shadow-lg" />
-                                    )
-                                })
-                            }
+                    {!deleteIsLoading ?
+                        <div className="md:w-[60%] w-full md:h-[100%] h-[50%] bg-[#4e91c4]/20 flex justify-center items-center">
+
+                            <div className="w-[90%] relative">
+                                <span onClick={() => handleDeleteProductImage(currentProduct.cover_img_url, currentProduct.id)}
+                                    className="absolute top-[3vh] right-2 cursor-pointer">
+                                    <DeleteForever sx={{ color: "#c20000" }} />
+                                </span>|
+                                <img src={currentProduct.cover_img_url} alt="" className="max-h-[92%] w-full
+                        object-cover rounded-md shadow-md shadow-[#07070738]" />
+                            </div>
+
+                            <div className="flex flex-col w-[16%] justify-start items-center gap-2">
+                                {
+                                    Array.isArray(currentProduct.group_imgs_url) && currentProduct.group_imgs_url.map((url, key) => {
+                                        return (
+                                            <div key={key} className="relative">
+                                                <span onClick={() => handleDeleteProductImage(url, currentProduct.id)} className="absolute top-1 right-2 cursor-pointer">
+                                                    <DeleteForever sx={{ color: "#c20000" }} />
+                                                </span>
+                                                <img src={url} className="w-[100px] h-[100px] object-cover rounded-[4px] shadow-[#1010106a] shadow-lg" />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+
+                        </div> :
+                        <div className="md:w-[60%] w-full md:h-[100%] h-[50%] bg-[#4e91c4]/20 flex justify-center items-center">
+                            excluindo imagem...
                         </div>
-                    </div>
+                    }
 
                     <div className="md:w-[40%] w-full md:h-[100%] h-[50%] bg-[#86bbe3]/10 flex flex-col justify-start items-start">
                         <h1 className="text-zinc-600 font-bold text-[22px] p-1 rounded-md">

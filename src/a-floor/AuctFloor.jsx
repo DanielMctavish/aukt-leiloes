@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import axios from "axios"
+import io from "socket.io-client"
 import CenterFloor from "./components/CenterFloor"
 import FloorBids from "./components/FloorBids"
 import FloorLots from "./components/FloorLots"
 import FloorNavigation from "./components/FloorNavigation"
 import backgroundFloor from "../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg"
 import { useEffect, useState } from "react"
-import io from "socket.io-client"
+import { getCurrentProduct } from "./functions/getCurrentProduct"
+import { getAuctionInformations } from "./functions/getAuctionInformations"
 
 
 function AuctFloor() {
@@ -26,8 +27,8 @@ function AuctFloor() {
             setSocketWinner(false)
 
             if (!currentAuct) {
-                getAuctionInformations(message.data.body.auct_id)
-                getCurrentProduct(message.data.body.current_product_id)
+                getAuctionInformations(message.data.body.auct_id, setCurrentAuct)
+                getCurrentProduct(message.data.body.current_product_id, setCurrentProduct)
             }
 
         })
@@ -45,33 +46,6 @@ function AuctFloor() {
         }
 
     }, [])
-
-    //Get Auct.............................................................................................
-    const getAuctionInformations = async (auct_id) => {
-
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${auct_id}`)
-            .then(async response => {
-
-                setCurrentAuct(response.data)
-
-            }).catch(err => {
-                console.log('err get auct >>', err.message)
-            })
-
-    }
-
-    //Get Product ...........................................................................................
-
-    const getCurrentProduct = async (product_id) => {
-
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
-            .then(async response => {
-                setCurrentProduct(response.data)
-            }).catch(err => {
-                console.log('err get product >>', err.message)
-            })
-
-    }
 
     useEffect(() => { }, [currentProduct, currentAuct, socketWinner])
 
@@ -98,14 +72,16 @@ function AuctFloor() {
                     <CenterFloor title={currentProduct.title}
                         cover={currentProduct.cover_img_url}
                         description={currentProduct.description} />
-                    <FloorLots products={currentAuct.product_list} currentProduct={currentProduct} />
+                    <FloorLots products={currentAuct.product_list}
+                        currentProduct={currentProduct} />
 
                 </section>
 
                 <FloorBids timer={socketMessage ? socketMessage.data.cronTimer : 0}
                     duration={currentAuct.product_timer_seconds}
                     auct_id={currentAuct.id}
-                    initial_value={currentProduct.initial_value} />
+                    initial_value={currentProduct.initial_value}
+                    currentProduct={currentProduct} />
             </div>
 
         </div>
