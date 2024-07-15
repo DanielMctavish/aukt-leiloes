@@ -20,11 +20,11 @@ function Section03() {
           <h2 className="text-[34px] font-semibold leading-normal tracking-wide">
             Leilões Marcados
           </h2>
-          <span className="text-[#D7D7D7] text-[14px] flex h-auto w-full text-justify">
+          <span className="text-[#D7D7D7] text-[14px] flex h-auto w-[90%] text-justify">
             Nossa plataforma oferece uma seleção exclusiva de leilões com produtos anunciados por nossos parceiros e anunciantes cuidadosamente selecionados.
             Garantimos a qualidade e a procedência dos itens, proporcionando a você uma experiência de compra segura e confiável.
           </span>
-          <span className="text-[#D7D7D7] text-[16px] flex h-auto w-full text-justify mt-[1vh]">
+          <span className="text-[#D7D7D7] text-[16px] flex h-auto w-[90%] text-justify mt-[1vh]">
             Nossos leilões apresentam uma variedade de produtos únicos e de alto valor, todos verificados para atender aos nossos rigorosos padrões.
           </span>
         </div>

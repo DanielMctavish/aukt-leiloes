@@ -115,7 +115,7 @@ function Navigation() {
                 gap-2 
                 text-white"
         >
-          <div className="flex items-center sm:mr-[100px]">
+          <div onClick={() => navigate("/")} className="flex items-center sm:mr-[100px]">
             <img src={logoAuk} alt="" className="w-[60px] object-cover" />
           </div>
 
