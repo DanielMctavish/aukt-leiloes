@@ -61,27 +61,60 @@ const handleEditAdvertiser = async (
 
     setIsisEditing(true)
 
-    try {
-        // Operações de DELETE 
-        // if (currentAdvertiser.url_profile_cover) {
-        //     console.log("Deletando profile...");
-        //     await axios.delete(`/api/advertiser/delete-profile?url=${currentAdvertiser.url_profile_cover}`);
-        // }
+    console.log("observando advertiser atual -> ", currentAdvertiser)
 
-        // if (currentAdvertiser.url_profile_company_logo_cover) {
-        //     console.log("Deletando company...");
-        //     await axios.delete(`/api/advertiser/delete-logo-company?url=${currentAdvertiser.url_profile_company_logo_cover}`);
-        // }
+    async function* deleteImagesAdvertiser(currentAdvertiser) {
+        try {
+            // Inclui o ID e a URL na requisição de deleção
+            if (currentAdvertiser)
+                await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/delete-profile`, {
+                    params: {
+                        url: currentAdvertiser.url_profile_cover,
+                        id: currentAdvertiser.id
+                    }
+                });
+            yield "deleted profile"; // Gera uma mensagem após a deleção
+        } catch (error) {
+            console.error("Error at delete profile: ", error);
+        }
+
+        try {
+            // Inclui o ID e a URL na requisição de deleção
+            if (currentAdvertiser)
+                await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/delete-logo-company`, {
+                    params: {
+                        url: currentAdvertiser.url_profile_company_logo_cover,
+                        id: currentAdvertiser.id
+                    }
+                });
+            yield "deleted company"; // Gera uma mensagem após a deleção
+        } catch (error) {
+            console.error("Error at delete company: ", error);
+        }
+    }
+
+
+    const executeDeletion = async () => {
+        for await (const message of deleteImagesAdvertiser()) {
+            console.log(message); // Exibe as mensagens geradas
+        }
+    };
+
+    try {
 
         let currentProfile;
         let currentCompany;
 
         // Upload do profile
         if (currentAdvertiserProfileFile !== "none") {
+            if (currentAdvertiserProfileFile !== "none" && currentAdvertiser.url_profile_cover) {
+                await executeDeletion();
+            }
+
             const formDataSingleProfile = new FormData();
             formDataSingleProfile.append("aukt-profile-advertiser", currentAdvertiserProfileFile);
 
-            await axios.post(`/api/advertiser/upload-cover-profile?adv_id=${currentAdvertiser.id}`, formDataSingleProfile)
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/upload-cover-profile?adv_id=${currentAdvertiser.id}`, formDataSingleProfile)
                 .then(response => {
                     console.log("Profile successfully uploaded", response.data);
                     currentProfile = response.data.body;
@@ -89,15 +122,19 @@ const handleEditAdvertiser = async (
                     console.error("Error at upload profile: ", response);
                     throw new Error(`Error at upload profile: ${response.data}`);
                 });
-                
+
         }
 
         // Upload do company
         if (currentAdvertiserCompanyFile !== "none") {
+            if (currentAdvertiser.url_profile_company_logo_cover) {
+                deleteImagesAdvertiser()
+            }
+
             const formDataSingleCompany = new FormData();
             formDataSingleCompany.append("aukt-company-advertiser", currentAdvertiserCompanyFile);
 
-            await axios.post(`/api/advertiser/upload-logo-company?adv_id=${currentAdvertiser.id}`, formDataSingleCompany)
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/upload-logo-company?adv_id=${currentAdvertiser.id}`, formDataSingleCompany)
                 .then(response => {
                     console.log("Company successfully uploaded", response.data);
                     currentCompany = response.data.body;
@@ -109,7 +146,7 @@ const handleEditAdvertiser = async (
         }
 
         // Atualização
-        await axios.patch(`/api/advertiser/update-advertiser?adv_id=${currentAdvertiser.id}`, {
+        await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/update-advertiser?adv_id=${currentAdvertiser.id}`, {
             name: name,
             CPF: cpf,
             CNPJ: CNPJ,

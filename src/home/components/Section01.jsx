@@ -70,7 +70,7 @@ function Section01() {
       <Submenu />
 
       {/* CARDS DE PRODUTOS */}
-      <div className="w-full h-[80vh] flex justify-center items-center overflow-hidden gap-6">
+      <div className="w-full h-[60vh] flex justify-center items-center overflow-hidden gap-6">
 
         {/* ------------------------Botões de passagem de produto ------------------------*/}
 
@@ -91,7 +91,7 @@ function Section01() {
         {cardsSelecteds.map((card, index) => (
           <div
             key={index}
-            className="lg:min-w-[900px] min-w-[90%] h-[90%] 
+            className="lg:min-w-[400px] min-w-[90%] h-[60%] 
             overflow-hidden flex justify-center 
             items-center gap-3 rounded-lg relative bg-zinc-200"
           >
@@ -103,19 +103,20 @@ function Section01() {
             </div>
 
             <div className="absolute backdrop-blur-md text-[#FFF] bg-zinc-300/60 border-[#ffffff55] border-[1px] 
-            flex flex-col justify-center items-center p-3 
-            text-shadow-md font-inter w-[60%] z-20
-            overflow-hidden rounded-md opacity-20 hover:opacity-100 transition duration-[.3s]">
+            flex flex-col justify-center items-center p-3 text-shadow-md font-inter w-full h-full z-20
+            overflow-hidden rounded-md opacity-0 hover:opacity-100 transition duration-[.3s]">
+
               <h1 className="lg:text-[22px] text-[16px] lg:mb-2 font-bold overflow-hidden drop-shadow-md shadow-[#060606]">
                 {card.title}
               </h1>
-              <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden">
+              <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden h-[70%] overflow-y-auto">
                 {card.description}
               </p>
               <button onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
                 className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal hover:space-x-3">
                 ver este lote
               </button>
+
             </div>
 
           </div>

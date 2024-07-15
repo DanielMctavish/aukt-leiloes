@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import BidCard from "./BidCard"
 import CronCard from "./CronCard"
 
-function FloorBids({ timer, duration, auct_id, initial_value }) {
+function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) {
     const [bidsCards, setBidsCards] = useState([1])
 
     useEffect(() => {
+        console.log('observando produto -> ', currentProduct);
         setBidsCards([1, 2, 3])
     }, [])
 

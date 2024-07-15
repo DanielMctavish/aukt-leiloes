@@ -3,7 +3,7 @@ import backgroundFloor from "../../media/backgrounds/sheldon-liu-FrQKfzoTgsw-uns
 import { useState } from "react";
 
 function Section02() {
-  const [cardItems, setCardsItems] = useState([1, 2, 3, 4, 5, 6]);
+  const [cardItems] = useState([1, 2, 3, 4, 5, 6]);
 
   return (
     <section className="bg-[#D9D9D9] w-full h-[100vh] 

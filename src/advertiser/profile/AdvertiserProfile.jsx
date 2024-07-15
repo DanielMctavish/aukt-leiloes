@@ -14,7 +14,7 @@ function AdvertiserProfile() {
         bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
         flex lg:flex-row flex-col justify-start items-start"
     >
-      <AssideAdvertiser MenuSelected="menu-8" />
+      <AssideAdvertiser MenuSelected="menu-9" />
       <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdvertiser />
 

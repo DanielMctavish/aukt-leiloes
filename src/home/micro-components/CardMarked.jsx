@@ -1,17 +1,45 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import axios from 'axios'
 import { useState, useEffect } from "react";
-import Alert from "../medias/vector/vector.svg";
-import ArrowLeft from "../medias/vector/arrow-left.svg";
-import ArrowRight from "../medias/vector/arrow-right.svg";
-import Car from "../medias/backgrounds/car.png";
+
 
 function CardMarked() {
-  const [offset, setOffset] = useState(0);
- 
-   
+  const [allAuctions, setAllAuctions] = useState([]);
+
+  useEffect(() => {
+    getAllAuctions()
+  }, [])
+
+  const getAllAuctions = async () => {
+
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
+      params: {
+        status: 'cataloged'
+      }
+    }).then(response => {
+      console.log("observandoi auctions -> ", response.data)
+      setAllAuctions(response.data)
+    }).catch(error => {
+      console.error(error.message)
+    });
+
+  }
+
   return (
-    <div className="lg:flex w-[67%] justify-center items-center">
-        <span>cards de leilões futuros</span>
+    <div className="lg:flex w-[67%] justify-start items-center gap-3">
+      {
+        allAuctions.map((auct,i)=>{
+          return (
+            <div key={i} className="w-[300px] h-[300px] rounded-[12px] shadow-lg shadow-[#15151589] 
+            relative gap-2 overflow-hidden flex justify-center items-center">
+              <img src={auct.auct_cover_img} alt="" className="object-cover w-[100%] h-[100%] absolute" />
+              <div className="flex justify-center items-center absolute bottom-1 w-[97%] h-10 p-2 text-white bg-[#012038] rounded-[6px]">
+                <p>{auct.title}</p>
+              </div>
+            </div>
+          )
+        })
+      }
     </div>
   );
 }

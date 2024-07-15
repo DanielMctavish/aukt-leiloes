@@ -4,16 +4,13 @@ import CardMarked from "../micro-components/CardMarked";
 
 
 function Section03() {
-
-
-
-  const [activeCategory, setActiveCategory] = useState(null);
-
+  const [activeCategory] = useState(null);
 
 
   return (
     <section className="w-full lg:h-[143vh] h-[200vh] mb-0 sm:mt-0 mt-0 flex flex-col ">
 
+      {/* LEILÕES MARCADOS */}
       <div className="w-full lg:h-[43vh] h-[100vh] bg-[#1E1E1E] flex lg:flex-row items-center 
       justify-between flex-col">
 
@@ -23,8 +20,11 @@ function Section03() {
           <h2 className="text-[34px] font-semibold leading-normal tracking-wide">
             Leilões Marcados
           </h2>
-          <span className="text-[#D7D7D7] text-[14px] flex h-auto w-full">
-            Nossa plataforma oferece uma seleção exclusiva de leilões com produtos anunciados por nossos parceiros e anunciantes cuidadosamente selecionados. Garantimos a qualidade e a procedência dos itens, proporcionando a você uma experiência de compra segura e confiável. <br /> <br />
+          <span className="text-[#D7D7D7] text-[14px] flex h-auto w-full text-justify">
+            Nossa plataforma oferece uma seleção exclusiva de leilões com produtos anunciados por nossos parceiros e anunciantes cuidadosamente selecionados.
+            Garantimos a qualidade e a procedência dos itens, proporcionando a você uma experiência de compra segura e confiável.
+          </span>
+          <span className="text-[#D7D7D7] text-[16px] flex h-auto w-full text-justify mt-[1vh]">
             Nossos leilões apresentam uma variedade de produtos únicos e de alto valor, todos verificados para atender aos nossos rigorosos padrões.
           </span>
         </div>
