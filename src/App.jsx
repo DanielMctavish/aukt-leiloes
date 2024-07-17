@@ -36,6 +36,7 @@ import ProductDetailAdv from "./home/advertiser-home/ProductDetailAdv";
 import DashboardAuctControl from "./advertiser/control/DashboardAuctControl";
 import SecurityConfirmation from "./access/security/SecurityConfirmation";
 import SubscriptionAdvertiser from "./home/forms/SubscriptionAdvertiser";
+import ClientBids from "./Clients/bids/ClientBids";
 
 
 function App() {
@@ -59,7 +60,8 @@ function App() {
 
           {/* CLIENTS */}
           <Route Component={DashboardClient} path="/client/dashboard" exact />
-          <Route Component={ClientArremates} path="/client/arremates" exact />
+          <Route Component={ClientArremates} path="/client/auctioned" exact />
+          <Route Component={ClientBids} path="/client/bids" exact />
           <Route Component={ClientAucts} path="/client/aucts" exact />
           <Route Component={ClientWallet} path="/client/wallet" exact />
 

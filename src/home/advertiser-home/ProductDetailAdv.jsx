@@ -150,7 +150,7 @@ function ProductDetailAdv() {
                                     return (
                                         <div key={i} className="flex w-full justify-between items-center p-2 text-zinc-600 bg-white rounded-md">
                                             <img src={avatares_pessoas[information.client.client_avatar]} alt="" className="w-[40px] h-[40px] object-cover" />
-                                            <span>{information.client.name}</span>
+                                            <span>{information.client.nickname}</span>
                                             <span>{information.value}</span>
                                         </div>
                                     )

@@ -10,6 +10,7 @@ import {
   AccountBalanceWallet,
   Person,
   Logout,
+  Gavel,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +22,7 @@ function AssideClient(props) {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
     if (menuBtn) {
       menuBtn.style.background =
-        "linear-gradient(90deg, #4D5BD4 0.03%, #FC9F9F 99.17%)";
+        "linear-gradient(90deg, #136f49 0.03%, #82e1be 99.17%)";
       menuBtn.style.borderRadius = "4px";
     }
   }, []);
@@ -47,12 +48,13 @@ function AssideClient(props) {
     fontSize: "64px",
   };
 
-  const handleLogoutClient = ()=>{
+  const handleLogoutClient = () => {
     localStorage.removeItem('client-auk-session-login')
     navigate('/')
   }
 
   return (
+
     <div>
       <button
         onClick={toggleSidebar}
@@ -61,7 +63,7 @@ function AssideClient(props) {
         <AppsIcon style={{ fontSize: "40px" }} />
       </button>
       {isSidebarOpen ? (
-        <nav className="bg-[#143514;] h-screen z-30 fixed top-0 p-4 w-full">
+        <nav className="bg-[#143514] h-screen z-30 fixed top-0 p-4 w-full">
 
           <div className="bg-[#143514] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
             <div className="flex flex-wrap justify-center items-center gap-6 ">
@@ -130,8 +132,9 @@ function AssideClient(props) {
           </div>
         </nav>
       ) : null}
+      {/* DESKTOP VERSION */}
       <nav
-        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#143514] flex-col justify-start items-center gap-3`}
+        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#143514] flex-col justify-start items-center gap-3 p-1`}
       >
         <div className="w-full p-2 flex justify-center items-center">
           <img
@@ -154,7 +157,7 @@ function AssideClient(props) {
         <button
           id="menu-2"
           className="w-full flex justify-between items-center p-2 text-white"
-          onClick={() => handleClick("/client/arremates")}
+          onClick={() => handleClick("/client/auctioned")}
         >
           <LocalAtm />
           <span>Arremates</span>
@@ -163,6 +166,15 @@ function AssideClient(props) {
         <button
           id="menu-3"
           className="w-full flex justify-between items-center p-2 text-white"
+          onClick={() => handleClick("/client/bids")}
+        >
+          <Gavel />
+          <span>Lances</span>
+        </button>
+
+        <button
+          id="menu-4"
+          className="w-full flex justify-between items-center p-2 text-white"
           onClick={() => handleClick("/client/aucts")}
         >
           <Group />
@@ -170,9 +182,8 @@ function AssideClient(props) {
         </button>
 
         <button
-          id="menu-4"
+          id="menu-5"
           className="w-full flex justify-between items-center p-2 text-white"
-          onClick={() => handleClick("/client/wallet")}
         >
           <AccountBalanceWallet />
           <span>Carteira</span>
@@ -183,7 +194,7 @@ function AssideClient(props) {
         </div>
 
         <button
-          id="menu-5"
+          id="menu-6"
           className="w-full flex justify-between items-center p-2 text-white mt-6"
           onClick={() => handleClick("/client/profile")}
         >
@@ -193,7 +204,7 @@ function AssideClient(props) {
 
         <button
           onClick={handleLogoutClient}
-          id="menu-6"
+          id="menu-7"
           className="w-full flex justify-between items-center p-2 text-white"
         >
           <Logout />

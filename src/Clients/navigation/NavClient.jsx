@@ -31,7 +31,7 @@ function NavClient({ currentClient }) {
     if (currentClient && currentClient.client_avatar) {
       setAvatarSrc(avatars[currentClient.client_avatar]);
     }
-    console.log("dentro do nav cliente -> ", currentClient.client_avatar);
+    // console.log("dentro do nav cliente -> ", currentClient.client_avatar);
   }, [currentClient]);
 
   return (
