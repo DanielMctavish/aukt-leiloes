@@ -102,7 +102,7 @@ function HomeAdvertiser() {
 
             {/* MENU Home advertiser............................................................................................................................ */}
             <div ref={menuRef} className="fixed w-[30vh] h-[100vh] flex flex-col
-            bg-white left-0 top-0 z-20 shadow-lg shadow-[#1118] ml-[-30vh] text-[#343434]">
+            bg-[#143514] left-0 top-0 z-20 shadow-lg shadow-[#1118] ml-[-30vh] text-[#e0e0e0]">
                 <ClientNavigation />
             </div>
 
