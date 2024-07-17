@@ -66,7 +66,7 @@ function ClientProfile() {
                         items-center bg-white p-3 rounded-md shadow-lg shadow-[#0505052d]">
                             <span className="absolute top-1 text-[33px] font-bold">2º</span>
                             <h1 className="text-left font-bold text-[23px] absolute top-[6vh]">mudar avatar de pregão</h1>
-                            <div className="flex flex-wrap w-[85%] max-h-[60vh] justify-center items-center gap-2 p-2">
+                            <div className="flex flex-wrap  w-[70%] max-h-[60vh] justify-center items-center gap-2 p-2 overflow-x-auto">
                                 {
                                     avatares_pessoas.map(
                                         (avatar, i) => {
@@ -75,7 +75,7 @@ function ClientProfile() {
                                                     <img src={avatar} alt=""
                                                         key={i}
                                                         onClick={() => handleSelectedAvatar(i)}
-                                                        className="w-[140px] h-[140px] object-cover rounded-full transition-all duration-[1s]
+                                                        className="w-[100px] h-[100px] object-cover rounded-full transition-all duration-[1s]
                                                         cursor-pointer border-[3px] border-zinc-600" />
                                                 )
                                             } else {
@@ -83,7 +83,7 @@ function ClientProfile() {
                                                     <img src={avatar} alt=""
                                                         key={i}
                                                         onClick={() => handleSelectedAvatar(i)}
-                                                        className="w-[100px] h-[100px] object-cover brightness-90
+                                                        className="w-[70px] h-[70px] object-cover brightness-90
                                                         rounded-full cursor-pointer transition-all duration-[.3s]" />
                                                 )
                                             }
