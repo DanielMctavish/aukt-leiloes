@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import axios from "axios"
 import io from "socket.io-client"
 import CenterFloor from "./components/CenterFloor"
 import FloorBids from "./components/FloorBids"
@@ -7,7 +8,8 @@ import FloorNavigation from "./components/FloorNavigation"
 import backgroundFloor from "../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg"
 import { useEffect, useState } from "react"
 import { getCurrentProduct } from "./functions/getCurrentProduct"
-import { getAuctionInformations } from "./functions/getAuctionInformations"
+// import { getAuctionInformations } from "./functions/getAuctionInformations"
+import { useParams } from "react-router-dom"
 
 
 function AuctFloor() {
@@ -15,23 +17,25 @@ function AuctFloor() {
     const [currentProduct, setCurrentProduct] = useState(false)
     const [socketMessage, setSocketMessage] = useState()
     const [socketWinner, setSocketWinner] = useState(false)
+    const { auct_id } = useParams()
 
     useEffect(() => {
+        getCurrentAuction()
 
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
 
         //ouvindo mensagem de pregão ao vivo................................................................
+
         socket.on('aukt-server-floor-live', (message) => {
 
-            setSocketMessage(message)
-            setSocketWinner(false)
-
-            if (!currentAuct) {
-                getAuctionInformations(message.data.body.auct_id, setCurrentAuct)
+            if (message.data.body.auct_id === auct_id) {
+                setSocketMessage(message)
+                setSocketWinner(false)
                 getCurrentProduct(message.data.body.current_product_id, setCurrentProduct)
             }
 
         })
+
 
         //ouvindo mensagem de leilão finalizado..............................................................
 
@@ -41,13 +45,26 @@ function AuctFloor() {
 
         })
 
-        return () => {
-            socket.off('aukt-server-floor-live')
-        }
 
     }, [])
 
-    useEffect(() => { }, [currentProduct, currentAuct, socketWinner])
+    useEffect(() => { }, [currentProduct, currentAuct, socketWinner, socketMessage])
+
+    const getCurrentAuction = async () => {
+
+        try {
+
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${auct_id}`)
+                .then((response) => {
+                    setCurrentAuct(response.data)
+                })
+
+        } catch (error) {
+            console.log("error at try get auction: ", error.message)
+
+        }
+
+    }
 
     if (socketWinner) {
         return (
@@ -71,7 +88,8 @@ function AuctFloor() {
 
                     <CenterFloor title={currentProduct.title}
                         cover={currentProduct.cover_img_url}
-                        description={currentProduct.description} />
+                        description={currentProduct.description}
+                        auction={currentAuct} />
                     <FloorLots products={currentAuct.product_list}
                         currentProduct={currentProduct} />
 

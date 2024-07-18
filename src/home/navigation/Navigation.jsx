@@ -127,7 +127,7 @@ function Navigation() {
             <img src={logoAuk_white} alt="hammer" className="w-[48px] object-cover" />
           </span>
 
-          <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor")}>
+          <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor/hub")}>
             <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
           </span>
 

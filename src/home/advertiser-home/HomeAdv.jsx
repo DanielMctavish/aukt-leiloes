@@ -31,7 +31,7 @@ function HomeAdvertiser() {
                 .then(result => {
                     result.data.forEach((auct) => {
                         if (auct.status === "cataloged") {
-                            console.log("AUK >> ", auct)
+                            // console.log("AUK >> ", auct)
                             setDisplayAuct(auct)
                             setDisplayProduct(auct.product_list)
                             return false
