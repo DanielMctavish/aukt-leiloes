@@ -28,6 +28,9 @@ function AuctFloor() {
 
         socket.on('aukt-server-floor-live', (message) => {
 
+            console.log("mensagem do pregão ao vivo1 - - - > ", message.data.body.auct_id)
+            console.log("mensagem do pregão ao vivo2 - - - > ", auct_id)
+
             if (message.data.body.auct_id === auct_id) {
                 setSocketMessage(message)
                 setSocketWinner(false)
