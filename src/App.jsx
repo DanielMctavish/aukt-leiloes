@@ -37,6 +37,7 @@ import DashboardAuctControl from "./advertiser/control/DashboardAuctControl";
 import SecurityConfirmation from "./access/security/SecurityConfirmation";
 import SubscriptionAdvertiser from "./home/forms/SubscriptionAdvertiser";
 import ClientBids from "./Clients/bids/ClientBids";
+import FloorHub from "./a-floor/hub/FloorHub";
 
 
 function App() {
@@ -96,7 +97,8 @@ function App() {
           <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
 
           {/* AUCT FLOOR */}
-          <Route Component={AuctFloor} path="/floor" exact />
+          <Route Component={FloorHub} path="/floor/hub" exact />
+          <Route Component={AuctFloor} path="/floor/:auct_id" exact />
 
         </Routes>
       </BrowserRouter>

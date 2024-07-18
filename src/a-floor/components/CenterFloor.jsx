@@ -3,7 +3,7 @@
 import { useRef } from "react";
 
 
-function CenterFloor({ title, cover, description }) {
+function CenterFloor({ title, cover, description, auction }) {
 
     const refDisplayLot = useRef()
 
@@ -18,8 +18,30 @@ function CenterFloor({ title, cover, description }) {
     return (
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
         lg:justify-center justify-start items-center rounded-[22px] bg-[#d2d2d2ad] 
-        backdrop-blur-lg shadow-xl shadow-[#1414143a] 
-        border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3 overflow-y-auto overflow-x-auto">
+        backdrop-blur-lg shadow-xl shadow-[#1414143a] relative
+        border-b-[2px] border-[#e3e3e3] z-[2] p-3 gap-3 overflow-y-hidden overflow-x-auto">
+            {
+                auction.status === "cataloged" &&
+                <>
+                    <img src={auction.auct_cover_img} alt="capa do leilão" className="object-cover w-[120%] absolute blur-[22px] ml-[-30vh]" />
+                    <img src={auction.auct_cover_img} alt="capa do leilão" className="object-cover h-full z-10 rounded-[12px] shadow-lg shadow-[#13131344]" />
+                    <div className="flex flex-col justify-start items-center w-[40%] h-full bg-white/30 z-10 rounded-[12px] gap-3">
+                        <h1 className="font-bold text-[24px]">{auction.title}</h1>
+                        <p>
+                            {auction.descriptions_informations}
+                        </p>
+                        <div>
+                            {auction.auct_dates &&
+                                auction.auct_dates.map((dates, i) => (
+                                    <span key={i}>
+                                        {dates.date_auct}
+                                    </span>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </>
+            }
 
             {
                 description ?
