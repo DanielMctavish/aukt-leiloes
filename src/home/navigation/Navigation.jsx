@@ -117,6 +117,7 @@ function Navigation() {
         >
           <div onClick={() => navigate("/")} className="flex items-center sm:mr-[100px]">
             <img src={logoAuk} alt="" className="w-[60px] object-cover" />
+            <span>AUK</span>
           </div>
 
         </section>
