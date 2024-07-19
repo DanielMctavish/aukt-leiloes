@@ -61,22 +61,22 @@ function DashboardClient() {
 
                     <div className="flex w-full h-[60%] justify-between items-center">
                         <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-2xl font-bold">Total de Lances</span>
+                            <span className="text-[18px] font-bold">Total de Lances</span>
                             <span className="text-4xl font-extrabold text-cyan-700">{allBids.length}</span>
                         </div>
 
                         <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-2xl font-bold">Total de arremates</span>
+                            <span className="text-[18px] font-bold">Total de arremates</span>
                             <span className="text-4xl font-extrabold text-green-600">{bidsWinners.length}</span>
                         </div>
 
                         <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-2xl font-bold">Total de leilões participados</span>
+                            <span className="text-[18px] font-bold">Total de leilões participados</span>
                             <span className="text-4xl font-extrabold text-blue-600">{allAucts.length}</span>
                         </div>
 
                         <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-2xl font-bold">Total de Gastos com leilões</span>
+                            <span className="text-[18px] font-bold">Total de Gastos com leilões</span>
                             <span className="text-4xl font-extrabold text-[#143d64]">
                                 R$<AnimatedNumber number={budget} />
                             </span>
@@ -92,9 +92,10 @@ function DashboardClient() {
                                 bidsWinners.map((bid, index) => {
 
                                     return (
-                                        <span className="flex w-[200px] h-[200px] bg-[#ccffe6] overflow-hidden rounded-md justify-center items-center 
+                                        <span className="flex w-[140px] h-[140px] bg-[#ccffe6] overflow-hidden rounded-md justify-center items-center 
                                         relative shadow-lg shadow-[#17171762]" key={index}>
-                                            <img src={bid.Product[0].cover_img_url} alt="" className="w-full object-cover h-full absolute justify-center items-center" />
+                                            <img src={bid.Product[0].cover_img_url} alt="" 
+                                            className="w-full object-cover h-full absolute justify-center items-center" />
                                             <span style={{ textShadow: "1px 1px 2px #1515157b" }} className="text-[#fff] z-[10]">
                                                 {bid.Product[0].title}
                                             </span>

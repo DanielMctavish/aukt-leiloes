@@ -17,7 +17,7 @@ function CardMarked() {
         status: 'cataloged'
       }
     }).then(response => {
-      console.log("observandoi auctions -> ", response.data)
+      // console.log("observandoi auctions -> ", response.data)
       setAllAuctions(response.data)
     }).catch(error => {
       console.error(error.message)
