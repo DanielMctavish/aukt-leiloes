@@ -13,26 +13,19 @@ import avatar_06 from "../../media/avatar-floor/avatar_06.png";
 import avatar_07 from "../../media/avatar-floor/avatar_07.png";
 import avatar_08 from "../../media/avatar-floor/avatar_08.png";
 
-const avatars = [
-  avatar_01,
-  avatar_02,
-  avatar_03,
-  avatar_04,
-  avatar_05,
-  avatar_06,
-  avatar_07,
-  avatar_08
-];
 
 function NavClient({ currentClient }) {
-  const [avatarSrc, setAvatarSrc] = useState("");
+  const [avatars] = useState([
+    avatar_01,
+    avatar_02,
+    avatar_03,
+    avatar_04,
+    avatar_05,
+    avatar_06,
+    avatar_07,
+    avatar_08
+  ])
 
-  useEffect(() => {
-    if (currentClient && currentClient.client_avatar) {
-      setAvatarSrc(avatars[currentClient.client_avatar]);
-    }
-    // console.log("dentro do nav cliente -> ", currentClient.client_avatar);
-  }, [currentClient]);
 
   return (
     <nav
@@ -83,7 +76,7 @@ function NavClient({ currentClient }) {
             <NotificationsIcon />
           </span>
           <img
-            src={avatarSrc}
+            src={avatars[currentClient.client_avatar]}
             alt="foto-perfil"
             className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
           />
