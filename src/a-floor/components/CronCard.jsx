@@ -1,16 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { AccessTime } from "@mui/icons-material";
-import hamerIcon from "../../media/icons/Hammer.png";
+import { AccessTime, Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios"
+import { handleBidproduct } from "../../home/advertiser-home/functions/handleBidproduct";
 
-function CronCard({ currentTime, duration, auct_id, initial_value }) {
+function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
+    const [clientSession, setClientSession] = useState()
     const [deadline, setDeadline] = useState(1);
-    const [isFinishedLot, ] = useState(false)
-    const [barPercent, setBarPercent] = useState(0);
+    const [isFinishedLot,] = useState(false)
     const refBarDeadline = useRef();
     //refBarDeadline.current.style.width = `0%`;
+
+    useEffect(() => {
+        getClientSession()
+    }, [])
 
     useEffect(() => {
         const newDeadline = duration - currentTime;
@@ -21,28 +25,23 @@ function CronCard({ currentTime, duration, auct_id, initial_value }) {
         // }
 
         if (newDeadline <= 10) {
-            setBarPercent(((10 - newDeadline) / 10) * 100);
+            refBarDeadline.current.style.transition = `10s`;
+            refBarDeadline.current.style.width = `100%`;
+            refBarDeadline.current.style.background = "#b70900"
+            refBarDeadline.current.style.color = "#fbfbfb"
         } else {
-            setBarPercent(0);
+            refBarDeadline.current.style.width = `0%`;
+            refBarDeadline.current.style.transition = `1s`;
         }
 
     }, [currentTime, duration]);
 
-    useEffect(() => {
-        if (refBarDeadline.current) {
-            refBarDeadline.current.style.width = `${barPercent}%`;
-        } else {
-            refBarDeadline.current.style.width = `0%`;
-        }
-    }, [barPercent]);
 
     useEffect(() => {
 
         if (isFinishedLot) {
             eventPauseAuction()
-            setBarPercent(100);
-            refBarDeadline.current.style.background = "#00b70f"
-
+            
             setTimeout(() => {
                 console.log("resuming........ ")
                 eventContinueAuction()
@@ -72,7 +71,27 @@ function CronCard({ currentTime, duration, auct_id, initial_value }) {
         }
     }
 
+    const getClientSession = async () => {
+        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
 
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`
+                }
+            }).then((response) => {
+                setClientSession(response.data)
+            })
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const bidAuctionLive = async () => {
+        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
+        const bidValue = initial_value + 20
+        handleBidproduct(bidValue, null, currentProduct, clientSession, { id: auct_id }, currentSession, null, null, null)
+    }
 
     return (
         <div className="w-[98%] gap-3 rounded-md text-[#191F2F]
@@ -85,7 +104,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value }) {
                 {
                     !isFinishedLot ?
                         <>
-                            <div ref={refBarDeadline} className="h-[60px] absolute bg-[#b70000] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
+                            <div ref={refBarDeadline} className="h-[60px] absolute bg-[#53e642] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
 
                             <div className="w-[40px] h-[40px] border-[1px] z-10 
                                 border-zinc-800 rounded-full flex justify-center items-center">
@@ -100,8 +119,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value }) {
                         </> :
                         <div ref={refBarDeadline}
                             className="h-[60px] absolute bg-red-600 ml-[-1.3vh]
-                            flex justify-center items-center 
-                            transition-all duration-[1.8s]">
+                            flex justify-center items-center ">
                             <span className="font-extrabold text-white">Lote Finalizado!</span>
                         </div>
                 }
@@ -110,17 +128,23 @@ function CronCard({ currentTime, duration, auct_id, initial_value }) {
 
             <div className="w-full h-[100%] flex justify-between items-center relative gap-2 text-[16px]">
 
-                <span className="flex min-w-[60%] h-[40px] bg-[#e3e3e3] 
-                shadow-lg shadow-[#0000001d]
+                <span className="flex flex-1 h-[40px] bg-[#e3e3e3] 
+                shadow-lg shadow-[#0000001d] transition-all duration-[.3s]
                 font-light justify-center items-center rounded-md">
                     R$ {initial_value && initial_value.toFixed(2)}
                 </span>
 
-                <button className="flex flex-1 h-[40px] 
-                justify-center items-center bg-[#e3e3e3] 
-                rounded-md shadow-lg shadow-[#0000001d]">
-                    <img src={hamerIcon} alt="Ícone de martelo" className="w-[32px] object-cover" />
-                </button>
+                {clientSession &&
+                    <button
+                        onClick={bidAuctionLive}
+                        className="flex flex-1 h-[40px] 
+                        justify-center items-center bg-[#159a29] gap-2
+                        rounded-md shadow-lg shadow-[#0000001d] font-bold 
+                        text-white">
+                        <Paid />
+                        <span>+ R$ 20,00</span>
+                    </button>
+                }
 
             </div>
 

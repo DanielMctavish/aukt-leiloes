@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { getCurrentProduct } from "./functions/getCurrentProduct"
 // import { getAuctionInformations } from "./functions/getAuctionInformations"
 import { useParams } from "react-router-dom"
+import WinnerScreen from "./winner/WinnerScreen"
 
 
 function AuctFloor() {
@@ -26,14 +27,11 @@ function AuctFloor() {
 
         //ouvindo mensagem de pregão ao vivo................................................................
 
-        socket.on('aukt-server-floor-live', (message) => {
-
-            console.log("mensagem do pregão ao vivo1 - - - > ", message.data.body.auct_id)
-            console.log("mensagem do pregão ao vivo2 - - - > ", auct_id)
+        socket.on(auct_id.toString(), (message) => {
 
             if (message.data.body.auct_id === auct_id) {
-                setSocketMessage(message)
                 setSocketWinner(false)
+                setSocketMessage(message)
                 getCurrentProduct(message.data.body.current_product_id, setCurrentProduct)
             }
 
@@ -42,12 +40,17 @@ function AuctFloor() {
 
         //ouvindo mensagem de leilão finalizado..............................................................
 
-        socket.on('aukt-server-floor-winner', (message) => {
-            console.log("lolte vencedor - - - > ", message)
-            setSocketWinner(message)
+        socket.on(`${auct_id}-winner`, (message) => {
+            console.log("lote vencedor - - - > ", message.data.body)
+            setTimeout(() => {
+                setSocketWinner(message)
+            }, 1200);
+
+            setTimeout(() => {
+                setSocketWinner(false)
+            }, 3100);
 
         })
-
 
     }, [])
 
@@ -71,11 +74,7 @@ function AuctFloor() {
 
     if (socketWinner) {
         return (
-            <div className="flex flex-col w-full h-[100vh] justify-center items-center bg-gradient-to-r from-[#6fe46d] to-[#00570d]">
-                <span className="text-[23px]">vencedor do lote!</span>
-                <h1 style={{ textShadow: "2px 2px 1px #19191969" }} className="text-[38px]">{currentProduct.title}</h1>
-                <img src={currentProduct.cover_img_url} alt="" className="w-[300px] h-[300px] object-cover rounded-[22px]" />
-            </div>
+            <WinnerScreen currentProduct={currentProduct} currentAuct={currentAuct} />
         )
     }
 

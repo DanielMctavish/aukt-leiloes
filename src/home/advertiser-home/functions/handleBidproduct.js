@@ -45,14 +45,16 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         setBidValue(response.data.value)
         setSuccessBid(!successBid)
 
-        messageRef.current.style.transition = "1s"
-        messageRef.current.style.marginTop = "0"
-        messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
-        messageRef.current.style.color = "#105500"
+        if (messageRef) {
+            messageRef.current.style.transition = "1s"
+            messageRef.current.style.marginTop = "0"
+            messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
+            messageRef.current.style.color = "#105500"
+            setTimeout(() => {
+                messageRef.current.style.marginTop = "-30px"
+            }, 6000);
+        }
 
-        setTimeout(() => {
-            messageRef.current.style.marginTop = "-30px"
-        }, 6000);
 
     }).catch(err => {
         console.log(err.message)

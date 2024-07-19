@@ -59,7 +59,7 @@ const FloorHub = () => {
     };
 
     useEffect(() => {
-        console.log("observando dados pregressos -> ", allAuctions.auctionLive);
+        // console.log("observando dados pregressos -> ", allAuctions.auctionLive);
     }, [allAuctions, currentClient]);
 
     const renderAuctionCards = (auctions, label) => {
@@ -98,7 +98,7 @@ const FloorHub = () => {
     return (
         <div
             className="flex flex-col justify-start items-center w-full relative 
-            h-[100vh] overflow-hidden bg-[#D8DEE8] text-[#2d2d2d]"
+            h-auto overflow-hidden bg-[#D8DEE8] text-[#2d2d2d]"
         >
             <nav
                 className="flex justify-between items-center 
@@ -120,11 +120,13 @@ const FloorHub = () => {
             ></nav>
 
             <section
-                className="grid grid-cols-4 gap-1 w-[70%] h-[91%] justify-start bg-transparent overflow-y-auto p-1 transition-all duration-[1s]"
+                className="grid grid-cols-4 gap-1 w-[70%] h-[80vh] justify-start bg-transparent overflow-y-auto p-1 transition-all duration-[1s] mt-[6vh]"
             >
                 {renderAuctionCards(allAuctions.auctionLive, "live")}
                 {renderAuctionCards(allAuctions.auctionCataloged, "cataloged")}
             </section>
+
+            <footer className="w-full h-[40vh] bg-white mt-[6vh]"></footer>
 
         </div>
     );
