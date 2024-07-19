@@ -1,10 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-
 const initialState = {
     auct_id: "",
 }
-
 
 
 const auctSelectedSlice = createSlice({

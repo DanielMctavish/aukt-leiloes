@@ -9,6 +9,7 @@ import { groupDateSliceReducer } from './GroupDates/GroupDate';
 import { errorSliceSliceReducer } from './errors/ReportErrorAtCreateAuct';
 import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
 import {uploadConfirmationReducer} from "./product/UploadFinished"
+import { bidLiveSliceReducer } from './bid/bidLive';
 
 const store = configureStore({
     reducer: {
@@ -21,7 +22,8 @@ const store = configureStore({
         groupDate: groupDateSliceReducer,
         errorReports: errorSliceSliceReducer,
         auctResume: resumeAuctSliceReducer,
-        finishedUpload: uploadConfirmationReducer
+        finishedUpload: uploadConfirmationReducer,
+        bidLive: bidLiveSliceReducer
     }
 })
 
