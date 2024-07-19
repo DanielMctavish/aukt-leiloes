@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
+import { useDispatch } from "react-redux";
 import { AccessTime, Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios"
 import { handleBidproduct } from "../../home/advertiser-home/functions/handleBidproduct";
+import { addBidLive } from "../../features/bid/bidLive";
 
 function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
     const [clientSession, setClientSession] = useState()
@@ -11,6 +13,8 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     const [isFinishedLot,] = useState(false)
     const refBarDeadline = useRef();
     //refBarDeadline.current.style.width = `0%`;
+
+    const dispatch = useDispatch()
 
     useEffect(() => {
         getClientSession()
@@ -41,7 +45,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
 
         if (isFinishedLot) {
             eventPauseAuction()
-            
+
             setTimeout(() => {
                 console.log("resuming........ ")
                 eventContinueAuction()
@@ -91,6 +95,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
         const bidValue = initial_value + 20
         handleBidproduct(bidValue, null, currentProduct, clientSession, { id: auct_id }, currentSession, null, null, null)
+        dispatch(addBidLive(bidValue))
     }
 
     return (

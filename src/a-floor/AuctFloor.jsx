@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
 import io from "socket.io-client"
+import { useSelector } from "react-redux";
 import CenterFloor from "./components/CenterFloor"
 import FloorBids from "./components/FloorBids"
 import FloorLots from "./components/FloorLots"
@@ -19,6 +20,7 @@ function AuctFloor() {
     const [socketMessage, setSocketMessage] = useState()
     const [socketWinner, setSocketWinner] = useState(false)
     const { auct_id } = useParams()
+    const state = useSelector(state => state.bidLive)
 
     useEffect(() => {
         getCurrentAuction()
@@ -52,7 +54,7 @@ function AuctFloor() {
 
         })
 
-    }, [])
+    }, [state])
 
     useEffect(() => { }, [currentProduct, currentAuct, socketWinner, socketMessage])
 

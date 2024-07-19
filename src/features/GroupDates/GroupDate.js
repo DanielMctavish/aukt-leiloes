@@ -6,7 +6,7 @@ const initialState = {
 
 
 const groupSlice = createSlice({
-    name: "group_date",
+    name: "bid_live",
     initialState,
     reducers: {
         addGroupDate: (state, action) => {
