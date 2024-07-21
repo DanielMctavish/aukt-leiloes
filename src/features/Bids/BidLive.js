@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
-    bid_live: {}
+    bidLive: {}
 }
 
 
-const bidLive = createSlice({
+const bidSlice = createSlice({
     name: "bid-live",
     initialState,
     reducers: {
@@ -17,5 +17,5 @@ const bidLive = createSlice({
 
 
 
-export const bidLiveSliceReducer = bidLive.reducer
-export const { addBidLive } = bidLive.actions
+export const bidLiveSliceReducer = bidSlice.reducer
+export const { addBidLive } = bidSlice.actions
