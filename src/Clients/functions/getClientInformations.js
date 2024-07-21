@@ -1,7 +1,9 @@
 import axios from "axios";
 
 
-export const getClientInformations = async (navigate, getBidsByClient, setCurrentClient, setAllBids, setBidsWinners, setBudget, currentClient) => {
+export const getClientInformations = async (navigate, getBidsByClient, setCurrentClient,
+    setAllBids, setBidsWinners, setBudget, currentClient) => {
+
     const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
     if (!currentSessionClient) {
         navigate("/client/login");
@@ -14,10 +16,13 @@ export const getClientInformations = async (navigate, getBidsByClient, setCurren
     }).then((response) => {
         // console.log("dashboard client found -> ", response.data)
         getBidsByClient &&
-            getBidsByClient(response.data.id, currentClient, setAllBids, setBidsWinners, setBudget);
+            getBidsByClient(response.data.id, currentClient,
+                setAllBids, setBidsWinners, setBudget);
+
         setCurrentClient(response.data);
     }).catch(() => {
         localStorage.removeItem("client-auk-session-login");
         navigate("/client/login");
     });
+
 };
