@@ -23,9 +23,8 @@ function AuctFloor() {
     const state = useSelector(state => state.bidLive)
 
     useEffect(() => {
-        getCurrentAuction()
-
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+        getCurrentAuction()
 
         //ouvindo mensagem de pregão ao vivo................................................................
 
@@ -103,7 +102,8 @@ function AuctFloor() {
                     duration={currentAuct.product_timer_seconds}
                     auct_id={currentAuct.id}
                     initial_value={currentProduct.initial_value}
-                    currentProduct={currentProduct} />
+                    currentProduct={currentProduct}
+                />
             </div>
 
         </div>
