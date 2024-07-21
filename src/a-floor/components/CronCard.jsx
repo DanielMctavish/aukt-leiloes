@@ -5,7 +5,7 @@ import { AccessTime, Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios"
 import { handleBidproduct } from "../../home/advertiser-home/functions/handleBidproduct";
-import { addBidLive } from "../../features/bid/bidLive";
+import { addBidLive } from "../../features/Bids/BidLive";
 
 function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
     const [clientSession, setClientSession] = useState()
