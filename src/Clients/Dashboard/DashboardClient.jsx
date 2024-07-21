@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getClientInformations } from "../functions/getClientInformations";
 import { getBidsByClient } from "../functions/getBidsByClient";
 import { getAuctsByBids } from "../functions/getAuctsByBids";
-import { useSpring, animated } from 'react-spring';
+// import { useSpring, animated } from 'react-spring';
 
 function DashboardClient() {
     const [currentClient, setCurrentClient] = useState({});
@@ -20,30 +20,35 @@ function DashboardClient() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        getClientInformations(navigate, getBidsByClient, setCurrentClient, setAllBids, setBidsWinners, setBudget, currentClient);
+        getClientInformations(navigate,
+            getBidsByClient,
+            setCurrentClient,
+            setAllBids,
+            setBidsWinners,
+            setBudget,
+            currentClient);
+
     }, []);
 
-    useEffect(() => {
-        getAuctsByBids(allBids, setAllAucts);
-    }, [allBids]);
-
+    useEffect(() => { getAuctsByBids(allBids, setAllAucts); }, [currentClient, allAucts])
 
     let countAuct = 0
+    let countAuctined = 0
 
-    const AnimatedNumber = ({ number }) => {
-        const { number: animatedNumber } = useSpring({
-            from: { number: 0 },
-            number: number,
-            delay: 200,
-            config: { mass: 1, tension: 180, friction: 12 }
-        });
+    // const AnimatedNumber = ({ number }) => {
+    //     const { number: animatedNumber } = useSpring({
+    //         from: { number: 0 },
+    //         number: number,
+    //         delay: 200,
+    //         config: { mass: 1, tension: 180, friction: 12 }
+    //     });
 
-        return (
-            <animated.span>
-                {animatedNumber.to(n => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
-            </animated.span>
-        );
-    };
+    //     return (
+    //         <animated.span>
+    //             {animatedNumber.to(n => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
+    //         </animated.span>
+    //     );
+    // };
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
@@ -78,7 +83,7 @@ function DashboardClient() {
                         <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
                             <span className="text-[18px] font-bold">Total de Gastos com leilões</span>
                             <span className="text-4xl font-extrabold text-[#143d64]">
-                                R$<AnimatedNumber number={budget} />
+                                {` ${parseFloat(budget).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                             </span>
                         </div>
 
@@ -87,15 +92,16 @@ function DashboardClient() {
                 <section className="flex flex-col w-[98%] h-[60%] bg-white rounded-md shadow-md shadow-[#17171734] p-2">
                     <div className="flex flex-col justify-around items-start w-full h-[50%]">
                         <span className="font-bold">Arremates Recentes</span>
-                        <div className="flex w-full justify-around items-center">
+                        <div className="flex w-full justify-start items-center overflow-x-auto gap-3">
                             {
                                 bidsWinners.map((bid, index) => {
-
+                                    countAuctined++
+                                    if (countAuctined > 6) return null
                                     return (
-                                        <span className="flex w-[140px] h-[140px] bg-[#ccffe6] overflow-hidden rounded-md justify-center items-center 
+                                        <span className="flex lg:w-[140px] h-[140px] bg-[#ccffe6] overflow-hidden rounded-md justify-center items-center 
                                         relative shadow-lg shadow-[#17171762]" key={index}>
-                                            <img src={bid.Product[0].cover_img_url} alt="" 
-                                            className="w-full object-cover h-full absolute justify-center items-center" />
+                                            <img src={bid.Product[0].cover_img_url} alt=""
+                                                className="w-full object-cover h-full absolute justify-center items-center" />
                                             <span style={{ textShadow: "1px 1px 2px #1515157b" }} className="text-[#fff] z-[10]">
                                                 {bid.Product[0].title}
                                             </span>

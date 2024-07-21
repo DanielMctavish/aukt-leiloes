@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ArrowDropDown } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 //import { useNavigate } from "react-router-dom";
 import avatar_01 from "../../media/avatar-floor/avatar_01.png";
