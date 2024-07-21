@@ -9,7 +9,7 @@ import { groupDateSliceReducer } from './GroupDates/GroupDate';
 import { errorSliceSliceReducer } from './errors/ReportErrorAtCreateAuct';
 import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
 import {uploadConfirmationReducer} from "./product/UploadFinished"
-import { bidLiveSliceReducer } from './bid/bidLive.js';
+import { bidLiveSliceReducer } from './bid/BidLive.js';
 
 const store = configureStore({
     reducer: {
