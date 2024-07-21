@@ -8,22 +8,24 @@ import CronCard from "./CronCard"
 function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) {
     const [bidsCards, setBidsCards] = useState([])
 
-    useEffect(() => { setBidsCards([]) }, [])
-
     useEffect(() => {
-        //console.log('observando product -> ', currentProduct);
-        if (currentProduct) {
+        if (timer === duration) {
+            return setBidsCards([])
+        } else {
+            if (currentProduct) {
 
-            currentProduct.Bid.forEach((bid) => {
-                const currentItem = bidsCards.find((item) => item.id === bid.id)
-                if (!currentItem) {
-                    setBidsCards(prevItem => [...prevItem, bid])
-                }
-            })
+                currentProduct.Bid.forEach((bid) => {
+                    const currentItem = bidsCards.find((item) => item.id === bid.id)
+                    if (!currentItem) {
+                        setBidsCards(prevItem => [...prevItem, bid])
+                    }
+                })
 
+            }
         }
 
-    }, [currentProduct])
+    }, [currentProduct, bidsCards])
+
 
 
     return (
