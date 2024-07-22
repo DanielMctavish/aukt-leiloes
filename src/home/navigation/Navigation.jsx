@@ -8,8 +8,10 @@ import { useNavigate } from "react-router-dom"
 import hammer from "../../media/icons/Hammer.png"
 import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
 import logoAuk_white from "../../media/logos/logos-auk/logo_model01_white.png"
+import { getAdvertiserInformations } from "../../advertiser/functions/GetAdvertiserInformations";
 
 function Navigation() {
+  const [currentAdvertiser, setCurrentAdvertiser] = useState(false)
   const [currentClient, setCurrentClient] = useState({})
   const [navigationMenu, setNavigationMenu] = useState(false);
   const navigate = useNavigate()
@@ -17,6 +19,7 @@ function Navigation() {
 
   useEffect(() => {
     getClientInformations()
+    getAdvertiserInformations(setCurrentAdvertiser)
   }, [])
 
   const hideNavigation = () => {
@@ -122,11 +125,16 @@ function Navigation() {
 
         </section>
 
-        <div className="flex gap-2 justify-center items-center ">
+        <div className="flex gap-6 justify-center items-center ">
 
-          <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/login")}>
+          {!currentAdvertiser ? <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/login")}>
             <img src={logoAuk_white} alt="hammer" className="w-[48px] object-cover" />
-          </span>
+          </span> :
+            <span onClick={() => navigate("/advertiser/login")}>
+              <img src={currentAdvertiser.url_profile_cover} alt="" 
+              className="w-[40px] h-[40px] object-cover rounded-full border-[3px] border-white" />
+            </span>
+          }
 
           <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor/hub")}>
             <img src={hammer} alt="hammer" className="w-[30px] object-cover" />

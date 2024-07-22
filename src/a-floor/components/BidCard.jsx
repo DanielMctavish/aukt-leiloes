@@ -12,10 +12,7 @@ import av08 from "../../media/avatar-floor/avatar_08.png"
 const avatarIndex = [av01, av02, av03, av04, av05, av06, av07, av08]
 
 function BidCard({ bid }) {
-    useEffect(() => {
-        console.log("observando bid -> ", bid)
-
-    }, [bid])
+    useEffect(() => {}, [bid])
 
     return (
         <div className="w-[98%] rounded-[16px] text-zinc-900

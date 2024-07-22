@@ -1,19 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useDispatch } from "react-redux";
-import { AccessTime, Paid } from "@mui/icons-material";
+import { Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios"
 import { handleBidproduct } from "../../home/advertiser-home/functions/handleBidproduct";
 import { addBidLive } from "../../features/Bids/BidLive";
+import FilledCircle from "./FilledCircle";
 
 function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
+    const [isLoadingBid, setIsloadingBid] = useState(false)
     const [clientSession, setClientSession] = useState()
     const [deadline, setDeadline] = useState(1);
+    const [percentual, setPercentual] = useState(50)
     const [isFinishedLot,] = useState(false)
     const refBarDeadline = useRef();
     //refBarDeadline.current.style.width = `0%`;
-
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -23,6 +25,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     useEffect(() => {
         const newDeadline = duration - currentTime;
         setDeadline(newDeadline);
+        setPercentage(newDeadline)
 
         // if (newDeadline <= 0 && auct_id) {
         //     setFinishLot(true);
@@ -77,26 +80,31 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
-
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, {
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`
-                }
-            }).then((response) => {
-                setClientSession(response.data)
-            })
-        } catch (error) {
-            console.log(error.message);
-        }
+        if (currentSession)
+            try {
+                await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentSession.token}`
+                    }
+                }).then((response) => {
+                    setClientSession(response.data)
+                })
+            } catch (error) {
+                console.log(error.message);
+            }
     }
 
     const bidAuctionLive = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
         const bidValue = initial_value + 20
-        handleBidproduct(bidValue, null, currentProduct, clientSession, { id: auct_id }, currentSession, null, null, null)
+        handleBidproduct(bidValue, null, currentProduct, clientSession, { id: auct_id }, currentSession, null, null, null, setIsloadingBid)
         dispatch(addBidLive(bidValue))
     }
+
+    const setPercentage = (newDeadline) => {
+        const percentage = (newDeadline / duration) * 100;
+        setPercentual(percentage);
+    };
 
     return (
         <div className="w-[98%] gap-3 rounded-md text-[#191F2F]
@@ -111,10 +119,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                         <>
                             <div ref={refBarDeadline} className="h-[60px] absolute bg-[#53e642] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
 
-                            <div className="w-[40px] h-[40px] border-[1px] z-10 
-                                border-zinc-800 rounded-full flex justify-center items-center">
-                                <AccessTime />
-                            </div>
+                            <FilledCircle percentage={percentual} />
 
                             <span className="text-[16px] font-bold z-10">R$ {initial_value && initial_value.toFixed(2)}</span>
 
@@ -139,7 +144,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                     R$ {initial_value && initial_value.toFixed(2)}
                 </span>
 
-                {clientSession &&
+                {clientSession && !isLoadingBid ?
                     <button
                         onClick={bidAuctionLive}
                         className="flex flex-1 h-[40px] 
@@ -148,7 +153,12 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                         text-white">
                         <Paid />
                         <span>+ R$ 20,00</span>
-                    </button>
+                    </button> :
+                    clientSession &&
+                    <span className="flex flex-1 h-[40px] 
+                    justify-center items-center bg-[#159a29] gap-2
+                    rounded-md shadow-lg shadow-[#0000001d] font-bold 
+                    text-white">dando lance...</span>
                 }
 
             </div>

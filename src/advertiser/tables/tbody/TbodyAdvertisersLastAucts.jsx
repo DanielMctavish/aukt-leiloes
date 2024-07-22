@@ -11,8 +11,6 @@ function TbodyAdvertisersLastAucts() {
             sum += product.initial_value
         })
 
-        console.log("productsList: ",sum)
-
         return parseFloat(sum);
     }
 
@@ -29,10 +27,10 @@ function TbodyAdvertisersLastAucts() {
         try {
             const currentAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserStorage.email}`, configAuth)
 
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.data.id}`, configAuth).then(result => {
-                console.log("rsult -> ", result.data)
-                setAucts(result.data)
-            })
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.data.id}`, configAuth)
+                .then(result => {
+                    setAucts(result.data)
+                })
 
         } catch (error) {
             console.log('error at try get auctions -> ', error.message)

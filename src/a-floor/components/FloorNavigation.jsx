@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigate } from "react-router-dom"
-import { AccountCircle, Notifications } from "@mui/icons-material";
+import { AccountCircle, Notifications, SpaceDashboard } from "@mui/icons-material";
 import "./floorStyles.css";
 import DisplayClock from "./DisplayClock";
-import aukLogo from "../../media/logos/logos-auk/aukt_blue.png"
 import { useEffect, useState } from "react";
 
 function FloorNavigation({ auction, group }) {
@@ -26,7 +25,13 @@ function FloorNavigation({ auction, group }) {
         border-b-[2px] border-[#e3e3e3] z-[2] relative">
 
             <div className="flex justify-start items-center">
-                <img src={aukLogo} alt="" className="w-[63px] object-cover cursor-pointer hover:brightness-[1.2]" onClick={() => { navigate("/") }} />
+                <SpaceDashboard onClick={() => { navigate("/floor/hub") }}
+                    sx={{
+                        color: "#082841",
+                        fontSize: "36px",
+                        cursor: "pointer",
+                        marginRight: "20px",
+                    }} />
 
                 {/* Etiqueta leilão....................................................................................................................... */}
                 {

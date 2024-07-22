@@ -1,8 +1,9 @@
 import axios from "axios"
 
 const handleBidproduct = async (bidValue, messageRef, currentProduct,
-    currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid) => {
+    currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid, setIsloadingBid) => {
     //console.log("observando produto -> ", currentProduct.id)
+    setIsloadingBid(true)
 
     if (bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.transition = "1s"
@@ -44,7 +45,7 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         //console.log("lance realizado com sucesso... ", response.data)
         setBidValue(response.data.value)
         setSuccessBid(!successBid)
-
+        setIsloadingBid(false)
         if (messageRef) {
             messageRef.current.style.transition = "1s"
             messageRef.current.style.marginTop = "0"
@@ -57,6 +58,7 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
 
 
     }).catch(err => {
+        setIsloadingBid(false)
         console.log(err.message)
     })
 
