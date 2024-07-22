@@ -20,7 +20,6 @@ function Section02() {
         status: 'live'
       }
     }).then(response => {
-      console.log("observandoi auctions -> ", response.data)
       setLiveAuctions(response.data)
     }).catch(error => {
       console.error(error.message)

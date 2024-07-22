@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
+import io from "socket.io-client";
 import BidCard from "./BidCard"
 import CronCard from "./CronCard"
 
@@ -9,22 +10,56 @@ function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) 
     const [bidsCards, setBidsCards] = useState([])
 
     useEffect(() => {
-        if (timer === duration) {
-            return setBidsCards([])
-        } else {
-            if (currentProduct) {
+        webSocketFlow()
+    }, [])
 
-                currentProduct.Bid.forEach((bid) => {
-                    const currentItem = bidsCards.find((item) => item.id === bid.id)
-                    if (!currentItem) {
-                        setBidsCards(prevItem => [...prevItem, bid])
-                    }
-                })
+    useEffect(() => {
+        getBidsByCurrentProduct()
+    }, [currentProduct])
 
-            }
-        }
 
-    }, [currentProduct, bidsCards])
+    const getBidsByCurrentProduct = () => {
+
+        setBidsCards(currentProduct.Bid)
+
+    }
+
+
+
+    const webSocketFlow = () => {
+        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+
+        // ouvindo mensagem de pregão ao vivo
+        if (auct_id)
+            socket.on(`${auct_id.toString()}-bid`, (message) => {
+
+                if (message.data.body.auct_id === auct_id) {
+                    console.log("observando mensagem do bid -> ", message.data)
+
+                    // setSocketWinner(false);
+                    // setSocketMessage(message);
+                    // getCurrentProduct(message.data.body.current_product_id, setCurrentProduct);
+                }
+            });
+
+        // ouvindo mensagem de leilão finalizado
+        // socket.on(`${auct_id}-winner`, (message) => {
+        //     console.log("lote vencedor - - - > ", message.data.body);
+        //     setTimeout(() => {
+        //         setSocketWinner(message);
+        //     }, 1200);
+
+        //     setTimeout(() => {
+        //         setSocketWinner(false);
+        //     }, 3100);
+        // });
+
+        // Limpar o WebSocket quando o componente for desmontado
+        return () => {
+            socket.disconnect();
+        };
+
+    }
 
 
 
@@ -37,6 +72,7 @@ function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) 
 
             <div className="flex flex-col w-full h-[80%] overflow-y-auto">
                 {
+                    bidsCards &&
                     bidsCards.map((bid, index) => {
                         return (
                             <BidCard key={index} bid={bid} />

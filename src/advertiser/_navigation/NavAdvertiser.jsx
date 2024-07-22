@@ -1,39 +1,17 @@
 /* eslint-disable react/prop-types */
-import axios from "axios"
 import { ArrowDropDown } from "@mui/icons-material";
 //import { useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useEffect, useState } from "react";
+import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
 
 function NavAdvertiser({ path }) {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({})
 
   useEffect(() => {
-    getAdvertiserInformations()
+    getAdvertiserInformations(setAdvertiserInfor)
   }, [])
 
-  const getAdvertiserInformations = async () => {
-    const currentAdvertiserSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-
-    const configAuth = {
-      headers: {
-        "Authorization": `Bearer ${currentAdvertiserSession.token}`
-      }
-    }
-
-    try {
-      await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserSession.email}`, configAuth)
-        .then(response => {
-          setAdvertiserInfor(response.data)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
 
   return (
     <nav

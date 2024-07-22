@@ -92,7 +92,7 @@ function DashboardClient() {
                 <section className="flex flex-col w-[98%] h-[60%] bg-white rounded-md shadow-md shadow-[#17171734] p-2">
                     <div className="flex flex-col justify-around items-start w-full h-[50%]">
                         <span className="font-bold">Arremates Recentes</span>
-                        <div className="flex w-full justify-start items-center overflow-x-auto gap-3">
+                        <div className="flex w-full justify-start items-center overflow-x-auto gap-3 p-3">
                             {
                                 bidsWinners.map((bid, index) => {
                                     countAuctined++
