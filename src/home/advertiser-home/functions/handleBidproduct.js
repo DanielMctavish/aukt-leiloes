@@ -3,7 +3,8 @@ import axios from "axios"
 const handleBidproduct = async (bidValue, messageRef, currentProduct,
     currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid, setIsloadingBid) => {
     //console.log("observando produto -> ", currentProduct.id)
-    setIsloadingBid(true)
+    setIsloadingBid &&
+        setIsloadingBid(true)
 
     if (bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.transition = "1s"
