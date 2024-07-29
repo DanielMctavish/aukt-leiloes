@@ -1,0 +1,73 @@
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.live-border .paused-border {
+    position: relative;
+}
+
+.live-border::before {
+    content: "";
+    position: absolute;
+    top: -32px;
+    /* Ajuste para a largura da borda */
+    left: -32px;
+    /* Ajuste para a largura da borda */
+    right: -32px;
+    /* Ajuste para a largura da borda */
+    bottom: -32px;
+    /* Ajuste para a largura da borda */
+    border: 12px solid transparent;
+    border-radius: 22px;
+    /* Correspondente ao rounded-[12px] */
+    background: linear-gradient(90deg, #f10000, #fffbf7, #f10000, #ff8c00);
+    background-size: 300px 300px;
+    animation: spin 4s linear infinite;
+    z-index: -1;
+}
+
+.paused-border::before {
+    content: "";
+    position: absolute;
+    top: -32px;
+    /* Ajuste para a largura da borda */
+    left: -32px;
+    /* Ajuste para a largura da borda */
+    right: -32px;
+    /* Ajuste para a largura da borda */
+    bottom: -32px;
+    /* Ajuste para a largura da borda */
+    border: 12px solid transparent;
+    border-radius: 22px;
+    /* Correspondente ao rounded-[12px] */
+    background: linear-gradient(90deg, #f1a500, #fffbf7, #008df1, #ff5e00);
+    background-size: 300px 300px;
+    animation: spin 4s linear infinite;
+    z-index: -1;
+}
+
+.finished-border::before {
+    content: "";
+    position: absolute;
+    top: -32px;
+    /* Ajuste para a largura da borda */
+    left: -32px;
+    /* Ajuste para a largura da borda */
+    right: -32px;
+    /* Ajuste para a largura da borda */
+    bottom: -32px;
+    /* Ajuste para a largura da borda */
+    border: 12px solid transparent;
+    border-radius: 22px;
+    /* Correspondente ao rounded-[12px] */
+    background: linear-gradient(90deg, #85fb9a, #00b722, #005f2b, #2dfa53);
+    background-size: 300px 300px;
+    animation: spin 4s linear infinite;
+    z-index: -1;
+}

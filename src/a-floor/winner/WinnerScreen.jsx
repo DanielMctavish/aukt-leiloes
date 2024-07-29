@@ -16,15 +16,15 @@ import av08 from "../../media/avatar-floor/avatar_08.png"
 
 const avatarIndex = [av01, av02, av03, av04, av05, av06, av07, av08]
 
-function WinnerScreen({ currentProduct, currentAuct }) {
+function WinnerScreen({ currentProduct, winner, auct }) {
 
-    useEffect(() => { }, [currentProduct, currentAuct])
+    useEffect(() => { }, [currentProduct, winner,auct])
 
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#D8DEE8] text-zinc-600 relative overflow-hidden p-[2vh] gap-[2vh]">
 
             <img src={backgroundFloor} alt="" className="flex absolute top-0  h-full w-[100%]  object-cover z-[1]" />
-            <FloorNavigation auction={currentAuct} group={currentProduct.group} />
+            <FloorNavigation auction={auct} group={currentProduct.group} />
 
             <div className="flex lg:flex-row flex-col w-full h-full justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
 
@@ -33,9 +33,9 @@ function WinnerScreen({ currentProduct, currentAuct }) {
                     <CenterFloor title={currentProduct.title}
                         cover={currentProduct.cover_img_url}
                         description={currentProduct.description}
-                        auction={currentAuct} />
+                        auction={auct} />
 
-                    <FloorLots products={currentAuct.product_list}
+                    <FloorLots products={auct.product_list}
                         currentProduct={currentProduct} />
 
                 </section>
