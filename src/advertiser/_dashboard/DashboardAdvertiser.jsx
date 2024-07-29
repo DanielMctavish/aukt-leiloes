@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import axios from "axios"
 import PanelGraph from "../../admin/panels/PanelGraph"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
@@ -10,9 +10,7 @@ import DisplayBalance from "./components/DisplayBalance"
 import DisplayLive from "./components/DisplayLive"
 import { useNavigate } from "react-router-dom"
 
-
 export const DashboardAdvertiser = () => {
-
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -43,8 +41,22 @@ export const DashboardAdvertiser = () => {
 
     }
 
+    const refDashboard = useRef()
+
+    useEffect(() => {
+        const darkMode = localStorage.getItem("dark-mode-advertiser-auct") === "true";
+        if (darkMode) {
+          refDashboard.current.style.transition = "1s"
+          refDashboard.current.style.background = "#2c2c2c"
+          refDashboard.current.style.color = "#e0e0e0"
+        } else {
+          refDashboard.current.style.background = "#ffffff"
+          refDashboard.current.style.color = "#2b2b2b"
+        }
+      }, []);
+
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
+        <div ref={refDashboard} className="w-full h-[100vh] flex justify-center items-center">
 
             <AssideAdvertiser MenuSelected="menu-1" />
 

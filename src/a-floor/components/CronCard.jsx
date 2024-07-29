@@ -44,39 +44,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     }, [currentTime, duration]);
 
 
-    useEffect(() => {
-
-        if (isFinishedLot) {
-            eventPauseAuction()
-
-            setTimeout(() => {
-                console.log("resuming........ ")
-                eventContinueAuction()
-            }, 2000);
-        }
-
-    }, [isFinishedLot])
-
-
-    const eventPauseAuction = async () => {
-        try {
-
-            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/pause-product-time`);
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const eventContinueAuction = async () => {
-        try {
-
-            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/resume-floor?auct_id=${auct_id}`);
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
@@ -97,7 +64,16 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     const bidAuctionLive = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
         const bidValue = initial_value + 20
-        handleBidproduct(bidValue, null, currentProduct, clientSession, { id: auct_id }, currentSession, null, null, null, setIsloadingBid)
+        handleBidproduct(bidValue,
+            null,
+            currentProduct,
+            clientSession,
+            { id: auct_id },
+            currentSession,
+            null,
+            null,
+            null,
+            setIsloadingBid)
         dispatch(addBidLive(bidValue))
     }
 

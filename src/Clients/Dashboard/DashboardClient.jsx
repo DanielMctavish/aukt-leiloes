@@ -30,7 +30,7 @@ function DashboardClient() {
 
     }, []);
 
-    useEffect(() => { getAuctsByBids(allBids, setAllAucts); }, [currentClient, allAucts])
+    useEffect(() => { getAuctsByBids(allBids, setAllAucts); }, [currentClient, allBids])
 
     let countAuct = 0
     let countAuctined = 0

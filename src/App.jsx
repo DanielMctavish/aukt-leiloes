@@ -38,6 +38,7 @@ import SecurityConfirmation from "./access/security/SecurityConfirmation";
 import SubscriptionAdvertiser from "./home/forms/SubscriptionAdvertiser";
 import ClientBids from "./Clients/bids/ClientBids";
 import FloorHub from "./a-floor/hub/FloorHub";
+import Categorias from "./home/components/Categorias";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
+          <Route Component={Categorias} path="/categorias" exact />
           {/* Home Advertiser */}
           <Route Component={HomeAdvertiser} path="/advertiser/home/:advertiser_id" exact />
           <Route Component={ProductDetailAdv} path="/advertiser/home/product/:product_id" exact />

@@ -32,36 +32,57 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         return
     }
 
-    await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
-        value: parseFloat(bidValue),
-        client_id: currentClient.id,
-        auct_id: currentAuct.id,
-        product_id: currentProduct.id
-    }, {
-        headers: {
-            "Authorization": `Bearer ${sessionClient.token}`
-        }
-    }).then((response) => {
+    try {
+        const isValueAbove = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-bid?value=${parseFloat(bidValue)}`, {
+            headers: {
+                "Authorization": `Bearer ${sessionClient.token}`
+            }
+        })
 
-        //console.log("lance realizado com sucesso... ", response.data)
-        setBidValue(response.data.value)
-        setSuccessBid(!successBid)
-        setIsloadingBid(false)
-        if (messageRef) {
-            messageRef.current.style.transition = "1s"
-            messageRef.current.style.marginTop = "0"
-            messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
-            messageRef.current.style.color = "#105500"
-            setTimeout(() => {
-                messageRef.current.style.marginTop = "-30px"
-            }, 6000);
+        if (isValueAbove.data.value < bidValue) {
+            setIsloadingBid(false)
+            console.log("valor precisa ser maior do que o atual!")
+            return
         }
 
+        if (parseFloat(isValueAbove.data.value) === parseFloat(bidValue)) {
+            setIsloadingBid(false)
+            console.log("valor já foi lancado!")
+            return
+        }
 
-    }).catch(err => {
+        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
+            value: parseFloat(bidValue),
+            client_id: currentClient.id,
+            auct_id: currentAuct.id,
+            product_id: currentProduct.id
+        }, {
+            headers: {
+                "Authorization": `Bearer ${sessionClient.token}`
+            }
+        }).then((response) => {
+
+            //console.log("lance realizado com sucesso... ", response.data)
+            setBidValue(response.data.value)
+            setSuccessBid(!successBid)
+            setIsloadingBid(false)
+            if (messageRef) {
+                messageRef.current.style.transition = "1s"
+                messageRef.current.style.marginTop = "0"
+                messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
+                messageRef.current.style.color = "#105500"
+                setTimeout(() => {
+                    messageRef.current.style.marginTop = "-30px"
+                }, 6000);
+            }
+
+
+        })
+
+    } catch (error) {
         setIsloadingBid(false)
-        console.log(err.message)
-    })
+        console.log(error.message)
+    }
 
 }
 

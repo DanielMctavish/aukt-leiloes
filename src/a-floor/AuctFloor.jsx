@@ -8,7 +8,6 @@ import FloorLots from "./components/FloorLots";
 import FloorNavigation from "./components/FloorNavigation";
 import backgroundFloor from "../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg";
 import { useEffect, useState, useRef } from "react";
-import { getCurrentProduct } from "./functions/getCurrentProduct";
 import { useParams } from "react-router-dom";
 import WinnerScreen from "./winner/WinnerScreen";
 
@@ -32,23 +31,18 @@ function AuctFloor() {
         getCurrentAuction();
 
         // ouvindo mensagem de pregão ao vivo
-        socket.on(auct_id.toString(), (message) => {
+        socket.on(`${auct_id}-playing-auction`, (message) => {
             if (message.data.body.auct_id === auct_id) {
+                setSocketWinner(false)
                 setSocketMessage(message);
-                getCurrentProduct(message.data.body.current_product_id, setCurrentProduct);
+                setCurrentProduct(message.data.body.product)
             }
         });
 
         // ouvindo mensagem de leilão finalizado
         socket.on(`${auct_id}-winner`, (message) => {
-            console.log("lote vencedor - - - > ", message.data.body);
-            setSocketWinner(message);
-            setTimeout(() => {
-            }, 1200);
-
-            setTimeout(() => {
-                setSocketWinner(false);
-            }, 3100);
+            console.log("lote vencedor - - - > ", message.data.winner);
+            setSocketWinner(message.data.winner);
         });
 
         // Limpar o WebSocket quando o componente for desmontado
@@ -73,7 +67,7 @@ function AuctFloor() {
 
     if (socketWinner) {
         return (
-            <WinnerScreen currentProduct={currentProduct} currentAuct={currentAuct} />
+            <WinnerScreen currentProduct={currentProduct} winner={socketWinner} auct={currentAuct} />
         );
     }
 
@@ -99,8 +93,7 @@ function AuctFloor() {
                     duration={currentAuct.product_timer_seconds}
                     auct_id={currentAuct.id}
                     initial_value={currentProduct.initial_value}
-                    currentProduct={currentProduct}
-                />
+                    currentProduct={currentProduct} />
             </div>
         </div>
     );
