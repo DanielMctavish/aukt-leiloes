@@ -88,7 +88,11 @@ function AdvertiserAuctDetails() {
 
         try {
 
-            await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-auct?auct_id=${auct_id}`)
+            await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-auct?auct_id=${auct_id}`,{
+                headers: {
+                    'Authorization': `Bearer ${localAdvertiser.token}`
+                }
+            })
                 .then(response => {
                     console.log(response.data)
                     setIsDeleting(false)
