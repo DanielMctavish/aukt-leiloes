@@ -8,8 +8,9 @@ import { productSelectedReducer } from './product/ProductAddPhoto';
 import { groupDateSliceReducer } from './GroupDates/GroupDate';
 import { errorSliceSliceReducer } from './errors/ReportErrorAtCreateAuct';
 import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
-import {uploadConfirmationReducer} from "./product/UploadFinished"
+import { uploadConfirmationReducer } from "./product/UploadFinished"
 import { bidLiveSliceReducer } from './Bids/BidLive';
+import { themeSliceReducer } from './theme/PlataformTheme';
 
 const store = configureStore({
     reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
         errorReports: errorSliceSliceReducer,
         auctResume: resumeAuctSliceReducer,
         finishedUpload: uploadConfirmationReducer,
-        bidLive: bidLiveSliceReducer
+        bidLive: bidLiveSliceReducer,
+        theme: themeSliceReducer
     }
 })
 

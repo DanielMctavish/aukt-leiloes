@@ -9,6 +9,7 @@ import { getAllModelsCategories } from "../../../home/components/functions/getAl
 import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 
 function DisplayTableProducts() {
+    const stateTheme = useSelector(state => state.theme)
     const state = useSelector(state => state.products.products)
     const dispatch = useDispatch()
 
@@ -17,6 +18,21 @@ function DisplayTableProducts() {
     const [errors, setErros] = useState([])
     const [allcategories, setCurrentCategories] = useState({});
     const refMessage = useRef()
+
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refTableWindow.current.style.background = "#2d2d2dd8"
+            refTableWindow.current.style.color = "#f6f6f6fe"
+        } else {
+            console.log("desligado")
+            refTableWindow.current.style.background = "#ffffffbe"
+            refTableWindow.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
 
     useEffect(() => {
         getAllModelsCategories(setCurrentCategories)

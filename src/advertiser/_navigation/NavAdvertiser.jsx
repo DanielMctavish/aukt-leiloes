@@ -1,17 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { ArrowDropDown } from "@mui/icons-material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useEffect, useRef, useState } from "react";
 import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
 import "../styles/AdvertiserStyle.css"
+import { useDispatch } from "react-redux";
+import { changeTheme } from "../../features/theme/PlataformTheme";
 
 function NavAdvertiser({ path }) {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({});
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem("dark-mode-advertiser-auct");
-    return savedMode === "true"; 
+    return savedMode === "true";
   });
 
+  const dispatch = useDispatch()
   const refNav = useRef()
 
   useEffect(() => {
@@ -20,18 +24,25 @@ function NavAdvertiser({ path }) {
 
   useEffect(() => {
     if (darkMode) {
+
+      dispatch(changeTheme({ dark: true }))
       document.documentElement.classList.add('dark');
       refNav.current.style.transition = "1s"
-      refNav.current.style.background = "#535353"
+      refNav.current.style.background = "#2d2d2d"
       refNav.current.style.color = "#e0e0e0"
       localStorage.setItem("dark-mode-advertiser-auct", "true");
+
     } else {
+
+      dispatch(changeTheme({ dark: false }))
       document.documentElement.classList.remove('dark');
       refNav.current.style.background = "#ffffff"
       refNav.current.style.color = "#2b2b2b"
       localStorage.setItem("dark-mode-advertiser-auct", "false");
+
     }
   }, [darkMode]);
+
 
   return (
     <nav className="
@@ -99,7 +110,7 @@ function NavAdvertiser({ path }) {
 
         <section className="flex flex-row justify-center items-center gap-6">
           <span>
-            <NotificationsIcon  />
+            <NotificationsIcon />
           </span>
           <img
             src={AdvertiserInfor.url_profile_cover}

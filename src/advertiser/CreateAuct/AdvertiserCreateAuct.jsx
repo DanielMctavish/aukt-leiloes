@@ -27,6 +27,7 @@ export const AdvertiserCreateAuct = () => {
     const [progressBar, setProgressBar] = useState(0)
     const [aucts, setAucts] = useState([])
     const [errorDetector, setErrorDetector] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const navigate = useNavigate()
 
@@ -49,7 +50,7 @@ export const AdvertiserCreateAuct = () => {
             setErrorDetector(false)
         }
 
-    }, [state, stateErrors, errorDetector])
+    }, [state, stateErrors, errorDetector, isLoading])
 
 
     const handleSaveAuct = async () => {
@@ -84,6 +85,7 @@ export const AdvertiserCreateAuct = () => {
 
             refGeneralBody.current.style.display = 'none'
             loadScreen.current.style.display = 'flex'
+            setIsLoading(true)
 
             //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
 
@@ -150,7 +152,7 @@ export const AdvertiserCreateAuct = () => {
 
                 // REQUEST03
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create-product`, {
-                    lote: `lote-${index + 1}`,
+                    lote: parseInt(index + 1),
                     advertiser_id: getAdvertiser.data.id,
                     group: product.Group,
                     auct_nanoid: currentAuctNanoId,
@@ -182,10 +184,12 @@ export const AdvertiserCreateAuct = () => {
 
 
             navigate("/advertiser/auctions")
+            setIsLoading(false)
 
         } catch (error) {
             refGeneralBody.current.style.display = 'flex';
             loadScreen.current.style.display = 'none';
+            setIsLoading(false)
         }
 
     }
@@ -265,9 +269,12 @@ export const AdvertiserCreateAuct = () => {
 
             <section className="fixed bottom-2 right-6 z-[999]">
                 {!errorDetector ?
-                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
-                        confirmar
-                    </button> :
+                    isLoading ?
+                        <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
+                            confirmar
+                        </button> :
+                        <span>criando...</span>
+                    :
                     <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">
                         confirmar
                     </button>

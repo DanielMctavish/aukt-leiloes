@@ -2,18 +2,35 @@
 /* eslint-disable react/prop-types */
 import { Close, PhotoCamera } from "@mui/icons-material"
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { handleImageChange } from "../functions/handleImageChange";
 import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 
 function DisplayCreateEvent({ currentAuct }) {
+    const stateTheme = useSelector(state => state.theme)
     const [imageSrc, setImageSrc] = useState(null);
     const [tagList, setTagList] = useState([])
+    const refMain = useRef()
     const refTitle = useRef()
     const refCategories = useRef()
 
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refMain.current.style.background = "#2d2d2d"
+            refMain.current.style.color = "#efefef"
+        } else {
+            console.log("desligado")
+            refMain.current.style.background = "#ffffff"
+            refMain.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
+
 
     useEffect(() => {
 
@@ -90,7 +107,7 @@ function DisplayCreateEvent({ currentAuct }) {
 
 
     return (
-        <div className="min-w-[30%] h-[100%] bg-white rounded-md p-2
+        <div ref={refMain} className="min-w-[30%] h-[100%] bg-white rounded-md p-2
         hover:z-[77] hover:scale-[1.02] transition-[1s]  overflow-y-auto
         shadow-2xl shadow-[#00000039] relative">
             <h2 className="font-bold absolute left-2 top-2">Criação de Evento</h2>

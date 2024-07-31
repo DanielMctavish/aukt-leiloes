@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { AccessTime } from "@mui/icons-material"
 import dayjs from 'dayjs'
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 
 function DisplayLocalHour() {
+    const stateTheme = useSelector(state => state.theme)
     const stateGroup = useSelector(state => state.groupDate.groupDates)
     const [dateList, setDateList] = useState([{
         date_auct: new Date(),
@@ -17,6 +18,22 @@ function DisplayLocalHour() {
     const [spanMessenger, setSpanMessenger] = useState('')
 
     const dispatch = useDispatch()
+
+    const refMain = useRef()
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refMain.current.style.background = "#2d2d2d"
+            refMain.current.style.color = "#efefef"
+        } else {
+            console.log("desligado")
+            refMain.current.style.background = "#ffffff"
+            refMain.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
 
     useEffect(() => {
         setGroup(stateGroup.groupDates)
@@ -63,7 +80,7 @@ function DisplayLocalHour() {
     }
 
     return (
-        <div className="min-w-[30%] h-[100%]
+        <div ref={refMain} className="min-w-[30%] h-[100%]
         hover:z-[77] hover:scale-[1.02] transition-[1s]
         flex flex-col justify-start items-center gap-2 overflow-y-auto
         bg-white rounded-md shadow-2xl shadow-[#00000039] p-3">
@@ -72,7 +89,7 @@ function DisplayLocalHour() {
 
             {dateList.map((dateItem, index) => (
                 <div key={index} className="flex w-full justify-between 
-                            items-center p-2 h-[60px] text-[#06131c] 
+                            items-center p-2 h-[60px]
                             rounded-md gap-3">
                     <input
                         type="date"

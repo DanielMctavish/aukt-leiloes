@@ -17,6 +17,7 @@ import AddProductMod from "../mod/AddProductMod";
 function AdvertiserAuctDetails() {
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
     const [resumeValues, setResumeValues] = useState({ value_balance: 0, initial_value_sum: 0 })
+    const [isDeleting, setIsDeleting] = useState(false)
     const state = useSelector(state => state)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -82,6 +83,24 @@ function AdvertiserAuctDetails() {
         dispatch(selectProduct(product))
     }
 
+    const handleDeleteAuction = async (auct_id) => {
+        setIsDeleting(true)
+
+        try {
+
+            await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-auct?auct_id=${auct_id}`)
+                .then(response => {
+                    console.log(response.data)
+                    setIsDeleting(false)
+                })
+
+        } catch (error) {
+            setIsDeleting(false)
+            console.log(error)
+        }
+
+    }
+
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
 
@@ -106,12 +125,26 @@ function AdvertiserAuctDetails() {
 
                         <h1 style={{ textShadow: "2px 2px 12px black" }} className="text-[18px] font-bold absolute left-1 top-1">{currentAuct.nano_id}</h1>
                         <div className="absolute text-zinc-700 flex right-1 top-1 gap-2 z-[99]">
-                            <button onClick={editCurrentAuct} className="w-[100px] h-[30px] flex justify-center items-center bg-zinc-700 rounded-md text-white text-[12px]">editar</button>
-                            <button className="w-[100px] h-[30px] flex justify-center items-center bg-red-700 rounded-md text-white text-[12px]">excluir</button>
+                            <button onClick={editCurrentAuct} className="w-[100px] h-[30px] flex justify-center items-center bg-zinc-700 
+                            rounded-md text-white text-[12px]">
+                                editar
+                            </button>
+
+                            {
+                                !isDeleting ?
+                                    <button onClick={() => handleDeleteAuction(currentAuct.id)}
+                                        className="w-[100px] h-[30px] flex justify-center items-center bg-red-700 
+                                    rounded-md text-white text-[12px]">
+                                        excluir
+                                    </button> :
+                                    <span>deletando...</span>
+                            }
+
                         </div>
 
                         <div className="flex gap-2 z-[99] justify-start items-center">
-                            <img src={currentAuct.Advertiser ? currentAuct.Advertiser.url_profile_cover : ''} alt="" className="rounded-full bg-zinc-600 w-[80px] h-[80px] object-cover" />
+                            <img src={currentAuct.Advertiser ? currentAuct.Advertiser.url_profile_cover : ''} alt="" className="rounded-full bg-zinc-600 w-[80px] 
+                            h-[80px] object-cover" />
                             <div className="flex flex-col text-zinc-900 font-bold">
                                 <span className="text-[18px]">{currentAuct.title}</span>
                                 <div>

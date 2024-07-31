@@ -1,10 +1,29 @@
 import { LocationOn, AccessTime } from "@mui/icons-material"
+import { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 
 
 function DisplayDateLimite() {
+    const stateTheme = useSelector(state => state.theme)
+
+    const refMain = useRef()
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refMain.current.style.background = "#2d2d2d"
+            refMain.current.style.color = "#efefef"
+        } else {
+            console.log("desligado")
+            refMain.current.style.background = "#ffffff"
+            refMain.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
 
     return (
-        <div className="w-[33%] h-[100%] bg-white 
+        <div ref={refMain} className="w-[33%] h-[100%] bg-white 
         rounded-md shadow-2xl shadow-[#00000039]
         hover:z-[77] hover:scale-[1.02] transition-[1s] 
         p-3 relative flex flex-col justify-around">
