@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { handleImageChange } from "../functions/handleImageChange";
+import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 
 function DisplayCreateEvent({ currentAuct }) {
     const [imageSrc, setImageSrc] = useState(null);
@@ -28,6 +29,10 @@ function DisplayCreateEvent({ currentAuct }) {
                 tags: currentAuct.tags,
                 auct_cover_img: currentAuct.auct_cover_img
             }))
+        }
+
+        if (!refTitle.current.value || !refCategories.current.value) {
+            dispatch(reportError('Todos os campos são obrigatórios!'))
         }
 
     }, [])
@@ -59,10 +64,27 @@ function DisplayCreateEvent({ currentAuct }) {
     }
 
     function handleDispatchTitle() {
+
         dispatch(addAuct({ title: refTitle.current.value }));
+
+        if (!refTitle.current.value || !refCategories.current.value) {
+            dispatch(reportError('Título do leilão é obrigatório!'))
+        } else {
+            dispatch(reportError(false))
+        }
+
     }
+
     function handleDispatchCategories() {
+
+        if (refCategories.current.value === "" || !refTitle.current.value) {
+            dispatch(reportError('Categorias do leilão são obrigatórias!'))
+        } else {
+            dispatch(reportError(false))
+        }
+
         dispatch(addAuct({ categories: refCategories.current.value }));
+
     }
 
 
@@ -78,15 +100,17 @@ function DisplayCreateEvent({ currentAuct }) {
                     <span>Títullo do leilão</span>
                     <input onChange={handleDispatchTitle} ref={refTitle}
                         type="text"
-                        className="w-full h-[40px] p-2 border-[1px] border-zinc-300 bg-transparent" />
+                        className="w-full h-[40px] p-2 border-[1px] border-zinc-300 bg-transparent rounded-md" />
                 </div>
             </section>
             {/* TAGS */}
             <section className="w-full h-[20%] flex flex-col gap-2 justify-center items-center mt-6">
-                <div className="w-[80%] flex-wrap p-2 gap-2 flex justify-start items-start text-[12px] min-h-[70px] overflow-y-auto mt-3">
+                <div className="w-[80%] flex-wrap p-2 gap-2 flex justify-start items-center 
+                text-[12px] min-h-[60px] overflow-y-auto mt-3 bg-[#ebebeb] rounded-md">
                     {
                         tagList.map((tag, index) => (
-                            <span key={index} className="font-light italic text-zinc-600 flex justify-center gap-3 bg-zinc-200 p-1 rounded-md">
+                            <span key={index} className="font-light italic text-zinc-600 
+                            flex justify-center gap-3 bg-zinc-200 p-1 rounded-md ">
                                 {tag}
                                 <span onClick={() => { HandleRemoveTag(tag) }}>
                                     <Close className="cursor-pointer" style={{ fontSize: '16px' }} />
@@ -97,7 +121,10 @@ function DisplayCreateEvent({ currentAuct }) {
                 </div>
                 <div className="w-[80%] flex flex-col gap-3">
                     <span>Tags</span>
-                    <input type="text" className="p-2 text-white tags-input" onChange={HandleCreationTags} />
+                    <input type="text"
+                        placeholder="digite as tags separando-as por vírgulas"
+                        className="p-2 text-[#3d3d3d] tags-input rounded-md 
+                    bg-transparent  border-[1px] border-zinc-300" onChange={HandleCreationTags} />
                 </div>
             </section>
             {/* CATEGORIA */}
@@ -107,7 +134,7 @@ function DisplayCreateEvent({ currentAuct }) {
                     <select onChange={handleDispatchCategories}
                         ref={refCategories}
                         defaultValue={refCategories.current ? refCategories.current.value : ""}
-                        className="w-full bg-transparent h-[40px] p-2 border-[1px] border-zinc-300">
+                        className="w-full bg-transparent h-[40px] p-2 border-[1px] border-zinc-300 rounded-md">
                         <option value="">selecione</option>
                         <option value="Abajur">Abajur</option>
                         <option value="Acessórios femininos">Acessórios femininos</option>

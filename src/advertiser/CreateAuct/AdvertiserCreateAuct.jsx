@@ -22,9 +22,11 @@ import { getCurrentFile } from "./functions/handleImageChange"
 
 export const AdvertiserCreateAuct = () => {
     const state = useSelector(state => state.aucts)
+    const stateErrors = useSelector(state => state.errorReports)
+
     const [progressBar, setProgressBar] = useState(0)
     const [aucts, setAucts] = useState([])
-    const [errorDetector, setErrorDetector] = useState()
+    const [errorDetector, setErrorDetector] = useState(false)
 
     const navigate = useNavigate()
 
@@ -36,12 +38,18 @@ export const AdvertiserCreateAuct = () => {
     useEffect(() => {
 
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-        if(!currentSession) navigate("/")
+        if (!currentSession) navigate("/")
 
         setAucts(state)
         utilsFunctionr.errorSend(errorDetector)
 
-    }, [state, errorDetector])
+        if (stateErrors.error) {
+            setErrorDetector(true)
+        } else {
+            setErrorDetector(false)
+        }
+
+    }, [state, stateErrors, errorDetector])
 
 
     const handleSaveAuct = async () => {
@@ -137,11 +145,12 @@ export const AdvertiserCreateAuct = () => {
             const productsCount = aucts.product_list.length;
             let productsCreated = 0;
 
-            for (const product of aucts.product_list) {
+            for (const [index, product] of aucts.product_list.entries()) {
                 console.log('observando produto data -> ', product);
 
                 // REQUEST03
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create-product`, {
+                    lote: `lote-${index + 1}`,
                     advertiser_id: getAdvertiser.data.id,
                     group: product.Group,
                     auct_nanoid: currentAuctNanoId,
@@ -177,7 +186,6 @@ export const AdvertiserCreateAuct = () => {
         } catch (error) {
             refGeneralBody.current.style.display = 'flex';
             loadScreen.current.style.display = 'none';
-            setErrorDetector(error.message)
         }
 
     }
@@ -185,9 +193,9 @@ export const AdvertiserCreateAuct = () => {
     const utilsFunctionr = {
         errorSend: () => {
 
-            if (errorDetector !== undefined && errorDetector !== "") {
+            if (stateErrors.error) {
 
-                refErroSpanElement.current.innerHTML = errorDetector
+                refErroSpanElement.current.innerHTML = stateErrors.error
                 refErroSpanElement.current.style.opacity = "1"
                 refErroSpanElement.current.style.display = "flex"
                 refErroSpanElement.current.style.position = "fixed"
@@ -200,13 +208,12 @@ export const AdvertiserCreateAuct = () => {
                 setTimeout(() => {
                     refErroSpanElement.current.style.display = "none"
                 }, 3000);
-                setErrorDetector()
             }
         }
     }
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
+        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative">
 
             <AssideAdvertiser MenuSelected="menu-2" />
 
@@ -253,12 +260,18 @@ export const AdvertiserCreateAuct = () => {
                     <DisplayDateLimite />
                 </section>
 
-                <section className="w-full min-h-[10vh] p-2 flex justify-center items-center">
-                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md">
+
+            </section>
+
+            <section className="fixed bottom-2 right-6 z-[999]">
+                {!errorDetector ?
+                    <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
+                        confirmar
+                    </button> :
+                    <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">
                         confirmar
                     </button>
-                </section>
-
+                }
             </section>
 
         </div>

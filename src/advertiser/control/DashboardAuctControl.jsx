@@ -143,14 +143,15 @@ function DashboardAuctControl() {
 
                 <div className="flex flex-col w-full h-[92%] justify-center items-center overflow-hidden gap-6">
 
-                    <div className="flex w-[80%] h-[30%] justify-center items-center">
+                    <div className="flex w-[80%] h-[30%] justify-center items-center gap-3">
                         <AvailableAuctions auctions={auctions}
                             setSelectedAuction={setSelectedAuction}
                             setCurrentProduct={setCurrentProduct}
                             setTimer={setTimer} />
 
-                        <section className="w-[50%] h-full bg-blue-300">
-                            <span>lances</span>
+                        <section className="w-[60%] h-full bg-[#E9E9E9] 
+                        rounded-md shadow-lg shadow-[#15151532]">
+                           
                         </section>
 
                     </div>

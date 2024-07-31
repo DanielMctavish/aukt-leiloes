@@ -6,12 +6,10 @@ function AvailableAuctions({ auctions, setSelectedAuction, setCurrentProduct, se
 
 
     return (
-        <div className="flex flex-col w-[50%] h-full justify-between items-center relative bg-red-300">
+        <div className="flex flex-col w-[40%] h-full justify-between items-center relative bg-[#E9E9E9] rounded-md p-3">
 
             <div className="flex w-full justify-between items-center">
                 <h1 className="text-zinc-700 text-[22px] font-bold">Leilões disponíveis</h1>
-                <input type="text" placeholder="pesquisar leilão por título"
-                    className=" p-2 bg-transparent border-[1px] border-[#D3D3D3] rounded-md text-zinc-700" />
             </div>
 
             <div className="flex w-full h-[90%] justify-start items-center gap-6 p-2 overflow-x-auto">
