@@ -3,16 +3,24 @@
 import "./styles/StylesTables.css"
 import { ArrowDropDown } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { HomeMax } from "@mui/icons-material"
+import { getAllModelsCategories } from "../../../home/components/functions/getAllModelsCategories";
+import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 
 function DisplayTableProducts() {
     const state = useSelector(state => state.products.products)
+    const dispatch = useDispatch()
+
     const [products, setProducts] = useState({ columns: [], values: [] })
     const [maximized, setMaximized] = useState(false)
     const [errors, setErros] = useState([])
+    const [allcategories, setCurrentCategories] = useState({});
     const refMessage = useRef()
 
+    useEffect(() => {
+        getAllModelsCategories(setCurrentCategories)
+    }, [])
 
     useEffect(() => {
         //console.log("observando estado tabelas -> ", state.values);
@@ -26,7 +34,6 @@ function DisplayTableProducts() {
     useEffect(() => {
         validateFields();
     }, [products.values]);
-
 
     //CHECK ERRORS COLUNAS...................................................................................................................
     const checkErrorsColumns = async () => {
@@ -55,7 +62,6 @@ function DisplayTableProducts() {
         if (products.columns[3] !== 'initial_value') {
             newErrors.push('A quarta coluna deve ser "initial_value"');
         }
-
 
         if (products.columns[4] !== 'reserve_value') {
             newErrors.push('A sexta coluna deve ser "reserve_value"');
@@ -113,10 +119,23 @@ function DisplayTableProducts() {
                     const errorKey = 'A categoria precisa ser um texto não vazio';
                     updateOrAddError(errorKey, errorCounts, newErrors);
                 }
-                if (index === 2 && value.length > 4) {
-                    const errorKey = 'A categoria precisa ter no máximo 4 caracteres';
-                    updateOrAddError(errorKey, errorCounts, newErrors);
+
+                if (index === 2) {
+                    let isExistedField = false;
+                    Object.entries(allcategories).forEach(([key]) => {
+                        if (key === value) {
+                            isExistedField = true
+                        }
+                    })
+                    if (!isExistedField) {
+                        const errorKey = `A categoria '${value}' não existe`;
+                        dispatch(reportError(errorKey))
+                        updateOrAddError(errorKey, errorCounts, newErrors);
+                    }
+
+                    return false
                 }
+
                 if (index === 3 && (typeof value !== 'number' || isNaN(value))) {
                     const errorKey = 'O valor inicial precisa ser um número';
                     updateOrAddError(errorKey, errorCounts, newErrors);
@@ -143,7 +162,6 @@ function DisplayTableProducts() {
     const updateOrAddError = (errorKey, errorCounts, newErrors) => {
         if (errorCounts[errorKey]) {
             errorCounts[errorKey]++;
-            // Substituir a mensagem de erro existente pelo novo valor com o contador
             const existingIndex = newErrors.findIndex(error => error.startsWith(errorKey));
             if (existingIndex !== -1) {
                 newErrors[existingIndex] = `${errorKey} ${errorCounts[errorKey]}x`;
@@ -153,9 +171,6 @@ function DisplayTableProducts() {
             newErrors.push(`${errorKey} ${errorCounts[errorKey]}x`);
         }
     };
-
-
-
 
     //Renderizar CAMPOS..................................................................................................................
     const RenderFields = (field, index) => {
@@ -247,7 +262,7 @@ function DisplayTableProducts() {
                     {products.columns.map((column, index) => RenderMainColumns(column, index))}
 
                 </div>
-                    
+
                 <div className="w-full flex flex-col gap-1">
 
                     {products.values.map((value, index) => (

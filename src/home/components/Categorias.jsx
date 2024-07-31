@@ -1,21 +1,14 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { getAllModelsCategories } from "./functions/getAllModelsCategories";
 
 function Categorias() {
     const [currentCategory, setCurrentCategory] = useState({});
 
     useEffect(() => {
-        getAllModelsCategories();
+        getAllModelsCategories(setCurrentCategory);
     }, []);
 
-    const getAllModelsCategories = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/category`);
-            setCurrentCategory(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar categorias:", error);
-        }
-    };
+
 
     return (
         <div className="w-full h-[100vh] bg-black text-white p-4 overflow-y-auto">
