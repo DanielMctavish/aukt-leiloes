@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CreditCard, PixOutlined, Article } from "@mui/icons-material";
 
 function DisplayMethodsPayments({ currentAuct }) {
+    const stateTheme = useSelector(state => state.theme)
     const [methodsPayments, setMethodsPayments] = useState([]);
     const dispatch = useDispatch();
 
@@ -17,6 +18,22 @@ function DisplayMethodsPayments({ currentAuct }) {
             setMethodsPayments([...methodsPayments, value]);
         }
     };
+
+    const refMain = useRef()
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refMain.current.style.background = "#2d2d2d"
+            refMain.current.style.color = "#efefef"
+        } else {
+            console.log("desligado")
+            refMain.current.style.background = "#ffffff"
+            refMain.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
 
     useEffect(() => {
         if (currentAuct) {
@@ -30,10 +47,12 @@ function DisplayMethodsPayments({ currentAuct }) {
     }, [methodsPayments]);
 
     return (
-        <div className="w-full sm:w-1/3 h-full bg-white hover:z-50 hover:scale-105 transition-transform duration-300 ease-in-out flex flex-col justify-around items-start overflow-y-auto rounded-lg shadow-2xl p-6 relative">
-            <h2 className="font-bold text-xl text-gray-800 mb-2">Métodos de pagamento aceitos</h2>
-            <div className="flex w-full flex-wrap justify-start items-center gap-4">
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Pix") ? 'bg-indigo-100' : 'bg-white'} transition duration-150 ease-in-out`}>
+        <div ref={refMain} className="w-full sm:w-1/3 h-full bg-white hover:z-50 hover:scale-105 transition-transform 
+        duration-300 ease-in-out flex flex-col justify-around items-start overflow-y-auto rounded-lg shadow-2xl p-6 relative">
+            <h2 className="font-bold text-xl mb-2">Métodos de pagamento aceitos</h2>
+            <div className="flex w-full flex-wrap justify-start items-center gap-4 text-white">
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md 
+                    ${methodsPayments.includes("Pix") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
                         name="method"
@@ -41,11 +60,12 @@ function DisplayMethodsPayments({ currentAuct }) {
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-indigo-600 hidden"
                     />
-                    <span className="ml-2 text-gray-700">Pix</span>
+                    <span className="ml-2">Pix</span>
                     <PixOutlined />
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Credit") ? 'bg-indigo-100' : 'bg-white'} transition duration-150 ease-in-out`}>
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md 
+                    ${methodsPayments.includes("Credit") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
                         name="method"
@@ -53,12 +73,12 @@ function DisplayMethodsPayments({ currentAuct }) {
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-indigo-600 hidden"
                     />
-                    <span className="ml-2 text-gray-700">Crédito</span>
+                    <span className="ml-2">Crédito</span>
                     <CreditCard />
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Debit") ? 
-                    'bg-indigo-100' : 'bg-white'} transition duration-150 ease-in-out`}>
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Debit") ?
+                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
                         name="method"
@@ -66,12 +86,12 @@ function DisplayMethodsPayments({ currentAuct }) {
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-indigo-600 hidden"
                     />
-                    <span className="ml-2 text-gray-700">Débito</span>
+                    <span className="ml-2">Débito</span>
                     <CreditCard />
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Ticket") ? 
-                    'bg-indigo-100' : 'bg-white'} transition duration-150 ease-in-out`}>
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Ticket") ?
+                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
                         name="method"
@@ -79,7 +99,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                         onChange={handleCheckboxChange}
                         className="form-checkbox h-5 w-5 text-indigo-600 hidden"
                     />
-                    <span className="ml-2 text-gray-700">Boleto</span>
+                    <span className="ml-2">Boleto</span>
                     <Article />
                 </label>
             </div>

@@ -1,19 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addProducts } from "../../../features/product/Products";
 import { addAuct } from "../../../features/auct/Auct";
 import { addGroupDate } from "../../../features/GroupDates/GroupDate";
 
 function DisplayProductsCsv() {
+    const stateTheme = useSelector(state => state.theme)
     const [productsCount, setProductsCount] = useState(0)
     const [columns, setColumns] = useState([])
     const [values, setValues] = useState([])
 
-
-    const refFile = useRef()
     const dispatch = useDispatch()
+    const refFile = useRef()
+    const refMain = useRef()
+
+    useEffect(() => {
+        const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
+        if (cookieTheme === "true") {
+            console.log("ligado")
+            refMain.current.style.background = "#2d2d2d"
+            refMain.current.style.color = "#efefef"
+        } else {
+            console.log("desligado")
+            refMain.current.style.background = "#ffffff"
+            refMain.current.style.color = "#595959"
+        }
+
+    }, [stateTheme])
 
 
     useEffect(() => {
@@ -90,7 +105,7 @@ function DisplayProductsCsv() {
 
 
     return (
-        <div className="w-[33%] h-[100%]
+        <div ref={refMain} className="w-[33%] h-[100%]
         hover:z-[77] hover:scale-[1.02] transition-[1s]
         flex flex-col justify-center items-center 
         bg-white rounded-md relative
@@ -105,7 +120,7 @@ function DisplayProductsCsv() {
                 </div>
             </section>
             <input type="file" ref={refFile} className="hidden" />
-            <button onClick={handleImportProducts} className="p-1 w-[150px] h-[40px] bg-[#e8e8e8] rounded-md">importar CSV</button>
+            <button onClick={handleImportProducts} className="p-1 w-[150px] h-[40px] bg-[#cfcfcf] rounded-md">importar CSV</button>
         </div>
     )
 }
