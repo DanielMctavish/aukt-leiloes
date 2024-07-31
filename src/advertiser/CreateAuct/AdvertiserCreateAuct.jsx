@@ -269,7 +269,7 @@ export const AdvertiserCreateAuct = () => {
 
             <section className="fixed bottom-2 right-6 z-[999]">
                 {!errorDetector ?
-                    isLoading ?
+                    !isLoading ?
                         <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
                             confirmar
                         </button> :
