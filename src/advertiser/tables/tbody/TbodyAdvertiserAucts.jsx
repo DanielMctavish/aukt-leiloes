@@ -80,7 +80,7 @@ function TbodyAdvertiserAucts() {
 
   return (
     <>
-      <div className="w-full">
+      <div className="w-full bg-[#fff] mt-[1px]">
         {currentAucts.length === 0 ?
           <span className="text-zinc-600">nenhum leilão criado</span>
           : currentAucts.map((auction, index) => {
@@ -88,7 +88,8 @@ function TbodyAdvertiserAucts() {
             return (
               <div
                 key={index}
-                className="w-full flex justify-between items-center gap-1 text-[12px] p-2 cursor-pointer hover:bg-[#2f7fa48d] hover:text-white"
+                className="w-full flex justify-between items-center gap-1 text-[12px]
+                p-2 cursor-pointer hover:bg-[#2f7fa4df] hover:text-white"
                 onClick={() => handleClick("/advertiser/auctions-details", auction.id, productsValueList[index], auction.value)}
               >
                 <div className="flex items-center justify-between min-w-[70px] p-2">
@@ -107,7 +108,7 @@ function TbodyAdvertiserAucts() {
                   <span className="font-bold">{auction.Advertiser.email}</span>
                 </div>
 
-                <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden text-zinc-400">
+                <div className="flex items-center justify-between min-w-[180px] p-2 overflow-hidden">
                   {dayjs(auction.created_at).format("DD MM YYYY - HH:mm")}
                 </div>
 
