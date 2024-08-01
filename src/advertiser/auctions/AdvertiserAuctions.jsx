@@ -53,7 +53,8 @@ export const AdvertiserAuctions = () => {
                             </div> :
                             
                     } */}
-                    <div className="w-[99%] bg-[#4e7fd9]/10 flex justify-start items-start overflow-x-auto relative">
+                    <div className="w-[99%] bg-[#7a7a7a18] flex justify-start items-start 
+                    overflow-x-auto relative rounded-md shadow-lg shadow-[#1313135a]">
                         <TableAdvertiserAucts />
                     </div>
                 </section>

@@ -19,7 +19,6 @@ import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
 
-
 export const AdvertiserCreateAuct = () => {
     const state = useSelector(state => state.aucts)
     const stateErrors = useSelector(state => state.errorReports)
