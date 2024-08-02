@@ -18,7 +18,7 @@ const avatarIndex = [av01, av02, av03, av04, av05, av06, av07, av08]
 
 function WinnerScreen({ currentProduct, winner, auct }) {
 
-    useEffect(() => { }, [currentProduct, winner,auct])
+    useEffect(() => { }, [currentProduct, winner])
 
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#D8DEE8] text-zinc-600 relative overflow-hidden p-[2vh] gap-[2vh]">
@@ -48,7 +48,7 @@ function WinnerScreen({ currentProduct, winner, auct }) {
 
                     {/* TELA LATERAL */}
                     {
-                        currentProduct.Winner ?
+                        winner ?
                             <span style={{ textShadow: "2px 3px 1px #484848" }}
                                 className="text-[28px] font-bold text-[#fff]">Produto Arrematado</span> :
                             <span style={{ textShadow: "2px 3px 1px #484848" }}
@@ -56,13 +56,13 @@ function WinnerScreen({ currentProduct, winner, auct }) {
                     }
 
                     {
-                        currentProduct.Winner &&
-                        <img src={avatarIndex[currentProduct.Winner.client_avatar]} alt="client-avatar"
+                        winner &&
+                        <img src={avatarIndex[winner.client_avatar]} alt="client-avatar"
                             className="w-[100px] h-[100px] object-cover rounded-full bg-[#467a55]" />
                     }
-                    {currentProduct.Winner &&
+                    {winner &&
                         <span style={{ textShadow: "2px 1px 1px #484848" }}
-                            className="text-white">{currentProduct.Winner.nickname}</span>
+                            className="text-white">{winner.nickname}</span>
                     }
 
                 </div>

@@ -4,7 +4,7 @@ import { Inventory2 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 
-function ControllerHead({ selectedAuction, isRunning, isPaused, setSelectedGroup, productsByGroup, currentProduct, setSelectedAuction }) {
+function ControllerHead({ selectedAuction, isRunning, isPaused, setSelectedGroup, productsByGroup, currentProduct, setIsChanged, isChanged }) {
 
     const navigate = useNavigate()
 
@@ -20,13 +20,12 @@ function ControllerHead({ selectedAuction, isRunning, isPaused, setSelectedGroup
                     'Authorization': `Bearer ${currentSession.token}`
                 }
             }).then(() => {
-                //console.log("Leilão alterado para cataloged com sucesso -> ", res.data)
-                setSelectedAuction(false)
-                setSelectedGroup(false)
+                setIsChanged(!isChanged)
+                setSelectedGroup(currentProduct.group)
             })
 
         } catch (error) {
-
+            setIsChanged(!isChanged)
             console.log("error at try change tocataloged: ", error.message)
 
         }
@@ -37,7 +36,7 @@ function ControllerHead({ selectedAuction, isRunning, isPaused, setSelectedGroup
 
     return (
         <div className="flex w-[80%] justify-between items-center mt-[2vh] border-b-[1px] border-zinc-300 p-2">
-            <span className="text-[#818181] text-[22px] flex gap-3">
+            <span className="text-[#818181] text-[16px] flex gap-3">
                 <span> {selectedAuction && selectedAuction.title}</span>
                 <span className="font-bold text-[#b5b5b5]">{selectedAuction && selectedAuction.nano_id}</span>
             </span>
@@ -81,7 +80,7 @@ function ControllerHead({ selectedAuction, isRunning, isPaused, setSelectedGroup
             {
                 !isRunning && selectedAuction.status !== "cataloged" &&
                 <button className="p-2 bg-[#213F7E] text-white rounded-md border-[1px] border-[#b8ccf7]"
-                    onClick={handleChangeTocataloged} >mandar para catálogo</button>
+                    onClick={handleChangeTocataloged} >catálogo</button>
             }
 
         </div>

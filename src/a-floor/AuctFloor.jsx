@@ -16,16 +16,23 @@ function AuctFloor() {
     const [currentProduct, setCurrentProduct] = useState(false);
     const [socketMessage, setSocketMessage] = useState();
     const [socketWinner, setSocketWinner] = useState(false);
+    const [isWinnerMessage, setIsWinnerMessage] = useState(false)
+
     const { auct_id } = useParams();
-    const state = useSelector(state => state.bidLive);
+    const stateBid = useSelector(state => state.bidLive);
 
     const socketRef = useRef(null);
 
     useEffect(() => {
         webSocketFlow()
-    }, [state, auct_id]);
+    }, [auct_id]);
 
-    const webSocketFlow = () => {
+    useEffect(() => {
+        const product_id = stateBid.bidLive.product_id
+        getCurrentProduct(product_id)
+    }, [stateBid, socketWinner])
+
+    const webSocketFlow = async () => {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
         socketRef.current = socket;
         getCurrentAuction();
@@ -33,26 +40,26 @@ function AuctFloor() {
         // ouvindo mensagem de pregão ao vivo
         socket.on(`${auct_id}-playing-auction`, (message) => {
             if (message.data.body.auct_id === auct_id) {
-                setSocketWinner(false)
                 setSocketMessage(message);
-                setCurrentProduct(message.data.body.product)
+
+                if (!currentProduct) {
+                    setCurrentProduct(message.data.body.product)
+                }
             }
         });
 
         // ouvindo mensagem de leilão finalizado
         socket.on(`${auct_id}-winner`, (message) => {
-            console.log("lote vencedor - - - > ", message.data.winner);
-            setSocketWinner(message.data.winner);
+            getCurrentClientWinner(message.data.winner)
         });
 
         // Limpar o WebSocket quando o componente for desmontado
         return () => {
+            setIsWinnerMessage(true)
             socket.disconnect();
         };
 
     }
-
-    useEffect(() => { }, [currentProduct, currentAuct, socketWinner, socketMessage]);
 
     const getCurrentAuction = async () => {
         try {
@@ -65,9 +72,38 @@ function AuctFloor() {
         }
     };
 
-    if (socketWinner) {
+    const getCurrentProduct = async (product_id) => {
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
+                .then(result => {
+                    setCurrentProduct(result.data);
+                })
+        } catch (error) {
+            console.log("error ao tentar encontrar produto ", error.message);
+        }
+    }
+
+    const getCurrentClientWinner = async (client_id) => {
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`)
+                .then(response => {
+                    console.log("VENCEDORRR! ->", response.data)
+                    setSocketWinner(response.data);
+                    setTimeout(() => {
+                        setSocketWinner(false)
+                    }, 3000);
+                })
+        } catch (error) {
+            console.log("error at try get client: ", error.message);
+        }
+    }
+
+    if (isWinnerMessage || socketWinner) {
         return (
-            <WinnerScreen currentProduct={currentProduct} winner={socketWinner} auct={currentAuct} />
+            <WinnerScreen
+                currentProduct={currentProduct}
+                winner={socketWinner}
+                auct={currentAuct} />
         );
     }
 
@@ -92,8 +128,7 @@ function AuctFloor() {
                     timer={socketMessage ? socketMessage.data.cronTimer : 0}
                     duration={currentAuct.product_timer_seconds}
                     auct_id={currentAuct.id}
-                    initial_value={currentProduct.initial_value}
-                    currentProduct={currentProduct} />
+                    productId={currentProduct.id} />
             </div>
         </div>
     );

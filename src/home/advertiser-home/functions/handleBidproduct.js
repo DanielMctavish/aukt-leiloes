@@ -6,7 +6,7 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
     setIsloadingBid &&
         setIsloadingBid(true)
 
-    if (bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
+    if (messageRef && bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.transition = "1s"
         messageRef.current.style.marginTop = "0"
         messageRef.current.innerHTML = "O valor do lance deve ser maior que 0"
@@ -19,7 +19,7 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         return
     }
 
-    if (bidValue <= currentProduct.initial_value) {
+    if (messageRef && bidValue <= currentProduct.initial_value) {
         messageRef.current.style.transition = "1s"
         messageRef.current.style.marginTop = "0"
         messageRef.current.innerHTML = "O valor do lance deve ser maior que o valor inicial"
@@ -32,20 +32,29 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         return
     }
 
-    try {
-        const isValueAbove = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-bid?value=${parseFloat(bidValue)}`, {
-            headers: {
-                "Authorization": `Bearer ${sessionClient.token}`
-            }
-        })
+    const isValueAbove = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-bid?value=${parseFloat(bidValue)}`, {
+        headers: {
+            "Authorization": `Bearer ${sessionClient.token}`
+        }
+    }).then(response => {
+        if (response.data) {
+            setIsloadingBid(false)
+            console.log("valor precisa ser maior do que o atual!")
+            return
+        }
+    }).catch(error => {
+        console.log("error ao tentar encontrar um bid", error.message)
 
-        if (isValueAbove.data.value < bidValue) {
+    })
+
+    try {
+        if (isValueAbove && isValueAbove.data.value < bidValue) {
             setIsloadingBid(false)
             console.log("valor precisa ser maior do que o atual!")
             return
         }
 
-        if (parseFloat(isValueAbove.data.value) === parseFloat(bidValue)) {
+        if (isValueAbove && parseFloat(isValueAbove.data.value) === parseFloat(bidValue)) {
             setIsloadingBid(false)
             console.log("valor já foi lancado!")
             return
@@ -61,26 +70,25 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
                 "Authorization": `Bearer ${sessionClient.token}`
             }
         }).then((response) => {
-
             //console.log("lance realizado com sucesso... ", response.data)
-            setBidValue(response.data.value)
-            setSuccessBid(!successBid)
-            setIsloadingBid(false)
             if (messageRef) {
                 messageRef.current.style.transition = "1s"
-                messageRef.current.style.marginTop = "0"
+                messageRef.current.style.marginTop = "10px"
                 messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
                 messageRef.current.style.color = "#105500"
-                setTimeout(() => {
-                    messageRef.current.style.marginTop = "-30px"
-                }, 6000);
             }
-
-
+            setTimeout(() => {
+                messageRef.current.style.marginTop = "-30px"
+            }, 6000);
+            if (setBidValue)
+                setBidValue(response.data.value)
+            setSuccessBid(!successBid)
+            setIsloadingBid(false)
         })
 
     } catch (error) {
-        setIsloadingBid(false)
+        setIsloadingBid &&
+            setIsloadingBid(false)
         console.log(error.message)
     }
 
