@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 import { Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios"
-import { handleBidproduct } from "../../home/advertiser-home/functions/handleBidproduct";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
@@ -61,20 +60,37 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
             }
     }
 
-    const bidAuctionLive = async () => {
+    const handleBidAuctionLive = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
         const bidValue = initial_value + 20
-        handleBidproduct(bidValue,
-            null,
-            currentProduct,
-            clientSession,
-            { id: auct_id },
-            currentSession,
-            null,
-            null,
-            null,
-            setIsloadingBid)
-        dispatch(addBidLive(bidValue))
+        setIsloadingBid(true)
+
+        try {
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
+                value: parseFloat(bidValue),
+                client_id: clientSession.id,
+                auct_id: auct_id,
+                product_id: currentProduct.id
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${currentSession.token}`
+                }
+            }).then((response) => {
+                console.log("lance live dado com sucesso -> ", response.data)
+                setIsloadingBid(false)
+                dispatch(addBidLive({
+                    value: bidValue,
+                    product_id: currentProduct.id
+                }))
+            })
+
+
+
+        } catch (error) {
+            setIsloadingBid(false)
+            console.log("error at try bid live: ", error.message)
+        }
+
     }
 
     const setPercentage = (newDeadline) => {
@@ -122,7 +138,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
 
                 {clientSession && !isLoadingBid ?
                     <button
-                        onClick={bidAuctionLive}
+                        onClick={handleBidAuctionLive}
                         className="flex flex-1 h-[40px] 
                         justify-center items-center bg-[#159a29] gap-2
                         rounded-md shadow-lg shadow-[#0000001d] font-bold 

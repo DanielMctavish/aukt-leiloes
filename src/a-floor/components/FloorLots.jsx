@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 
 
@@ -8,10 +7,7 @@ function FloorLots({ products, currentProduct }) {
     const [productLots, setProductsLots] = useState([1])
 
     useEffect(() => {
-        const newOrderProducts = products?.sort((a, b) => {
-            return dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf()
-        })
-        setProductsLots(newOrderProducts)
+        setProductsLots(products)
     }, [products])
 
     return (
@@ -30,9 +26,9 @@ function FloorLots({ products, currentProduct }) {
                         return (
                             <div key={index} className="min-w-[120px] h-[120px] bg-white overflow-hidden
                             flex justify-center items-center relative rounded-md shadow-xl shadow-[#16161632]">
-                                <span style={{textShadow:"1px 2px 1px #60e0ee"}} 
-                                className="absolute text-zinc-100 bg-[#13326b] p-2 font-bold rounded-lg text-[16px] bottom-1 left-1">
-                                    {index + 1}
+                                <span style={{ textShadow: "1px 2px 1px #60e0ee" }}
+                                    className="absolute text-zinc-100 bg-[#13326b] p-2 font-bold rounded-lg text-[16px] bottom-1 left-1">
+                                    #{lot.lote}
                                 </span>
                                 <img src={lot.cover_img_url} alt=""
                                     className="object-cover w-full h-full" />

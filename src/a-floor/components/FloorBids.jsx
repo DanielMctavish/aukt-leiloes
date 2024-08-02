@@ -1,67 +1,52 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react"
+import axios from "axios"
 import io from "socket.io-client";
+import { useEffect, useState } from "react"
 import BidCard from "./BidCard"
 import CronCard from "./CronCard"
+import { useSelector } from "react-redux";
 
 
-function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) {
+function FloorBids({ timer, duration, auct_id, productId }) {
+    const [currentProduct, setCurrentProduct] = useState({})
+    const [bidMessageSocket, setBidMessageSocket] = useState()
+    const stateBid = useSelector(state => state.bidLive)
     const [bidsCards, setBidsCards] = useState([])
 
     useEffect(() => {
+        // const product_id = stateBid.bidLive.product_id
+        if (productId)
+            getCurrentProduct(productId)
         webSocketFlow()
-    }, [])
-
-    useEffect(() => {
-        getBidsByCurrentProduct()
-    }, [currentProduct])
+    }, [stateBid, productId, bidMessageSocket])
 
 
-    const getBidsByCurrentProduct = () => {
-
-        setBidsCards(currentProduct.Bid)
-
+    const getCurrentProduct = async (product_id) => {
+        setBidsCards([])
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
+                .then(result => {
+                    setCurrentProduct(result.data)
+                    setBidsCards(result.data.Bid);
+                })
+        } catch (error) {
+            console.log("error ao tentar encontrar produto ", error.message);
+        }
     }
-
-
 
     const webSocketFlow = () => {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-
-        // ouvindo mensagem de pregão ao vivo
-        if (auct_id)
-            socket.on(`${auct_id.toString()}-bid`, (message) => {
-
-                if (message.data.body.auct_id === auct_id) {
-                    console.log("observando mensagem do bid -> ", message.data)
-
-                    // setSocketWinner(false);
-                    // setSocketMessage(message);
-                    // getCurrentProduct(message.data.body.current_product_id, setCurrentProduct);
-                }
-            });
-
         // ouvindo mensagem de leilão finalizado
-        // socket.on(`${auct_id}-winner`, (message) => {
-        //     console.log("lote vencedor - - - > ", message.data.body);
-        //     setTimeout(() => {
-        //         setSocketWinner(message);
-        //     }, 1200);
-
-        //     setTimeout(() => {
-        //         setSocketWinner(false);
-        //     }, 3100);
-        // });
+        socket.on(`${auct_id}-bid`, (message) => {
+            setBidMessageSocket(message.data)
+        });
 
         // Limpar o WebSocket quando o componente for desmontado
         return () => {
             socket.disconnect();
         };
-
     }
-
-
 
     return (
         <div className="lg:w-[28%] w-[99%] lg:h-[94%] min-h-[60vh]
@@ -85,7 +70,7 @@ function FloorBids({ timer, duration, auct_id, initial_value, currentProduct }) 
                 currentTime={timer ? timer : 0}
                 duration={duration ? duration : 0}
                 auct_id={auct_id ? auct_id : ""}
-                initial_value={initial_value}
+                initial_value={currentProduct.initial_value}
                 currentProduct={currentProduct} />
 
         </div>

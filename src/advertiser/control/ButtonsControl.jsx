@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import axios from "axios"
+import { PauseCircleFilledOutlined, SkipNext, WatchLater } from "@mui/icons-material"
 
-function ButtonsControl({ setIsPaused, selectedAuction, isRunning, setIsRunning, selectedGroup, isPaused }) {
+function ButtonsControl({ setIsPaused, selectedAuction, isRunning, setIsRunning, selectedGroup, isPaused, setIsChanged, isChanged}) {
 
     const handleStartAuction = async () => {
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
@@ -28,6 +29,7 @@ function ButtonsControl({ setIsPaused, selectedAuction, isRunning, setIsRunning,
                 }
             }).then(res => {
                 console.log("Leilão iniciado com sucesso -> ", res.data)
+                setIsChanged(!isChanged)
             })
         } catch (error) {
             console.log("error at try start auction: ", error.message)
@@ -118,47 +120,70 @@ function ButtonsControl({ setIsPaused, selectedAuction, isRunning, setIsRunning,
     return (
         <div className="flex flex-col justify-center items-center w-[40%] h-full  border-r-[1px] border-zinc-300 text-zinc-600">
 
-            <div className="flex  w-full h-full justify-around items-center bg-pink-400">
+            {selectedAuction.status === "cataloged" || selectedAuction.status === "live" ?
+                <div className="flex  w-full h-full justify-around items-center bg-[#e2e2e2] gap-1 p-1">
 
-                {!isRunning ?
-                    !isPaused &&
-                    <button
-                        onClick={handleStartAuction}
-                        className="bg-[#36bd53] w-[120px] text-white rounded-md p-2 font-bold">iniciar leilão</button>
-                    :
-                    <button
-                        className="bg-[#c0c0c0] w-[120px] text-white rounded-md p-2 font-bold cursor-progress">
-                        live
+                    {!isRunning ?
+                        !isPaused &&
+                        <button
+                            onClick={handleStartAuction}
+                            className="bg-[#36bd53] flex-1 h-full text-white rounded-md p-2 font-bold">iniciar leilão</button>
+                        :
+                        <button
+                            className="bg-[#c0c0c0] flex-1 h-full text-white rounded-md p-2 font-bold cursor-progress">
+                            live
+                        </button>
+                    }
+
+                    {!isPaused ?
+                        <button onClick={handlePauseAuct} className="bg-white rounded-md p-2 flex-1 h-full">
+                            <PauseCircleFilledOutlined sx={{ fontSize: "60px" }} />
+                        </button> :
+                        <button onClick={handleResumeAuct}
+                            className="bg-[#213F7E] w-[120px] text-white rounded-md p-2 font-bold flex-1 h-full">
+                            continuar...
+                        </button>
+                    }
+
+                    <button onClick={handleNextProduct} className="bg-white rounded-md p-2 flex-1 h-full">
+                        <SkipNext sx={{ fontSize: "60px" }} />
                     </button>
-                }
 
-                {!isPaused ?
-                    <button onClick={handlePauseAuct} className="bg-white rounded-md p-2">
-                        pausar leilão
-                    </button> :
-                    <button onClick={handleResumeAuct}
-                        className="bg-[#213F7E] w-[120px] text-white rounded-md p-2 font-bold">
-                        continuar...
-                    </button>
-                }
+                </div> : ""
+            }
 
-                <button onClick={handleNextProduct} className="bg-white rounded-md p-2">
-                    próximo lote
-                </button>
+            {selectedAuction.status === "cataloged" || selectedAuction.status === "live" ?
+                <div className="flex w-full h-full justify-around items-center gap-1 bg-[#d0d0d0]">
 
-            </div>
+                    {!isPaused &&
+                        <div className="flex flex-col w-full h-full p-1 gap-1">
+                            <div className="flex w-full h-[50%] gap-1">
+                                <button onClick={() => handleAddSeconds(5)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +5 <WatchLater />
+                                </button>
+                                <button onClick={() => handleAddSeconds(15)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +15 <WatchLater />
+                                </button>
+                                <button onClick={() => handleAddSeconds(30)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +30 <WatchLater />
+                                </button>
+                            </div>
+                            <div className="flex w-full h-[50%] gap-1">
+                                <button onClick={() => handleAddSeconds(60)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +60 <WatchLater />
+                                </button>
+                                <button onClick={() => handleAddSeconds(120)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +120 <WatchLater />
+                                </button>
+                                <button onClick={() => handleAddSeconds(240)} className="bg-white flex-1 rounded-md p-2 text-[12px] gap-2 hover:bg-[#ffffffa4]">
+                                    +240 <WatchLater />
+                                </button>
+                            </div>
+                        </div>
+                    }
 
-            <div className="flex w-full h-full justify-around items-center gap-1 bg-purple-300">
-
-                {!isPaused &&
-                    <>
-                        <button onClick={() => handleAddSeconds(5)} className="bg-white flex-1 rounded-md p-2 text-[12px]">+5 </button>
-                        <button onClick={() => handleAddSeconds(15)} className="bg-white flex-1 rounded-md p-2 text-[12px]">+15 </button>
-                        <button onClick={() => handleAddSeconds(30)} className="bg-white flex-1 rounded-md p-2 text-[12px]">+30 </button>
-                    </>
-                }
-
-            </div>
+                </div> : ""
+            }
 
         </div>
     )

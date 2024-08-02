@@ -31,10 +31,17 @@ function DisplayFloor({ currentProduct, auct_id }) {
     }
 
     return (
-        <div className="flex flex-col w-[60%] h-full justify-center items-center text-[#282828]">
-            <span>{currentProduct && currentProduct.title}</span>
+        <div className="flex flex-col w-[60%] h-full justify-center items-center text-[#282828] bg-zinc-100 overflow-hidden">
+
+            {currentProduct.id &&
+                <div className="flex absolute top-1 gap-3 bg-[#ffffff91] p-3 rounded-md backdrop-blur-[6px] shadow-lg shadow-[#12121227]">
+                    <span className="font-bold">{currentProduct && currentProduct.title}</span>
+                    <span className="font-bold text-[#165e80]">#{currentProduct && currentProduct.lote}</span>
+                </div>
+            }
+
             <img src={currentProduct.cover_img_url} alt=""
-                className="h-[80%] object-cover rounded-md" />
+                className="w-full object-cover rounded-md " />
         </div>
     )
 }

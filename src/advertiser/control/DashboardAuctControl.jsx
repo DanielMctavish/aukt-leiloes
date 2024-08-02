@@ -12,6 +12,7 @@ import ButtonsControl from "./ButtonsControl";
 import DisplayFloor from "./DisplayFloor";
 import BottomDisplayFloor from "./BottomDisplayFloor";
 import ClientDetailModal from "./modal/ClientDetailModal";
+import BidsDisplayControl from "./BidsDisplayControl";
 
 
 function DashboardAuctControl() {
@@ -24,6 +25,7 @@ function DashboardAuctControl() {
     const [selectedGroup, setSelectedGroup] = useState(false)
     const [productsByGroup, setProductsByGroup] = useState(0)
     const [currentProduct, setCurrentProduct] = useState()
+    const [isChanged, setIsChanged] = useState(false)
 
     const navigate = useNavigate()
 
@@ -53,7 +55,7 @@ function DashboardAuctControl() {
                 }
             })
 
-    }, [selectedAuction, isRunning, isPaused, selectedGroup])
+    }, [selectedAuction, isRunning, isPaused, selectedGroup, isChanged])
 
     const getAdminInformations = async () => {
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
@@ -91,38 +93,16 @@ function DashboardAuctControl() {
 
     useEffect(() => {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-
         //ouvindo mensagem de pregão ao vivo................................................................
 
         socket.on(`${selectedAuction.id}-playing-auction`, (message) => {
             setIsRunning(true)
             setTimer(message.data.cronTimer)
-            // console.log("mensagem via controle: ", message.data)
             setCurrentProduct(message.data.body.product)
-            // if (message.data.body.auct_id === auct_id) {
-            //     setSocketWinner(false)
-            //     setSocketMessage(message)
-            //     getCurrentProduct(message.data.body.current_product_id, setCurrentProduct)
-            // }
 
         })
 
 
-        //ouvindo mensagem de leilão finalizado..............................................................
-
-        // socket.on(`${auct_id}-winner`, (message) => {
-        //     console.log("lote vencedor - - - > ", message.data.body)
-        //     setTimeout(() => {
-        //         setSocketWinner(message)
-        //     }, 1200);
-
-        //     setTimeout(() => {
-        //         setSocketWinner(false)
-        //     }, 3100);
-
-        // })
-
-        // Limpar o WebSocket quando o componente for desmontado
         return () => {
             socket.disconnect();
             setIsRunning(false)
@@ -144,15 +124,15 @@ function DashboardAuctControl() {
                 <div className="flex flex-col w-full h-[92%] justify-center items-center overflow-hidden gap-6">
 
                     <div className="flex w-[80%] h-[30%] justify-center items-center gap-3">
-                        <AvailableAuctions auctions={auctions}
+                        <AvailableAuctions
+                            auctions={auctions}
                             setSelectedAuction={setSelectedAuction}
+                            selectedAuction={selectedAuction}
                             setCurrentProduct={setCurrentProduct}
                             setTimer={setTimer} />
 
-                        <section className="w-[60%] h-full bg-[#E9E9E9] 
-                        rounded-md shadow-lg shadow-[#15151532]">
-                           
-                        </section>
+                        {/* Lances component....... */}
+                        <BidsDisplayControl auct_id={selectedAuction.id} currentProduct={currentProduct} />
 
                     </div>
 
@@ -168,7 +148,9 @@ function DashboardAuctControl() {
                             setSelectedGroup={setSelectedGroup}
                             productsByGroup={productsByGroup}
                             currentProduct={currentProduct}
-                            setSelectedAuction />
+                            setIsChanged={setIsChanged}
+                            isChanged={isChanged}
+                        />
 
                         <div className="flex w-[80%] h-[60%] justify-between items-center mt-[2vh] relative">
 
@@ -178,7 +160,9 @@ function DashboardAuctControl() {
                                     isRunning={isRunning}
                                     setIsRunning={setIsRunning}
                                     selectedGroup={selectedGroup}
-                                    isPaused={isPaused} />
+                                    isPaused={isPaused}
+                                    setIsChanged={setIsChanged}
+                                    isChanged={isChanged}/>
                             }
 
                             {currentProduct &&
