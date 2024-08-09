@@ -39,6 +39,7 @@ import SubscriptionAdvertiser from "./home/forms/SubscriptionAdvertiser";
 import ClientBids from "./Clients/bids/ClientBids";
 import FloorHub from "./a-floor/hub/FloorHub";
 import Categorias from "./home/components/Categorias";
+import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
 
 
 function App() {
@@ -49,10 +50,12 @@ function App() {
           {/* Home AUK */}
           <Route Component={Home} path="/" exact />
           <Route Component={Categorias} path="/categorias" exact />
+
           {/* Home Advertiser */}
           <Route Component={HomeAdvertiser} path="/advertiser/home/:advertiser_id" exact />
           <Route Component={ProductDetailAdv} path="/advertiser/home/product/:product_id" exact />
           <Route Component={SubscriptionAdvertiser} path="/advertiser/form/subscription" exact />
+          <Route Component={HomeAdvShop} path="/advertiser/home/shop/:auct_id" exact />
 
           {/* ACCESS */}
           <Route Component={ClientRegister} path="/client/register" exact />

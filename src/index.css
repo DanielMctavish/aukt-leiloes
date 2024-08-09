@@ -22,11 +22,13 @@
 a {
   text-decoration: inherit;
 }
+
 /* Hide the default scrollbar for Firefox */
 body {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
+
 
 .custom-scrollbar,
 body {
@@ -50,3 +52,20 @@ body::-webkit-scrollbar-thumb {
   background-color: #f0f0f0;
 }
 
+.slide-item-img {
+  width: 100%;
+  min-height: 360px;
+  object-fit: cover;
+  transition: 1s;
+}
+
+.roboto-condensed-advertiser{
+  font-family: "Roboto Condensed", sans-serif;
+  font-optical-sizing: auto;
+}
+
+.anton-regular-advertiser-title {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}

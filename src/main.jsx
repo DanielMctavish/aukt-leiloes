@@ -4,7 +4,15 @@ import App from './App.jsx'
 import store from "./features/Store.js";
 import { Provider } from "react-redux"
 import './index.css'
+
+import { register } from "swiper/element/bundle"
+import 'swiper/css';
+import 'swiper/css/navigation';
+
+register()
+
 // import DeveloperScreen from './DeveloperScreen.jsx';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
