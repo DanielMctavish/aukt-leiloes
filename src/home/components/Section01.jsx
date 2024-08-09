@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
 import axios from "axios";
 import { useNavigate } from "react-router-dom"
 import Submenu from "../navigation/Submenu";
@@ -19,7 +20,12 @@ function Section01() {
 
   const getProducts = async () => {
 
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list?offset=${16}`).then(response => {
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+      params: {
+        take: 12,
+        bid_count_order: 'true'
+      }
+    }).then(response => {
       setCardsSelecteds(response.data)
     })
 
@@ -45,6 +51,7 @@ function Section01() {
 
   //CARD ANTERIOR ................................................................................
   const handlePrevCard = () => {
+
     const newCardsOrganization = [...cardsSelecteds];
     const lastCard = newCardsOrganization.pop(); // Remove o último item do array
     newCardsOrganization.unshift(lastCard); // Adiciona o último item no início do array
@@ -55,14 +62,10 @@ function Section01() {
   };
 
 
-
   useEffect(() => {
     setCardsSelecteds(newCardsOrganization)
     //console.log("cards atuais -> ", cardsSelecteds)
   }, [newCardsOrganization])
-
-
-
 
   return (
     <section className="flex flex-col w-full bg-[#FFFFFF] relative overflow-hidden">
@@ -74,7 +77,7 @@ function Section01() {
 
         {/* ------------------------Botões de passagem de produto ------------------------*/}
 
-        <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-r bg-transparent from-[#FFFFFF] to-[#ffffff00] 
+        {/* <div className="md:w-[220px] w-[50px] h-full flex justify-center items-center md:bg-gradient-to-r bg-transparent from-[#FFFFFF] to-[#ffffff00] 
         absolute top-2 left-0 z-30">
           <button onClick={handlePrevCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowLeft} alt="" />
@@ -86,43 +89,64 @@ function Section01() {
           <button onClick={handleNextCard} className="hover:opacity-100  opacity-40">
             <img src={ArrowRight} alt="" />
           </button>
-        </div>
+        </div> */}
         {/* --------------------------------------------------------------------------------- */}
+        <Swiper
+          pagination={{ clickable: true }}
+          loop={true}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 3,
+            },
+            768: {
+              slidesPerView: 3,
+              spaceBetween: 4,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 12,
+            },
+          }} >
 
+          {cardsSelecteds.map((card, index) => (
+            <SwiperSlide key={index}>
+              <div
+                className="lg:min-w-[400px] min-w-[90%] h-[60%] 
+                overflow-hidden flex justify-center  slide-item-img 
+                 items-center gap-3 rounded-lg relative bg-pink-500"
+              >
 
-        {cardsSelecteds.map((card, index) => (
-          <div
-            key={index}
-            className="lg:min-w-[400px] min-w-[90%] h-[60%] 
-            overflow-hidden flex justify-center 
-            items-center gap-3 rounded-lg relative bg-zinc-200"
-          >
-            <div className={`flex w-full justify-center items-center h-[100%] overflow-hidden bg-purple-200`}>
-              <img
-                src={card ? card.cover_img_url : ""}
-                className="object-cover rounded-lg h-[100%] w-full"
-              />
-            </div>
+                <img
+                  src={card ? card.cover_img_url : ""}
+                  className="h-[360px] w-full object-cover"
+                />
 
-            <div className="absolute backdrop-blur-md text-[#FFF] bg-zinc-300/60 border-[#ffffff55] border-[1px] 
-            flex flex-col justify-center items-center p-3 text-shadow-md font-inter w-full h-full z-20
-            overflow-hidden rounded-md opacity-0 hover:opacity-100 transition duration-[.3s]">
+                <div className="absolute backdrop-blur-md text-[#FFF] bg-zinc-300/60 border-[#ffffff55] border-[1px] 
+                      flex flex-col justify-center items-center p-3 text-shadow-md font-inter w-full h-full z-20
+                      overflow-hidden rounded-md opacity-0 hover:opacity-100 transition duration-[.3s]">
 
-              <h1 className="lg:text-[22px] text-[16px] lg:mb-2 font-bold overflow-hidden drop-shadow-md shadow-[#060606]">
-                {card.title}
-              </h1>
-              <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden h-[70%] overflow-y-auto">
-                {card.description}
-              </p>
-              <button onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
-                className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal hover:space-x-3">
-                ver este lote
-              </button>
+                  <h1 className="lg:text-[22px] text-[16px] lg:mb-2 font-bold overflow-hidden drop-shadow-md shadow-[#060606]">
+                    {card.title}
+                  </h1>
+                  <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden h-[70%] overflow-y-auto">
+                    {card.description}
+                  </p>
+                  <button onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
+                    className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal hover:space-x-3">
+                    ver este lote
+                  </button>
 
-            </div>
+                </div>
 
-          </div>
-        ))}
+              </div>
+            </SwiperSlide>
+
+          ))}
+
+        </Swiper>
+
 
       </div>
 

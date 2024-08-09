@@ -1,21 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import yellowCar from "../../media/backgrounds/carro_amarelo_bg.png"
-import aukLogo from "../../media/logos/logos-auk/aukt_blue.png"
-import { ArrowCircleLeft, ArrowCircleRight, Menu } from "@mui/icons-material"
-import ClientNavigation from "./components/ClientNavigation";
+import HomeAdvSection01 from "./HomeAdvSection01";
+import HomeAdvSection02 from "./HomeAdvSection02";
+import HomeAdvSection03 from "./HomeAdvSection03";
+import HomeAdvFooter from "./HomeAdvFooter";
+
 
 function HomeAdvertiser() {
-    const [isMenu, setIsmenu] = useState(false)
-    const [cardSize, setCardSize] = useState("M")
     const [currentAdvertiser, setAdvertiser] = useState({})
     const [displayAuct, setDisplayAuct] = useState({})
-    const [displayProduct, setDisplayProduct] = useState([])
     const { advertiser_id } = useParams();
 
-    const menuRef = useRef()
     const navigate = useNavigate()
 
     useEffect(() => { getAdvertiserInformations() }, [])
@@ -33,7 +30,6 @@ function HomeAdvertiser() {
                         if (auct.status === "cataloged") {
                             // console.log("AUK >> ", auct)
                             setDisplayAuct(auct)
-                            setDisplayProduct(auct.product_list)
                             return false
                         }
                     })
@@ -43,110 +39,22 @@ function HomeAdvertiser() {
         }
     }
 
-    const getCardStyle = (size) => {
-        switch (size) {
-            case "P":
-                return "w-[80px] h-[80px] overflow-hidden bg-[#fff] rounded-md hover:shadow-lg hover:shadow-[#17171780]";
-            case "M":
-                return "flex flex-col justify-between items-center w-[220px] h-[460px] overflow-hidden bg-[#fff] rounded-md hover:shadow-lg hover:shadow-[#17171780]";
-            case "G":
-                return "flex justify-center w-full h-[600px] overflow-hidden bg-[#fff] rounded-md hover:shadow-lg hover:shadow-[#17171780]";
-            default:
-                return "w-[120px] h-[120px] overflow-hidden bg-[#fff] rounded-md hover:shadow-lg hover:shadow-[#17171780]";
-        }
-    }
-
-    const getDescriptionsStyle = (size) => {
-        switch (size) {
-            case "P":
-                return "none";
-            case "M":
-                return "flex flex-col w-full h-full text-zinc-600 bg-[#fff] justify-between items-center p-2";
-            case "G":
-                return "flex flex-col w-[42%] h-full text-zinc-600 bg-[#fff] justify-between items-center p-2";
-            default:
-                return "none";
-        }
-    }
-
-    const getImageStyle = (size) => {
-        switch (size) {
-            case "P":
-                return "w-full h-full object-cover cursor-pointer";
-            case "M":
-                return "w-full min-h-[200px] object-cover cursor-pointer";
-            case "G":
-                return "w-full h-full object-cover cursor-pointer";
-            default:
-                return "w-full h-full object-cover cursor-pointer";
-        }
-    }
-
-    const showMenuHome = () => {
-        menuRef.current.style.transition = "0.6s"
-        if (!isMenu) {
-            setIsmenu(!isMenu)
-            menuRef.current.style.marginLeft = "0"
-        } else {
-            setIsmenu(!isMenu)
-            menuRef.current.style.marginLeft = "-30vh"
-        }
-    }
-
-    const handleShowProductDetails = (product_id) => {
-        navigate(`/advertiser/home/product/${product_id}`)
-    }
 
     return (
-        <div className="w-full h-auto flex flex-col justify-start items-center relative">
-
-            {/* MENU Home advertiser............................................................................................................................ */}
-            <div ref={menuRef} className="fixed w-[30vh] h-[100vh] flex flex-col
-            bg-[#143514] left-0 top-0 z-20 shadow-lg shadow-[#1118] ml-[-30vh] text-[#e0e0e0]">
-                <ClientNavigation />
-            </div>
+        <div className="w-full h-auto flex flex-col justify-start items-center relative roboto-condensed-advertiser">
 
             {/* SECTION 01 ------------------------------------------------------------------------------------------------------------------------- */}
-            <section className="flex flex-col justify-start items-center w-full h-[100vh] bg-gradient-to-b from-[#f2fcff] to-[#ddcdff] relative">
-                <div className="w-[98%] h-[32vh] bg-white border-[1px] rounded-md top-2 flex justify-center items-center mt-[4vh] 
-                relative overflow-hidden shadow-lg shadow-[#13131361] ">
-                    <span
-                        onClick={() => showMenuHome()}
-                        className="fixed top-1 left-1 z-20 cursor-pointer shadow-sm bg-[#252525cc] p-1 rounded-md"><Menu /></span>
-                    <img src={yellowCar} className="object-cover w-full absolute blur-[7px] opacity-90" />
-                    <img src={currentAdvertiser.url_profile_company_logo_cover} alt=""
-                        className="w-[200px] h-[200px] object-cover rounded-full z-10" />
-                    <span className="font-bold text-[73px] z-10">
-                        {currentAdvertiser.company_name}
-                    </span>
-                </div>
-
-                <div className="w-full h-[70vh] flex justify-center items-center gap-6">
-                    <div className="md:w-[30%] w-full h-[70%] flex flex-col justify-center items-left text-left gap-2">
-                        <span className="text-[16px] font-bold text-[#B695EC]">Grandes Oportunidades Esperam por Você</span>
-                        <h1 style={{ textShadow: "1px 2px 4px #0e0e0e77" }} className="text-[26px] font-bold">NÃO PERCA OS PRÓXIMOS LEILÕES</h1>
-                        <p className="text-[12px] text-zinc-600">
-                            Prepare-se para os leilões mais emocionantes da nossa plataforma! Fique ligado nas datas e não deixe passar a chance de arrematar itens exclusivos a preços incríveis. Cadastre-se agora e seja o primeiro a saber das novidades. Cada leilão é uma nova oportunidade, não perca!
-                        </p>
-                    </div>
-
-                    <div className="md:w-[30%] w-full h-[70%] flex flex-col justify-center items-center gap-1 relative">
-                        <div className="w-full h-full flex justify-between items-center absolute">
-                            <span style={{ fontSize: "33px" }}><ArrowCircleLeft /></span>
-                            <ArrowCircleRight />
-                        </div>
-                        <img src={displayAuct.auct_cover_img} alt="" className="w-[240px] h-[240px] object-cover rounded-[60px]" />
-                    </div>
-                </div>
-
-                <img src={aukLogo}
-                    onClick={() => navigate('/')}
-                    className="absolute w-[60px] bottom-3 right-1 cursor-pointer hover:brightness-125" />
-            </section>
-
+            <HomeAdvSection01 currentAdvertiser={currentAdvertiser} displayAuct={displayAuct} />
 
             {/* SECTION 02 ------------------------------------------------------------------------------------------------------------------------- */}
-            <section className="flex w-full h-[100vh] bg-[#fff] relative flex-col justify-start items-center">
+
+            <HomeAdvSection02 currentAdvertiser={currentAdvertiser} />
+
+            {/* SECTION 03 */}
+
+            <HomeAdvSection03 currentAdvertiser={currentAdvertiser} />
+
+            {/* <section className="flex w-full h-[100vh] bg-[#fff] relative flex-col justify-start items-center">
                 <div className="flex w-full h-[300px] overflow-x-hidden overflow-y-hidden">
                     {
                         Array.isArray(displayProduct) &&
@@ -218,13 +126,10 @@ function HomeAdvertiser() {
                 <img src={aukLogo}
                     onClick={() => navigate('/')}
                     className="absolute w-[60px] bottom-3 right-1 cursor-pointer  hover:brightness-125" />
-            </section>
+            </section> */}
 
             {/* RODAPÉ ------------------------------------------------------------------------------------------------------------------------- */}
-            <footer className="w-full h-[300px] flex justify-center items-center bg-gradient-to-r from-[#262626] to-[#2f2036]">
-                <img src={currentAdvertiser.url_profile_cover}
-                    className="w-[200px] h-[200px] border-[3px] border-[#fff] object-cover rounded-full bg-[#9c9c9c]" />
-            </footer>
+            <HomeAdvFooter currentAdvertiser={currentAdvertiser} />
         </div>
     )
 }

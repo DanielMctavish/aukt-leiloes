@@ -27,6 +27,8 @@ function Section02() {
 
   }
 
+  useEffect(() => { }, [liveAuctions])
+
   return (
     <section className="bg-[#D9D9D9] w-full h-[100vh] 
     flex flex-col justify-center items-center

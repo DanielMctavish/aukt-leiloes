@@ -1,0 +1,6 @@
+.slide-item-img {
+    width: 100%;
+    min-height: 360px;
+    object-fit: cover;
+    transition: 1s;
+}
