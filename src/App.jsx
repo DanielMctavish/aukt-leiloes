@@ -40,6 +40,7 @@ import ClientBids from "./Clients/bids/ClientBids";
 import FloorHub from "./a-floor/hub/FloorHub";
 import Categorias from "./home/components/Categorias";
 import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
+import Arrematantes from "./advertiser/arrematantes/Arrematantes";
 
 
 function App() {
@@ -100,6 +101,7 @@ function App() {
           <Route Component={AdvertiserWallet} path="/advertiser/wallet" exact />
           <Route Component={AdvertiserProfile} path="/advertiser/profile" exact />
           <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
+          <Route Component={Arrematantes} path="/advertiser/arrematantes" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={FloorHub} path="/floor/hub" exact />

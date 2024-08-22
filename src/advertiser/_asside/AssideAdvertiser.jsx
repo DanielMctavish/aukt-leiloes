@@ -99,11 +99,11 @@ function AssideAdvertiser(props) {
               </button>
 
               <button
-                onClick={() => handleClick("/admin/advertisers")}
+                onClick={() => handleClick("/advertiser/arrematantes")}
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
               >
                 <Gavel style={iconStyle} />
-                <span className="mt-1 text-xs">Arremates</span>
+                <span className="mt-1 text-xs">Arrematantes</span>
               </button>
 
               <button
@@ -195,10 +195,10 @@ function AssideAdvertiser(props) {
         <button
           id="menu-5"
           className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/auctions")}
+          onClick={() => handleClick("/advertiser/arrematantes")}
         >
           <Gavel />
-          <span>Arremates</span>
+          <span>Arrematantes</span>
         </button>
 
         <button

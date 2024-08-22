@@ -7,7 +7,9 @@ import './index.css'
 
 import { register } from "swiper/element/bundle"
 import 'swiper/css';
+import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
 
 register()
 

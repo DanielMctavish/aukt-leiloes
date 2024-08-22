@@ -5,6 +5,7 @@ import Section02 from "./Section02";
 import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
+import Submenu from "../navigation/Submenu";
 
 function Home() {
 
@@ -22,21 +23,12 @@ function Home() {
     <div
       className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
       <Navigation />
+      <Submenu/>
 
       <Section01 />
       <Section02 />
       <Section03 />
       <Footer />
-
-      {/* <section
-        onClick={hiddenNav}
-        className="w-full gap-3 flex flex-col justify-center items-center lg:h-[96vh] h-[100vh] bg-slate-100">
-        <img src={tempLogo} alt="" className="w-[130px] h-[130px] object-cover shadow-md rounded-lg" />
-        <span className="text-zinc-600">tudo começa por aqui</span>
-        <button className="text-zinc-400">
-          <a href="https://dmdesenvolvedor.com.br" target="_blank" rel="noreferrer">Arboris Codex_</a>
-        </button>
-      </section> */}
 
     </div>
   );

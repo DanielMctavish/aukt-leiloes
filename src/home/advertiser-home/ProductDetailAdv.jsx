@@ -1,33 +1,44 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import logoAuk from '../../media/logos/logos-auk/aukt_blue.png'
 //avatares import
-import avatar_01 from "../../media/avatar-floor/avatar_01.png"
-import avatar_02 from "../../media/avatar-floor/avatar_02.png"
-import avatar_03 from "../../media/avatar-floor/avatar_03.png"
-import avatar_04 from "../../media/avatar-floor/avatar_04.png"
-import avatar_05 from "../../media/avatar-floor/avatar_05.png"
-import avatar_06 from "../../media/avatar-floor/avatar_06.png"
-import avatar_07 from "../../media/avatar-floor/avatar_07.png"
-import avatar_08 from "../../media/avatar-floor/avatar_08.png"
-import { handleBidproduct } from "./functions/handleBidproduct";
-import { getProductInformations } from "./functions/getProductInformation";
-import { getClientSession } from "./functions/getClientSession";
+import avatar_01 from '../../media/avatar-floor/avatar_01.png'
+import avatar_02 from '../../media/avatar-floor/avatar_02.png'
+import avatar_03 from '../../media/avatar-floor/avatar_03.png'
+import avatar_04 from '../../media/avatar-floor/avatar_04.png'
+import avatar_05 from '../../media/avatar-floor/avatar_05.png'
+import avatar_06 from '../../media/avatar-floor/avatar_06.png'
+import avatar_07 from '../../media/avatar-floor/avatar_07.png'
+import avatar_08 from '../../media/avatar-floor/avatar_08.png'
+
+import { handleBidproduct } from './functions/handleBidproduct';
+import { getProductInformations } from './functions/getProductInformation';
+import { getClientSession } from './functions/getClientSession';
+import { Menu, Gavel, PeopleAltOutlined, Close, ArrowLeft, ArrowRight, Visibility } from '@mui/icons-material'
+import axios from 'axios';
 
 function ProductDetailAdv() {
-    const [currentProduct, setCurrentProduct] = useState({})
-    const [currentAuct, setCurrentAuct] = useState({})
-    const [currentAdvertiser, setCurrentAdvertiser] = useState([])
-    const [currentClient, setCurrentClient] = useState([])
-    const [sessionClient, setSessionsClient] = useState()
-    const [bidValue, setBidValue] = useState(0)
-    const [successBid, setSuccessBid] = useState(false)
-    const [bidInformations, setBidInformations] = useState([])
-    const [displayBidWall, setDisplayBidWall] = useState(false)
-    const [isWinner, setIsWinner] = useState(false)
+    const [anotherProducts, setAnotherProducts] = useState([])
+    const [emptySlot, setEmptySlot] = useState([])
+    const [currentClient, setCurrentClient] = useState([]);
+    const [sessionClient, setSessionsClient] = useState();
 
-    const navigate = useNavigate()
-    const messageRef = useRef()
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    const [currentProduct, setCurrentProduct] = useState({});
+    const [showMenu, setShowMenu] = useState(false);
+    const [currentAuct, setCurrentAuct] = useState({});
+    const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
+    const [bidValue, setBidValue] = useState(0);
+    const [successBid, setSuccessBid] = useState(false);
+    const [bidInformations, setBidInformations] = useState([]);
+    const [displayBidWall, setDisplayBidWall] = useState(true);
+    const [isWinner, setIsWinner] = useState(false);
+
+    const navigate = useNavigate();
+    const messageRef = useRef();
     const avatares_pessoas = [
         avatar_01,
         avatar_02,
@@ -37,172 +48,364 @@ function ProductDetailAdv() {
         avatar_06,
         avatar_07,
         avatar_08
-    ]
+    ];
 
     const { product_id } = useParams();
 
     useEffect(() => {
-        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner)
-        getClientSession(setSessionsClient, setCurrentClient)
-    }, [successBid])
+        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner);
+        getClientSession(setSessionsClient, setCurrentClient);
+        getAnotherProducts()
+    }, [successBid]);
 
-    useEffect(() => { console.log("produto atual -> ", currentProduct) }, [bidInformations])
+    useEffect(() => {
+        const imgsGroup = currentProduct.group_imgs_url
 
-    const refBidWall = useRef()
+        if (imgsGroup && imgsGroup.length < 3) {
+            const emptySlots = Array(3 - imgsGroup.length).fill(null);
+            setEmptySlot(emptySlots);
+        }
+
+    }, [bidInformations]);
+
+    const refBidWall = useRef();
 
     const handleShowBids = () => {
 
         if (!displayBidWall) {
-            refBidWall.current.style.transition = "1s"
-            refBidWall.current.style.position = "relative"
-            refBidWall.current.style.marginRight = "0vh"
-            setDisplayBidWall(!displayBidWall)
+            refBidWall.current.style.opacity = "1";
+            refBidWall.current.style.transition = ".3s";
+            refBidWall.current.style.position = "relative";
+            refBidWall.current.style.marginRight = "0vh";
+            setDisplayBidWall(!displayBidWall);
         } else {
-            refBidWall.current.style.transition = "0.6s"
-            refBidWall.current.style.position = "absolute"
-            refBidWall.current.style.marginRight = "-260vh"
-            setDisplayBidWall(!displayBidWall)
+            refBidWall.current.style.transition = "1s";
+            refBidWall.current.style.position = "relative";
+            refBidWall.current.style.marginRight = "-160vh";
+            refBidWall.current.style.opacity = "0";
+
+            setTimeout(() => {
+                refBidWall.current.style.position = "absolute";
+            }, 1000);
+
+            setDisplayBidWall(!displayBidWall);
+        }
+    };
+
+    useEffect(() => {
+        console.log("produto atual ", currentProduct.Bid)
+    }, [currentClient, bidInformations])
+
+    const refEmail = useRef()
+    const refPassword = useRef()
+    const refModalLogin = useRef()
+
+    const handleLoginClient = async () => {
+        const sessionClient = localStorage.setItem("client-auk-session-login")
+
+        if (!sessionClient)
+            try {
+                await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
+                    email: refEmail.current.value,
+                    password: refPassword.current.value
+                }).then(response => {
+                    localStorage.setItem("client-auk-session-login", JSON.stringify({
+                        token: response.data.token,
+                        email: response.data.user.email,
+                        name: response.data.user.name,
+                        id: response.data.user.id,
+                    }))
+                })
+
+                handleCloseModal()
+            } catch (error) {
+                handleCloseModal()
+                console.log("Error ao logar cliente -> ", error.message)
+            }
+
+    }
+
+    const handleCloseModal = () => {
+        refModalLogin.current.style.display = "none";
+    }
+    const handleShowModal = () => {
+        refModalLogin.current.style.display = "flex";
+    }
+
+    const handleNextProduct = async () => {
+        console.log("produto atual -> ", currentProduct.lote + 1)
+
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
+                params: {
+                    lote: currentProduct.lote + 1,
+                    auct_id: currentAuct.id
+                }
+            }).then(response => {
+                setCurrentProduct(response.data);
+                setBidInformations(response.data.Bid)
+                // console.log("produto encontrado -> ", response.data.id)
+                navigate(`/advertiser/home/product/${response.data.id}`)
+            })
+        } catch (error) {
+            console.log("Error ao encontrar próximo produto -> ", error.message)
         }
 
     }
 
+    const handlePrevProduct = async () => {
+
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
+                params: {
+                    lote: currentProduct.lote - 1,
+                    auct_id: currentAuct.id
+                }
+            }).then(response => {
+                setCurrentProduct(response.data);
+                setBidInformations(response.data.Bid)
+                // console.log("produto encontrado -> ", response.data)
+                navigate(`/advertiser/home/product/${response.data.id}`)
+            })
+        } catch (error) {
+            console.log("Error ao encontrar próximo produto -> ", error.message)
+        }
+
+    }
+
+    const getAnotherProducts = async () => {
+
+        try {
+            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+                params: {
+                    auct_id: currentAuct.id,
+                    take: 6,
+                }
+            }).then(response => {
+                setAnotherProducts(response.data)
+            })
+        } catch (error) {
+            console.log("Error loading page:", error.message);
+        }
+
+
+    }
+
     return (
-        <div className="flex flex-col justify-start items-center w-full h-[170vh] bg-[#dddddd] relative">
+        <div className="flex flex-col justify-start items-center w-full h-[130vh] bg-[#0D1733] p-[2vh] relative">
+            {/* MENU */}
+            <div onClick={() => setShowMenu(!showMenu)} className="flex w-[40px] h-[40px] 
+            rounded-[12px] bg-[#fff] 
+            cursor-pointer justify-center items-center
+            hover:bg-[#eeeeee] fixed z-[99] top-[3vh] left-[3vh] 
+            shadow-lg shadow-[#1313131e]">
+                <Menu sx={{ color: "#767676" }} />
+            </div>
 
-            <span ref={messageRef} className="flex h-[30px] w-[60%] justify-center items-center mt-[-30px] 
-            bg-white fixed z-[99] rounded-md shadow-md shadow-[#18181823]">
-                mensagens de span
-            </span>
+            <div className='flex flex-col w-[40px] h-[92px] fixed z-[99] 
+            top-[9vh] left-[3vh] gap-1 overflow-hidden justify-start items-start'>
 
-            {/* HEADER */}
-            <div className="flex w-full h-[30vh] relative overflow-hidden justify-center items-center">
-                <button
-                    style={{
-                        textShadow: "1px 2px 1px #101010a2"
-                    }}
+                <div
                     onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
-                    className="flex absolute top-1 left-3 z-20">
-                    voltar
-                </button>
+                    className={`
+                    flex w-[40px] h-[40px] rounded-[12px] bg-[#fff] cursor-pointer justify-center items-center
+                    hover:bg-[#eeeeee] shadow-md shadow-[#1313131e] ${!showMenu ? 'mt-[-99px]' : 'mt-0'}
+                    `}>
+                    <img src={logoAuk} alt="" className={`w-[40px]`} />
+                </div>
 
-                <img src={currentAuct.auct_cover_img} alt="" className="object-cover w-full absolute blur-[3px]" />
+                <div className="flex w-[40px] h-[40px] rounded-[12px] bg-[#fff] cursor-pointer justify-center items-center
+                hover:bg-[#eeeeee] shadow-md shadow-[#1313131e]">
+                    <Gavel sx={{ color: "#767676" }} />
+                </div>
 
-                <section className="flex justify-center items-center 
-                    w-[80%] h-[200px] relative rounded-lg gap-3">
-                    <img src={currentAdvertiser.url_profile_company_logo_cover}
-                        className="object-cover w-[220px] h-[220px] 
-                            bg-white/20 rounded-full backdrop-blur-[12px] 
-                            shadow-lg shadow-[#13131358] p-1" />
+            </div>
 
-                    <div className="flex flex-col">
-                        <h1 style={{ textShadow: "-2px 1px 1px #0a3e4c" }} className="text-[44px]">
-                            {currentAuct.title}
-                        </h1>
-                        <span style={{ textShadow: "2px 1px 2px #111111c1" }} className="text-[27px]">{currentAuct.nano_id}</span>
+            {/* Login Client */}
+            <div className='flex fixed z-[99] top-[3vh] right-[3vh] gap-3 bg-white p-2 rounded-md'>
+                {
+                    currentClient.name ?
+                        <div className='flex gap-2 justify-start items-center'>
+                            <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[33px] h-[33px] rounded-full' />
+                            <span className='font-bold'>{currentClient.name}</span>
+                        </div>
+                        :
+                        <>
+                            <PeopleAltOutlined />
+                            <button onClick={handleShowModal}>Entrar</button>
+                        </>
+                }
+            </div>
+
+            {/* Modal Login */}
+            <div ref={refModalLogin} className='flex-col w-[80%] h-[80vh] bg-white 
+            rounded-md absolute justify-center items-center gap-3 hidden'>
+                <span className='fixed top-1 right-1 cursor-pointer' onClick={handleCloseModal}>
+                    <Close />
+                </span>
+                <input ref={refEmail} type="email" className='bg-[#1a1a1a]' placeholder='seu email' />
+                <input ref={refPassword} onClick={handleLoginClient} type="password" name="" id="" placeholder='sua senha...' />
+            </div>
+
+            {/*Main Body*/}
+            <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-3">
+
+                <div className='flex w-[80%] justify-start items-center gap-3'>
+                    <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[60px] h-[60px] object-cover rounded-full' />
+                    <div className='flex flex-col justify-start items-start'>
+                        <span className='font-bold text-[16px]'>{currentAdvertiser.name}</span>
+                        <span>{currentAuct.title}</span>
+                    </div>
+                </div>
+
+                {/* Carrosel e descrições */}
+                <section className='flex w-[80%] h-[700px] relative justify-start items-start'>
+                    {/* CARROSEL */}
+                    <div className='flex flex-col w-[600px] overflow-hidden'>
+                        <div className="flex w-[600px] h-[600px] justify-center items-center bg-transparent">
+                            <Swiper
+                                style={{
+                                    '--swiper-navigation-color': '#fff',
+                                    '--swiper-pagination-color': '#fff',
+                                }}
+                                spaceBetween={2}
+                                navigation={true}
+                                thumbs={{ swiper: thumbsSwiper }}
+                                modules={[FreeMode, Navigation, Thumbs]}
+                                className="mySwiper2"
+                            >
+                                <SwiperSlide>
+                                    <div className='flex w-auto h-[600px] object-cover justify-center'>
+                                        <img src={currentProduct.cover_img_url} alt="foto-produto-leilão"
+                                            className='w-auto h-[600px] object-cover rounded-md' />
+                                    </div>
+                                </SwiperSlide>
+                                {currentProduct.group_imgs_url &&
+                                    currentProduct.group_imgs_url.map((img, i) => (
+                                        <SwiperSlide key={i}>
+                                            <div className='flex w-auto h-[600px] justify-center object-cover'>
+                                                <img src={img} alt="foto-produto-leilão"
+                                                    className='w-auto h-full object-cover rounded-md' />
+                                            </div>
+                                        </SwiperSlide>
+                                    ))
+                                }
+                            </Swiper>
+                        </div>
+
+                        <div className="flex w-full mt-2">
+                            <Swiper
+                                spaceBetween={10}
+                                slidesPerView={4}
+                                freeMode={true}
+                                watchSlidesProgress={true}
+                                modules={[FreeMode, Navigation, Thumbs]}
+                                className="mySwiper"
+                            >
+                                <SwiperSlide>
+                                    <img src={currentProduct.cover_img_url && currentProduct.cover_img_url} alt="thumb"
+                                        className="min-w-[100px] h-[100px] object-cover rounded-md" />
+                                </SwiperSlide>
+                                {
+                                    currentProduct.group_imgs_url &&
+                                    currentProduct.group_imgs_url.map((img, i) => (
+                                        <SwiperSlide key={i}>
+                                            <img src={img} alt="thumb" className="w-full h-[100px] object-cover rounded-md" />
+                                        </SwiperSlide>
+                                    ))
+                                }
+                                {
+                                    emptySlot &&
+                                    emptySlot.map((_, i) => (
+                                        <SwiperSlide key={i}>
+                                            <div className="w-full h-[100px] object-cover rounded-md bg-slate-300"></div>
+                                        </SwiperSlide>
+                                    ))
+                                }
+
+                            </Swiper>
+                        </div>
+                    </div>
+
+                    {/* Produto Information */}
+                    <div className='flex flex-col flex-1 max-w-[60%] h-full justify-start items-center p-[3vh]'>
+
+                        <div className='flex flex-col w-full h-full justify-start gap-3'>
+
+                            <div className='flex w-full justify-between items-center'>
+                                <span className='font-semibold text-[22px]'>Lote: {currentProduct.lote}</span>
+                                <div>
+                                    <span onClick={handlePrevProduct} className='hover:text-[#9f9f9f]'>
+                                        <ArrowLeft className='cursor-pointer' sx={{ fontSize: "33px" }} />
+                                    </span>
+                                    <span onClick={handleNextProduct} className='hover:text-[#9f9f9f]'>
+                                        <ArrowRight className='cursor-pointer' sx={{ fontSize: "33px" }} />
+                                    </span>
+                                </div>
+                            </div>
+
+                            <span className='font-bold text-[36px]'>{currentProduct.title}</span>
+                            <span className='font-bold text-[16px]'>{currentProduct.description}</span>
+                            <span className='font-bold text-[16px]'>{currentProduct.Bid && currentProduct.Bid.length} lance(s)</span>
+                            <span className='font-bold text-[16px]'>valor atual:
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(currentProduct.initial_value)}
+                            </span>
+
+                            <div className='flex gap-1 text-white font-bold'>
+                                <button className='w-[150px] h-[40px] bg-[#141839] rounded-md'>Fazer Lance</button>
+                                <div className='flex w-[210px] h-[40px] bg-[#1399CF] justify-center items-center gap-2 rounded-md'>
+                                    <input type="checkbox" name="" id="" className='w-[20px] h-[20px]' />
+                                    <span>Lances Automáticos</span>
+                                </div>
+                            </div>
+
+                            <span onClick={handleShowBids} className='flex gap-1 text-[#0D1733] cursor-pointer'>
+                                <Visibility /> ver histório de lances
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {/* Lances */}
+                    <div ref={refBidWall} className='mr-[-160vh] flex-col w-[340px] h-full justify-start items-center 
+                    p-3 bg-[#D5DCDC] rounded-[12px] shadow-lg shadow-[#1616162f] overflow-y-auto opacity-0'>
+                        {
+                            bidInformations.map((bid) => (
+                                <div className='w-full bg-[#233751] rounded-[12px] h-[40px] text-white font-bold 
+                                flex justify-between items-center p-1 mt-[2px]'
+                                    key={bid.id}>
+                                    <img src={bid.Client && avatares_pessoas[bid.Client.client_avatar]} alt=""
+                                        className='w-[33px] h-[33px] object-cover rounded-full' />
+                                    <span>{bid.Client && bid.Client.nickname}</span>
+                                    <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+                                        .format(bid.value)}</span>
+                                </div>
+                            ))
+                        }
+                    </div>
+
+                </section>
+
+
+                {/* Recomendados */}
+                <section className='flex flex-col w-[80%] h-[260px] bg-[#C4CDCE] rounded-[12px] mt-[3vh] justify-between items-center relative p-3'>
+                    <span className=' text-[22px] font-bold'>Outros Produtos</span>
+                    <div className='flex w-full justify-between items-center gap-2 overflow-x-auto overflow-y-hidden p-3'>
+                        {
+                            anotherProducts.map((product) => {
+
+                                return (
+                                    <img key={product.id} src={product.cover_img_url} alt="" className='flex-1 h-[200px] object-cover rounded-md' />
+                                )
+                            })
+                        }
                     </div>
                 </section>
 
             </div>
-
-            {/* SESSION 01 */}
-            {!isWinner ?
-                <section className="flex justify-center items-center gap-3 p-1 overflow-hidden
-                w-[99%] h-[57%] bg-white mt-1 shadow-lg shadow-[#15151558] relative rounded-md">
-                    <img src={currentProduct.cover_img_url} className="object-cover h-[600px] rounded-md" />
-
-                    <div className="flex flex-col justify-start items-center p-2 overflow-x-auto
-                    w-[400px] h-[60%] rounded-md text-zinc-600 bg-[#f0f0f0] shadow-lg shadow-[#1010101e]">
-
-                        <div className="flex w-full justify-between items-center">
-                            <span className="font-bold">Lances: </span>
-                            <span onClick={handleShowBids}
-                                className="p-2 bg-white rounded-md cursor-pointer">
-                                {currentProduct.Bid ? currentProduct.Bid.length : 0}
-                            </span>
-                        </div>
-
-                        <div className="flex w-full justify-between items-center">
-                            <span>valor</span>
-                            <span>
-                                {(currentProduct.initial_value && currentProduct.initial_value
-                                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))}
-                            </span>
-                        </div>
-
-                        {
-                            sessionClient ?
-                                <div className="flex flex-col w-full mt-[6vh] gap-2">
-                                    <input onChange={(e) => setBidValue(e.target.value)} type="text"
-                                        value={bidValue}
-                                        placeholder="valor do lance" className="p-2 w-[99%] rounded-md 
-                                        text-zinc-600 bg-[#fff]" />
-                                    <button
-                                        onClick={() => handleBidproduct(bidValue, messageRef, currentProduct,
-                                            currentClient, currentAuct, sessionClient, setBidValue, setSuccessBid, successBid)}
-                                        className="bg-[#94365D] flex justify-center items-center 
-                                        w-[99%] p-2 text-[#fff] rounded-md">
-                                        dar um lance
-                                    </button>
-                                </div>
-                                :
-                                <span
-                                    onClick={() => navigate("/client/login")}
-                                    className="bg-[#4c4c4c] flex justify-center items-center w-[99%] p-2 text-[#fff] rounded-md cursor-pointer mt-[6vh]">
-                                    Faça login para dar lances
-                                </span>
-                        }
-
-                    </div>
-                    {/* Mural de vencedores */}
-                    {
-                        sessionClient &&
-                        <div ref={refBidWall} className="flex flex-col w-[400px] h-[600px] bg-[#e6e6e6] 
-                        rounded-md gap-1 p-1 overflow-y-auto mr-[-260vh] absolute">
-                            {
-                                Array.isArray(bidInformations) &&
-                                bidInformations.map((information, i) => {
-
-                                    return (
-                                        <div key={i} className="flex w-full justify-between items-center p-2 text-zinc-600 bg-white rounded-md">
-                                            <img src={avatares_pessoas[information.client.client_avatar]} alt="" className="w-[40px] h-[40px] object-cover" />
-                                            <span>{information.client.nickname}</span>
-                                            <span>{information.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div>
-                    }
-
-                </section> :
-                <section className="flex flex-col justify-center items-center gap-3 p-1 overflow-hidden
-                w-[99%] h-[57%] bg-white mt-1 shadow-lg shadow-[#15151589] relative">
-                    <h1 className="text-[#3e3e3e] text-[44px]">Agradecemos por você estar aqui!</h1>
-                    <span className="text-[#3e3e3e] text-[16px] w-[40%] text-center">
-                        É com muita alegria que te damos boas-vindas! Infelizmente, este produto já encontrou
-                        um novo destino, mas não fique desanimado. Em breve, teremos mais produtos como este em nosso catálogo.
-                    </span>
-                    <span className="text-[#3e3e3e] text-[16px] text-left font-bold w-[40%]">Por que não está mais disponível?</span>
-                    <span className="text-[#3e3e3e] text-[16px] w-[40%] text-left">
-                        Quando um produto é &quot;arrematado&quot; (ou seja, comprado), ele continua na nossa plataforma com o status de vencedor,
-                        indicando que outro cliente conseguiu dar um lance durante o pregão ou catálogo.
-                    </span>
-                </section>
-
-            }
-
-            {/* RODAPÉ ------------------------------------------------------------------------------------------------------------------------- */}
-            <footer className="w-full h-[23%] flex justify-center 
-            items-center bg-gradient-to-r from-[#262626] to-[#2f2036] 
-            bottom-0 absolute">
-                <img src={currentAdvertiser.url_profile_cover}
-                    className="w-[200px] h-[200px] border-[3px] border-[#fff] object-cover rounded-full bg-[#9c9c9c]" />
-            </footer>
-
         </div>
-    )
-
+    );
 }
 
 export default ProductDetailAdv;
