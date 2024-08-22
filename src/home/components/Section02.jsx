@@ -1,6 +1,6 @@
 import axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
-import videoSource from '../../media/videos/auk_display_video.mp4'; // Importa o vídeo diretamente
+import videoSource from '../../media/videos/auk_display_video2.mp4'; // Importa o vídeo diretamente
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
