@@ -1,80 +1,69 @@
 import axios from "axios"
-import CardContrast from "../micro-components/CardContrast";
-import backgroundFloor from "../../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg"
+import { Swiper, SwiperSlide } from 'swiper/react';
+import videoSource from '../../media/videos/auk_display_video.mp4'; // Importa o vídeo diretamente
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
 
 function Section02() {
-  const [liveAuctions, setLiveAuctions] = useState([])
+  const [products, setProducts] = useState([])
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    getAllAuctions()
+    getProducts()
   }, [])
 
-  const getAllAuctions = async () => {
+  const getProducts = async () => {
 
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
       params: {
-        status: 'live'
+        take: 12,
+        bid_count_order: 'true'
       }
-    }).then(response => {
-      setLiveAuctions(response.data)
-    }).catch(error => {
-      console.error(error.message)
-    });
+    }).then(result => {
+      // console.log("products -> ", result.data)
+      setProducts(result.data)
+    })
 
   }
 
-  useEffect(() => { }, [liveAuctions])
 
   return (
-    <section className="bg-[#D9D9D9] w-full h-[100vh] 
-    flex flex-col justify-center items-center
-    overflow-x-hidden overflow-y-hidden p-3 gap-2">
+    <section className="bg-[#ececec] w-full h-[100vh] flex flex-col justify-center items-center overflow-x-hidden overflow-y-hidden p-3 gap-2">
 
-      <h2 className="bg-[#E2E2E2] lg:w-[70%] w-[98%] h-[48px] p-1
-      flex justify-start items-center shadow-lg shadow-[#16161622] 
-      text-[#153f5f] text-[22px] font-bold leading-[14px] rounded-md">
-        NOSSOS DESTAQUES (ao vivo)
-      </h2>
+      <div className="w-full h-[60vh] flex justify-around items-center">
 
-      <div className=" flex lg:flex-row flex-col lg:w-[70%] w-[98%] h-full justify-between items-center overflow-hidden gap-1">
+        <span className='text-[#242424]'>pregão com alta tecnologia e velocidade</span>
 
-        <div className="lg:w-[60%] w-full h-[90%] bg-[#031a30] flex flex-col 
-        justify-center items-center relative rounded-md gap-6 overflow-hidden">
+        <video className='w-[60%] max-h-[96%] object-cover rounded-md brightness-[1.2]' autoPlay loop muted>
+          <source src={videoSource} type="video/mp4" /> {/* Atualize para mp4 e use a variável importada */}
+          Your browser does not support the video tag.
+        </video>
 
-          <img src={backgroundFloor} alt="" className="w-full h-full object-cover absolute opacity-30" />
+      </div>
 
-          <h1 className="text-left text-[#fff] text-[22px] font-bold leading-[2px] mt-6 w-[90%] z-20" >
-            Anuncie Seus Produtos em Nossos Leilões!
-          </h1>
-
-          <h1 style={{
-            textShadow: "2px 1px 3px #15151586"
-          }} className="w-[90%] text-[36px] z-20">
-            Seus produtos bem apresentados!
-          </h1>
-
-          <div className="w-[90%] text-[#D7D7D7] text-[16px] text-justify z-20">
-            Tem produtos para leilão? Nossa plataforma moderna e inovadora é o lugar perfeito para você! Selecionamos cautelosamente nossos anunciantes para garantir
-            a melhor experiência de compra e venda. <br />
-            Aproveite a oportunidade de alcançar um público amplo e diversificado. Entre em contato conosco e descubra como podemos ajudar a
-            destacar seus itens. Nosso time está pronto para fornecer todos os detalhes e orientá-lo no processo.
-          </div>
-
-          <button onClick={() => navigate("/advertiser/form/subscription")} className="bg-white flex w-[90%] p-2 text-[18px] rounded-md text-zinc-600 z-20">
-            entrar em contato
-          </button>
-
-        </div>
-
-        <div className="flex lg:w-[40%] w-full h-[90%] flex-col justify-start items-center 
-        bg-zinc-100 overflow-y-auto p-3 gap-3 rounded-md">
-          {liveAuctions.map((auction, index) => (
-            <CardContrast key={index} auction={auction} />
-          ))}
+      <div className="w-[98%] flex flex-col gap-1 h-[30vh] bg-[#ffffff] justify-start items-start
+      rounded-md shadow-lg shadow-[#09090926] overflow-hidden p-3">
+        <span className="text-[22px] font-bold text-[#1c1c1c]">Produtos com mais lances da semana</span>
+        <div className="flex justify-start items-center w-full h-[30vh]">
+          <ArrowLeft className='cursor-pointer text-[#121212]' sx={{ fontSize: "63px" }} />
+          <Swiper spaceBetween={10}
+            slidesPerView={5}
+            freeMode={true}
+            watchSlidesProgress={true}
+          >
+            {
+              products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <div onClick={() => navigate(`/advertiser/home/product/${product.id}`)} className="flex justify-around items-center gap-3 overflow-hidden cursor-pointer 
+                  flex-1 h-full bg-[#ffffff] rounded-md shadow-md shadow-[#18181887]">
+                    <img src={product.cover_img_url} alt={product.title} className='w-[100%] h-[20vh] object-cover' />
+                  </div>
+                </SwiperSlide>
+              ))
+            }
+          </Swiper>
         </div>
       </div>
 

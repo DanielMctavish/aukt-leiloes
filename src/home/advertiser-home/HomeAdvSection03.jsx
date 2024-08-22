@@ -3,10 +3,13 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import axios from 'axios'
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function HomeAdvSection03({ currentAdvertiser, selectedAuction }) {
     const [firstAuction, setFirstAuction] = useState({})
     const [productList, setProductList] = useState([])
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         getAdvertiserAuctions()
@@ -73,10 +76,11 @@ function HomeAdvSection03({ currentAdvertiser, selectedAuction }) {
 
                             return (
                                 <SwiperSlide key={product.id}>
-                                    <div className="flex justify-center items-center slide-item-img 
-                                    transition-all duration-[1s] z-[99] h-[300px] lg:max-w-[200px] w-full
-                                    overflow-hidden rounded-[12px] shadow-lg shadow-[#0f0f0fbf] 
-                                    cursor-pointer hover:brightness-[1.6]">
+                                    <div onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
+                                        className="flex justify-center items-center slide-item-img 
+                                        transition-all duration-[1s] z-[99] h-[300px] lg:max-w-[200px] w-full
+                                        overflow-hidden rounded-[12px] shadow-lg shadow-[#0f0f0fbf] 
+                                        cursor-pointer hover:brightness-[1.6]">
                                         <img src={product.cover_img_url} alt="" className="h-[380px] w-full object-cover" />
                                     </div>
                                 </SwiperSlide>

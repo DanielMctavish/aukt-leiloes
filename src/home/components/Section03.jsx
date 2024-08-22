@@ -1,63 +1,64 @@
-import { useState } from "react";
-import backgroundCategorie from "../../media/backgrounds/background-categories.jpg"
-import CardMarked from "../micro-components/CardMarked";
+import axios from "axios"
+import diversidadeDisplay from "../../media/display/diversidade.png"
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "@mui/icons-material"
 
 
 function Section03() {
-  const [activeCategory] = useState(null);
+  const [products, setProducts] = useState([])
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    getProducts()
+  }, [])
+
+
+  const getProducts = async () => {
+
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+      params: {
+        take: 8,
+      }
+    }).then(result => {
+      // console.log("products -> ", result.data)
+      setProducts(result.data)
+    })
+
+  }
 
   return (
-    <section className="w-full lg:h-[143vh] h-[200vh] mb-0 sm:mt-0 mt-0 flex flex-col ">
+    <section className="w-full h-[100vh] flex flex-col justify-center items-center gap-2">
 
-      {/* LEILÕES MARCADOS */}
-      <div className="w-full lg:h-[43vh] h-[100vh] bg-[#1E1E1E] flex lg:flex-row items-center 
-      justify-between flex-col">
-
-        <div className="lg:w-[26%] w-full h-full text-[#fff] 
-        text-shadow-[2px] bg-zinc-700 flex flex-col justify-center items-center p-3">
-
-          <h2 className="text-[34px] font-semibold leading-normal tracking-wide">
-            Leilões Marcados
-          </h2>
-          <span className="text-[#D7D7D7] text-[14px] flex h-auto w-[90%] text-justify">
-            Nossa plataforma oferece uma seleção exclusiva de leilões com produtos anunciados por nossos parceiros e anunciantes cuidadosamente selecionados.
-            Garantimos a qualidade e a procedência dos itens, proporcionando a você uma experiência de compra segura e confiável.
-          </span>
-          <span className="text-[#D7D7D7] text-[16px] flex h-auto w-[90%] text-justify mt-[1vh]">
-            Nossos leilões apresentam uma variedade de produtos únicos e de alto valor, todos verificados para atender aos nossos rigorosos padrões.
-          </span>
+      <div className="w-[98%] flex flex-col gap-1 h-[30vh] bg-[#ffffff] justify-start items-start
+      rounded-md shadow-lg shadow-[#09090926] overflow-hidden p-3">
+        <span className="text-[22px] font-bold text-[#1c1c1c]">Produtos mais recentes</span>
+        <div className="flex justify-start items-center w-full h-[30vh]">
+          <ArrowLeft className='cursor-pointer text-[#121212]' sx={{ fontSize: "63px" }} />
+          <Swiper spaceBetween={10}
+            slidesPerView={5}
+            freeMode={true}
+            watchSlidesProgress={true}
+          >
+            {
+              products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <div onClick={() => navigate(`/advertiser/home/product/${product.id}`)} className="flex justify-around items-center gap-3 overflow-hidden cursor-pointer 
+                  flex-1 h-full bg-[#ffffff] rounded-md shadow-md shadow-[#18181887]">
+                    <img src={product.cover_img_url} alt={product.title} className='w-[100%] h-[20vh] object-cover' />
+                  </div>
+                </SwiperSlide>
+              ))
+            }
+          </Swiper>
         </div>
-
-        <CardMarked />
-
       </div>
 
-      {/* CATEGORIAS */}
-      <div
-        className="w-full h-[100vh] lg:flex lg:flex-row flex-col lg:items-center lg:justify-center relative"
-      >
-
-        <img src={backgroundCategorie} alt="" className="w-full h-full object-cover absolute" />
-
-        <div className="lg:w-[80%] w-full text-[#fff] lg:ml-16 ml-6 text-shadow-[2px]">
-
-        </div>
-
-
-        <div className="lg:w-[20%] w-full lg:h-full h-[100vh]  bg-[#f5f5f5b4] z-10 backdrop-blur-[12px]">
-
-          <div className="items-center justify-center mb-4 lg:mb-0 lg:pl-7 pl-20 pt-10  ">
-            <span
-              className={`text-[#828282] text-[16px] block leading-normal cursor-pointer mb-2 ${activeCategory === "Joia" ? "active" : ""
-                }`}
-            >
-              Jóias e tesouros
-            </span>
-
-          </div>
-        </div>
-
+      <div className="w-[98%] flex gap-1 h-[60vh] bg-[#ffffff] justify-start items-start
+      rounded-md shadow-lg shadow-[#09090926] overflow-hidden p-3">
+        <img src={diversidadeDisplay} alt="mãos unidas" className="w-[60%] h-[98%] object-cover rounded-md"/>
       </div>
 
     </section>

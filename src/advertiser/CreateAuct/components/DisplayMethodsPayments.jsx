@@ -49,9 +49,9 @@ function DisplayMethodsPayments({ currentAuct }) {
     return (
         <div ref={refMain} className="w-full sm:w-1/3 h-full bg-white hover:z-50 hover:scale-105 transition-transform 
         duration-300 ease-in-out flex flex-col justify-around items-start overflow-y-auto rounded-lg shadow-2xl p-6 relative">
-            <h2 className="font-bold text-xl mb-2">Métodos de pagamento aceitos</h2>
+            <h2 className="font-bold text-xl mb-2 w-[300px]">Selecione os métodos de pagamento aceitos</h2>
             <div className="flex w-full flex-wrap justify-start items-center gap-4 text-white">
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md 
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md cursor-pointer
                     ${methodsPayments.includes("Pix") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
@@ -64,7 +64,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <PixOutlined />
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md 
+                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md cursor-pointer 
                     ${methodsPayments.includes("Credit") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
@@ -78,7 +78,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                 </label>
 
                 <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Debit") ?
-                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
+                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out cursor-pointer`}>
                     <input
                         type="checkbox"
                         name="method"
@@ -90,7 +90,7 @@ function DisplayMethodsPayments({ currentAuct }) {
                     <CreditCard />
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Ticket") ?
+                <label className={`inline-flex cursor-pointer items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Ticket") ?
                     'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
                     <input
                         type="checkbox"
