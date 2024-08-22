@@ -6,6 +6,7 @@ import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
 import Submenu from "../navigation/Submenu";
+import Section01_1 from "./Section01_1";
 
 function Home() {
 
@@ -26,6 +27,7 @@ function Home() {
       <Submenu/>
 
       <Section01 />
+      <Section01_1/>
       <Section02 />
       <Section03 />
       <Footer />
