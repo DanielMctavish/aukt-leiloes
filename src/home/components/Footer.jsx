@@ -4,6 +4,14 @@ import React from "react";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { ArrowForward, Email, LocationCity, Phone } from "@mui/icons-material";
 
+// Importing images from footer-imgs
+import img1 from "../../media/footer-imgs/car_insta_01.png";
+import img2 from "../../media/footer-imgs/car_insta_02.png";
+import img3 from "../../media/footer-imgs/car_insta_03.png";
+import img4 from "../../media/footer-imgs/car_insta_04.png";
+import img5 from "../../media/footer-imgs/car_insta_05.png";
+import img6 from "../../media/footer-imgs/car_insta_06.png";
+
 function Footer() {
   return (
     <section className="w-full h-[60vh] border-t-[10px] border-[#1E1E1E] bg-[#012038] overflow-hidden relative">
@@ -68,9 +76,17 @@ function Footer() {
           <span className=" w-full border-b-[1px] border-[#ffffff36] pb-[3vh]">Seu ID do email é confidencial.</span>
         </div>
 
-        <div className="flex flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh] bg-white p-[6vh]">
-          element 4
-          <span>Instagram</span>
+        <div className="flex flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh] p-[6vh] gap-3">
+          <span className="font-bold  text-white text-[16px]">Instagram</span>
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <img src={img1} alt="Instagram 1" className="w-full h-[100px] object-cover rounded-md" />
+            <img src={img2} alt="Instagram 2" className="w-full h-[100px] object-cover rounded-md" />
+            <img src={img3} alt="Instagram 3" className="w-full h-[100px] object-cover rounded-md" />
+            <img src={img4} alt="Instagram 4" className="w-full h-[100px] object-cover rounded-md" />
+            <img src={img5} alt="Instagram 5" className="w-full h-[100px] object-cover rounded-md" />
+            <img src={img6} alt="Instagram 6" className="w-full h-[100px] object-cover rounded-md" />
+          </div>
+          <span className="cursor-pointer">veja mais</span>
         </div>
       </div>
 
