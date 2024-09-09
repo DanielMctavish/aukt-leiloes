@@ -10,12 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.14.14",
-    "@mui/material": "^5.14.14",
+    "@mui/material": "^6.0.2",
     "@mui/styled-engine": "^5.14.14",
     "@mui/styled-engine-sc": "^6.0.0-alpha.2",
+    "@mui/x-charts": "^7.15.0",
     "@reduxjs/toolkit": "^2.1.0",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.7",

@@ -1,31 +1,65 @@
-import { GraphElement } from "./GraphElement"
-
+import { useSelector } from 'react-redux';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { useEffect, useState } from 'react';
 
 function PanelGraph() {
+    const selectedAuction = useSelector((state) => state.selectedToGraph.auction);
+    const [bidsData, setBidsData] = useState([]);
+
+    useEffect(() => {
+        const fetchBidsData = () => {
+            if (selectedAuction) {
+                try {
+                    const bids = [];
+                    for (const product of selectedAuction.product_list) {
+                        console.log("Product:", product); // Log do produto para depuração
+                        if (product.Bid) {
+                            bids.push({
+                                productId: product.id,
+                                productName: product.name || product.title || `Lote ${product.id}`, // Verifique diferentes campos para o nome do produto
+                                bidCount: product.Bid.length,
+                            });
+                        }
+                    }
+                    setBidsData(bids);
+                } catch (error) {
+                    console.error('Erro ao processar dados de lances:', error);
+                }
+            }
+        };
+
+        fetchBidsData();
+    }, [selectedAuction]);
+
+    const processDataForChart = (bids) => {
+        const xAxisData = bids.map((_, index) => index + 1); // Usar índices numéricos para representar os lotes
+        const seriesData = bids.map(bid => bid.bidCount);
+
+        return { xAxisData, seriesData };
+    };
+
+    const { xAxisData, seriesData } = processDataForChart(bidsData);
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center relative">
-            <div className="w-full  flex justify-end items-center gap-3 cursor-pointer relative text-zinc-600">
-                <select name="" id="" className="p-1 w-[120px] bg-transparent">
-                    <option value="">jan</option>
-                    <option value="">fev</option>
-                    <option value="">mar</option>
-                    <option value="">abr</option>
-                    <option value="">maio</option>
-                    <option value="">jun</option>
-                    <option value="">jul</option>
-                    <option value="">ago</option>
-                    <option value="">set</option>
-                    <option value="">out</option>
-                    <option value="">nov</option>
-                    <option value="">dez</option>
-                </select>
-            </div>
-
-            <GraphElement />
-
+            <LineChart
+                xAxis={[{ data: xAxisData, label: 'Lote' }]}
+                series={[
+                    {
+                        data: seriesData,
+                        label: 'Quantidade de Lances',
+                        area: true,
+                        color: '#21b3cd',
+                    },
+                ]}
+                width={900}
+                height={600}
+                margin={{ top: 50, right: 50, bottom: 50, left: 50 }}
+                grid={{ x: true, y: true }}
+                tooltip
+            />
         </div>
-    )
+    );
 }
 
-export default PanelGraph
+export default PanelGraph;

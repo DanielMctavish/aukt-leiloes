@@ -10,12 +10,11 @@ import { useSelector } from "react-redux";
 
 function FloorBids({ timer, duration, auct_id, productId }) {
     const [currentProduct, setCurrentProduct] = useState({})
-    const [bidMessageSocket, setBidMessageSocket] = useState()
+    const [bidMessageSocket, setBidMessageSocket] = useState([])
     const stateBid = useSelector(state => state.bidLive)
     const [bidsCards, setBidsCards] = useState([])
 
     useEffect(() => {
-        // const product_id = stateBid.bidLive.product_id
         if (productId)
             getCurrentProduct(productId)
         webSocketFlow()
@@ -25,27 +24,25 @@ function FloorBids({ timer, duration, auct_id, productId }) {
     const getCurrentProduct = async (product_id) => {
         setBidsCards([])
         try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
-                .then(result => {
-                    setCurrentProduct(result.data)
-                    setBidsCards(result.data.Bid);
-                })
+            const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
+            setCurrentProduct(result.data)
+            setBidsCards(result.data.Bid)
         } catch (error) {
-            console.log("error ao tentar encontrar produto ", error.message);
+            console.log("error ao tentar encontrar produto ", error.message)
         }
     }
 
     const webSocketFlow = () => {
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`)
         // ouvindo mensagem de leilão finalizado
         socket.on(`${auct_id}-bid`, (message) => {
             setBidMessageSocket(message.data)
-        });
+        })
 
         // Limpar o WebSocket quando o componente for desmontado
         return () => {
-            socket.disconnect();
-        };
+            socket.disconnect()
+        }
     }
 
     return (
@@ -56,14 +53,9 @@ function FloorBids({ timer, duration, auct_id, productId }) {
         border-[2px] border-[#e3e3e3] z-[2] gap-1 overflow-y-auto">
 
             <div className="flex flex-col w-full h-[80%] overflow-y-auto">
-                {
-                    bidsCards &&
-                    bidsCards.map((bid, index) => {
-                        return (
-                            <BidCard key={index} bid={bid} />
-                        )
-                    })
-                }
+                {bidsCards && [...bidsCards].reverse().map((bid, index) => (
+                    <BidCard key={index} bid={bid} />
+                ))}
             </div>
 
             <CronCard

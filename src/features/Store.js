@@ -11,6 +11,11 @@ import { resumeAuctSliceReducer } from './auct/ResumeAuctBalance';
 import { uploadConfirmationReducer } from "./product/UploadFinished"
 import { bidLiveSliceReducer } from './Bids/BidLive';
 import { themeSliceReducer } from './theme/PlataformTheme';
+import { auctLiveSliceReducer } from './auct/LiveSelected';
+import { selectedToGraphReducer } from './auct/SelectedToGraph';
+import { controlButtonsReducer } from './auct/controlButtonsSlice';
+import { auctionListReducer } from './auct/AuctionListSlice';
+import { currentProductReducer } from './auct/CurrentProductSlice';
 
 const store = configureStore({
     reducer: {
@@ -25,9 +30,13 @@ const store = configureStore({
         auctResume: resumeAuctSliceReducer,
         finishedUpload: uploadConfirmationReducer,
         bidLive: bidLiveSliceReducer,
-        theme: themeSliceReducer
+        theme: themeSliceReducer,
+        live: auctLiveSliceReducer,
+        selectedToGraph: selectedToGraphReducer,
+        controlButtons: controlButtonsReducer,
+        auctionList: auctionListReducer,
+        currentProduct: currentProductReducer
     }
 })
-
 
 export default store;

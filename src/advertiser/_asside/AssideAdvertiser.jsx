@@ -1,13 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import logo_aukt_blue from "../../media/logos/logos-auk/aukt_blue.png";
 import logo_auk_white from "../../media/logos/logos-auk/logo_model01_white.png"
-import AppsIcon from "@mui/icons-material/Apps";
-import { Leaderboard, Event, Gavel, Web } from "@mui/icons-material"
+import { Leaderboard, Event, Gavel, Web, Visibility } from "@mui/icons-material"
 import {
-  Dashboard,
-  LocalAtm,
   Group,
   AccountBalanceWallet,
   Person,
@@ -17,7 +14,10 @@ import {
 import { useNavigate } from "react-router-dom";
 
 function AssideAdvertiser(props) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [desktopMenuVisible, setDesktopMenuVisible] = useState(true)
+  const [intervalMouse, setIntervalMouse] = useState(null)
+
+  const menuDesktopRef = useRef()
 
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
@@ -28,20 +28,10 @@ function AssideAdvertiser(props) {
     }
   }, [])
 
-  //console.log('observando props... ->>', props.MenuSelected);
-
   const navigate = useNavigate();
 
   function handleClick(route) {
     navigate(route);
-  }
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  }
-
-  const handleVoltarClick = () => {
-    setIsSidebarOpen(false);
   }
 
   const handleLogoutAdveriser = () => {
@@ -49,209 +39,161 @@ function AssideAdvertiser(props) {
     navigate("/")
   }
 
-  const iconStyle = {
-    fontSize: "64px",
+  const handleMouseLeave = () => {
+    const interval = setTimeout(() => {
+      setDesktopMenuVisible(false)
+    }, 200);
+    setIntervalMouse(interval)
   }
 
+  const handleMouseEnter = () => {
+    clearInterval(intervalMouse)
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        setDesktopMenuVisible(false)
+      }
+    })
+  }, [])
+
   return (
-    <div className="flex">
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden p-4 text-[#191F2F] block cursor-pointer"
-      >
-        <AppsIcon style={{ fontSize: "40px" }} />
-      </button>
-      {isSidebarOpen ? (
-        <nav className="bg-[#D8DEE8;] h-screen z-30 fixed top-0 p-4 w-full">
-          <div className="bg-[#012038] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
-            <div className="flex flex-wrap justify-center items-center gap-6 ">
 
-              <button
-                onClick={() => handleClick("/advertiser/dashboard")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <Dashboard style={iconStyle} />
-                <span className="mt-1 text-xs">Dashboard</span>
-              </button>
+    <>
+      <span onClick={() => setDesktopMenuVisible(!desktopMenuVisible)}
+        className={`fixed z-[9999] bg-[#fff] hover:bg-[#e4e4e4d4] hover:w-[60px] hover:h-[60px] top-1 left-1 cursor-pointer rounded-[12px] 
+        ${desktopMenuVisible ? 'hidden w-[60px] h-[60px]' : 'flex w-[40px] h-[40px]'} transition-all duration-[.3s]
+        justify-center items-center shadow-lg shadow-[#0b0b0b18]`}>
 
-              <button
-                onClick={() => handleClick("/admin/create-auct")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <LocalAtm style={iconStyle} />
-                <span className="mt-1 text-xs">Criar Evento</span>
-              </button>
+        <img src={logo_aukt_blue} alt="" className="w-[30px] h-[30px] object-cover" />
 
-              <button
-                onClick={() => handleClick("/admin/advertisers")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <Group style={iconStyle} />
-                <span className="mt-1 text-xs">Leilões</span>
-              </button>
+      </span>
+      <div className={`flex h-[100vh] fixed left-0 z-[999] lg:w-auto w-[100%] 
+    transition-all duration-[1s] ${desktopMenuVisible ? 'ml-0' : 'ml-[-200px]'}`}>
 
-              <button
-                onClick={() => handleClick("/advertiser/auctions-controls")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <Gamepad style={iconStyle} />
-                <span className="mt-1 text-xs">Controles</span>
-              </button>
 
-              <button
-                onClick={() => handleClick("/advertiser/arrematantes")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <Gavel style={iconStyle} />
-                <span className="mt-1 text-xs">Arrematantes</span>
-              </button>
 
-              <button
-                onClick={() => handleClick("/admin/clients")}
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-              >
-                <Group style={iconStyle} />
-                <span className="mt-1 text-xs">Clientes</span>
-              </button>
+        <nav
+          ref={menuDesktopRef}
+          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleMouseEnter}
+          className={`lg:min-w-[273px] w-[70%] h-[100%] lg:block bg-[#012038eb] transition-all duration-[0.6s] 
+          ${desktopMenuVisible ? 'flex ml-[0px]' : 'hidden ml-[-300px]'} 
+          flex-col justify-start items-center gap-3 p-2 relative backdrop-blur-[12px]`}
+        >
 
-              <button
-                id="menu-5"
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-                onClick={() => handleClick("/admin/wallet")}
-              >
-                <AccountBalanceWallet />
-                <span>Carteira</span>
-              </button>
+          <span onClick={() => setDesktopMenuVisible(!desktopMenuVisible)}
+            className="absolute text-white top-1 right-1 cursor-pointer">
+            <Visibility />
+          </span>
 
-              <button
-                id="menu-7"
-                className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
-                onClick={handleLogoutAdveriser}
-              >
-                <Logout style={iconStyle} />
-                <span className="mt-1 text-xs">Logout</span>
-              </button>
+          <section className="w-full flex justify-center items-center p-2">
+            <img
+              src={logo_aukt_blue}
+              alt="Logo-auk"
+              className="w-[100px] object-cover cursor-pointer hover:brightness-[1.2]"
+              onClick={() => { navigate("/") }}
+            />
+          </section>
 
-            </div>
-            <div className="absolute bottom-6 left-6 mb-6 ml-7">
-              <button
-                onClick={handleVoltarClick}
-                className="text-[#FFFFFF] text-[15px]"
-              >
-                Voltar
-              </button>
-            </div>
+          <button
+            id="menu-1"
+            className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/dashboard")}
+          >
+            <Leaderboard />
+            <span>Dashboard</span>
+          </button>
+
+          <button
+            id="menu-2"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/create-auct")}
+          >
+            <Event />
+            <span>Criar Evento</span>
+          </button>
+
+          <button
+            id="menu-3"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
+            onClick={() => handleClick("/advertiser/auctions")}
+          >
+            <img src={logo_auk_white} alt="" className="object-cover w-[40px] ml-[-10px]" />
+            <span>Leilões</span>
+          </button>
+
+          <button
+            id="menu-4"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
+            onClick={() => handleClick("/advertiser/auctions-controls")}
+          >
+            <Gamepad />
+            <span>Controles</span>
+          </button>
+
+          <button
+            id="menu-5"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/arrematantes")}
+          >
+            <Gavel />
+            <span>Arrematantes</span>
+          </button>
+
+          <button
+            id="menu-6"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/clients")}
+          >
+            <Group />
+            <span>Clientes</span>
+          </button>
+
+          <button
+            id="menu-7"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/wallet")}
+          >
+            <AccountBalanceWallet />
+            <span>Carteira</span>
+          </button>
+
+          <button
+            id="menu-8"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/templates")}
+          >
+            <Web />
+            <span>Site e template</span>
+          </button>
+
+          <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7 ">
+            <span>Configuração e suporte</span>
           </div>
+
+          <button
+            id="menu-9"
+            className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/profile")}
+          >
+            <Person />
+            <span>Perfil</span>
+          </button>
+
+          <button
+            id="menu-10"
+            onClick={handleLogoutAdveriser}
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+          >
+            <Logout />
+            <span>Logout</span>
+          </button>
+
         </nav>
-      ) : null}
-      <nav
-        className={` lg:min-w-[273px] h-[100vh] lg:block hidden bg-[#012038] flex-col justify-start items-center gap-3 p-2`}
-      >
-        <section className="w-full flex justify-center items-center p-2">
-          <img
-            src={logo_aukt_blue}
-            alt="Logo-auk"
-            className="w-[100px] object-cover cursor-pointer hover:brightness-[1.2]"
-            onClick={() => { navigate("/") }}
-          />
-        </section>
-
-        <button
-          id="menu-1"
-          className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/dashboard")}
-        >
-          <Leaderboard />
-          <span>Dashboard</span>
-        </button>
-
-        <button
-          id="menu-2"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/create-auct")}
-        >
-          <Event />
-          <span>Criar Evento</span>
-        </button>
-
-        <button
-          id="menu-3"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
-          onClick={() => handleClick("/advertiser/auctions")}
-        >
-          <img src={logo_auk_white} alt="" className="object-cover w-[40px] ml-[-10px]" />
-          <span>Leilões</span>
-        </button>
-
-        <button
-          id="menu-4"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md relative"
-          onClick={() => handleClick("/advertiser/auctions-controls")}
-        >
-          <Gamepad />
-          <span>Controles</span>
-        </button>
-
-        <button
-          id="menu-5"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/arrematantes")}
-        >
-          <Gavel />
-          <span>Arrematantes</span>
-        </button>
-
-        <button
-          id="menu-6"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/clients")}
-        >
-          <Group />
-          <span>Clientes</span>
-        </button>
-
-        <button
-          id="menu-7"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/wallet")}
-        >
-          <AccountBalanceWallet />
-          <span>Carteira</span>
-        </button>
-
-        <button
-          id="menu-8"
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/templates")}
-        >
-          <Web />
-          <span>Site e template</span>
-        </button>
-
-        <div className="w-full flex justify-start items-center p-2 text-zinc-300 mt-7 ">
-          <span>Configuração e suporte</span>
-        </div>
-
-        <button
-          id="menu-9"
-          className="w-full flex justify-between items-center p-2 text-white mt-6 border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-          onClick={() => handleClick("/advertiser/profile")}
-        >
-          <Person />
-          <span>Perfil</span>
-        </button>
-
-        <button
-          id="menu-10"
-          onClick={handleLogoutAdveriser}
-          className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
-        >
-          <Logout />
-          <span>Logout</span>
-        </button>
-
-      </nav>
-    </div>
+      </div>
+    </>
 
   );
 }

@@ -41,22 +41,12 @@ export const AdvertiserAuctions = () => {
                     <input type="text" placeholder="pesquisar ID" className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />
                 </div>
                 <section className="w-full h-[100vh] flex p-2 overflow-hidden">
-                    {/* {
-                        aucts.length === 0 ?
-                            <div className="w-full h-[100%] bg-white
-                            rounded-2xl 
-                            flex justify-center items-center 
-                            shadow-md shadow-[#1113]">
 
-                                <span>nenhum evento criado...</span>
-
-                            </div> :
-                            
-                    } */}
-                    <div className="w-[99%] bg-[#7a7a7a18] flex justify-start items-start 
-                    overflow-x-auto relative rounded-md shadow-lg shadow-[#1313135a]">
+                    <div className="w-full bg-[#ffffff] flex justify-start items-start relative 
+                    overflow-x-auto rounded-md shadow-lg shadow-[#1313135a] p-2">
                         <TableAdvertiserAucts />
                     </div>
+
                 </section>
             </section>
         </div>

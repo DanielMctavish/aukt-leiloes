@@ -3,38 +3,33 @@
 import { useDispatch } from "react-redux";
 import { Paid } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios"
+import axios from "axios";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
 function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
-    const [isLoadingBid, setIsloadingBid] = useState(false)
-    const [clientSession, setClientSession] = useState()
+    const [isLoadingBid, setIsloadingBid] = useState(false);
+    const [clientSession, setClientSession] = useState();
     const [deadline, setDeadline] = useState(1);
-    const [percentual, setPercentual] = useState(50)
-    const [isFinishedLot,] = useState(false)
+    const [percentual, setPercentual] = useState(50);
+    const [isFinishedLot,] = useState(false);
     const refBarDeadline = useRef();
-    //refBarDeadline.current.style.width = `0%`;
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        getClientSession()
-    }, [])
+        getClientSession();
+    }, []);
 
     useEffect(() => {
         const newDeadline = duration - currentTime;
         setDeadline(newDeadline);
-        setPercentage(newDeadline)
-
-        // if (newDeadline <= 0 && auct_id) {
-        //     setFinishLot(true);
-        // }
+        setPercentage(newDeadline);
 
         if (newDeadline <= 10) {
             refBarDeadline.current.style.transition = `10s`;
             refBarDeadline.current.style.width = `100%`;
-            refBarDeadline.current.style.background = "#b70900"
-            refBarDeadline.current.style.color = "#fbfbfb"
+            refBarDeadline.current.style.background = "#b70900";
+            refBarDeadline.current.style.color = "#fbfbfb";
         } else {
             refBarDeadline.current.style.width = `0%`;
             refBarDeadline.current.style.transition = `1s`;
@@ -42,10 +37,8 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
 
     }, [currentTime, duration]);
 
-
-
     const getClientSession = async () => {
-        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
+        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
         if (currentSession)
             try {
                 await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, {
@@ -53,45 +46,43 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                         'Authorization': `Bearer ${currentSession.token}`
                     }
                 }).then((response) => {
-                    setClientSession(response.data)
-                })
+                    setClientSession(response.data);
+                });
             } catch (error) {
                 console.log(error.message);
             }
-    }
+    };
 
     const handleBidAuctionLive = async () => {
-        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
-        const bidValue = initial_value + 20
-        setIsloadingBid(true)
+        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
+        const bidValue = initial_value + 20;
+        setIsloadingBid(true);
 
         try {
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
                 value: parseFloat(bidValue),
                 client_id: clientSession.id,
                 auct_id: auct_id,
-                product_id: currentProduct.id
+                product_id: currentProduct.id,
+                Client: clientSession, // Inclua o Client
+                Product: currentProduct // Inclua o Product
             }, {
                 headers: {
                     "Authorization": `Bearer ${currentSession.token}`
                 }
             }).then((response) => {
-                console.log("lance live dado com sucesso -> ", response.data)
-                setIsloadingBid(false)
+                console.log("lance live dado com sucesso -> ", response.data);
+                setIsloadingBid(false);
                 dispatch(addBidLive({
                     value: bidValue,
                     product_id: currentProduct.id
-                }))
-            })
-
-
-
+                }));
+            });
         } catch (error) {
-            setIsloadingBid(false)
-            console.log("error at try bid live: ", error.message)
+            setIsloadingBid(false);
+            console.log("error at try bid live: ", error.message);
         }
-
-    }
+    };
 
     const setPercentage = (newDeadline) => {
         const percentage = (newDeadline / duration) * 100;

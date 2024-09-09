@@ -21,7 +21,6 @@ export const AdvertiserEdtiAuct = () => {
     const stateAuctToEdit = useSelector(state => state.auctEdit)
 
     const [progressBar, setProgressBar] = useState(0)
-    const [aucts, setAucts] = useState([])
 
     const navigate = useNavigate()
 
@@ -29,18 +28,10 @@ export const AdvertiserEdtiAuct = () => {
     const loadScreen = useRef()
     const logoElement = useRef()
 
-    useEffect(() => {
-
-        setAucts(state)
-
-    }, [state, stateAuctToEdit])
+    useEffect(() => {}, [state, stateAuctToEdit])
 
 
     const handleEditAuct = async () => {
-
-        console.log('observando update dos states -> ', state)
-        console.log('leilão selecionado -> ', stateCurrentEditAuk.selectedAuct)
-
 
         //Load Operation -------------------------------------------------------------------------------------------------------------------------------
 
@@ -81,21 +72,21 @@ export const AdvertiserEdtiAuct = () => {
         let currentAuctNanoId
         // UPDATE AUCT --> Title | tags | categorie | description | terms_conditions |
         await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${stateCurrentEditAuk.selectedAuct}`, {
-            title: aucts.title,
-            tags: aucts.tags,
+            title: state.title,
+            tags: state.tags,
+            categorie: state.categorie,
             auct_cover_img: !currentUploadedImage ? state.auct_cover_img : currentUploadedImage,
-            descriptions_informations: aucts.descriptions_informations,
-            terms_conditions: aucts.terms_conditions,
-        }, configAuth)
-            .then(response => {
-                console.log('resposta ao editar leilão -> ', response.data);
-                setProgressBar(100)
-                currentAuctId = response.data.currentAuct.id
-                currentAuctNanoId = response.data.currentAuct.nano_id
-            }).catch(err => {
-                setProgressBar(100)
-                console.log('erro ao editar o leilão -> ', err);
-            })
+            descriptions_informations: state.descriptions_informations,
+            terms_conditions: state.terms_conditions,
+        }, configAuth).then(response => {
+            console.log('resposta ao editar leilão -> ', response.data);
+            setProgressBar(100)
+            currentAuctId = response.data.currentAuct.id
+            currentAuctNanoId = response.data.currentAuct.nano_id
+        }).catch(err => {
+            setProgressBar(100)
+            console.log('erro ao editar o leilão -> ', err);
+        })
 
 
         refGeneralBody.current.style.display = 'flex';
