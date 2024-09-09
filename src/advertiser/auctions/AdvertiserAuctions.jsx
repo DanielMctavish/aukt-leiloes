@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom"
 import getAuctionsList from "../functions/GetAuctionsList"
 import { listAuct } from "../../features/auct/AuctList"
 
-
 export const AdvertiserAuctions = () => {
     const [auctList, setAucts] = useState([])
     const navigate = useNavigate()
@@ -24,12 +23,12 @@ export const AdvertiserAuctions = () => {
     }, [])
 
     useEffect(() => {
-
         dispatch(listAuct(auctList))
-
     }, [auctList])
 
-
+    const handleNavigateToDetails = (advertiser_id, auct_id) => {
+        navigate(`/advertiser/auctions-details/${advertiser_id}/${auct_id}`)
+    }
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative overflow-hidden">
@@ -38,15 +37,14 @@ export const AdvertiserAuctions = () => {
                 <NavAdvertiser path='anunciante > leilões' />
                 {/* PESQUISAS */}
                 <div className="w-[97%] flex justify-start p-3">
-                    <input type="text" placeholder="pesquisar ID" className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />
+                    <input type="text" placeholder="pesquisar ID" 
+                    className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />
                 </div>
                 <section className="w-full h-[100vh] flex p-2 overflow-hidden">
-
                     <div className="w-full bg-[#ffffff] flex justify-start items-start relative 
                     overflow-x-auto rounded-md shadow-lg shadow-[#1313135a] p-2">
-                        <TableAdvertiserAucts />
+                        <TableAdvertiserAucts onRowClick={handleNavigateToDetails} />
                     </div>
-
                 </section>
             </section>
         </div>

@@ -93,7 +93,7 @@ function App() {
           <Route Component={AdvertiserCreateAuct} path="/advertiser/create-auct" exact />
           <Route Component={AdvertiserEdtiAuct} path="/advertiser/edit-auct" exact />
           <Route Component={AdvertiserAuctions} path="/advertiser/auctions" exact />
-          <Route Component={AdvertiserAuctDetails} path="/advertiser/auctions-details" exact />
+          <Route Component={AdvertiserAuctDetails} path="/advertiser/auctions-details/:advertiser_id/:auct_id" exact />
           <Route Component={AdvertiserProductDetails} path="/advertiser/product-details/:product_id" exact />
           <Route Component={AdvertiserFinancial} path="/advertiser/advertiser-financial" exact />
           <Route Component={AdvertiserProductsList} path="/advertiser/products" exact />

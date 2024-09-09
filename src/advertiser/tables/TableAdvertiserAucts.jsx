@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +8,7 @@ import { addResume } from "../../features/auct/ResumeAuctBalance";
 import dayjs from "dayjs";
 import PaginationAdvertiser from "./Pagination";
 
-function TableAdvertiserAucts() {
+function TableAdvertiserAucts({ onRowClick }) {
   const [auctList, setAucts] = useState([])
   const stateAucts = useSelector(state => state.auctList)
   const dispatch = useDispatch()
@@ -65,16 +66,19 @@ function TableAdvertiserAucts() {
     }
   };
 
-
-
-  function handleClick(route, id, sum, value) {
-    dispatch(selectedAuct({ auct_id: id }))
+  function handleClick(advertiser_id, auct_id, sum, value) {
+    dispatch(selectedAuct({ auct_id }))
     dispatch(addResume({
       value_balance: value,
       initial_value_sum: sum
     }))
-    navigate(route);
+    onRowClick(advertiser_id, auct_id);
   }
+
+  // Função para formatar valores monetários
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
 
   return (
     <section className="w-full flex flex-col justify-start items-center  absolute">
@@ -89,7 +93,7 @@ function TableAdvertiserAucts() {
                 key={index}
                 className="w-[98%] flex justify-between items-center gap-1 text-[12px] rounded-[12px]
                 p-2 cursor-pointer hover:bg-[#2f7fa430] bg-[#e6e6e6]"
-                onClick={() => handleClick("/advertiser/auctions-details", auction.id, productsValueList[index], auction.value)}
+                onClick={() => handleClick(auction.advertiser_id, auction.id, productsValueList[index], auction.value)}
               >
                 <div className="flex items-center justify-between flex-1 p-2">
                   {index + 1}
@@ -126,15 +130,11 @@ function TableAdvertiserAucts() {
                 </div>
 
                 <div className="text-center text-[14px] font-bold flex-1  p-2 overflow-hidden">
-                  R$ {typeof auction.value === 'number' ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-                    .format(auction.value) : '0.00'}
+                  {formatCurrency(auction.value)}
                 </div>
 
-
                 <div className="text-center text-[16px] font-bold flex-1  p-2 overflow-hidden">
-                  {productsValueList[0] ?
-                    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(productsValueList[index])
-                    : 'R$ 0.00'}
+                  {productsValueList[0] ? formatCurrency(productsValueList[index]) : formatCurrency(0)}
                 </div>
 
               </div>
