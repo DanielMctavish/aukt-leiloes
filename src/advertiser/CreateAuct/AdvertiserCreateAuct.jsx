@@ -53,6 +53,7 @@ export const AdvertiserCreateAuct = () => {
 
 
     const handleSaveAuct = async () => {
+
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
         const configAuth = {
             headers: {
@@ -134,13 +135,15 @@ export const AdvertiserCreateAuct = () => {
                 status: 'cataloged',
                 product_timer_seconds: 30
             }, configAuth).then(response => {
-                //console.log('resposta ao criar leilão -> ', response.data);
-                currentAuctId = response.data.currentAuct.id
-                currentAuctNanoId = response.data.currentAuct.nano_id
+                console.log('resposta ao criar leilão -> ', response.data);
+                currentAuctId = response.data.id
+                currentAuctNanoId = response.data.nano_id
             }).catch(err => {
+                console.log('erro ao criar leilão -> ', err.response);
                 throw new Error(err.response.data)
             })
 
+            console.log("observando IDS -> ", currentAuctId, currentAuctNanoId)
 
             // create Products Operation
             const productsCount = aucts.product_list.length;
@@ -153,6 +156,7 @@ export const AdvertiserCreateAuct = () => {
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create-product`, {
                     lote: parseInt(index + 1),
                     advertiser_id: getAdvertiser.data.id,
+                    cartela_id: undefined,
                     group: product.Group,
                     auct_nanoid: currentAuctNanoId,
                     auct_id: currentAuctId,
@@ -186,6 +190,7 @@ export const AdvertiserCreateAuct = () => {
             setIsLoading(false)
 
         } catch (error) {
+            console.log('erro ao criar leilão -> ', error.message)
             refGeneralBody.current.style.display = 'flex';
             loadScreen.current.style.display = 'none';
             setIsLoading(false)
@@ -220,7 +225,7 @@ export const AdvertiserCreateAuct = () => {
 
             <AssideAdvertiser MenuSelected="menu-2" />
 
-            <section ref={loadScreen} className="w-full h-[100vh] hidden flex-col justify-center items-center overflow-y-auto bg-zinc-800 gap-1">
+            <section ref={loadScreen} className="w-full h-[100vh] hidden flex-col justify-center items-center overflow-y-auto bg-zinc-800 gap-1 text-white">
                 <h1>criando leilão! aguarde... </h1>
                 <img ref={logoElement} src={logo} alt="logo-aukt" className="w-[100px] object-cover" />
 

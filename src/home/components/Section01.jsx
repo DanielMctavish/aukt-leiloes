@@ -5,42 +5,56 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import axios from "axios";
 import { useNavigate } from "react-router-dom"
 import aukWhite from "../../media/logos/logos-auk/logo_model01_white.png"
-import { Gavel, LiveTv } from "@mui/icons-material"
+import { Gavel, LiveTv, ShoppingCart, AttachMoney, LibraryBooks, CheckCircle } from "@mui/icons-material"
 
 function Section01() {
   const [cardsSelecteds, setCardsSelecteds] = useState([]);
-  const [counters, setCounters] = useState()
+  const [counters, setCounters] = useState({});
+  const [productCounters, setProductCounters] = useState({ count: 0, countWithBid: 0 }); // Novo useState
 
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getProducts()
-    getCountersAuct()
-  }, [])
+    getProducts();
+    getCountersAuct();
+    getProductCounters();
+  }, []);
 
   const getProducts = async () => {
-
     await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
       params: {
         take: 12,
         bid_count_order: 'true'
       }
     }).then(response => {
-      setCardsSelecteds(response.data)
-    })
-
-  }
+      setCardsSelecteds(response.data);
+    });
+  };
 
   const getCountersAuct = async () => {
-
     await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/counter`).then(response => {
-      console.log("response counters -> ", response.data)
-      setCounters(response.data)
-    })
+      console.log("response counters -> ", response.data);
+      setCounters(prevCounters => ({ ...prevCounters, ...response.data }));
+    });
+  };
 
+  const getProductCounters = async () => {
+    try {
+      const [countProducts, countProductsWithBids] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products`),
+        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products-with-bids`)
+      ]);
 
-  }
+      setProductCounters({
+        count: countProducts.data.countAll,
+        countWithBid: countProductsWithBids.data.countAll
+      });
+    } catch (error) {
+      console.log("Error fetching product counters:", error);
+    }
+  };
+
+  useEffect(() => { }, [counters]);
 
   return (
     <section className="flex flex-col w-full h-[100vh] 
@@ -85,8 +99,7 @@ function Section01() {
               <div
                 className="flex-1 h-full 
       overflow-hidden flex justify-center  slide-item-img 
-       items-center gap-3 rounded-lg relative "
-              >
+       items-center gap-3 rounded-lg relative ">
 
                 <img
                   src={card ? card.cover_img_url : ""}
@@ -126,25 +139,38 @@ function Section01() {
           <div className="flex flex-col gap-3 justify-center items-center">
             <Gavel sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Leilões Registrados</span>
-            <span className="font-bold text-[22px]">{counters && counters.countAll}</span>
+            <span className="font-bold text-[22px]">{counters.countAll}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
             <LiveTv sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Ao vivo</span>
-            <span className="font-bold text-[#ff5050] text-[22px]">{counters && counters.countLive}</span>
+            <span className="font-bold text-[#ff5050] text-[22px]">{counters.countLive}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
-            <LiveTv sx={{ fontSize: "33px" }} />
+            <LibraryBooks sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Catalogado</span>
-            <span className="font-bold text-[#1c7ea4] text-[22px]">{counters && counters.countCataloged}</span>
+            <span className="font-bold text-[#1c7ea4] text-[22px]">{counters.countCataloged}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
-            <LiveTv sx={{ fontSize: "33px" }} />
+            <CheckCircle sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Finalizado</span>
-            <span className="font-bold text-[#2ada2f] text-[22px]">{counters && counters.countFinished}</span>
+            <span className="font-bold text-[#2ada2f] text-[22px]">{counters.countFinished}</span>
+          </div>
+
+          <div className="flex flex-col gap-3 justify-center items-center">
+            <ShoppingCart sx={{ fontSize: "33px" }} />
+            <span className="text-[14px]">Produtos criados</span>
+            <span className="font-bold text-[22px]">{productCounters.count}</span>
+
+          </div>
+
+          <div className="flex flex-col gap-3 justify-center items-center">
+            <AttachMoney sx={{ fontSize: "33px" }} />
+            <span className="text-[14px]">Produtos com Lances</span>
+            <span className="font-bold text-[22px]">{productCounters.countWithBid}</span>
           </div>
 
         </div>
