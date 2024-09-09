@@ -6,9 +6,9 @@ import AssideAdvertiser from "../_asside/AssideAdvertiser"
 import NavAdvertiser from "../_navigation/NavAdvertiser"
 import LastAdvertisersAuctsTable from "../tables/LastAdvertisersAuctsTable"
 import CircleStatisticDisplay from "./components/CircleStatisticDisplay"
-import DisplayBalance from "./components/DisplayBalance"
-import DisplayLive from "./components/DisplayLive"
+import AuctionSelection from "./components/AuctionSelection"
 import { useNavigate } from "react-router-dom"
+
 
 export const DashboardAdvertiser = () => {
     const navigate = useNavigate()
@@ -24,7 +24,7 @@ export const DashboardAdvertiser = () => {
 
     const verifyAdvertiserSession = async (currentLocalAdvertiser) => {
 
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentLocalAdvertiser.email}`,{
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentLocalAdvertiser.email}`, {
             headers: {
                 'Authorization': `Bearer ${currentLocalAdvertiser.token}`
             }
@@ -46,38 +46,34 @@ export const DashboardAdvertiser = () => {
     useEffect(() => {
         const darkMode = localStorage.getItem("dark-mode-advertiser-auct") === "true";
         if (darkMode) {
-          refDashboard.current.style.transition = "1s"
-          refDashboard.current.style.background = "#2c2c2c"
-          refDashboard.current.style.color = "#e0e0e0"
+            refDashboard.current.style.transition = "1s"
+            refDashboard.current.style.background = "#2c2c2c"
+            refDashboard.current.style.color = "#e0e0e0"
         } else {
-          refDashboard.current.style.background = "#ffffff"
-          refDashboard.current.style.color = "#2b2b2b"
+            refDashboard.current.style.background = "#ffffff"
+            refDashboard.current.style.color = "#2b2b2b"
         }
-      }, []);
+    }, []);
 
     return (
-        <div ref={refDashboard} className="w-full h-[100vh] flex justify-center items-center">
+        <div ref={refDashboard} className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
 
             <AssideAdvertiser MenuSelected="menu-1" />
 
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2">
+            <section className="w-full min-h-[130vh] flex flex-col justify-start items-center overflow-y-auto gap-2">
                 <NavAdvertiser />
 
                 <section className="w-full flex p-2 gap-3 min-h-[20vh] justify-around items-center overflow-x-auto">
-                    {/* Display Saldo */}
-                    <DisplayBalance />
-                    {/* Display Ao vivo */}
-                    <DisplayLive />
+                    <AuctionSelection />
                 </section>
 
                 <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-center lg:gap-2 md:mt-0 mt-3 p-2 gap-1">
-                    {/* Círculo de estatística */}
-                    <CircleStatisticDisplay />
-
                     {/* Gráfico */}
                     <div className="lg:w-[58%] w-full h-[40vh] bg-[#fff] rounded-md shadow-lg shadow-[#17171722]">
                         <PanelGraph />
                     </div>
+                    {/* Círculo de estatística */}
+                    <CircleStatisticDisplay />
                 </section>
 
                 <section className="w-full p-3">

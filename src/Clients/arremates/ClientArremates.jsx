@@ -79,24 +79,24 @@ function ClientArremates() {
                             setCurrentPage(1); // Resetar para a primeira página ao pesquisar
                         }}
                     />
-                    <div className="flex flex-col w-full justify-around items-center gap-2 text-[#333]">
+                    <div className="flex flex-col w-full justify-around items-center gap-2 text-[#333] p-3">
                         <div className="w-full grid grid-cols-5 gap-3 p-2 bg-gray-100 border-b-2 border-gray-300">
                             <span className="font-bold">Imagem</span>
                             <span className="font-bold">Título</span>
                             <span className="font-bold">Data</span>
-                            <span className="font-bold">Status</span>
+                            <span className="font-bold">Categoria</span>
                             <span className="font-bold">Valor</span>
                         </div>
                         {
                             currentBids.map((bid, index) => (
                                 <div className="w-full grid grid-cols-5 gap-3 p-2 bg-white border-b justify-center 
-                                items-center border-gray-200 hover:bg-zinc-300 cursor-pointer rounded-md transition duration-300" 
-                                key={index}>
+                                items-center border-gray-200 hover:bg-zinc-300 cursor-pointer rounded-md transition duration-300"
+                                    key={index}>
                                     <img src={bid.Product[0].cover_img_url} alt=""
-                                        className="w-[100px] h-[100px] object-cover justify-center items-center rounded-md" />
+                                        className="w-[60px] h-[60px] object-cover justify-center items-center rounded-full" />
                                     <span>{bid.Product[0].title}</span>
                                     <span>{dayjs(bid.Product[0].updated_at).format('DD/MM/YYYY')}</span>
-                                    <span>pendente</span>
+                                    <span>{bid.Product[0].categorie}</span>
                                     <span className="font-bold">
                                         R$ <AnimatedNumber number={bid.Product[0].initial_value} />
                                     </span>

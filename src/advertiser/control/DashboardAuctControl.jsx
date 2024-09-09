@@ -1,186 +1,131 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./DashboardAuctControl.css"
-import { useEffect, useState } from "react";
-import axios from "axios";
-import io from "socket.io-client"
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import ClientDetailModal from "./modal/ClientDetailModal";
 import AssideAdvertiser from "../_asside/AssideAdvertiser";
 import NavAdvertiser from "../_navigation/NavAdvertiser";
-import AvailableAuctions from "./AvailableAuctions";
-import ControllerHead from "./ControllerHead";
-import ButtonsControl from "./ButtonsControl";
-import DisplayFloor from "./DisplayFloor";
-import BottomDisplayFloor from "./BottomDisplayFloor";
-import ClientDetailModal from "./modal/ClientDetailModal";
-import BidsDisplayControl from "./BidsDisplayControl";
-
+import AuctionController from "./components/AuctionController";
+import FloorMessageSet from "./components/FloorMessageSet";
+import DisplayCurrentLote from "./components/DisplayCurrentLote";
+import BidsListController from "./components/BidsListController";
+import { selectLiveAuction, selectLiveGroup } from "../../features/auct/LiveSelected";
+import { setRunning, setPaused } from "../../features/auct/controlButtonsSlice";
+import AuctionsSelectorController from "./components/AuctionsSelectorController";
+import { setAuctionList } from "../../features/auct/AuctionListSlice";
 
 function DashboardAuctControl() {
-    const [isRunning, setIsRunning] = useState(false)
-    const [isPaused, setIsPaused] = useState(false)
-    const [timer, setTimer] = useState(0)
-    const [, setAdvertiser] = useState({})
-    const [auctions, setAuctions] = useState([])
-    const [selectedAuction, setSelectedAuction] = useState(false)
-    const [selectedGroup, setSelectedGroup] = useState(false)
-    const [productsByGroup, setProductsByGroup] = useState(0)
-    const [currentProduct, setCurrentProduct] = useState()
-    const [isChanged, setIsChanged] = useState(false)
-
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const selectedAuction = useSelector(state => state.live.auction);
 
     useEffect(() => {
-        const currentSession = localStorage.getItem("advertiser-session-aukt")
-        getAdminInformations()
+        const currentSession = localStorage.getItem("advertiser-session-aukt");
 
         if (!currentSession) {
-            navigate("/")
-            return
-        }
-        if (selectedAuction.status === "paused") {
-            // setIsRunning({
-            //     status: true,
-            //     id: selectedAuction.id
-            // })
-            setIsPaused(true)
+            navigate("/");
+            return;
         }
 
-        const allProducts = selectedAuction.product_list
-        let productCount = 0
-        Array.isArray(allProducts) &&
-            allProducts.forEach(product => {
-                if (product.group === selectedGroup) {
-                    productCount++
-                    setProductsByGroup(productCount)
+        const checkAuctionsStatus = async () => {
+            try {
+                const sessionData = JSON.parse(currentSession);
+                const advertiserResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionData.token}`
+                    },
+                    params: {
+                        email: sessionData.email
+                    }
+                });
+
+                const advertiser = advertiserResponse.data;
+                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionData.token}`
+                    },
+                    params: {
+                        creator_id: advertiser.id // Use the creator_id from the advertiser response
+                    }
+                });
+
+                const auctions = response.data;
+                dispatch(setAuctionList(auctions)); // Dispatch the list of auctions
+
+                const runningAuction = auctions.find(auction => auction.status === "live");
+                const pausedAuction = auctions.find(auction => auction.status === "paused");
+
+                if (runningAuction) {
+                    dispatch(selectLiveAuction(runningAuction));
+                    dispatch(selectLiveGroup(runningAuction.group));
+                    dispatch(setRunning(true));
+                    dispatch(setPaused(false));
+                } else if (pausedAuction) {
+                    dispatch(selectLiveAuction(pausedAuction));
+                    dispatch(selectLiveGroup(pausedAuction.group));
+                    dispatch(setRunning(false));
+                    dispatch(setPaused(true));
                 }
-            })
-
-    }, [selectedAuction, isRunning, isPaused, selectedGroup, isChanged])
-
-    const getAdminInformations = async () => {
-        const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentSession.email}`, {
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`
-                }
-            }).then(response => {
-                //console.log("founded advertiser -> ", response.data)
-                setAdvertiser(response.data)
-                getAuctionsList(response.data.id)
-            })
-        } catch (error) {
-            console.log("erro at try get admin: ", error.message)
-        }
-
-    }
-
-    const getAuctionsList = async (creator_id) => {
-
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${creator_id}`)
-                .then(response => {
-                    //console.log("founded auctions -> ", response.data)
-                    setAuctions(response.data)
-                })
-        } catch (error) {
-            console.log("error at try get auctions list: ", error.message)
-        }
-
-    }
-
-
-    useEffect(() => {
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-        //ouvindo mensagem de pregão ao vivo................................................................
-
-        socket.on(`${selectedAuction.id}-playing-auction`, (message) => {
-            setIsRunning(true)
-            setTimer(message.data.cronTimer)
-            setCurrentProduct(message.data.body.product)
-
-        })
-
-
-        return () => {
-            socket.disconnect();
-            setIsRunning(false)
+            } catch (error) {
+                console.log("Error checking auctions status: ", error.message);
+            }
         };
 
-    }, [selectedAuction])
+        const restorePausedAuction = () => {
+            const pausedAuction = localStorage.getItem("paused-auction");
+            const pausedGroup = localStorage.getItem("paused-group");
 
+            if (pausedAuction && pausedGroup) {
+                dispatch(selectLiveAuction(JSON.parse(pausedAuction)));
+                dispatch(selectLiveGroup(pausedGroup));
+                dispatch(setRunning(false));
+                dispatch(setPaused(true));
+            }
+        };
 
+        checkAuctionsStatus();
+        restorePausedAuction();
+
+    }, [dispatch, navigate]);
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
-            <ClientDetailModal />
+        <div className="w-full lg:h-[100vh] h-[200vh] flex-col flex justify-start items-center
+         bg-[#F4F4F4] overflow-hidden ">
 
+            <ClientDetailModal />
             <AssideAdvertiser MenuSelected="menu-4" />
 
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2">
+            <section className="w-full lg:h-[100vh] min-h-[200vh] flex flex-col justify-start items-center gap-2 relative">
                 <NavAdvertiser />
 
-                <div className="flex flex-col w-full h-[92%] justify-center items-center overflow-hidden gap-6">
+                <div className="flex flex-col lg:w-[80%] w-full lg:h-[90vh] h-[200vh] shadow-lg shadow-[#1919192d]
+                bg-gradient-to-b from-[#fff] to-[#e9e9e9] overflow-y-auto lg:mt-0 mt-[3vh] rounded-lg">
 
-                    <div className="flex w-[80%] h-[30%] justify-center items-center gap-3">
-                        <AvailableAuctions
-                            auctions={auctions}
-                            setSelectedAuction={setSelectedAuction}
-                            selectedAuction={selectedAuction}
-                            setCurrentProduct={setCurrentProduct}
-                            setTimer={setTimer} />
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[70vh] min-h-[100vh] bg-[#fff] p-1 gap-1">
 
-                        {/* Lances component....... */}
-                        <BidsDisplayControl auct_id={selectedAuction.id} currentProduct={currentProduct} />
-
-                    </div>
-
-
-                    <div className="flex flex-col w-[80%] h-[47%] bg-[#E9E9E9] 
-                    relative justify-start items-center rounded-md shadow-lg shadow-[#15151532]">
-
-                        {/* controller head */}
-                        <ControllerHead
-                            selectedAuction={selectedAuction}
-                            isRunning={isRunning}
-                            isPaused={isPaused}
-                            setSelectedGroup={setSelectedGroup}
-                            productsByGroup={productsByGroup}
-                            currentProduct={currentProduct}
-                            setIsChanged={setIsChanged}
-                            isChanged={isChanged}
-                        />
-
-                        <div className="flex w-[80%] h-[60%] justify-between items-center mt-[2vh] relative">
-
-                            {selectedAuction &&
-                                <ButtonsControl setIsPaused={setIsPaused}
-                                    selectedAuction={selectedAuction}
-                                    isRunning={isRunning}
-                                    setIsRunning={setIsRunning}
-                                    selectedGroup={selectedGroup}
-                                    isPaused={isPaused}
-                                    setIsChanged={setIsChanged}
-                                    isChanged={isChanged}/>
-                            }
-
-                            {currentProduct &&
-                                <DisplayFloor currentProduct={currentProduct} auct_id={selectedAuction.id} />
-                            }
-
+                        <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
+                            <AuctionsSelectorController />
+                            {selectedAuction ? (
+                                <AuctionController />
+                            ) : (
+                                <div className="flex bg-white w-full h-[50%] justify-center items-center rounded-md p-[1vh] shadow-lg shadow-[#12121244]">
+                                    <span className="text-[18px] text-[#5d5d5d] font-bold">Selecione um leilão</span>
+                                </div>
+                            )}
                         </div>
 
-                        {selectedAuction &&
-                            <BottomDisplayFloor selectedAuction={selectedAuction} timer={timer} />
-                        }
+                        <DisplayCurrentLote />
+                    </div>
 
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[60vh] min-h-[100vh] p-1 gap-1">
+                        <FloorMessageSet />
+                        <BidsListController />
                     </div>
 
                 </div>
 
             </section>
-
 
         </div>
     )

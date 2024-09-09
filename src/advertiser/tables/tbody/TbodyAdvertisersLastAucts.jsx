@@ -41,11 +41,28 @@ function TbodyAdvertisersLastAucts() {
         getListCurrentAdvertiserAucts()
     }, [])
 
+    const productsWithoutBids = (product_list) => {
+        const isValid = product_list.filter(product => !product.Winner)
+        if (isValid.length > 0) {
+            return isValid.length
+        } else {
+            return 0
+        }
+    }
+    const productsWithBids = (product_list) => {
+        const isValid = product_list.filter(product => product.Winner)
+        if (isValid.length > 0) {
+            return isValid.length
+        } else {
+            return 0
+        }
+    }
+
     return (
 
         <tbody className=" overflow-y-auto">
             {aucts.map((auction, index) => (
-                <tr className="border-b-[.4px] border-zinc-300 text-zinc-600" key={index}>
+                <tr className="border-b-[1px] border-[#a31010] text-zinc-600" key={index}>
 
                     <td className="px-6 py-4 text-left text-[14px] font-bold">{index + 1}</td>
                     <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.nano_id}</td>
@@ -54,11 +71,11 @@ function TbodyAdvertisersLastAucts() {
                         <span className="text-zinc-400 font-bold text-[14px]">{auction.title}</span>
                     </td>
                     <td className="px-6 py-4 text-left text-[14px] font-bold">{auction.product_list.length}</td>
+                    <td>{productsWithBids(auction.product_list)}</td>
+                    <td>{productsWithoutBids(auction.product_list)}</td>
                     <td className="px-6 py-4 text-left text-[14px] font-bold">R$ {
                         sumAllProductsValue(auction.product_list).toFixed(2)
                     }</td>
-                    <td className="px-6 py-4 text-left text-[14px] font-bold">{0}</td>
-
 
                 </tr>
             ))}

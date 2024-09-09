@@ -75,12 +75,12 @@ function ClientBids() {
                             setCurrentPage(1); // Resetar para a primeira página ao pesquisar
                         }}
                     />
-                    <div className="flex flex-col w-full justify-around items-center gap-2 text-[#333]">
+                    <div className="flex flex-col w-full justify-around items-center gap-2 text-[#333] p-3">
                         <div className="w-full grid grid-cols-5 gap-3 p-2 bg-gray-100 border-b-2 border-gray-300">
                             <span className="font-bold">Imagem</span>
                             <span className="font-bold">Título</span>
                             <span className="font-bold">Data</span>
-                            <span className="font-bold">Status</span>
+                            <span className="font-bold">categoria</span>
                             <span className="font-bold">Seu lance</span>
                         </div>
                         {
@@ -94,10 +94,10 @@ function ClientBids() {
                                         <span className="absolute bg-red-600 right-1 top-2 p-2 text-white rounded-md">arrematado!</span>
                                     }
                                     <img src={bid.Product[0].cover_img_url} alt=""
-                                        className="w-[100px] h-[100px] object-cover justify-center items-center rounded-md" />
-                                    <span>{bid.Product[0].title}</span>
+                                        className="w-[60px] h-[60px] object-cover justify-center items-center rounded-full" />
+                                    <span className="w-[160px] text-[12px]">{bid.Product[0].title}</span>
                                     <span>{dayjs(bid.Product[0].updated_at).format('DD/MM/YYYY')}</span>
-                                    <span>pendente</span>
+                                    <span>{bid.Product[0].categorie}</span>
                                     <span className="font-bold">
                                         R$ <AnimatedNumber number={bid.value} />
                                     </span>

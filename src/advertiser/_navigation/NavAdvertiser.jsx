@@ -83,7 +83,7 @@ function NavAdvertiser({ path }) {
             gap-3"
       >
         <div className="flex justify-center items-center gap-3">
-          <span className="text-[22px] font-bold lg:flex hidden">
+          <span className="text-[22px] font-bold lg:flex hidden ml-[60px]">
             Bem vindo, {AdvertiserInfor.name}!
           </span>
 

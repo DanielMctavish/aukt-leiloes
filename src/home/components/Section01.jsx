@@ -9,12 +9,14 @@ import { Gavel, LiveTv } from "@mui/icons-material"
 
 function Section01() {
   const [cardsSelecteds, setCardsSelecteds] = useState([]);
+  const [counters, setCounters] = useState()
 
 
   const navigate = useNavigate()
 
   useEffect(() => {
     getProducts()
+    getCountersAuct()
   }, [])
 
   const getProducts = async () => {
@@ -27,6 +29,16 @@ function Section01() {
     }).then(response => {
       setCardsSelecteds(response.data)
     })
+
+  }
+
+  const getCountersAuct = async () => {
+
+    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/counter`).then(response => {
+      console.log("response counters -> ", response.data)
+      setCounters(response.data)
+    })
+
 
   }
 
@@ -114,25 +126,25 @@ function Section01() {
           <div className="flex flex-col gap-3 justify-center items-center">
             <Gavel sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Leilões Registrados</span>
-            <span className="font-bold text-[22px]">30</span>
+            <span className="font-bold text-[22px]">{counters && counters.countAll}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
             <LiveTv sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Ao vivo</span>
-            <span className="font-bold text-[#ff5050] text-[22px]">30</span>
+            <span className="font-bold text-[#ff5050] text-[22px]">{counters && counters.countLive}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
-          <LiveTv sx={{ fontSize: "33px" }} />
+            <LiveTv sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Catalogado</span>
-            <span className="font-bold text-[#1c7ea4] text-[22px]">30</span>
+            <span className="font-bold text-[#1c7ea4] text-[22px]">{counters && counters.countCataloged}</span>
           </div>
 
           <div className="flex flex-col gap-3 justify-center items-center">
-          <LiveTv sx={{ fontSize: "33px" }} />
+            <LiveTv sx={{ fontSize: "33px" }} />
             <span className="text-[14px]">Finalizado</span>
-            <span className="font-bold text-[#2ada2f] text-[22px]">30</span>
+            <span className="font-bold text-[#2ada2f] text-[22px]">{counters && counters.countFinished}</span>
           </div>
 
         </div>
