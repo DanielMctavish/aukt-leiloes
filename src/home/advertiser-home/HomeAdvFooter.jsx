@@ -67,10 +67,7 @@ function HomeAdvFooter() {
                     <span className=" w-full border-b-[1px] border-[#ffffff36] pb-[3vh]">Seu ID do email é confidencial.</span>
                 </div>
 
-                <div className="flex flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh] bg-white p-[6vh]">
-                    element 4
-                    <span>Instagram</span>
-                </div>
+                
             </div>
 
             {/* <img src={currentAdvertiser.url_profile_cover} className="w-[200px] h-[200px] border-[3px] 
