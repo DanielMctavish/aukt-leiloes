@@ -195,62 +195,53 @@ function AuctionController() {
     }
 
     return (
-        <div className="flex bg-white w-full h-[40%] justify-center items-center rounded-md p-[1vh]  shadow-lg shadow-[#12121244]">
+        <div className="flex bg-white w-full h-[40%] justify-center items-center rounded-md p-[1vh] shadow-lg shadow-[#12121244]">
 
             <div className="flex flex-col w-full h-full bg-white rounded-md overflow-hidden shadow-lg shadow-[#12121244]">
                 <span className="flex w-full h-[46px] bg-[#012038] text-white p-2 font-bold text-[14px]">Painel de controles</span>
-                <div className="flex flex-wrap justify-center items-center w-full h-[78%] gap-1">
-
-                    <button onClick={handlePlayAuction} disabled={isRunning} className={`w-[140px] lg:h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 ${isRunning ? 'bg-gray-400' : 'bg-[#139a0a] hover:bg-[#37c72d]'}`}>
+                <div className="grid grid-cols-3 gap-2 p-4">
+                    <button onClick={handlePlayAuction} disabled={isRunning} className={`w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 ${isRunning ? 'bg-gray-400' : 'bg-[#139a0a] hover:bg-[#37c72d]'}`}>
                         <PlayArrow sx={{ fontSize: "33px" }} />
-                        <span className="text-[14px]">iniciar leilão</span>
+                        <span className="text-[14px]">Iniciar</span>
                     </button>
 
-                    <button onClick={handleNextProduct} className="bg-[#012038] hover:bg-[#266da4] w-[140px] lg:h-[60px] p-2 text-white 
-                    rounded-md flex justify-center items-center gap-2">
+                    <button onClick={handleNextProduct} className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2">
                         <SkipNext sx={{ fontSize: "33px" }} />
-                        <span>passar lote</span>
+                        <span>Próximo</span>
                     </button>
 
                     {isPaused ? (
-                        <button onClick={handleResumeAuction} className="bg-[#139a0a] hover:bg-[#37c72d] w-[140px] lg:h/[60px] p-2 text-white 
-                        rounded-md flex justify-center items-center gap-2">
+                        <button onClick={handleResumeAuction} className="bg-[#139a0a] hover:bg-[#37c72d] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2">
                             <PlayCircleFilledWhite sx={{ fontSize: "33px" }} />
-                            <span>retomar leilão</span>
+                            <span>Retomar</span>
                         </button>
                     ) : (
-                        <button onClick={handlePauseAuction}
-                            className="bg-[#012038] hover:bg-[#266da4] w-[140px] lg:h/[60px] p-2 text-white 
-                        rounded-md flex justify-center items-center gap-2">
+                        <button onClick={handlePauseAuction} className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2">
                             <PauseCircleFilledOutlined sx={{ fontSize: "33px" }} />
-                            <span>pausar</span>
+                            <span>Pausar</span>
                         </button>
                     )}
 
-                    <button onClick={handleAdd5} className="bg-[#012038] hover:bg-[#266da4] w/[140px] lg:h/[60px] p-2 text-white 
-                    rounded-md flex justify-center items-center gap-1">
+                    <button onClick={handleAdd5} className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1">
                         <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+5</span>
+                        <span>+5s</span>
                     </button>
 
-                    <button onClick={handleAdd15} className="bg-[#012038] hover:bg-[#266da4] w/[140px] lg:h/[60px] p-2 text-white 
-                    rounded-md flex justify-center items-center gap-1">
+                    <button onClick={handleAdd15} className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1">
                         <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+10</span>
+                        <span>+15s</span>
                     </button>
 
-                    <button onClick={handleAdd30} className="bg-[#012038] hover:bg-[#266da4] w/[140px] lg:h/[60px] p-2 text-white 
-                    rounded-md flex justify-center items-center gap-1">
+                    <button onClick={handleAdd30} className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1">
                         <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+30</span>
+                        <span>+30s</span>
                     </button>
 
                     {selectedAuction && selectedAuction.status === "live" && (
-                        <button onClick={killAuction} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2">
+                        <button onClick={killAuction} className="col-span-3 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2">
                             Matar Leilão
                         </button>
                     )}
-
                 </div>
             </div>
 
