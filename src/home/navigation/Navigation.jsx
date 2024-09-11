@@ -47,19 +47,21 @@ function Navigation() {
     const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
 
     try {
-
-      await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
         headers: {
           "Authorization": `Bearer ${currentSessionClient.token}`
         }
-      }).then((response) => {
-        //console.log("dashboard client found -> ", response.data)
-        setCurrentClient(response.data)
-      })
-    } catch (error) {
-      console.log(error.message)
-    }
+      });
 
+      if (response.data) {
+        setCurrentClient(response.data);
+      } else {
+        localStorage.removeItem("client-auk-session-login");
+      }
+    } catch (error) {
+      console.log(error.message);
+      localStorage.removeItem("client-auk-session-login");
+    }
   }
 
   const handleSearchProduct = async (e) => {
@@ -77,8 +79,6 @@ function Navigation() {
     }
 
   }
-
-
 
   useEffect(() => { }, [inputText, searchedProducts])
 

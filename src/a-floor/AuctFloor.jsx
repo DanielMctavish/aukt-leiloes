@@ -11,6 +11,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import WinnerScreen from "./winner/WinnerScreen";
 
+
 function AuctFloor() {
     const [currentAuct, setCurrentAuct] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(false);
@@ -112,12 +113,13 @@ function AuctFloor() {
             <img src={backgroundFloor} alt="" className="flex absolute top-0 h-full w-[100%] object-cover z-[1]" />
             <FloorNavigation auction={currentAuct} group={currentProduct.group} />
             <div className="flex lg:flex-row flex-col w-full h-full justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
-                <section className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh]">
+                <section className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]">
                     <CenterFloor
                         title={currentProduct.title}
                         cover={currentProduct.cover_img_url}
                         description={currentProduct.description}
                         auction={currentAuct}
+                        currentProduct={currentProduct} // Passando o produto atual para o CenterFloor
                     />
                     <FloorLots
                         products={currentAuct.product_list}
