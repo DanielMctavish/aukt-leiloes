@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import io from "socket.io-client"; // Adicione esta linha
 import ClientDetailModal from "./modal/ClientDetailModal";
 import AssideAdvertiser from "../_asside/AssideAdvertiser";
 import NavAdvertiser from "../_navigation/NavAdvertiser";
@@ -19,6 +20,7 @@ function DashboardAuctControl() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const selectedAuction = useSelector(state => state.live.auction);
+    const [auctionFinished, setAuctionFinished] = useState(false); // Novo estado para leilão finalizado
 
     useEffect(() => {
         const currentSession = localStorage.getItem("advertiser-session-aukt");
@@ -84,10 +86,24 @@ function DashboardAuctControl() {
             }
         };
 
+        const webSocketFlow = () => {
+            if (!selectedAuction) return; // Adicione esta linha para evitar erros quando selectedAuction for nulo
+
+            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+            socket.on(`${selectedAuction.id}-auct-finished`, () => {
+                setAuctionFinished(true); // Atualiza o estado quando o leilão é finalizado
+            });
+
+            return () => {
+                socket.disconnect();
+            };
+        };
+
         checkAuctionsStatus();
         restorePausedAuction();
+        webSocketFlow(); // Inicia o WebSocket
 
-    }, [dispatch, navigate]);
+    }, [dispatch, navigate, selectedAuction]);
 
     return (
         <div className="w-full lg:h-[100vh] h-[200vh] flex-col flex justify-start items-center
@@ -103,7 +119,6 @@ function DashboardAuctControl() {
                 bg-gradient-to-b from-[#fff] to-[#e9e9e9] overflow-y-auto lg:mt-0 mt-[3vh] rounded-lg">
 
                     <div className="flex lg:flex-row flex-col w-full lg:min-h-[70vh] min-h-[100vh] bg-[#fff] p-1 gap-1">
-
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />
                             {selectedAuction ? (
@@ -115,7 +130,7 @@ function DashboardAuctControl() {
                             )}
                         </div>
 
-                        <DisplayCurrentLote />
+                        <DisplayCurrentLote auctionFinished={auctionFinished} /> {/* Passa o estado para o componente */}
                     </div>
 
                     <div className="flex lg:flex-row flex-col w-full lg:min-h-[60vh] min-h-[100vh] p-1 gap-1">

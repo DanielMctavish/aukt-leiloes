@@ -8,7 +8,7 @@ import { setCurrentWinner } from "../../../features/winner/WinnerLive";
 import { setCurrentProduct } from "../../../features/auct/CurrentProductSlice";
 import 'swiper/swiper-bundle.css'; // Importação correta do CSS do Swiper
 
-function DisplayCurrentLote() {
+function DisplayCurrentLote({ auctionFinished }) {
     const [timer, setTimer] = useState(0);
     const [currentAuction, setCurrentAuction] = useState();
     const [emptySlot, setEmptySlot] = useState([]);
@@ -77,73 +77,81 @@ function DisplayCurrentLote() {
             <div className="w-full h-full bg-white rounded-md shadow-lg shadow-[#1a1a1a24]
             flex flex-col justify-start items-center overflow-hidden">
 
-                <div className="w-[90%] h-[60px] flex justify-between items-center text-[22px] text-[#838383] relative">
-                    <span className="font-extrabold ">Lote Atual</span>
-                    <span>{currentProduct && currentProduct.lote}</span>
-                </div>
+                {auctionFinished && (
+                    <div className="w-full h-full flex justify-center items-center bg-green-100 text-green-800 text-xl font-bold">
+                        O leilão foi finalizado com êxito
+                    </div>
+                )}
 
-                <div className="flex justify-center items-center w-[90%] h-[40px] bg-[#e9e9e9] rounded-md relative">
-                    <span>{currentProduct && currentProduct.title}</span>
-                    <span className="font-bold absolute right-2">{formatTime(timer)}</span>
-                </div>
+                {!auctionFinished && (
+                    <>
+                        <div className="w-[90%] h-[60px] flex justify-between items-center text-[22px] text-[#838383] relative">
+                            <span className="font-extrabold ">Lote Atual</span>
+                            <span>{currentProduct && currentProduct.lote}</span>
+                        </div>
 
-                <div className="flex justify-center items-center w-[90%] h-[40px] bg-[#e9e9e9] rounded-md relative mt-2">
-                    <span>Grupo: {currentProduct && currentProduct.group}</span>
-                </div>
+                        <div className="flex justify-center items-center w-[90%] h-[40px] bg-[#e9e9e9] rounded-md relative">
+                            <span>{currentProduct && currentProduct.title}</span>
+                            <span className="font-bold absolute right-2">{formatTime(timer)}</span>
+                        </div>
 
-                <section className="flex w-[90%] h-[80%] justify-center items-center">
-                    <Swiper
-                        navigation={true}
-                        pagination={{ clickable: true }}
-                        modules={[Navigation, Pagination]}
-                    >
-                        <SwiperSlide>
-                            <div className='min-w-[600px] h-[600px] object-cover justify-center'>
+                        <div className="flex justify-center items-center w-[90%] h-[40px] bg-[#e9e9e9] rounded-md relative mt-2">
+                            <span>Grupo: {currentProduct && currentProduct.group}</span>
+                        </div>
 
-                                {currentProduct && currentProduct.cover_img_url &&
-                                    <img src={currentProduct && currentProduct.cover_img_url} alt="foto-produto-leilão"
-                                        className='flex-1 h-[600px] object-cover rounded-md bg-zinc-200' />}
-                            </div>
-                        </SwiperSlide>
-                        {currentProduct && currentProduct.group_imgs_url && currentProduct.group_imgs_url.map((img, i) => (
-                            <SwiperSlide key={i}>
-                                <img src={img} alt="thumb" className="w-full h-[600px] object-cover rounded-md" />
-                            </SwiperSlide>
-                        ))}
-                        {emptySlot && emptySlot.map((_, i) => (
-                            <SwiperSlide key={i}>
-                                <div className="w-full h-[600px] object-cover rounded-md bg-slate-300"></div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </section>
+                        <section className="flex w-[90%] h-[80%] justify-center items-center">
+                            <Swiper
+                                navigation={true}
+                                pagination={{ clickable: true }}
+                                modules={[Navigation, Pagination]}
+                            >
+                                <SwiperSlide>
+                                    <div className='min-w-[600px] h-[600px] object-cover justify-center'>
+                                        {currentProduct && currentProduct.cover_img_url &&
+                                            <img src={currentProduct && currentProduct.cover_img_url} alt="foto-produto-leilão"
+                                                className='flex-1 h-[600px] object-cover rounded-md bg-zinc-200' />}
+                                    </div>
+                                </SwiperSlide>
+                                {currentProduct && currentProduct.group_imgs_url && currentProduct.group_imgs_url.map((img, i) => (
+                                    <SwiperSlide key={i}>
+                                        <img src={img} alt="thumb" className="w-full h-[600px] object-cover rounded-md" />
+                                    </SwiperSlide>
+                                ))}
+                                {emptySlot && emptySlot.map((_, i) => (
+                                    <SwiperSlide key={i}>
+                                        <div className="w-full h-[600px] object-cover rounded-md bg-slate-300"></div>
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        </section>
 
-                <div className="h-[60px] text-[16px] font-bold text-[#838383] absolute bottom-0 right-6">
-                    {isPaused && (
-                        <button className="bg-yellow-500 text-white px-4 py-1 rounded">
-                            Pausado
-                        </button>
-                    )}
-                    {isRunning && (
-                        <button className="bg-red-500 text-white px-4 py-1 rounded">
-                            Em Andamento
-                        </button>
-                    )}
-                    {!isRunning && !isPaused && (
-                        <button className="bg-[#064874] text-white px-4 py-1 rounded">
-                            Finalizado
-                        </button>
-                    )}
-                </div>
+                        <div className="h-[60px] text-[16px] font-bold text-[#838383] absolute bottom-0 right-6">
+                            {isPaused && (
+                                <button className="bg-yellow-500 text-white px-4 py-1 rounded">
+                                    Pausado
+                                </button>
+                            )}
+                            {isRunning && (
+                                <button className="bg-red-500 text-white px-4 py-1 rounded">
+                                    Em Andamento
+                                </button>
+                            )}
+                            {!isRunning && !isPaused && (
+                                <button className="bg-[#064874] text-white px-4 py-1 rounded">
+                                    Finalizado
+                                </button>
+                            )}
+                        </div>
 
-                <div className="w-[90%] h-[60px] flex justify-center items-center text-[22px] text-[#838383] relative mt-4">
-                    {winner ? (
-                        <span className="font-bold text-green-500">Vencedor: {winner.name}</span>
-                    ) : (
-                        <span className="font-bold text-red-500">Não Arrematado</span>
-                    )}
-                </div>
-
+                        <div className="w-[90%] h-[60px] flex justify-center items-center text-[22px] text-[#838383] relative mt-4">
+                            {winner ? (
+                                <span className="font-bold text-green-500">Vencedor: {winner.name}</span>
+                            ) : (
+                                <span className="font-bold text-red-500">Não Arrematado</span>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
