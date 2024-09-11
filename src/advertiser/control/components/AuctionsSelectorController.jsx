@@ -1,71 +1,110 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useSelector, useDispatch } from "react-redux";
-import { selectLiveAuction, selectLiveGroup } from "../../../features/auct/LiveSelected";
-import { setRunning, setPaused } from "../../../features/auct/controlButtonsSlice";
 import { useState, useEffect } from "react";
+import axios from "axios";
+import { setAuct, setGroup, setStatus } from "../../../features/auct/generalAUKSlice";
+import { Inventory2 } from "@mui/icons-material"
 
 function AuctionsSelectorController() {
     const dispatch = useDispatch();
-    const auctions = useSelector(state => state.auctionList.auctions);
-    const isRunning = useSelector(state => state.controlButtons.isRunning);
-    const isPaused = useSelector(state => state.controlButtons.isPaused);
-    const selectedAuction = useSelector(state => state.live.auction);
+    const [auctions, setAuctions] = useState([]);
+    const generalAUK = useSelector(state => state.generalAUK);
     const [groups, setGroups] = useState([]);
+    const [lotCount, setLotCount] = useState(0);
 
     useEffect(() => {
-        if (selectedAuction) {
-            const uniqueGroups = [...new Set(selectedAuction.auct_dates.map(date => date.group))];
+        const fetchAuctions = async () => {
+            try {
+                const currentSession = localStorage.getItem("advertiser-session-aukt");
+                if (!currentSession) {
+                    console.error("No session found");
+                    return;
+                }
+                const sessionData = JSON.parse(currentSession);
+
+                const advertiserResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`, {
+                    headers: { 'Authorization': `Bearer ${sessionData.token}` },
+                    params: { email: sessionData.email }
+                });
+
+                const advertiser = advertiserResponse.data;
+                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
+                    headers: { 'Authorization': `Bearer ${sessionData.token}` },
+                    params: { creator_id: advertiser.id }
+                });
+
+                setAuctions(response.data);
+
+                // Se já temos um leilão no Redux, selecione-o na lista
+                if (generalAUK.auct) {
+                    handleSelectAuction(generalAUK.auct);
+                }
+            } catch (error) {
+                console.error("Error fetching auctions:", error);
+            }
+        };
+
+        fetchAuctions();
+    }, [generalAUK.auct]);
+
+    useEffect(() => {
+        if (generalAUK.auct) {
+            const uniqueGroups = [...new Set(generalAUK.auct.auct_dates.map(date => date.group))];
             setGroups(uniqueGroups);
-        }
-    }, [selectedAuction]);
 
-    useEffect(() => {
-        if (selectedAuction) {
-            dispatch(setRunning(selectedAuction.status === "live"));
-            dispatch(setPaused(selectedAuction.status === "paused"));
+            // Se já temos um grupo no Redux, selecione-o
+            if (generalAUK.group) {
+                handleSelectGroup(generalAUK.group);
+            }
         }
-    }, [selectedAuction, dispatch]);
+    }, [generalAUK.auct, generalAUK.group]);
 
     const handleSelectAuction = (auction) => {
-        dispatch(selectLiveAuction(auction));
-        dispatch(setRunning(auction.status === "live"));
-        dispatch(setPaused(auction.status === "paused"));
+        dispatch(setAuct(auction));
+        dispatch(setStatus(auction.status));
+        dispatch(setGroup(null));
+        setLotCount(0);
     };
 
     const handleSelectGroup = (group) => {
-        dispatch(selectLiveGroup(group));
+        const amountToGroups = generalAUK.auct.product_list.filter(product => product.group === group);
+        dispatch(setGroup(group));
+        setLotCount(amountToGroups.length);
     };
 
     const getStatusClass = (status) => {
-        if (isRunning) return 'bg-red-500 text-white';
-        if (isPaused) return 'bg-yellow-500 text-white';
+        if (status === 'live') return 'bg-red-500 text-white';
+        if (status === 'paused') return 'bg-yellow-500 text-white';
         if (status === 'finished') return 'bg-green-500 text-white';
         return 'bg-blue-900 text-white';
     };
 
     return (
-        <div className="flex flex-col w-full h-[60%] justify-around items-center p-4 bg-white rounded-md shadow-lg shadow-[#12121244]">
+        <div className="flex flex-col w-full h-[60%] justify-around items-center p-4 bg-white rounded-md 
+        shadow-lg shadow-[#12121244]">
             <div className="flex w-full justify-between mb-2 text-lg font-semibold text-gray-700">
                 <span className="text-[26px]">Selecione um leilão</span>
-                {selectedAuction && (
-                    <span className={`px-2 py-1 rounded ${getStatusClass(selectedAuction.status)}`}>
-                        {selectedAuction.status}
+                {generalAUK.auct && (
+                    <span className={`px-2 py-1 rounded ${getStatusClass(generalAUK.status)}`}>
+                        {generalAUK.status}
                     </span>
                 )}
             </div>
 
-            <section className={`flex w-full h-[80%] relative ${selectedAuction ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
-                {selectedAuction && (
+            <section className={`flex w-full h-[80%] relative ${generalAUK.auct ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
+                {generalAUK.auct && (
                     <img
-                        src={selectedAuction?.auct_cover_img}
-                        alt={selectedAuction?.title}
+                        src={generalAUK.auct?.auct_cover_img}
+                        alt={generalAUK.auct?.title}
                         className="h-[98%] object-cover rounded-[12px]"
                     />
                 )}
                 <div className="flex flex-col items-center">
                     <select
                         id="auction-select"
-                        className="w-[270px] h-[70px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
+                        className="w-[240px] h-[60px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
                         onChange={(e) => handleSelectAuction(auctions.find(a => a.id === e.target.value))}
+                        value={generalAUK.auct?.id || ""}
                     >
                         <option value="">Selecione um leilão</option>
                         {auctions.map(auction => (
@@ -75,15 +114,16 @@ function AuctionsSelectorController() {
                         ))}
                     </select>
 
-                    {selectedAuction && (
+                    {generalAUK.auct && (
                         <>
                             <label htmlFor="group-select" className="mb-2 text-lg font-semibold text-gray-700">
                                 Selecione um grupo
                             </label>
                             <select
                                 id="group-select"
-                                className="w-[270px] h-[70px] p-2 bg-[#012038] text-white rounded-[6px]"
+                                className="w-[240px] h-[60px] p-2 bg-[#012038] text-white rounded-[6px]"
                                 onChange={(e) => handleSelectGroup(e.target.value)}
+                                value={generalAUK.group || ""}
                             >
                                 <option value="">Selecione um grupo</option>
                                 {groups.map(group => (
@@ -92,6 +132,14 @@ function AuctionsSelectorController() {
                                     </option>
                                 ))}
                             </select>
+                            {generalAUK.group && (
+                                <div className="mt-2 text-lg font-semibold text-gray-700 flex gap-3 justify-center items-center">
+                                    <Inventory2 />
+                                    <span>
+                                        {lotCount}
+                                    </span>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

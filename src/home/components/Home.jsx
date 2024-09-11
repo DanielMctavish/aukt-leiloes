@@ -1,16 +1,14 @@
 import Navigation from "../navigation/Navigation";
 //import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
+import Section01_1 from "./Section01_1";
 import Section02 from "./Section02";
 import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
 import Submenu from "../navigation/Submenu";
-import Section01_1 from "./Section01_1";
 
 function Home() {
-
-
   // const hiddenNav = () => {
   //   if (window.innerWidth < 1025) {
   //     const navigationAuk = document.querySelector(".nav-auk")
@@ -19,19 +17,16 @@ function Home() {
   //   }
   // }
 
-
   return (
     <div
       className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
       <Navigation />
-      <Submenu/>
-
+      <Submenu />
       <Section01 />
-      <Section01_1/>
+      <Section01_1 />
       <Section02 />
       <Section03 />
       <Footer />
-
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { selectedToGraphReducer } from './auct/SelectedToGraph';
 import { controlButtonsReducer } from './auct/controlButtonsSlice';
 import { auctionListReducer } from './auct/AuctionListSlice';
 import { currentProductReducer } from './auct/CurrentProductSlice';
+import generalAUKReducer from './auct/generalAUKSlice';
 
 const store = configureStore({
     reducer: {
@@ -35,7 +36,8 @@ const store = configureStore({
         selectedToGraph: selectedToGraphReducer,
         controlButtons: controlButtonsReducer,
         auctionList: auctionListReducer,
-        currentProduct: currentProductReducer
+        currentProduct: currentProductReducer,
+        generalAUK: generalAUKReducer
     }
 })
 

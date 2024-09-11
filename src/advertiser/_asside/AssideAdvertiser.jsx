@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 function AssideAdvertiser(props) {
-  const [desktopMenuVisible, setDesktopMenuVisible] = useState(true)
+  const [desktopMenuVisible, setDesktopMenuVisible] = useState(false)
   const [intervalMouse, setIntervalMouse] = useState(null)
 
   const menuDesktopRef = useRef()
