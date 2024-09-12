@@ -7,10 +7,14 @@ import { useNavigate } from "react-router-dom"
 import aukWhite from "../../media/logos/logos-auk/logo_model01_white.png"
 import { Gavel, LiveTv, ShoppingCart, AttachMoney, LibraryBooks, CheckCircle } from "@mui/icons-material"
 
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+
 function Section01() {
   const [cardsSelecteds, setCardsSelecteds] = useState([]);
   const [counters, setCounters] = useState({});
-  const [productCounters, setProductCounters] = useState({ count: 0, countWithBid: 0 }); // Novo useState
+  const [productCounters, setProductCounters] = useState({ count: 0, countWithBid: 0 });
 
   const navigate = useNavigate();
 
@@ -56,44 +60,40 @@ function Section01() {
 
   useEffect(() => { }, [counters]);
 
+  const counterItems = [
+    { icon: <Gavel sx={{ fontSize: "33px" }} />, label: "Leilões Registrados", value: counters.countAll },
+    { icon: <LiveTv sx={{ fontSize: "33px" }} />, label: "Ao vivo", value: counters.countLive, color: "#ff5050" },
+    { icon: <LibraryBooks sx={{ fontSize: "33px" }} />, label: "Catalogado", value: counters.countCataloged, color: "#1c7ea4" },
+    { icon: <CheckCircle sx={{ fontSize: "33px" }} />, label: "Finalizado", value: counters.countFinished, color: "#2ada2f" },
+    { icon: <ShoppingCart sx={{ fontSize: "33px" }} />, label: "Produtos criados", value: productCounters.count },
+    { icon: <AttachMoney sx={{ fontSize: "33px" }} />, label: "Produtos com Lances", value: productCounters.countWithBid },
+  ];
+
   return (
-    <section className="flex flex-col w-full h-[100vh] 
+    <section className="flex flex-col w-full min-h-screen 
     justify-start items-center gap-1
-    bg-gradient-to-b from-[#000000]  to-[#0D1733] relative overflow-hidden">
+    bg-gradient-to-b from-[#000000] to-[#0D1733] relative overflow-hidden">
 
-      <div className="flex flex-col w-full justify-center items-center  h-[20vh] relative mt-[12vh]">
-
+      <div className="flex flex-col w-full justify-center items-center h-[20vh] relative mt-[12vh]">
         <img src={aukWhite} alt="" className="object-cover h-[80%] ml-[-3vh] flex justify-center" />
-
         <div className="flex flex-col w-full justify-center items-center">
           <span className="text-[26px] font-bold">AUK Leilões</span>
           <span className="text-[16px]">Grandes Oportunidades Esperam por Você</span>
         </div>
-
       </div>
 
       {/* CARDS DE PRODUTOS */}
-      <div className="w-full flex justify-center items-center overflow-hidden gap-6 h-[40vh] ">
-
+      <div className="w-full flex justify-center items-center overflow-hidden gap-6 h-[40vh]">
         <Swiper
           pagination={{ clickable: true }}
           loop={true}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           breakpoints={{
-            640: {
-              slidesPerView: 1,
-              spaceBetween: 3,
-            },
-            768: {
-              slidesPerView: 2,
-              spaceBetween: 4,
-            },
-            1024: {
-              slidesPerView: 6,
-              spaceBetween: 12,
-            },
-          }} >
-
+            640: { slidesPerView: 1, spaceBetween: 3 },
+            768: { slidesPerView: 2, spaceBetween: 4 },
+            1024: { slidesPerView: 6, spaceBetween: 12 },
+          }}
+        >
           {cardsSelecteds.map((card, index) => (
             <SwiperSlide key={index}>
               <div
@@ -125,59 +125,43 @@ function Section01() {
 
               </div>
             </SwiperSlide>
-
           ))}
-
         </Swiper>
-
-
       </div>
 
-      <div className="flex flex-col w-full h-[30vh] justify-center items-center gap-3">
-        <div className="flex lg:w-[70%] w-[98%] min-h-[14vh]  text-[#e1e1e1] justify-around items-center">
+      {/* Counters */}
+      <div className="flex flex-col w-full h-auto justify-center items-center gap-3 py-8">
+        <div className="hidden lg:flex lg:w-[70%] w-[98%] min-h-[14vh] text-[#e1e1e1] justify-around items-center flex-wrap">
+          {counterItems.map((item, index) => (
+            <div key={index} className="flex flex-col gap-3 justify-center items-center p-4">
+              {React.cloneElement(item.icon, { style: { color: item.color } })}
+              <span className="text-[14px]">{item.label}</span>
+              <span className="font-bold text-[22px]" style={{ color: item.color }}>{item.value}</span>
+            </div>
+          ))}
+        </div>
 
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <Gavel sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Leilões Registrados</span>
-            <span className="font-bold text-[22px]">{counters.countAll}</span>
-          </div>
-
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <LiveTv sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Ao vivo</span>
-            <span className="font-bold text-[#ff5050] text-[22px]">{counters.countLive}</span>
-          </div>
-
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <LibraryBooks sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Catalogado</span>
-            <span className="font-bold text-[#1c7ea4] text-[22px]">{counters.countCataloged}</span>
-          </div>
-
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <CheckCircle sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Finalizado</span>
-            <span className="font-bold text-[#2ada2f] text-[22px]">{counters.countFinished}</span>
-          </div>
-
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <ShoppingCart sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Produtos criados</span>
-            <span className="font-bold text-[22px]">{productCounters.count}</span>
-
-          </div>
-
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <AttachMoney sx={{ fontSize: "33px" }} />
-            <span className="text-[14px]">Produtos com Lances</span>
-            <span className="font-bold text-[22px]">{productCounters.countWithBid}</span>
-          </div>
-
+        {/* Mobile Counters Carousel */}
+        <div className="lg:hidden w-full">
+          <Swiper
+            slidesPerView={2}
+            spaceBetween={10}
+            pagination={{ clickable: true }}
+          >
+            {counterItems.map((item, index) => (
+              <SwiperSlide key={index}>
+                <div className="flex flex-col gap-3 justify-center items-center p-4 text-[#e1e1e1]">
+                  {React.cloneElement(item.icon, { style: { color: item.color } })}
+                  <span className="text-[12px] text-center">{item.label}</span>
+                  <span className="font-bold text-[18px]" style={{ color: item.color }}>{item.value}</span>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
 
     </section>
-
   );
 }
 

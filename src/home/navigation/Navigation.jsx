@@ -1,211 +1,170 @@
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
-  AccountCircle,
   Menu,
-} from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"
-import hammer from "../../media/icons/Hammer.png"
-import logoAuk from "../../media/logos/logos-auk/aukt_blue.png"
-import logoAuk_white from "../../media/logos/logos-auk/logo_model01_white.png"
-import { getAdvertiserInformations } from "../../advertiser/functions/GetAdvertiserInformations";
+  Gavel,
+  Person,
+  Search,
+  Close
+} from '@mui/icons-material';
+import logoAuk from '../../media/logos/logos-auk/aukt_blue.png';
+import { getAdvertiserInformations } from '../../advertiser/functions/GetAdvertiserInformations';
 
-function Navigation() {
-  const [currentAdvertiser, setCurrentAdvertiser] = useState(false)
-  const [currentClient, setCurrentClient] = useState({})
-  const [navigationMenu, setNavigationMenu] = useState(false);
-  const [searchedProducts, setSearchedProducts] = useState([])
-  const [inputText, setInputText] = useState()
+const Navigation = () => {
+  const [currentAdvertiser, setCurrentAdvertiser] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchedProducts, setSearchedProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const navigate = useNavigate()
-  const tailwindItems = "flex justify-center items-center p-2 gap-3";
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getClientInformations()
-    getAdvertiserInformations(setCurrentAdvertiser)
-  }, [])
+    getAdvertiserInformations(setCurrentAdvertiser);
+  }, []);
 
-  const hideNavigation = () => {
-    const navigationAuk = document.querySelector(".nav-auk");
+  const handleSearchProduct = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
 
-    if (!navigationMenu) {
-      navigationAuk.style.marginLeft = "-40vh";
-      navigationAuk.style.transition = ".6s";
-      setNavigationMenu(!navigationMenu);
-    } else {
-      navigationAuk.style.marginLeft = "0vh";
-      navigationAuk.style.transition = ".2s";
-      setNavigationMenu(!navigationMenu);
+    if (query.length < 3) {
+      setSearchedProducts([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-title?title=${query}`);
+      setSearchedProducts(response.data);
+    } catch (error) {
+      console.error('Error searching products:', error);
     }
   };
 
-  const handleClientAccess = () => {
-    navigate("/client/login")
-  }
-
-  const getClientInformations = async () => {
-    const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
-
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
-        headers: {
-          "Authorization": `Bearer ${currentSessionClient.token}`
-        }
-      });
-
-      if (response.data) {
-        setCurrentClient(response.data);
-      } else {
-        localStorage.removeItem("client-auk-session-login");
-      }
-    } catch (error) {
-      console.log(error.message);
-      localStorage.removeItem("client-auk-session-login");
-    }
-  }
-
-  const handleSearchProduct = async (e) => {
-    const currentSearch = e.target.value;
-    setInputText(currentSearch)
-
-    try {
-      await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-title?title=${currentSearch}`)
-        .then(response => {
-          //console.log("produtos encontrados -> ", response.data)
-          setSearchedProducts(response.data)
-        })
-    } catch (error) {
-      console.log("error at get auctions -> ", error.message)
-    }
-
-  }
-
-  useEffect(() => { }, [inputText, searchedProducts])
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
 
   return (
-    <nav
-      className="
-        lg:ml-0 ml-[-40vh] nav-auk lg:left-auto left-0
-        fixed lg:w-full w-[220px] lg:h-[62px]
-        h-[100vh] bg-[#012038] lg:flex-col flex-row flex justify-center items-center
-        gap-2 text-white text-[14px] cursor-pointer z-[100]"
-    >
-      {/* MENU MOBILE */}
-      <span
-        style={{ fontSize: "26px" }}
-        className="
-            shadow-lg shadow-[#1414146b] 
-            fixed 
-            top-1 
-            right-1 
-            lg:hidden 
-            text-[#012038] 
-            bg-white 
-            p-2 
-            rounded-md 
-            z-[9999] 
-            w-[44px] 
-            h-[44px]
-            flex 
-            justify-center
-            items-center"
-        onClick={hideNavigation}
-      >
-        <Menu />
-      </span>
-
-      <div
-        className="
-            lg:w-[94%] 
-            w-full 
-            lg:h-[48px]
-            h-[100vh] 
-            flex 
-            flex-col 
-            lg:flex-row 
-            justify-between 
-            items-center"
-      >
-        <section
-          className="
-                lg:mt-0
-                mt-[8vh]
-                h-[42px] 
-                lg:w-[80%]
-                w-full
-                lg:flex-row
-                flex-col
-                flex 
-                justify-between 
-                items-center 
-                gap-2 
-                text-white"
-        >
-          <div onClick={() => navigate("/")} className="flex items-center sm:mr-[100px] gap-2 w-[70%]">
-            <img src={logoAuk} alt="" className="w-[60px] object-cover" />
-            <span>AUK Leilões</span>
-            <input type="text" onChange={handleSearchProduct} value={inputText}
-              className="bg-white h-[30px] w-[80%] rounded-[12px] p-2 text-[#1c1c1c] font-bold ml-[6vh]"
-              placeholder="Pesquise por item ou categoria" />
-
-            {
-              inputText &&
-              <div className='flex flex-col w-[40%] min-h-[5vh] bg-[#f1f1f1] z-[900]
-              absolute mt-[14.6vh] ml-[20vh] p-1 rounded-md text-zinc-600 shadow-lg shadow-[#13131360]'>
-                {
-                  Array.isArray(searchedProducts) &&
-                  searchedProducts.map((product, i) => (
-                    <button key={i}
-                      onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
-                      className="flex justify-between p-1 text-[#312d2d] text-[12px] 
-                      cursor-pointer hover:bg-[#fff] rounded-md gap-2 border-b-[1px] border-[#bbbbbb]">
-                      <img src={product.cover_img_url} alt="" className='w-[30px] h-[30px] object-cover rounded-md' />
-                      <span> {product.title}</span>
-                    </button>
-                  ))
-                }
+    <nav className="bg-[#012038] text-white fixed w-full z-50">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <img className="h-8 w-auto" src={logoAuk} alt="AUK Leilões" />
+            </div>
+            <div className="hidden md:block ml-10">
+              <div className="flex items-baseline space-x-4">
+                <a href="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-[#0D1733] hover:text-white">Home</a>
+                {/* Add more navigation items here */}
               </div>
-            }
-
+            </div>
           </div>
-
-
-        </section>
-
-        <div className="flex gap-6 justify-center items-center ">
-
-          {!currentAdvertiser ? <span className="w-[60px] h-[60px] flex justify-center items-center" onClick={() => navigate("/advertiser/login")}>
-            <img src={logoAuk_white} alt="hammer" className="w-[48px] object-cover" />
-          </span> :
-            <span onClick={() => navigate("/advertiser/login")}>
-              <img src={currentAdvertiser.url_profile_cover} alt=""
-                className="w-[40px] h-[40px] object-cover rounded-full border-[3px] border-white" />
-            </span>
-          }
-
-          <span className="w-[30px] h-[30px]" onClick={() => navigate("/floor/hub")}>
-            <img src={hammer} alt="hammer" className="w-[30px] object-cover" />
-          </span>
-
-          <button
-            onClick={handleClientAccess}
-            className={tailwindItems}>
-            <AccountCircle />
-            <span>
-              {
-                currentClient.nickname ?
-                  currentClient.nickname :
-                  <span onClick={() => navigate("/client/login")}>entrar</span>
-              }
-            </span>
-          </button>
-
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center md:ml-6">
+              <button onClick={toggleSearch} className="p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
+                <Search />
+              </button>
+              <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
+                <Gavel />
+              </button>
+              {currentAdvertiser ? (
+                <img
+                  className="ml-3 h-8 w-8 rounded-full cursor-pointer"
+                  src={currentAdvertiser.url_profile_cover}
+                  alt=""
+                  onClick={() => navigate('/advertiser/login')}
+                />
+              ) : (
+                <Person
+                  className="ml-3 h-8 w-8 p-1 rounded-full hover:bg-[#0D1733] cursor-pointer"
+                  onClick={() => navigate('/advertiser/login')}
+                />
+              )}
+            </div>
+          </div>
+          <div className="-mr-2 flex md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-[#0D1733] focus:outline-none"
+            >
+              <Menu className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`} />
+              <Close className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`} />
+            </button>
+          </div>
         </div>
-
       </div>
 
+      {/* Mobile menu */}
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <a href="/" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-[#0D1733] hover:text-white">Home</a>
+          {/* Add more mobile navigation items here */}
+        </div>
+        <div className="pt-4 pb-3 border-t border-[#0D1733]">
+          <div className="flex items-center px-5">
+            <div className="flex items-center">
+              <button onClick={toggleSearch} className="p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
+                <Search />
+              </button>
+              <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
+                <Gavel />
+              </button>
+              {currentAdvertiser ? (
+                <img
+                  className="ml-3 h-8 w-8 rounded-full cursor-pointer"
+                  src={currentAdvertiser.url_profile_cover}
+                  alt=""
+                  onClick={() => navigate('/advertiser/login')}
+                />
+              ) : (
+                <Person
+                  className="ml-3 h-8 w-8 p-1 rounded-full hover:bg-[#0D1733] cursor-pointer"
+                  onClick={() => navigate('/advertiser/login')}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl">
+            <div className="p-4">
+              <div className="flex items-center border-b border-gray-300 pb-2">
+                <input
+                  type="text"
+                  placeholder="Pesquise por item ou categoria"
+                  className="flex-grow outline-none text-black"
+                  value={searchQuery}
+                  onChange={handleSearchProduct}
+                />
+                <button onClick={toggleSearch} className="ml-2 text-gray-500 hover:text-gray-700">
+                  <Close />
+                </button>
+              </div>
+              <div className="mt-4 max-h-96 overflow-y-auto">
+                {searchedProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      navigate(`/advertiser/home/product/${product.id}`);
+                      toggleSearch();
+                    }}
+                  >
+                    <img src={product.cover_img_url} alt="" className="w-12 h-12 object-cover rounded-md mr-4" />
+                    <span className="text-black">{product.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
-}
+};
 
 export default Navigation;
