@@ -54,24 +54,28 @@ function ProductDetailAdv() {
     useEffect(() => {
         getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner);
         getClientSession(setSessionsClient, setCurrentClient);
-        getAnotherProducts()
-    }, [modalOn]);
+    }, [modalOn, product_id]);
+
+    useEffect(() => {
+        if (currentAuct && currentAuct.id) {
+            getAnotherProducts();
+        }
+    }, [currentAuct]);
 
     const getAnotherProducts = async () => {
+        if (!currentAuct || !currentAuct.id) return;
 
         try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
                 params: {
                     auct_id: currentAuct.id,
                     take: 14,
                 }
-            }).then(response => {
-                setAnotherProducts(response.data)
-            })
+            });
+            setAnotherProducts(response.data);
         } catch (error) {
             console.log("Error loading page:", error.message);
         }
-
     }
 
     useEffect(() => {
@@ -136,19 +140,21 @@ function ProductDetailAdv() {
             {/*Main Body*/}
             <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-3">
 
-                <div className='flex w-[80%] justify-between items-center gap-3'>
-                    <div className='flex justify-center items-center gap-3'>
-                        <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[60px] h-[60px] object-cover rounded-full' />
-                        <div className='flex flex-col justify-start items-start'>
-                            <span className='font-bold text-[16px]'>{currentAdvertiser.name}</span>
-                            <span>{currentAuct.title}</span>
+                {currentAuct && currentAdvertiser && (
+                    <div className='flex w-[80%] justify-between items-center gap-3'>
+                        <div className='flex justify-center items-center gap-3'>
+                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[60px] h-[60px] object-cover rounded-full' />
+                            <div className='flex flex-col justify-start items-start'>
+                                <span className='font-bold text-[16px]'>{currentAdvertiser.name}</span>
+                                <span>{currentAuct.title}</span>
+                            </div>
                         </div>
+                        <span onClick={() => setShowBids(!showBids)} className='flex justify-center gap-3 cursor-pointer'>
+                            <Visibility />
+                            ver lances
+                        </span>
                     </div>
-                    <span onClick={() => setShowBids(!showBids)} className='flex justify-center gap-3 cursor-pointer'>
-                        <Visibility />
-                        ver lances
-                    </span>
-                </div>
+                )}
 
                 {/* Carrosel e descrições */}
                 <section className='flex w-[80%] h-[700px] relative justify-start items-start'>
