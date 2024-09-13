@@ -6,9 +6,11 @@ import { useNavigate } from "react-router-dom"
 
 import backgroundSocial from "../../media/backgrounds/social_bg_wall.jpg"
 import auctLogo from "../../media/logos/logos-auk/aukt_blue.png"
+import AdvertiserLoginFooterModal from "./AdvertiserLoginFooterModal"
 
 function AdvertiserLogin() {
     const [messageDisplay, setMessageDisplay] = useState("")
+    const [showFooterModal, setShowFooterModal] = useState(true)
     const refEmail = useRef()
     const refPassword = useRef()
     const navigate = useNavigate()
@@ -103,6 +105,10 @@ function AdvertiserLogin() {
                 </div>
             </section>
 
+            <AdvertiserLoginFooterModal 
+                isVisible={showFooterModal} 
+                onClose={() => setShowFooterModal(false)} 
+            />
         </div>
     )
 }
