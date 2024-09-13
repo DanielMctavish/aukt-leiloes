@@ -2,19 +2,32 @@ import React from "react";
 
 function Step3({ clientAvatar, setClientAvatar, avatares_pessoas, handleNextStep, handlePreviousStep }) {
     return (
-        <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative">
-            <h1 className="text-left font-bold text-[23px]">selecione seu avatar</h1>
-            <div className="flex flex-wrap w-[98%] max-h-[60vh] justify-center items-center gap-2 p-2">
-                {avatares_pessoas.map((avatar, i) => (
-                    <img src={avatar} alt=""
-                        key={i}
-                        onClick={() => setClientAvatar(i)}
-                        className={`w-[100px] h-[100px] object-cover rounded-full cursor-pointer ${i === clientAvatar ? 'border-[3px] border-zinc-600' : ''}`} />
+        <div className="flex flex-col gap-4 w-full max-w-md">
+            <div className="grid grid-cols-4 gap-4">
+                {avatares_pessoas.map((avatar, index) => (
+                    <img
+                        key={index}
+                        src={avatar}
+                        alt={`Avatar ${index + 1}`}
+                        className={`w-20 h-20 rounded-full cursor-pointer transition-all ${clientAvatar === index ? 'border-4 border-green-500' : 'hover:opacity-80'}`}
+                        onClick={() => setClientAvatar(index)}
+                    />
                 ))}
             </div>
-
-            <button onClick={() => handlePreviousStep(2)}>anterior</button>
-            <button onClick={() => handleNextStep(2)}>próximo</button>
+            <div className="flex justify-between mt-4">
+                <button
+                    onClick={() => handlePreviousStep(2)}
+                    className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors w-[48%]"
+                >
+                    Anterior
+                </button>
+                <button
+                    onClick={() => handleNextStep(2)}
+                    className="p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors w-[48%]"
+                >
+                    Próximo
+                </button>
+            </div>
         </div>
     );
 }

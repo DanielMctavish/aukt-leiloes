@@ -19,14 +19,13 @@ function ClientLogin() {
     }, [])
 
     const handleClientLogin = async () => {
-
         localStorage.removeItem("client-auk-session-login")
 
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
-            email: email,
-            password: password,
-        }).then(response => {
-            //console.log("login >> ", response.data)
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
+                email: email,
+                password: password,
+            });
             localStorage.setItem("client-auk-session-login", JSON.stringify({
                 token: response.data.token,
                 email: response.data.user.email,
@@ -34,47 +33,62 @@ function ClientLogin() {
                 id: response.data.user.id,
             }))
             navigate("/client/dashboard")
-        }).catch(err => {
+        } catch (err) {
             console.log("err login >> ", err.message)
-        })
-
+            // Adicione aqui uma lógica para mostrar uma mensagem de erro ao usuário
+        }
     }
 
     return (
+        <div className="text-white w-full h-screen bg-[#09360f] flex flex-col justify-center items-center gap-3 overflow-hidden relative">
+            <img src={logoAukBlue} alt="logo-aukt" onClick={() => navigate("/")} 
+                className="w-16 h-16 object-cover z-10 absolute top-4 left-6 cursor-pointer hover:opacity-80 transition-opacity" />
+            <img src={background} className="object-cover w-full h-full absolute opacity-40 blur-[2px]" alt="background" />
 
-        <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 overflow-hidden relative">
-            <img src={logoAukBlue} alt="logo-aukt" onClick={() => navigate("/")} className="w-[60px] h-[60px] object-cover 
-            z-[99] absolute top-2 left-6 cursor-pointer" />
-            <img src={background} className="object-cover w-full h-full absolute opacity-60" />
-
-            <section className="w-[80%] h-[90vh] flex bg-transparent rounded-[4px] relative overflow-hidden shadow-2xl z-10">
-                <div className="w-[50%] h-[100%] bg-[#24755799] backdrop-blur-[12px] flex justify-center items-center">
-                    <img src={logoAuk} className="w-[360px] object-cover" />
+            <section className="w-4/5 h-[90vh] flex bg-transparent rounded-md relative overflow-hidden shadow-2xl z-10">
+                <div className="w-1/2 h-full bg-[#24755799] backdrop-blur-md flex justify-center items-center">
+                    <img src={logoAuk} className="w-80 object-cover transition-transform hover:scale-105" alt="Aukt logo" />
                 </div>
 
-                <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative bg-zinc-800">
-                    <h1 className="text-left font-bold text-[33px] w-[300px]">BEM VINDO!</h1>
+                <div className="w-1/2 h-full flex flex-col justify-center items-center gap-6 relative bg-zinc-800 bg-opacity-90">
+                    <h1 className="text-left font-bold text-4xl w-80">BEM VINDO!</h1>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>email</span>
-                        <input type="email"
+                    <div className="flex flex-col justify-start items-start w-80">
+                        <label htmlFor="email" className="mb-1">Email</label>
+                        <input 
+                            id="email"
+                            type="email"
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                            className="w-full h-12 p-3 border border-white bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:ring-white transition-all"
+                        />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>senha</span>
-                        <input type="password"
+                    <div className="flex flex-col justify-start items-start w-80">
+                        <label htmlFor="password" className="mb-1">Senha</label>
+                        <input 
+                            id="password"
+                            type="password"
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
+                            className="w-full h-12 p-3 border border-white bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:ring-white transition-all"
+                        />
                     </div>
 
-                    <button onClick={handleClientLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#242424]">entrar</button>
-                    <button onClick={() => navigate("/client/register")}>não tem uma conta? Registre-se</button>
+                    <button 
+                        onClick={handleClientLogin} 
+                        className="w-80 h-12 bg-white rounded-md text-zinc-800 font-bold text-lg hover:bg-opacity-90 transition-all"
+                    >
+                        Entrar
+                    </button>
+                    <button 
+                        onClick={() => navigate("/client/register")} 
+                        className="text-white hover:underline transition-all"
+                    >
+                        Não tem uma conta? Registre-se
+                    </button>
                 </div>
-
             </section>
-
         </div>
     )
 }

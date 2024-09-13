@@ -8,6 +8,9 @@ import Step1 from "../components-clients/Step1";
 import Step2 from "../components-clients/Step2";
 import Step3 from "../components-clients/Step3";
 import Step4 from "../components-clients/Step4";
+import { motion, AnimatePresence } from "framer-motion";
+import { Person, Home, Face, EmojiEvents } from '@mui/icons-material';
+
 //avatares import
 import avatar_01 from "../../media/avatar-floor/avatar_01.png";
 import avatar_02 from "../../media/avatar-floor/avatar_02.png";
@@ -43,6 +46,48 @@ function ClientRegister() {
 
     useEffect(() => { }, [cep, state, city, street, number, name, cpf, email, password, confirmPassword, nickname, clientAvatar, phone]);
 
+    const validateCPF = (cpf) => {
+        cpf = cpf.replace(/[^\d]+/g,'');	
+        if(cpf == '') return false;	
+        // Elimina CPFs invalidos conhecidos	
+        if (cpf.length != 11 || 
+            cpf == "00000000000" || 
+            cpf == "11111111111" || 
+            cpf == "22222222222" || 
+            cpf == "33333333333" || 
+            cpf == "44444444444" || 
+            cpf == "55555555555" || 
+            cpf == "66666666666" || 
+            cpf == "77777777777" || 
+            cpf == "88888888888" || 
+            cpf == "99999999999")
+                return false;		
+        // Valida 1o digito	
+        let add = 0;	
+        for (let i=0; i < 9; i ++)		
+            add += parseInt(cpf.charAt(i)) * (10 - i);	
+            let rev = 11 - (add % 11);	
+            if (rev == 10 || rev == 11)		
+                rev = 0;	
+            if (rev != parseInt(cpf.charAt(9)))		
+                return false;		
+        // Valida 2o digito	
+        add = 0;	
+        for (let i = 0; i < 10; i ++)		
+            add += parseInt(cpf.charAt(i)) * (11 - i);	
+        rev = 11 - (add % 11);	
+        if (rev == 10 || rev == 11)	
+            rev = 0;	
+        if (rev != parseInt(cpf.charAt(10)))
+            return false;		
+        return true;   
+    }
+
+    const validatePhone = (phone) => {
+        const phoneRegex = /^(\+55|55)?(\d{2})?\d{9}$/;
+        return phoneRegex.test(phone.replace(/\D/g, ''));
+    }
+
     const handleRegisterNewClient = async () => {
         if (!name || !cpf || !email || !password || !confirmPassword || !phone) {
             alert('Preencha todos os campos');
@@ -54,30 +99,42 @@ function ClientRegister() {
             return;
         }
 
+        if (!validateCPF(cpf)) {
+            alert('CPF inválido');
+            return;
+        }
+
+        if (!validatePhone(phone)) {
+            alert('Número de telefone/WhatsApp inválido');
+            return;
+        }
+
         setIsCreating(true);
 
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/create-client`, {
-            name: name,
-            cpf: cpf,
-            email: email,
-            password: password,
-            client_avatar: clientAvatar,
-            nickname: nickname,
-            address: JSON.stringify({
-                cep: cep,
-                state: state,
-                city: city,
-                street: street,
-                number: number,
-                phone: phone // Inclua o telefone dentro do objeto address
-            })
-        }).then(() => {
+        try {
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/create-client`, {
+                name: name,
+                cpf: cpf,
+                email: email,
+                password: password,
+                client_avatar: clientAvatar,
+                nickname: nickname,
+                address: JSON.stringify({
+                    cep: cep,
+                    state: state,
+                    city: city,
+                    street: street,
+                    number: number,
+                    phone: phone
+                })
+            });
             navigate("/client/dashboard");
-            setIsCreating(false);
-        }).catch(err => {
+        } catch (err) {
             console.log("erro ao tentar criar cliente -> ", err.response);
+            alert('Erro ao criar cliente. Por favor, tente novamente.');
+        } finally {
             setIsCreating(false);
-        });
+        }
     };
 
     const handleGetAddress = (event) => {
@@ -98,10 +155,12 @@ function ClientRegister() {
         if (step === 0) {
             if (!name) missing.push("Nome");
             if (!cpf) missing.push("CPF");
+            else if (!validateCPF(cpf)) missing.push("CPF válido");
             if (!email) missing.push("Email");
             if (!password) missing.push("Senha");
             if (!confirmPassword) missing.push("Confirmar Senha");
             if (!phone) missing.push("Telefone/WhatsApp");
+            else if (!validatePhone(phone)) missing.push("Telefone/WhatsApp válido");
         } else if (step === 1) {
             if (!cep) missing.push("CEP");
             if (!state) missing.push("Estado");
@@ -129,6 +188,13 @@ function ClientRegister() {
         setMissingFields([]);
     };
 
+    const stepComponents = [
+        { component: Step1, icon: <Person />, title: "Informações Pessoais" },
+        { component: Step2, icon: <Home />, title: "Endereço" },
+        { component: Step3, icon: <Face />, title: "Escolha seu Avatar" },
+        { component: Step4, icon: <EmojiEvents />, title: "Escolha seu Apelido" },
+    ];
+
     if (isCreating) {
         return (
             <div className="text-white w-full h-[100vh] bg-[#616161] flex flex-col justify-center items-center gap-3">
@@ -143,82 +209,86 @@ function ClientRegister() {
     }
 
     return (
-        <div className="text-white w-full h-[100vh] bg-[#535353] flex flex-col justify-center items-center gap-3 relative">
-            <img src={bgRegister} alt="" className="absolute w-full h-[100%] object-cover opacity-70" />
+        <div className="text-white w-full min-h-screen bg-gradient-to-br from-green-800 to-green-900 flex flex-col 
+        justify-center items-center gap-6 relative p-8">
+            <img src={bgRegister} alt="" className="absolute w-full h-full object-cover opacity-40 filter blur-[2px]" />
 
-            <section className="md:w-[60%] w-[90%] h-[90vh] 
-            flex flex-col bg-[#1f8221ca] rounded-[4px]
-            justify-center items-center backdrop-blur-md
-            relative overflow-hidden shadow-2xl p-2">
+            <motion.section 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="md:w-[80%] w-[95%] bg-[#24755799] bg-opacity-40 backdrop-blur-md rounded-xl shadow-2xl p-8 relative overflow-hidden"
+            >
+                <div className="flex flex-col items-center mb-8">
+                    <img src={logoAukGreen} className="w-24 mb-4" alt="Logo" />
+                    <h2 className="text-3xl font-bold">{stepComponents[nextMenu].title}</h2>
+                </div>
 
-                <section className="flex w-full h-full justify-center items-center">
+                <div className="flex justify-center mb-8">
+                    {stepComponents.map((step, index) => (
+                        <div key={index} className={`flex flex-col items-center mx-4 ${index === nextMenu ? 'text-green-400' : 'text-gray-400'}`}>
+                            {step.icon}
+                            <div className={`h-1 w-16 mt-2 ${index === nextMenu ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+                        </div>
+                    ))}
+                </div>
 
-                    {nextMenu === 0 && (
-                        <Step1
-                            name={name}
-                            setName={setName}
-                            cpf={cpf}
-                            setCpf={setCpf}
-                            email={email}
-                            setEmail={setEmail}
-                            password={password}
-                            setPassword={setPassword}
-                            confirmPassword={confirmPassword}
-                            setConfirmPassword={setConfirmPassword}
-                            phone={phone}
-                            setPhone={setPhone}
-                            handleNextStep={handleNextStep}
-                        />
-                    )}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={nextMenu}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {stepComponents[nextMenu].component({
+                            name,
+                            setName,
+                            cpf,
+                            setCpf,
+                            email,
+                            setEmail,
+                            password,
+                            setPassword,
+                            confirmPassword,
+                            setConfirmPassword,
+                            phone,
+                            setPhone,
+                            cep,
+                            setCep,
+                            state,
+                            setState,
+                            city,
+                            setCity,
+                            street,
+                            setStreet,
+                            number,
+                            setNumber,
+                            clientAvatar,
+                            setClientAvatar,
+                            avatares_pessoas,
+                            nickname,
+                            setNickname,
+                            handleRegisterNewClient,
+                            handleGetAddress,
+                            handleNextStep,
+                            handlePreviousStep,
+                        })}
+                    </motion.div>
+                </AnimatePresence>
 
-                    {nextMenu === 1 && (
-                        <Step2
-                            cep={cep}
-                            setCep={setCep}
-                            state={state}
-                            setState={setState}
-                            city={city}
-                            setCity={setCity}
-                            street={street}
-                            setStreet={setStreet}
-                            number={number}
-                            setNumber={setNumber}
-                            handleGetAddress={handleGetAddress}
-                            handleNextStep={handleNextStep}
-                            handlePreviousStep={handlePreviousStep}
-                        />
-                    )}
+                <div className="flex justify-center mt-8">
+                    <button onClick={() => navigate("/client/login")} className="text-green-300 hover:text-green-100 transition-colors">
+                        Já tem uma conta? Entrar
+                    </button>
+                </div>
+            </motion.section>
 
-                    {nextMenu === 2 && (
-                        <Step3
-                            clientAvatar={clientAvatar}
-                            setClientAvatar={setClientAvatar}
-                            avatares_pessoas={avatares_pessoas}
-                            handleNextStep={handleNextStep}
-                            handlePreviousStep={handlePreviousStep}
-                        />
-                    )}
-
-                    {nextMenu === 3 && (
-                        <Step4
-                            nickname={nickname}
-                            setNickname={setNickname}
-                            handleRegisterNewClient={handleRegisterNewClient}
-                            handlePreviousStep={handlePreviousStep}
-                        />
-                    )}
-
-                    <div className="flex flex-col justify-center items-center gap-1">
-                        <img src={logoAukGreen} className="object-cover w-[100px]" />
-                        <button onClick={() => navigate("/client/login")}>já tem uma conta? Entrar</button>
-                    </div>
-                </section>
-
-            </section>
-
-            {missingFields.length > 0 && (
-                <ErrorModal missingFields={missingFields} clearErrors={clearErrors} />
-            )}
+            <AnimatePresence>
+                {missingFields.length > 0 && (
+                    <ErrorModal missingFields={missingFields} clearErrors={clearErrors} />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
