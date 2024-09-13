@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import { ArrowCircleLeft } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
 
-
 function HomeAdvSection02({ currentAdvertiser }) {
     const [auctionList, setAuctionList] = useState([])
+    const [slidesPerView, setSlidesPerView] = useState(3)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -17,17 +17,15 @@ function HomeAdvSection02({ currentAdvertiser }) {
     }, [currentAdvertiser])
 
     const getAdvertiserAuctions = async () => {
-
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.id}`);
-            setAuctionList(response.data)
+            const catalogedAuctions = response.data.filter(auction => auction.status === 'cataloged');
+            setAuctionList(catalogedAuctions)
+            setSlidesPerView(Math.min(3, catalogedAuctions.length))
         } catch (error) {
             console.log("error -> ", error)
         }
-
     }
-
-    useEffect(() => { }, [auctionList])
 
     return (
         <section className="flex flex-col justify-center items-center w-full h-[60vh] bg-[#0D1733] relative">
@@ -35,11 +33,11 @@ function HomeAdvSection02({ currentAdvertiser }) {
                 <div className="flex flex-col w-[60%] ml-[12vh] gap-6">
                     <h1 className="text-[48px] font-bold anton-regular-advertiser-title">Leilões disponíveis</h1>
                     <p className="w-[60%] text-[16px] font-bold">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        Explore nossa seleção de leilões ativos, com uma variedade de itens exclusivos 
+                        esperando pelo seu lance. Cada leilão oferece uma oportunidade única de adquirir 
+                        produtos de qualidade a preços competitivos. Não perca a chance de participar 
+                        e garantir aquele item especial que você tanto deseja. Comece a navegar agora 
+                        e descubra as melhores ofertas!
                     </p>
                 </div>
             </div>
@@ -49,40 +47,41 @@ function HomeAdvSection02({ currentAdvertiser }) {
                     <ArrowCircleLeft sx={{ fontSize: "30px" }} />
                 </div>
 
-                <Swiper
-                    pagination={{ clickable: true }}
-                    loop={true}
-                    autoplay={{ delay: 3000, disableOnInteraction: false }}
-                    breakpoints={{
-                        640: {
-                            slidesPerView: 1,
-                            spaceBetween: 3,
-                        },
-                        768: {
-                            slidesPerView: 2,
-                            spaceBetween: 4,
-                        },
-                        1024: {
-                            slidesPerView: 3,
-                            spaceBetween: 6,
-                        },
-                    }}
-                >
-                    {
-                        Array.isArray(auctionList) &&
-                        auctionList.map((auction) => {
-                            if (auction.status !== 'cataloged') return null;
-                            return (
-                                <SwiperSlide key={auction.id}>
-                                    <div onClick={() => navigate(`/advertiser/home/shop/${auction.id}`)} className="flex justify-center items-center slide-item-img transition-all duration-[1s]
-                                    overflow-hidden rounded-[2px] shadow-lg shadow-[#0f0f0fbf] cursor-pointer hover:brightness-[1.6]">
-                                        <img src={auction.auct_cover_img} alt="" className="h-[360px] w-full object-cover" />
-                                    </div>
-                                </SwiperSlide>
-                            )
-                        })
-                    }
-                </Swiper>
+                <div className="w-[calc(100%-40px)] h-full">
+                    <Swiper
+                        pagination={{ clickable: true }}
+                        loop={auctionList.length > slidesPerView}
+                        autoplay={{ delay: 3000, disableOnInteraction: false }}
+                        breakpoints={{
+                            640: {
+                                slidesPerView: Math.min(1, auctionList.length),
+                                spaceBetween: 10,
+                            },
+                            768: {
+                                slidesPerView: Math.min(2, auctionList.length),
+                                spaceBetween: 20,
+                            },
+                            1024: {
+                                slidesPerView: slidesPerView,
+                                spaceBetween: 30,
+                            },
+                        }}
+                        className="h-full"
+                    >
+                        {auctionList.map((auction) => (
+                            <SwiperSlide key={auction.id} className="h-full">
+                                <div 
+                                    onClick={() => navigate(`/advertiser/home/shop/${auction.id}`)} 
+                                    className="flex justify-center items-center slide-item-img transition-all duration-[1s]
+                                    overflow-hidden rounded-[2px] shadow-lg shadow-[#0f0f0fbf] cursor-pointer hover:brightness-[1.6]
+                                    h-full"
+                                >
+                                    <img src={auction.auct_cover_img} alt="" className="w-full h-full object-cover" />
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </div>
             </div>
 
             <div className="flex w-full h-[20%] bg-[#efefef]"></div>

@@ -71,7 +71,7 @@ function Section01() {
 
   return (
     <section className="flex flex-col w-full min-h-screen 
-    justify-start items-center gap-1
+    justify-start items-center gap-1 mt-[4vh]
     bg-gradient-to-b from-[#000000] to-[#0D1733] relative overflow-hidden">
 
       <div className="flex flex-col w-full justify-center items-center h-[20vh] relative mt-[12vh]">
@@ -97,9 +97,9 @@ function Section01() {
           {cardsSelecteds.map((card, index) => (
             <SwiperSlide key={index}>
               <div
-                className="flex-1 h-full 
-      overflow-hidden flex justify-center  slide-item-img 
-       items-center gap-3 rounded-lg relative ">
+                className="flex-1 h-full
+                overflow-hidden flex justify-center  slide-item-img 
+                items-center gap-3 rounded-lg relative ">
 
                 <img
                   src={card ? card.cover_img_url : ""}

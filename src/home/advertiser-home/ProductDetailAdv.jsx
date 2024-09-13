@@ -88,76 +88,76 @@ function ProductDetailAdv() {
     }, [])
 
     return (
-        <div className="flex flex-col justify-start items-center w-full h-[140vh] bg-[#0D1733] p-[2vh] relative overflow-hidden">
+        <div className="flex flex-col justify-start items-center w-full h-[160vh] bg-[#0D1733] p-[1.5vh] relative overflow-hidden">
 
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
 
             {/* MENU */}
-            <div onClick={() => setShowMenu(!showMenu)} className="flex w-[40px] h-[40px] 
-            rounded-[12px] bg-[#fff] 
+            <div onClick={() => setShowMenu(!showMenu)} className="flex w-[35px] h-[35px] 
+            rounded-[10px] bg-[#fff] 
             cursor-pointer justify-center items-center
-            hover:bg-[#eeeeee] fixed z-[99] top-[3vh] left-[3vh] 
+            hover:bg-[#eeeeee] fixed z-[99] top-[2.5vh] left-[2.5vh] 
             shadow-lg shadow-[#1313131e]">
-                <Menu sx={{ color: "#767676" }} />
+                <Menu sx={{ color: "#767676", fontSize: "1.2rem" }} />
             </div>
 
-            <div className='flex flex-col w-[40px] h-[92px] fixed z-[99] 
-            top-[9vh] left-[3vh] gap-1 overflow-hidden justify-start items-start'>
+            <div className='flex flex-col w-[35px] h-[80px] fixed z-[99] 
+            top-[8vh] left-[2.5vh] gap-1 overflow-hidden justify-start items-start'>
 
                 <div
                     onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
                     className={`
-                    flex w-[40px] h-[40px] rounded-[12px] bg-[#fff] cursor-pointer justify-center items-center
+                    flex w-[35px] h-[35px] rounded-[10px] bg-[#fff] cursor-pointer justify-center items-center
                     hover:bg-[#eeeeee] shadow-md shadow-[#1313131e] ${!showMenu ? 'mt-[-99px]' : 'mt-0'}
                     `}>
-                    <img src={logoAuk} alt="" className={`w-[40px]`} />
+                    <img src={logoAuk} alt="" className={`w-[35px]`} />
                 </div>
 
-                <div className="flex w-[40px] h-[40px] rounded-[12px] bg-[#fff] cursor-pointer justify-center items-center
+                <div className="flex w-[35px] h-[35px] rounded-[10px] bg-[#fff] cursor-pointer justify-center items-center
                 hover:bg-[#eeeeee] shadow-md shadow-[#1313131e]">
-                    <Gavel sx={{ color: "#767676" }} />
+                    <Gavel sx={{ color: "#767676", fontSize: "1.2rem" }} />
                 </div>
 
             </div>
 
             {/* Login Client */}
-            <div className='flex fixed z-[99] top-[3vh] right-[3vh] gap-3 bg-white p-2 rounded-md cursor-pointer hover:bg-[#ededed]'>
+            <div className='flex fixed z-[99] top-[2.5vh] right-[2.5vh] gap-2 bg-white p-1.5 rounded-md cursor-pointer hover:bg-[#ededed]'>
                 {
                     currentClient.name ?
                         <div onClick={() => navigate("/client/dashboard")} className='flex gap-2 justify-start items-center'>
-                            <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[33px] h-[33px] rounded-full' />
-                            <span className='font-bold'>{currentClient.name}</span>
+                            <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[30px] h-[30px] rounded-full' />
+                            <span className='font-bold text-sm'>{currentClient.name}</span>
                         </div>
                         :
-                        <div onClick={() => setIsModalOn(true)} className='w-full h-full p-2'>
-                            <PeopleAltOutlined />
-                            <button>Entrar</button>
+                        <div onClick={() => setIsModalOn(true)} className='w-full h-full p-1.5'>
+                            <PeopleAltOutlined sx={{ fontSize: "1.2rem" }} />
+                            <button className="text-sm">Entrar</button>
                         </div>
                 }
             </div>
 
 
             {/*Main Body*/}
-            <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-3">
+            <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-2">
 
                 {currentAuct && currentAdvertiser && (
-                    <div className='flex w-[80%] justify-between items-center gap-3'>
-                        <div className='flex justify-center items-center gap-3'>
-                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[60px] h-[60px] object-cover rounded-full' />
+                    <div className='flex w-[75%] justify-between items-center gap-2'>
+                        <div className='flex justify-center items-center gap-2'>
+                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[50px] h-[50px] object-cover rounded-full' />
                             <div className='flex flex-col justify-start items-start'>
-                                <span className='font-bold text-[16px]'>{currentAdvertiser.name}</span>
-                                <span>{currentAuct.title}</span>
+                                <span className='font-bold text-[14px]'>{currentAdvertiser.name}</span>
+                                <span className='text-sm'>{currentAuct.title}</span>
                             </div>
                         </div>
-                        <span onClick={() => setShowBids(!showBids)} className='flex justify-center gap-3 cursor-pointer'>
-                            <Visibility />
+                        <span onClick={() => setShowBids(!showBids)} className='flex justify-center gap-2 cursor-pointer text-sm'>
+                            <Visibility sx={{ fontSize: "1.1rem" }} />
                             ver lances
                         </span>
                     </div>
                 )}
 
                 {/* Carrosel e descrições */}
-                <section className='flex w-[80%] h-[700px] relative justify-start items-start'>
+                <section className='flex w-[80%] h-[60%] relative justify-start items-start'>
                     {/* CARROSEL */}
                     <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
 
