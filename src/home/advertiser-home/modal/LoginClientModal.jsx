@@ -3,85 +3,90 @@ import axios from "axios"
 import { Close } from "@mui/icons-material"
 import { useEffect, useState } from "react"
 
-
 function LoginClientModal({ setIsModalOn, modalOn }) {
-    const [email, setEmail] = useState()
-    const [password, setPassword] = useState()
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
     const handleLoginClient = async () => {
-
         try {
-            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
+            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
                 email: email,
                 password: password
-            }).then(response => {
+            });
 
-                console.log("logado com sucesso --> ", response.data)
+            console.log("logado com sucesso --> ", response.data)
 
-                localStorage.setItem("client-auk-session-login", JSON.stringify({
-                    token: response.data.token,
-                    email: response.data.user.email,
-                    name: response.data.user.name,
-                    id: response.data.user.id,
-                }))
-            })
+            localStorage.setItem("client-auk-session-login", JSON.stringify({
+                token: response.data.token,
+                email: response.data.user.email,
+                name: response.data.user.name,
+                id: response.data.user.id,
+            }))
 
             setIsModalOn(false)
         } catch (error) {
             setIsModalOn(false)
             console.log("Error ao logar cliente -> ", error.message)
         }
-
     }
 
     useEffect(() => {
-
+        // Efeito para lidar com a abertura/fechamento do modal
     }, [modalOn])
 
     return (
-        <div className={
-            `${modalOn ? 'flex' : 'hidden'} flex-col w-[80%] h-[80vh] bg-gradient-to-r from-[#92ffb8] to-[#003026] 
-            shadow-lg shadow-[#0f0f0f39] rounded-md fixed justify-center items-center gap-3 z-[9999] top-[7vh] p-[4vh]`
-        }>
+        <div className={`
+            ${modalOn ? 'flex' : 'hidden'} 
+            flex-col w-[90%] max-w-[1000px] h-[90vh] max-h-[600px] 
+            bg-gradient-to-r from-[#92ffb8] to-[#003026] 
+            shadow-xl shadow-[#0f0f0f39] rounded-lg fixed 
+            justify-center items-center z-[9999] top-[5vh] p-8
+        `}>
+            <button 
+                className='absolute top-4 right-4 text-white hover:text-gray-300 transition-colors'
+                onClick={() => setIsModalOn(false)}
+            >
+                <Close fontSize="large" />
+            </button>
 
-            <span className='absolute top-2 right-2 cursor-pointer text-[#e4e4e4]'
-                onClick={() => setIsModalOn(false)}>
-                <Close />
-            </span>
+            <div className="flex w-full h-full bg-[#17171776] rounded-2xl overflow-hidden">
+                <section className="flex flex-col justify-center items-center w-1/2 h-full text-white p-8 space-y-6">
+                    <h2 className="text-4xl font-bold mb-2">Bem vindo de volta</h2>
+                    <p className="text-lg mb-6">Por favor insira os detalhes da sua conta</p>
 
-            <div className="flex w-full h-full bg-[#17171776] rounded-[22px] justify-center items-center">
-
-                <section className="flex flex-col justify-between items-center w-[50%] h-[40%] text-white">
-
-                    <span className="text-[48px] font-bold">Bem vindo de volta</span>
-                    <span className="text-[16px]">Por favor insira os detalhes da sua conta</span>
-
-                    <input onChange={(e) => setEmail(e.target.value)}
+                    <input 
+                        onChange={(e) => setEmail(e.target.value)}
                         value={email}
                         type="email"
-                        className='bg-[#070707] w-[300px] h-[44px] rounded-[22px] p-3'
-                        placeholder='seu email' />
+                        className='bg-[#070707] w-full max-w-[350px] h-12 rounded-full px-4 text-lg'
+                        placeholder='Seu email'
+                    />
 
-                    <input onChange={(e) => setPassword(e.target.value)}
+                    <input 
+                        onChange={(e) => setPassword(e.target.value)}
                         value={password}
-                        type="password" placeholder='sua senha...'
-                        className='bg-[#070707] w-[300px] h-[44px] rounded-[22px] p-3' />
+                        type="password" 
+                        placeholder='Sua senha...'
+                        className='bg-[#070707] w-full max-w-[350px] h-12 rounded-full px-4 text-lg'
+                    />
 
-                    <button className='bg-[#308D83] w-[300px] h-[44px] rounded-[22px] font-bold text-[16px]'
-                        onClick={handleLoginClient}>entrar</button>
+                    <button 
+                        className='bg-[#308D83] w-full max-w-[350px] h-12 rounded-full font-bold text-lg
+                        hover:bg-[#2a7d74] transition-colors'
+                        onClick={handleLoginClient}
+                    >
+                        Entrar
+                    </button>
                 </section>
 
-                <section className="flex w-[50%] h-full justify-center items-center">
-                    <div className="flex w-[70%] h-[70%] rounded-[22px] justify-center items-center 
-                    bg-gradient-to-b from-[#000000] to-[#24625B]">
-                        <span className="font-bold text-white text-[27px]">A experiência de leilão que
-                            você sempre quis.
-                        </span>
+                <section className="flex w-1/2 h-full justify-center items-center bg-gradient-to-b from-[#000000] to-[#24625B] p-8">
+                    <div className="text-center">
+                        <h3 className="font-bold text-white text-3xl leading-tight">
+                            A experiência de leilão que você sempre quis.
+                        </h3>
                     </div>
                 </section>
-
             </div>
-
         </div>
     )
 }
