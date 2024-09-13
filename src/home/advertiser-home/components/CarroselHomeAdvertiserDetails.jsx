@@ -5,17 +5,13 @@ import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { useEffect, useState } from 'react';
 
 function CarroselHomeAdvertiserDetails({ currentProduct }) {
-    const [emptySlot, setEmptySlot] = useState([])
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    const [totalImages, setTotalImages] = useState(0);
 
     useEffect(() => {
-        const imgsGroup = currentProduct && currentProduct.group_imgs_url
-
-        if (imgsGroup && imgsGroup.length < 3) {
-            const emptySlots = Array(3 - imgsGroup.length).fill(null);
-            setEmptySlot(emptySlots);
-        }
-
-    }, []);
+        const imgsGroup = currentProduct?.group_imgs_url || [];
+        setTotalImages(1 + imgsGroup.length); // cover + group images
+    }, [currentProduct]);
 
     return (
         <div className='flex flex-col w-[600px] overflow-hidden transition-none'>
@@ -27,56 +23,45 @@ function CarroselHomeAdvertiserDetails({ currentProduct }) {
                     }}
                     spaceBetween={2}
                     navigation={true}
+                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                     modules={[FreeMode, Navigation, Thumbs]}
                 >
                     <SwiperSlide>
                         <div className='flex w-auto h-[600px] object-cover justify-center bg-zinc-200'>
-                            <img src={currentProduct && currentProduct.cover_img_url} alt="foto-produto-leilão"
+                            <img src={currentProduct?.cover_img_url} alt="foto-produto-leilão"
                                 className='w-auto h-[600px] object-cover rounded-md' />
                         </div>
                     </SwiperSlide>
-                    {currentProduct && currentProduct.group_imgs_url &&
-                        currentProduct.group_imgs_url.map((img, i) => (
-                            <SwiperSlide key={i}>
-                                <div className='flex w-auto h-[600px] justify-center object-cover bg-zinc-200'>
-                                    <img src={img} alt="foto-produto-leilão"
-                                        className='w-auto h-full object-cover rounded-md' />
-                                </div>
-                            </SwiperSlide>
-                        ))
-                    }
+                    {currentProduct?.group_imgs_url?.map((img, i) => (
+                        <SwiperSlide key={i}>
+                            <div className='flex w-auto h-[600px] justify-center object-cover bg-zinc-200'>
+                                <img src={img} alt="foto-produto-leilão"
+                                    className='w-auto h-full object-cover rounded-md' />
+                            </div>
+                        </SwiperSlide>
+                    ))}
                 </Swiper>
             </div>
 
             <div className="flex justify-start items-center w-[600px] mt-2 bg-zinc-200">
                 <Swiper
-                    spaceBetween={2}
-                    slidesPerView={4}
+                    onSwiper={setThumbsSwiper}
+                    spaceBetween={10}
+                    slidesPerView={totalImages < 4 ? totalImages : 4}
                     freeMode={true}
                     watchSlidesProgress={true}
                     modules={[FreeMode, Navigation, Thumbs]}
+                    className="thumbs-swiper"
                 >
                     <SwiperSlide>
-                        <img src={currentProduct && currentProduct.cover_img_url && currentProduct.cover_img_url} alt="thumb"
-                            className="flex min-w-[140px] h-[100px] object-cover rounded-md" />
+                        <img src={currentProduct?.cover_img_url} alt="thumb"
+                            className="flex w-[140px] h-[100px] object-cover rounded-md cursor-pointer" />
                     </SwiperSlide>
-                    {
-                        currentProduct && currentProduct.group_imgs_url &&
-                        currentProduct && currentProduct.group_imgs_url.map((img, i) => (
-                            <SwiperSlide key={i}>
-                                <img src={img} alt="thumb" className="flex min-w-[140px] h-[100px] object-cover rounded-md" />
-                            </SwiperSlide>
-                        ))
-                    }
-                    {
-                        emptySlot &&
-                        emptySlot.map((_, i) => (
-                            <SwiperSlide key={i}>
-                                <div className="flex min-w-[140px] h-[100px] object-cover rounded-md bg-slate-300"></div>
-                            </SwiperSlide>
-                        ))
-                    }
-
+                    {currentProduct?.group_imgs_url?.map((img, i) => (
+                        <SwiperSlide key={i}>
+                            <img src={img} alt="thumb" className="flex w-[140px] h-[100px] object-cover rounded-md cursor-pointer" />
+                        </SwiperSlide>
+                    ))}
                 </Swiper>
             </div>
         </div>
