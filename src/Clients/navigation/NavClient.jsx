@@ -68,7 +68,7 @@ function NavClient({ currentClient }) {
             gap-3"
       >
         <span className="text-[22px] font-bold lg:flex hidden">
-          Bem vindo, {currentClient.nickname} !
+          Bem vindo, {currentClient && currentClient.nickname} !
         </span>
 
         <section className="flex flex-row justify-center items-center gap-6 ">
@@ -76,7 +76,7 @@ function NavClient({ currentClient }) {
             <NotificationsIcon />
           </span>
           <img
-            src={avatars[currentClient.client_avatar]}
+            src={currentClient && avatars[currentClient.client_avatar]}
             alt="foto-perfil"
             className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
           />
