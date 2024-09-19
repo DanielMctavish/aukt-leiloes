@@ -41,6 +41,7 @@ import FloorHub from "./a-floor/hub/FloorHub";
 import Categorias from "./home/components/Categorias";
 import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
 import Arrematantes from "./advertiser/arrematantes/Arrematantes";
+import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
 
 
 function App() {
@@ -106,6 +107,9 @@ function App() {
           {/* AUCT FLOOR */}
           <Route Component={FloorHub} path="/floor/hub" exact />
           <Route Component={AuctFloor} path="/floor/:auct_id" exact />
+
+          {/* {{ edit_1 }} Adiciona a rota para "Cartelas" do Cliente */}
+          <Route path="/client/cartelas" element={<ClientCartelas />} />
 
         </Routes>
       </BrowserRouter>

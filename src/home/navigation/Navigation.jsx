@@ -62,10 +62,10 @@ const Navigation = () => {
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
               <button onClick={toggleSearch} className="p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
-                <Search />
+                <Search sx={{ fontSize: "24px" }} />
               </button>
               <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
-                <Gavel />
+                <Gavel sx={{ fontSize: "24px" }} />
               </button>
               {currentAdvertiser ? (
                 <img
@@ -76,6 +76,7 @@ const Navigation = () => {
                 />
               ) : (
                 <Person
+                  sx={{ fontSize: "33px" }}
                   className="ml-3 h-8 w-8 p-1 rounded-full hover:bg-[#0D1733] cursor-pointer"
                   onClick={() => navigate('/advertiser/login')}
                 />
