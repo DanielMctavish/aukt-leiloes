@@ -16,7 +16,7 @@ function ClientCartelas() {
             const clientSession = JSON.parse(localStorage.getItem('client-auk-session-login'));
             console.log("sessão cliente -> ", clientSession)
 
-            if (!clientSession) {
+            if (!clientSession || !clientSession.token) { // Verificação aprimorada
                 navigate("/client/login");
                 return;
             }
@@ -24,27 +24,19 @@ function ClientCartelas() {
             setIsLoading(true);
 
             try {
-                const currentCliente = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email`, {
+                const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email`, {
                     params: { email: clientSession.email },
                     headers: {
                         Authorization: `Bearer ${clientSession.token}`
                     }
-                }).then(result => {
-                    setCurrentClient(result.data)
-                })
-
-                const clientID = currentCliente.data.id
-
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/list-cartelas-by-client`, {
-                    params: { client_id: clientID },
-                    headers: {
-                        Authorization: `Bearer ${clientSession.token}`
-                    }
                 });
-
-                setCartelas(response.data);
+                setCurrentClient(result.data);
+                await getList(result.data.id, clientSession.token); // Passando ID e token
             } catch (error) {
-                console.log("Erro ao buscar cartelas do cliente:", error.response);
+                console.log("Erro ao buscar cartelas do cliente: ", error.message);
+                if (error.response && error.response.status === 401) { // Tratamento de erro 401
+                    navigate("/client/login");
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -52,6 +44,29 @@ function ClientCartelas() {
 
         fetchClientCartelas();
     }, [navigate]);
+
+    const getList = async (clientId, token) => { // Ajuste nos parâmetros
+        console.log("clientId -> ", clientId)
+        console.log("token usado -> ", token)
+
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/list-cartelas-by-client`, {
+                params: { client_id: clientId },
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setCartelas(response.data);
+        } catch (error) {
+            console.log("Erro ao buscar cartelas: ", error.message);
+            if (error.response && error.response.status === 401) { // Tratamento de erro 401
+                navigate("/client/login");
+            }
+        }
+    }
+
+    useEffect(() => { }, [cartelas])
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#efefef]">
