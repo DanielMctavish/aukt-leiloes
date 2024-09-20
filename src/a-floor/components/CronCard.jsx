@@ -11,7 +11,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [clientSession, setClientSession] = useState();
     const [deadline, setDeadline] = useState(1);
-    const [percentual, setPercentual] = useState(50);
+    const [percentual, setPercentual] = useState(1); // Começar em 1%
     const [isFinishedLot,] = useState(false);
     const refBarDeadline = useRef();
     const dispatch = useDispatch();
@@ -26,16 +26,33 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
         setPercentage(newDeadline);
 
         if (newDeadline <= 10) {
-            refBarDeadline.current.style.transition = `10s`;
-            refBarDeadline.current.style.width = `100%`;
-            refBarDeadline.current.style.background = "#b70900";
-            refBarDeadline.current.style.color = "#fbfbfb";
-        } else {
-            refBarDeadline.current.style.width = `0%`;
-            refBarDeadline.current.style.transition = `1s`;
-        }
+            // Suavizar a transição ao longo de 10 segundos
+            refBarDeadline.current.style.transition = "width 10s linear";
+            refBarDeadline.current.style.width = `100%`; // A barra vai de 0% até 100% em 10 segundos
 
+            // Alterar a cor da barra dinamicamente com base no tempo restante
+            const interval = setInterval(() => {
+                const updatedDeadline = duration - currentTime;
+                if (updatedDeadline <= 0) {
+                    clearInterval(interval);
+                    refBarDeadline.current.style.width = `100%`; // Finalizar a barra cheia
+                } else {
+                    // Alterar a cor da barra gradualmente
+                    const color = updatedDeadline <= 5 ? "#b70900" : "#ff9800";
+                    refBarDeadline.current.style.transition = "4s";
+                    refBarDeadline.current.style.background = color;
+                }
+            }, 1000); // A cor vai mudando a cada segundo, mas a animação da largura é contínua
+
+            return () => clearInterval(interval); // Limpar intervalo ao desmontar
+        } else {
+            refBarDeadline.current.style.transition = "none"; // Remover transição
+            refBarDeadline.current.style.width = `1%`; // Começar em 1%
+            refBarDeadline.current.style.background = "#ff9800"; // Cor inicial laranja
+        }
     }, [currentTime, duration]);
+
+
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
@@ -100,7 +117,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                 {
                     !isFinishedLot ?
                         <>
-                            <div ref={refBarDeadline} className="h-[60px] absolute bg-[#53e642] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
+                            <div ref={refBarDeadline} className="h-[60px] absolute bg-[#ff9800] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
 
                             <FilledCircle percentage={percentual} />
 

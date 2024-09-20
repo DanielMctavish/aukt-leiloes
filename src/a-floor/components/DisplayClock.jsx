@@ -8,6 +8,9 @@ function DisplayClock() {
     "LEMBRE-SE DE CONFIGURAR A FORMA DE PAGAMENTO",
     "Configure o frete aqui mesmo na nossa plataforma",
     "Atencao ao tempo de cada pregao",
+    "Não se esqueça de revisar os lances antes de finalizar",
+    "Acompanhe o tempo restante do leilão",
+    "Verifique as condições de entrega do produto",
   ]);
   const refClockMsg = useRef();
 
