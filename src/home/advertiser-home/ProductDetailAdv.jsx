@@ -23,18 +23,17 @@ import LoginClientModal from './modal/LoginClientModal';
 import BidsAdvertiserHome from './components/BidsAdvertiserHome';
 
 function ProductDetailAdv() {
-    const [modalOn, setIsModalOn] = useState(false)
-    const [showBids, setShowBids] = useState(false)
-    const [anotherProducts, setAnotherProducts] = useState([])
+    const [modalOn, setIsModalOn] = useState(false);
+    const [showBids, setShowBids] = useState(false);
+    const [anotherProducts, setAnotherProducts] = useState([]);
     const [currentClient, setCurrentClient] = useState([]);
-    const [sessionClient, setSessionsClient] = useState();
+    const [, setSessionsClient] = useState(); 
 
     const [currentProduct, setCurrentProduct] = useState({});
     const [showMenu, setShowMenu] = useState(false);
     const [currentAuct, setCurrentAuct] = useState({});
     const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
-    const [bidInformations, setBidInformations] = useState([]);
-    const [isWinner, setIsWinner] = useState(false);
+    const [bidInformations, setBidInformations] = useState([]); // Mantenha o estado dos lances
 
     const navigate = useNavigate();
 
@@ -52,7 +51,7 @@ function ProductDetailAdv() {
     const { product_id } = useParams();
 
     useEffect(() => {
-        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner);
+        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
         getClientSession(setSessionsClient, setCurrentClient);
     }, [modalOn, product_id]);
 
@@ -86,6 +85,7 @@ function ProductDetailAdv() {
             }
         })
     }, [])
+
 
     return (
         <div className="flex flex-col justify-start items-center w-full h-[160vh] bg-[#0D1733] p-[1.5vh] relative overflow-hidden">
@@ -167,14 +167,15 @@ function ProductDetailAdv() {
                         currentClient={currentClient}
                         currentAuct={currentAuct}
                         setCurrentProduct={setCurrentProduct}
-                        setBidInformations={setBidInformations}
+                        setBidInformations={setBidInformations} // Passar a função para atualizar os lances
                         setIsModalOn={setIsModalOn}
                     />
 
                     {/* Lances */}
                     <BidsAdvertiserHome
-                        bidInformations={bidInformations}
-                        showBids={showBids} />
+                        bidInformations={bidInformations} // Passar o estado dos lances
+                        showBids={showBids} 
+                    />
 
                 </section>
 
@@ -183,6 +184,7 @@ function ProductDetailAdv() {
                 <Recomendados anotherProducts={anotherProducts} />
 
             </div>
+
         </div>
     );
 }

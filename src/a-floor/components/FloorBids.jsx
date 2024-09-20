@@ -38,7 +38,8 @@ function FloorBids({ timer, duration, auct_id, productId }) {
             setBidMessageSocket(message.data)
         })
 
-        socket.on(`${auct_id}-auct-finished`, () => {
+        socket.on(`${auct_id}-auct-finished`, (message) => {
+            console.log('leilão finalizado: ', message);
             setIsAuctionFinished(true)
         })
 
