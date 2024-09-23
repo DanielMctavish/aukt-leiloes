@@ -17,22 +17,26 @@ function HomeAdvSection03({ currentAdvertiser, selectedAuction }) {
 
     const getAdvertiserAuctions = async () => {
         try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.id}`)
-                .then(response => {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${currentAdvertiser.id}`);
+            
+            // Verifique se a resposta contém dados
+            if (response.data && response.data.length > 0) {
+                for (let i = 0; i < response.data.length; i++) {
+                    if (!response.data[i]) break;
+                    if (response.data[i].status === "cataloged") break;
+                    setFirstAuction(response.data[i]);
+                }
 
-                    for (let i = 0; i < response.data.length; i++) {
-                        if (!response.data[i]) break
-                        if (response.data[i].status === "cataloged") break;
-                        setFirstAuction(response.data[i]);
-                    }
-
-                    setFirstAuction(response.data[0])
-                    setProductList(response.data[0].product_list)
-                    console.log("products ->> ", response.data[0].product_list)
-                })
+                setFirstAuction(response.data[0]); // Aqui, response.data[0] deve ser seguro
+                setProductList(response.data[0].product_list);
+            } else {
+                console.log("Nenhum leilão encontrado para o anunciante.");
+                setFirstAuction({}); // Defina um objeto vazio ou um valor padrão
+                setProductList([]); // Limpe a lista de produtos
+            }
 
         } catch (error) {
-            console.log("error -> ", error)
+            console.log("error -> ", error);
         }
     }
 
