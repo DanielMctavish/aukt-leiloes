@@ -97,7 +97,8 @@ function Section01() {
           {cardsSelecteds.map((card, index) => (
             <SwiperSlide key={index}>
               <div
-                className="flex-1 h-full
+                onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
+                className="flex-1 h-full cursor-pointer
                 overflow-hidden flex justify-center  slide-item-img 
                 items-center gap-3 rounded-lg relative ">
 

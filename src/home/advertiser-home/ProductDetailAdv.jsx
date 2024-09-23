@@ -27,7 +27,7 @@ function ProductDetailAdv() {
     const [showBids, setShowBids] = useState(false);
     const [anotherProducts, setAnotherProducts] = useState([]);
     const [currentClient, setCurrentClient] = useState([]);
-    const [, setSessionsClient] = useState(); 
+    const [, setSessionsClient] = useState();
 
     const [currentProduct, setCurrentProduct] = useState({});
     const [showMenu, setShowMenu] = useState(false);
@@ -122,17 +122,17 @@ function ProductDetailAdv() {
 
             {/* Login Client */}
             <div className='flex fixed z-[99] top-[2.5vh] right-[2.5vh] gap-2 bg-white p-1.5 rounded-md cursor-pointer hover:bg-[#ededed]'>
-                {
+                {currentClient &&
                     currentClient.name ?
-                        <div onClick={() => navigate("/client/dashboard")} className='flex gap-2 justify-start items-center'>
-                            <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[30px] h-[30px] rounded-full' />
-                            <span className='font-bold text-sm'>{currentClient.name}</span>
-                        </div>
-                        :
-                        <div onClick={() => setIsModalOn(true)} className='w-full h-full p-1.5'>
-                            <PeopleAltOutlined sx={{ fontSize: "1.2rem" }} />
-                            <button className="text-sm">Entrar</button>
-                        </div>
+                    <div onClick={() => navigate("/client/dashboard")} className='flex gap-2 justify-start items-center'>
+                        <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[30px] h-[30px] rounded-full' />
+                        <span className='font-bold text-sm'>{currentClient.name}</span>
+                    </div>
+                    :
+                    <div onClick={() => setIsModalOn(true)} className='w-full h-full p-1.5'>
+                        <PeopleAltOutlined sx={{ fontSize: "1.2rem" }} />
+                        <button className="text-sm">Entrar</button>
+                    </div>
                 }
             </div>
 
@@ -174,7 +174,7 @@ function ProductDetailAdv() {
                     {/* Lances */}
                     <BidsAdvertiserHome
                         bidInformations={bidInformations} // Passar o estado dos lances
-                        showBids={showBids} 
+                        showBids={showBids}
                     />
 
                 </section>

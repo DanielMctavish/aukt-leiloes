@@ -19,12 +19,12 @@ import { useNavigate } from "react-router-dom";
 
 function Arrematantes() {
     const [isCreating, setIsCreating] = useState(false)
-    const [selectedCartelaStatus, setCartelaStatus] = useState("PENDENT") 
+    const [selectedCartelaStatus, setCartelaStatus] = useState("PENDENT")
     const [selectedAuction, setSelectedAuction] = useState('')
     const [aucts, setAucts] = useState([]);
     const [ClientGroupData, setClientGroupData] = useState([]);
     const [showMod, setShowMod] = useState({});
-    const [cartelas, setCartelas] = useState(); 
+    const [cartelas, setCartelas] = useState();
     const navigate = useNavigate()
 
     const avatares_pessoas = [
@@ -100,7 +100,9 @@ function Arrematantes() {
 
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/list-cartelas`, {
-                params: { auction_id },
+                params: {
+                    auction_id:auction_id
+                },
                 headers: {
                     Authorization: `Bearer ${cookieSession.token}`
                 }
@@ -109,16 +111,14 @@ function Arrematantes() {
             setCartelas(response.data);
 
         } catch (error) {
-            console.log("error listagem de cartelas-> ", error)
+            setCartelas([]);
+            console.log("error listagem de cartelas-> ", error.response)
         }
     }
 
     const handleAuctionSelect = async (auction_id) => {
         setSelectedAuction(auction_id);
-        const currentLocalAdvertiser = JSON.parse(localStorage.getItem('advertiser-session-aukt'));
-        let advertiser_id = currentLocalAdvertiser?.advertiser_id;
-
-        fetchCartelas(advertiser_id, auction_id);
+        fetchCartelas( auction_id);
     }
 
     const handleConfirmCard = async (advertiser_id, products, client_id, amount) => {
@@ -192,9 +192,9 @@ function Arrematantes() {
         }
     };
 
-    useEffect(() => { 
+    useEffect(() => {
         console.log('cartelas: ', cartelas);
-        
+
     }, [cartelas])
 
     return (
@@ -284,23 +284,23 @@ function Arrematantes() {
                                 <div key={cartela.id}
                                     className="flex flex-row justify-between items-center w-full p-4 bg-white 
                                 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
-                                    
+
                                     <div className="flex items-center gap-4">
-                                        <img src={avatares_pessoas[cartela.Client.client_avatar]} alt="" 
+                                        <img src={avatares_pessoas[cartela.Client.client_avatar]} alt=""
                                             className="w-16 h-16 object-cover rounded-full border-2 border-[#1dad24]" />
                                         <div className="flex items-center gap-2">
                                             <div>
                                                 <span className="text-lg font-semibold text-[#012038]">{cartela.Client.name}</span>
                                                 <span className="block text-sm text-gray-500">{cartela.auction}</span>
                                             </div>
-                                            
+
                                             {/* {{ edit_5 }} Move o campo de produtos para ao lado do nome do cliente */}
                                             <span onMouseEnter={() => handleShowCurrentModal(cartela.id, "flex")}
                                                 onMouseLeave={() => handleShowCurrentModal(cartela.id, "none")}
                                                 className="relative bg-white text-[#1dad24] font-bold cursor-pointer
                                                 rounded-full flex items-center justify-center w-8 h-8 transition-transform transform hover:scale-110">
                                                 {cartela.products.length}
-                                                <div id={cartela.id} style={{ display: showMod[cartela.id] || "none" }} 
+                                                <div id={cartela.id} style={{ display: showMod[cartela.id] || "none" }}
                                                     className="absolute top-10 left-0 bg-white border rounded-md shadow-lg p-2 z-10 transition-opacity duration-300">
                                                     <ProductsGroupArrematantes products={cartela.products} />
                                                 </div>
@@ -321,14 +321,13 @@ function Arrematantes() {
                                                 const newStatus = e.target.value;
                                                 setCartelas(prevCartelas => prevCartelas.map(c => c.id === cartela.id ? { ...c, status: newStatus } : c));
                                             }}
-                                            className={`p-2 rounded-md focus:outline-none focus:ring-2 transition-colors duration-300 ${
-                                                cartela.status === "DENIED" ? 'bg-red-500 text-red-100' :
-                                                cartela.status === "PAYMENT_CONFIRMED" ? 'bg-blue-500 text-white' :
-                                                cartela.status === "PROCESS" ? 'bg-yellow-500 text-white' :
-                                                cartela.status === "SENDED" ? 'bg-green-500 text-white' :
-                                                cartela.status === "DELIVERED" ? 'bg-purple-500 text-white' :
-                                                'bg-[#1dad24] text-white'
-                                            }`}
+                                            className={`p-2 rounded-md focus:outline-none focus:ring-2 transition-colors duration-300 ${cartela.status === "DENIED" ? 'bg-red-500 text-red-100' :
+                                                    cartela.status === "PAYMENT_CONFIRMED" ? 'bg-blue-500 text-white' :
+                                                        cartela.status === "PROCESS" ? 'bg-yellow-500 text-white' :
+                                                            cartela.status === "SENDED" ? 'bg-green-500 text-white' :
+                                                                cartela.status === "DELIVERED" ? 'bg-purple-500 text-white' :
+                                                                    'bg-[#1dad24] text-white'
+                                                }`}
                                         >
                                             <option value="PENDENT">Pendente</option>
                                             <option value="PAYMENT_CONFIRMED">Pagamento Confirmado</option>
@@ -345,9 +344,8 @@ function Arrematantes() {
                                                 placeholder="Insira o código de rastreio"
                                                 value={cartela.tracking_code || trackingCodes[cartela.id] || ""}
                                                 onChange={(e) => setTrackingCodes(prev => ({ ...prev, [cartela.id]: e.target.value }))}
-                                                className={`p-3 border border-[#1dad24] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1dad24] transition-all duration-300 ${
-                                                    cartela.tracking_code ? 'bg-gray-100' : 'bg-white'
-                                                }`}
+                                                className={`p-3 border border-[#1dad24] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1dad24] transition-all duration-300 ${cartela.tracking_code ? 'bg-gray-100' : 'bg-white'
+                                                    }`}
                                             />
                                         )}
 
@@ -360,7 +358,7 @@ function Arrematantes() {
                                             disabled={updatingCartelas[cartela.id]}
                                         >
                                             {updatingCartelas[cartela.id] ? (
-                                                <svg className="animate-spin h-5 w-5 mr-3 border-t-2 border-b-2 border-white rounded-full" 
+                                                <svg className="animate-spin h-5 w-5 mr-3 border-t-2 border-b-2 border-white rounded-full"
                                                     viewBox="0 0 24 24">
                                                 </svg>
                                             ) : null}
