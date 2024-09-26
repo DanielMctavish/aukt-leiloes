@@ -42,6 +42,7 @@ function DisplayLocalHour() {
     useEffect(() => {
         const newDateList = group.map((group, index) => ({
             date_auct: dayjs(new Date()).add(index + 1, 'day').format('YYYY-MM-DD'),
+            group_status:"cataloged",
             hour: '19:00',
             group
         }))

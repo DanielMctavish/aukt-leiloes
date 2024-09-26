@@ -63,23 +63,26 @@ export const AdvertiserCreateAuct = () => {
 
         try {
 
-            if (!aucts.title) {
-                throw new Error("necessário ter um título.")
-            } else if (!aucts.categories) {
-                throw new Error("selecione uma categoria.")
-            } else if (aucts.tags.length === 0 || !aucts.tags) {
-                throw new Error("necessário adicionar tags.")
-            } else if (!aucts.descriptions_informations) {
-                throw new Error("necessário ter descrições.")
-            } else if (!aucts.terms_conditions) {
-                throw new Error("necessário adicionar os termos e condições.")
-            } else if (!aucts.auct_dates || aucts.auct_dates.length === 0) {
-                throw new Error("não se esqueça das datas!")
-            } else if (!aucts.methods_payments || aucts.methods_payments.length === 0) {
-                throw new Error("por favor, selecione as formas de pagamento para este leilão.")
-            } else if (aucts.product_list.length === 0) {
-                throw new Error("por favor, selecione uma planilha de produtos.")
+            const messages = {
+                title: "necessário ter um título.",
+                categories: "selecione uma categoria.",
+                tags: "necessário adicionar tags.",
+                descriptions_informations: "necessário ter descrições.",
+                terms_conditions: "necessário adicionar os termos e condições.",
+                auct_dates: "não se esqueça das datas!",
+                methods_payments: "por favor, selecione as formas de pagamento para este leilão.",
+                product_list: "por favor, selecione uma planilha de produtos."
+            };
+
+            for (const [key, value] of Object.entries(aucts)) {
+                if (!value || (Array.isArray(value) && value.length === 0)) {
+                    const errorMessage = messages[key];
+                    if (errorMessage) {
+                        throw new Error(errorMessage);
+                    }
+                }
             }
+
 
             //Load Operation -------------------------------------------------------------------------------------------------------------------------------
 
