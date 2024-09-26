@@ -33,6 +33,7 @@ function AuctionController() {
     const isFinished = generalAUK.status === 'finished';
 
     const playAuction = useCallback(() => {
+        console.log('observando grupo -> ',generalAUK.group);
         handlePlayAuction(generalAUK.auct, generalAUK.group, cookieSession, dispatch)();
     }, [generalAUK.auct, generalAUK.group, cookieSession, dispatch]);
 

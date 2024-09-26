@@ -1,6 +1,4 @@
 import axios from "axios";
-import { selectLiveAuction, selectLiveGroup } from "../../../features/auct/LiveSelected";
-import { setRunning, setPaused } from "../../../features/auct/controlButtonsSlice";
 import { setStatus, resetGeneralAUK } from "../../../features/auct/generalAUKSlice";
 
 export const handlePlayAuction = (selectedAuction, selectedGroup, cookieSession, dispatch) => async () => {
