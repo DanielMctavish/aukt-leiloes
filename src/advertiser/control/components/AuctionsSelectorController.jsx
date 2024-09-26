@@ -82,7 +82,7 @@ function AuctionsSelectorController() {
     return (
         <div className="flex flex-col w-full h-[60%] justify-around items-center p-4 bg-white rounded-md 
         shadow-lg shadow-[#12121244]">
-            <div className="flex w-full justify-between mb-2 text-lg font-semibold text-gray-700">
+            <div className="flex w-[90%] justify-between mb-2 text-lg font-semibold text-gray-700">
                 <span className="text-[26px]">Selecione um leilão</span>
                 {generalAUK.auct && (
                     <span className={`px-2 py-1 rounded ${getStatusClass(generalAUK.status)}`}>
@@ -91,18 +91,18 @@ function AuctionsSelectorController() {
                 )}
             </div>
 
-            <section className={`flex w-full h-[80%] relative ${generalAUK.auct ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
+            <section className={`flex w-full h-[90%] relative ${generalAUK.auct ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
                 {generalAUK.auct && (
                     <img
                         src={generalAUK.auct?.auct_cover_img}
                         alt={generalAUK.auct?.title}
-                        className="h-[98%] object-cover rounded-[12px]"
+                        className="h-[80%] object-cover rounded-[12px]"
                     />
                 )}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center w-full">
                     <select
                         id="auction-select"
-                        className="w-[240px] h-[60px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
+                        className="w-[90%] h-[60px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
                         onChange={(e) => handleSelectAuction(auctions.find(a => a.id === e.target.value))}
                         value={generalAUK.auct?.id || ""}
                     >
@@ -116,21 +116,22 @@ function AuctionsSelectorController() {
 
                     {generalAUK.auct && (
                         <>
-                            <label htmlFor="group-select" className="mb-2 text-lg font-semibold text-gray-700">
-                                Selecione um grupo
-                            </label>
                             <select
                                 id="group-select"
-                                className="w-[240px] h-[60px] p-2 bg-[#012038] text-white rounded-[6px]"
+                                className="w-[90%] h-[60px] p-2 bg-[#012038] text-white rounded-[6px]"
                                 onChange={(e) => handleSelectGroup(e.target.value)}
                                 value={generalAUK.group || ""}
                             >
                                 <option value="">Selecione um grupo</option>
-                                {groups.map(group => (
-                                    <option key={group} value={group}>
-                                        {group}
-                                    </option>
-                                ))}
+                                {groups.map(group => {
+                                    // Encontrar o status do grupo correspondente
+                                    const groupStatus = generalAUK.auct.auct_dates.find(date => date.group === group)?.group_status;
+                                    return (
+                                        <option key={group} value={group}>
+                                            {group} {groupStatus && `(${groupStatus})`} {/* Adiciona o status do grupo */}
+                                        </option>
+                                    );
+                                })}
                             </select>
                             {generalAUK.group && (
                                 <div className="mt-2 text-lg font-semibold text-gray-700 flex gap-3 justify-center items-center">

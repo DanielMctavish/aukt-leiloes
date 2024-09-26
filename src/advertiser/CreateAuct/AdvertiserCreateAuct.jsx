@@ -141,9 +141,6 @@ export const AdvertiserCreateAuct = () => {
                 console.log('resposta ao criar leilão -> ', response.data);
                 currentAuctId = response.data.id
                 currentAuctNanoId = response.data.nano_id
-            }).catch(err => {
-                console.log('erro ao criar leilão -> ', err.response);
-                throw new Error(err.response.data)
             })
 
             console.log("observando IDS -> ", currentAuctId, currentAuctNanoId)
@@ -193,7 +190,7 @@ export const AdvertiserCreateAuct = () => {
             setIsLoading(false)
 
         } catch (error) {
-            console.log('erro ao criar leilão -> ', error.message)
+            console.log('erro ao criar leilão -> ', error)
             refGeneralBody.current.style.display = 'flex';
             loadScreen.current.style.display = 'none';
             setIsLoading(false)
