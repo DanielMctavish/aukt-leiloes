@@ -1,59 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AssideAdmin from "./asside/AssideAdmin";
 import NavAdmin from "./navigation/NavAdmin";
-import TimerComponent from "./statics-elements/TimerComponent";
-import PanelGraph from "./panels/PanelGraph";
-import LastAuctsTable from "./tables/LastAuctsTable";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { Money, People, MonetizationOn } from "@mui/icons-material"; // Importando ícones do MUI
 
-// import PanelLives from "./panels/PanelLives"
-// import PanelUsers from "./panels/PanelUsers"
-// import { Money, People, MonetizationOn } from "@mui/icons-material"
+// Dados fictícios para os anunciantes
+const advertisers = [
+  { id: "1", name: "João Silva", CPF: "123.456.789-00", company_name: "João's Company", amount: 1000 },
+  { id: "2", name: "Maria Oliveira", CPF: "987.654.321-00", company_name: "Maria's Business", amount: 2000 },
+  { id: "3", name: "Carlos Pereira", CPF: "456.789.123-00", company_name: "Carlos Inc.", amount: 1500 },
+  { id: "4", name: "Ana Costa", CPF: "321.654.987-00", company_name: "Ana's Solutions", amount: 2500 },
+  { id: "5", name: "Lucas Santos", CPF: "654.321.987-00", company_name: "Lucas Tech", amount: 3000 },
+  { id: "6", name: "Fernanda Lima", CPF: "789.123.456-00", company_name: "Fernanda's Services", amount: 1800 },
+  { id: "7", name: "Roberto Almeida", CPF: "159.753.486-00", company_name: "Roberto's Ventures", amount: 2200 },
+];
 
 function AdminDashboard() {
-  const [usersCount, setUsersCount] = useState({});
-  const [usersPorcentage, setUsersPorcentage] = useState({
-    porcentageAdvertiser: "",
-    porcentageClients: "",
-    porcentageAdms: "",
-  });
-  const [totalUsers, setTotalUsers] = useState();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // INPUT DO GRAFICO CIRCULAR................................................
-    GetStaticUsers(800, 50100, 200);
-
-    //get admin local
-    const adminLocal = JSON.parse(localStorage.getItem('auct-admin-session'))
+    const adminLocal = JSON.parse(localStorage.getItem('auct-admin-session'));
 
     if (!adminLocal) {
-      navigate("/admin/login")
+      navigate("/admin/login");
     }
-
   }, []);
-
-  const GetStaticUsers = (advertisers, clients, adms) => {
-    setUsersCount({
-      advertisers,
-      clients,
-      adms,
-    });
-
-    const totalUsers = advertisers + clients + adms;
-    const porcentage_advertisers = (advertisers / totalUsers) * 100;
-    const porcentage_clients = (clients / totalUsers) * 100;
-    const porcentage_adms = (adms / totalUsers) * 100;
-
-    setUsersPorcentage({
-      porcentageAdvertiser: porcentage_advertisers,
-      porcentageClients: porcentage_clients,
-      porcentageAdms: porcentage_adms,
-    });
-
-    setTotalUsers(totalUsers);
-  };
 
   return (
     <div
@@ -62,112 +34,90 @@ function AdminDashboard() {
         flex justify-start items-start lg:flex-row flex-col"
     >
       <AssideAdmin MenuSelected="menu-1" />
-      <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
+      <section className="w-full h-full flex flex-col justify-start items-center overflow-y-auto p-4">
         <NavAdmin />
 
-        <section className="lg:w-[90%] w-full h-[20vh] flex justify-center items-center lg:gap-6 lg:pt-0 pt-10 flex-col lg:flex-wrap mb-7 lg:mb-0">
-          {/* Display Saldo */}
-          <div className="w-[80%] lg:w-[30%] lg:h-[90%] h-[40vh]  bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 mb-4 lg:mb-0">
+        {/* section body */}
+        <section className="w-full h-full flex flex-wrap justify-around items-start bg-[#e8e8e8]">
+          {/* Painel Saldo */}
+          <div className="w-[80%] lg:w-[30%] h-[30%] bg-[#fff] 
+            flex flex-col justify-start items-center p-3 rounded-md shadow-lg shadow-[#17171722] m-2">
+            <Money className="text-[#314B8E] mb-2" fontSize="large" />
             <div className="flex flex-col justify-start items-start gap-3 border-l-[4px] border-[#314B8E]">
               <span className="text-[16px] ml-3">Carteira</span>
               <span className="text-[22px] ml-3">R$ 20.000,00</span>
             </div>
-            <span className="text-[#10A55C] text-[12px]">
-              12,8% + em relação a semana anterior
-            </span>
           </div>
 
-          {/* Display Ao vivo */}
-          <div className="w-[70%] h-[90%] bg-[#fff] rounded-md shadow-lg shadow-[#17171722] p-3 relative lg:block hidden">
-            <h2 className="bg-[#FA3A3A]/40 text-[#AF0000] p-1 rounded-full w-[80px] font-bold text-center">
-              ao vivo
-            </h2>
-          </div>
-        </section>
-
-        <section className="lg:w-[90%] w-full lg:h-[60vh] h-full flex justify-center items-center lg:gap-6 flex-col lg:flex-wrap lg:mt-0 mt-3">
-          {/* Círculo de estatística */}
-          <div className="w-[80%] lg:w-[40%] h-full mt-3 bg-[#fff] rounded-md shadow-lg shadow-[#17171722] relative flex flex-row">
-            <div>
-              <TimerComponent
-                advertiser_percentage={usersPorcentage.porcentageAdvertiser}
-                clients_percentage={usersPorcentage.porcentageClients}
-                adms_percentage={usersPorcentage.porcentageAdms}
-                totalUsers={totalUsers}
-              />
-            </div>
-
-            <div>
-              <div className="w-full flex flex-col justify-start gap-3 lg:mt-6 mt-12 lg:ml-4 ml-3 lg:p-6 p-3">
-                <div className="w-full flex flex-col justify-start gap-3 lg:text-[14px] text-[12px] ">
-                  <span className="lg:inline hidden">
-                    Anunciantes -{" "}
-                    <span>
-                      {typeof usersPorcentage.porcentageAdvertiser === "number"
-                        ? usersPorcentage.porcentageAdvertiser.toFixed(1)
-                        : ""}
-                    </span>
-                    %
-                  </span>
-                  <li className="text-[#000000] ml-3">
-                    {usersCount.advertisers}
-                  </li>
-                </div>
-
-                <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
-                  <span>
-                    Clientes{" "}
-                    <span className="lg:inline hidden">
-                      -
-                      {typeof usersPorcentage.porcentageClients === "number"
-                        ? usersPorcentage.porcentageClients.toFixed(1)
-                        : ""}
-                      %
-                    </span>
-                  </span>
-                  <li className="text-[#6400C8] ml-3">{usersCount.clients}</li>
-                </div>
-
-                <div className="w-full flex flex-col justify-start gap-3 text-[14px]">
-                  <span>
-                    Administradores{" "}
-                    <span className="lg:inline hidden">
-                      {typeof usersPorcentage.porcentageAdms === "number"
-                        ? usersPorcentage.porcentageAdms.toFixed(1)
-                        : ""}
-                      %
-                    </span>
-                  </span>
-                  <li className="text-[#D87400] ml-3">{usersCount.adms}</li>
-                </div>
+          {/* Painel Anunciante */}
+          <div className="w-[80%] lg:w-[30%] h-[30%] bg-[#fff] 
+            flex flex-col justify-start items-center p-3 rounded-md shadow-lg shadow-[#17171722] m-2">
+            <People className="text-[#314B8E] mb-2" fontSize="large" />
+            <div className="flex flex-row justify-around items-center w-full mt-2">
+              <div className="flex flex-col items-center">
+                <span className="text-[16px]">Anunciantes</span>
+                <span className="text-[22px]">8</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[16px]">Clientes</span>
+                <span className="text-[22px]">8</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[16px]">Produtos</span>
+                <span className="text-[22px]">887</span>
               </div>
             </div>
           </div>
 
-          {/* Gráfico */}
-          <div className="lg:w-[60%] w-full lg:h-[94%] h-full bg-[#fff] rounded-md shadow-lg shadow-[#17171722] lg:mt-0 mt-6 lg:ml-0 ml-16 ">
-            <PanelGraph />
+          {/* Nova Seção: Estatísticas */}
+          <div className="w-[80%] lg:w-[30%] h-[30%] bg-[#fff] p-3 rounded-md shadow-lg shadow-[#17171722] m-2">
+            <h2 className="text-center">Estatísticas</h2>
+            <div className="flex justify-around mt-4">
+              <div className="flex flex-col items-center">
+                <MonetizationOn className="text-[#314B8E]" fontSize="large" />
+                <span className="text-[16px]">Total Vendas</span>
+                <span className="text-[22px]">R$ 50.000,00</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <People className="text-[#314B8E]" fontSize="large" />
+                <span className="text-[16px]">Total Clientes</span>
+                <span className="text-[22px]">150</span>
+              </div>
+            </div>
           </div>
 
-        </section>
+          {/* Lista de Anunciantes */}
+          <div className="w-full bg-[#fff] p-3 rounded-md 
+          flex justify-center items-center flex-col
+          shadow-lg shadow-[#17171722] m-2">
+            <h2 className="text-center font-bold">Todos Anunciantes - Lista</h2>
+            <table className="min-w-full mt-4">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-2 text-left">Nome</th>
+                  <th className="p-2 text-left">CPF</th>
+                  <th className="p-2 text-left">Nome da Empresa</th>
+                  <th className="p-2 text-left">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {advertisers.map(advertiser => (
+                  <tr key={advertiser.id} className="border-b hover:bg-[#194b81] cursor-pointer hover:text-[#fff]">
+                    <td className="p-2">{advertiser.name}</td>
+                    <td className="p-2">{advertiser.CPF}</td>
+                    <td className="p-2">{advertiser.company_name}</td>
+                    <td className="p-2">R$ {advertiser.amount.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="bg-[#e8e8e8] p-2 mt-[2vh] text-[#464646] rounded-md">ver mais</button>
+          </div>
 
-        <section className="lg:w-[90%] w-full lg:h-[40vh]  h-full  flex flex-col lg:justify-start lg:items-start lg:flex-wrap lg:mt-0 lg:ml-0 ml-16">
-          {/* Tabela de Ultimos Leilões realizados */}
-          <div
-            className="w-full lg:h-[80%] h-auto lg:mt-7 mt-10 bg-[#fff] rounded-md 
-                    shadow-lg shadow-[#17171722] flex 
-                    flex-col justify-start items-center  lg:mb-0 mb-6"
-          >
-            <div className="w-full p-3">
-              <h2>Últimos leilões realizados.</h2>
-            </div>
-            {/* INPUT INFORMAÇÔES DE TABELAS */}
-            <div
-              className="lg:w-[98%] w-full lg:max-h-[40vh] max-h-[full] lg:overflow-y-auto custom-scrollbar bg-[#fff] rounded-b
-                    shadow-lg shadow-[#17171722]"
-            >
-              <LastAuctsTable />
-            </div>
+          {/* Botões de Ação */}
+          <div className="w-[80%] lg:w-[30%] flex justify-around items-center m-2">
+            <button className="bg-[#032c3c] text-white p-2 rounded">Criar Novo Anunciante</button>
+            <button className="bg-green-500 text-white p-2 rounded">Criar Novo Cliente</button>
           </div>
         </section>
       </section>

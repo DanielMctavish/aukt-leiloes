@@ -78,7 +78,7 @@ function App() {
           <Route Component={ClientRegister} path="/client/register" exact />
 
           {/* ADMIN */}
-          <Route Component={AdminDashboard} path="/admin/dashboard" exact />
+          <Route Component={AdminDashboard} path="/admin" exact />
           <Route Component={AdminAuctions} path="/admin/aucts" exact />
           <Route Component={AdminAdvertisers} path="/admin/advertisers" exact />
           <Route Component={AdminClient} path="/admin/clients" exact />

@@ -11,6 +11,8 @@ function AuctionsSelectorController() {
     const generalAUK = useSelector(state => state.generalAUK);
     const [groups, setGroups] = useState([]);
     const [lotCount, setLotCount] = useState(0);
+    const [selectedGroup, setSelectedGroup] = useState(""); // Novo estado para o grupo selecionado
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchAuctions = async () => {
@@ -45,7 +47,7 @@ function AuctionsSelectorController() {
         };
 
         fetchAuctions();
-    }, [generalAUK.auct]);
+    }, [generalAUK.auct, loading]);
 
     useEffect(() => {
         if (generalAUK.auct) {
@@ -70,6 +72,7 @@ function AuctionsSelectorController() {
         const amountToGroups = generalAUK.auct.product_list.filter(product => product.group === group);
         dispatch(setGroup(group));
         setLotCount(amountToGroups.length);
+        setSelectedGroup(group); // Atualiza o grupo selecionado
     };
 
     const getStatusClass = (status) => {
@@ -77,6 +80,29 @@ function AuctionsSelectorController() {
         if (status === 'paused') return 'bg-yellow-500 text-white';
         if (status === 'finished') return 'bg-green-500 text-white';
         return 'bg-blue-900 text-white';
+    };
+
+    const handleChangeGroupStatus = async () => {
+        const auctDateId = generalAUK.auct.auct_dates.find(date => date.group === selectedGroup)?.id; // Obtenha o ID do leilão
+        if (auctDateId) {
+            setLoading(true); // Inicia o carregamento
+            const currentSession = localStorage.getItem("advertiser-session-aukt");
+            const sessionData = JSON.parse(currentSession);
+
+            try {
+
+                await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct-dates/change-group-dates-status?auct_date_id=${auctDateId}`, {
+                    group_status: "cataloged"
+                }, {
+                    headers: { 'Authorization': `Bearer ${sessionData.token}` } 
+                });
+
+            } catch (error) {
+                console.error("Error changing group status:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
     return (
@@ -119,20 +145,40 @@ function AuctionsSelectorController() {
                             <select
                                 id="group-select"
                                 className="w-[90%] h-[60px] p-2 bg-[#012038] text-white rounded-[6px]"
-                                onChange={(e) => handleSelectGroup(e.target.value)}
+                                onChange={(e) => {
+                                    const group = e.target.value;
+                                    handleSelectGroup(group);
+                                    setSelectedGroup(group); // Atualiza o grupo selecionado
+                                }}
                                 value={generalAUK.group || ""}
                             >
                                 <option value="">Selecione um grupo</option>
                                 {groups.map(group => {
                                     // Encontrar o status do grupo correspondente
                                     const groupStatus = generalAUK.auct.auct_dates.find(date => date.group === group)?.group_status;
+
                                     return (
-                                        <option key={group} value={group}>
+                                        <option key={group} value={group} className="flex w-full justify-around items-center">
                                             {group} {groupStatus && `(${groupStatus})`} {/* Adiciona o status do grupo */}
                                         </option>
                                     );
                                 })}
                             </select>
+
+                            {selectedGroup && (
+                                // Verifica se o grupo já está catalogado
+                                generalAUK.auct.auct_dates.find(date => date.group === selectedGroup)?.group_status !== "cataloged" && (
+                                    <button
+                                        onClick={handleChangeGroupStatus}
+                                        disabled={loading} // Desabilita o botão enquanto carrega
+                                        className={`w-[90%] h-[40px] mt-[2px] ${loading ? 'bg-gray-400' : 'bg-[#13466d]'} text-white 
+                                        rounded-[6px] hover:bg-blue-600 transition duration-200`}
+                                    >
+                                        {loading ? "Carregando..." : `Mandar grupo "${selectedGroup}" para catálogo`}
+                                    </button>
+                                )
+                            )}
+
                             {generalAUK.group && (
                                 <div className="mt-2 text-lg font-semibold text-gray-700 flex gap-3 justify-center items-center">
                                     <Inventory2 />

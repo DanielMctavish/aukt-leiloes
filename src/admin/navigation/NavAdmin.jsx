@@ -3,6 +3,7 @@ import {  ArrowDropDown } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNavigate } from "react-router-dom";
+import AccountCircle from "@mui/icons-material/AccountCircle"; // Importando ícone genérico de usuário
 
 function NavAdmin() {
  const [adminLocal, setAdminLocal] = useState(false);
@@ -67,11 +68,15 @@ const navigate = useNavigate()
             <span>
               <NotificationsIcon className="text-[#dedede]" />
             </span>
-            <img
-              src=""
-              alt="foto-perfil"
-              className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
-            />
+            {adminLocal.photo ? ( // Verifica se há uma foto de perfil
+              <img
+                src={adminLocal.photo}
+                alt="foto-perfil"
+                className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
+              />
+            ) : (
+              <AccountCircle className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover" />
+            )}
             <span className="text-[#f4f4f4] font-semibold text-[18px] lg:flex hidden">
               {adminLocal.name}
             </span>

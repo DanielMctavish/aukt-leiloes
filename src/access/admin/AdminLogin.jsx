@@ -15,7 +15,7 @@ function AdminLogin() {
     useEffect(() => {
         const currentAdminSession = localStorage.getItem("auct-admin-session")
         if (currentAdminSession) {
-            navigate("/admin/dashboard")
+            navigate("/admin")
         }
     }, [])
 
@@ -39,7 +39,7 @@ function AdminLogin() {
             localStorage.setItem('auct-admin-session', JsonString)
            
             setMessageDisplay("logado com sucesso! Bem vindo")
-            navigate("/admin/dashboard")
+            navigate("/admin")
 
         }).catch(err => {
             if (err.response.status === 404) {
