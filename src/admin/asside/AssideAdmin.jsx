@@ -64,7 +64,7 @@ function AssideAdmin(props) {
           <div className="bg-[#181818] rounded-md shadow-lg shadow-[#000000] h-full flex flex-col pt-[90px]">
             <div className="flex flex-wrap justify-center items-center gap-6 ">
               <button
-                onClick={() => handleClick("/admin/dashboard")}
+                onClick={() => handleClick("/admin")}
                 className="w-[80px] h-[80px] flex flex-col items-center p-2 text-white m-2"
               >
                 <Dashboard style={iconStyle} />
@@ -127,7 +127,7 @@ function AssideAdmin(props) {
         </nav>
       ) : null}
       <nav
-        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#161616] flex-col justify-start items-center gap-3`}
+        className={` lg:w-[253px] h-[100vh] lg:block hidden bg-[#161616] flex-col justify-start items-center gap-3 p-2`}
       >
         <img
           src={logo_aukt}
@@ -137,7 +137,7 @@ function AssideAdmin(props) {
         <button
           id="menu-1"
           className="w-full flex justify-between items-center p-2 text-white mt-6"
-          onClick={() => handleClick("/admin/dashboard")}
+          onClick={() => handleClick("/admin")}
         >
           <Dashboard />
           <span>Dashboard</span>
