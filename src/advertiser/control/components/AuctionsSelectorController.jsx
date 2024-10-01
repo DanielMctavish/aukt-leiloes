@@ -6,48 +6,19 @@ import { setAuct, setGroup, setStatus } from "../../../features/auct/generalAUKS
 import { Inventory2 } from "@mui/icons-material"
 
 function AuctionsSelectorController() {
+    const generalAUK = useSelector(state => state.generalAUK);
     const dispatch = useDispatch();
     const [auctions, setAuctions] = useState([]);
-    const generalAUK = useSelector(state => state.generalAUK);
+    const [selectedAuction, setSelectedAuction] = useState()
     const [groups, setGroups] = useState([]);
     const [lotCount, setLotCount] = useState(0);
     const [selectedGroup, setSelectedGroup] = useState(""); // Novo estado para o grupo selecionado
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchAuctions = async () => {
-            try {
-                const currentSession = localStorage.getItem("advertiser-session-aukt");
-                if (!currentSession) {
-                    console.error("No session found");
-                    return;
-                }
-                const sessionData = JSON.parse(currentSession);
+        getAuctions();
+    }, [generalAUK.auct]);
 
-                const advertiserResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`, {
-                    headers: { 'Authorization': `Bearer ${sessionData.token}` },
-                    params: { email: sessionData.email }
-                });
-
-                const advertiser = advertiserResponse.data;
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
-                    headers: { 'Authorization': `Bearer ${sessionData.token}` },
-                    params: { creator_id: advertiser.id }
-                });
-
-                setAuctions(response.data);
-
-                // Se já temos um leilão no Redux, selecione-o na lista
-                if (generalAUK.auct) {
-                    handleSelectAuction(generalAUK.auct);
-                }
-            } catch (error) {
-                console.error("Error fetching auctions:", error);
-            }
-        };
-
-        fetchAuctions();
-    }, [generalAUK.auct, loading]);
 
     useEffect(() => {
         if (generalAUK.auct) {
@@ -61,11 +32,48 @@ function AuctionsSelectorController() {
         }
     }, [generalAUK.auct, generalAUK.group]);
 
+    useEffect(() => { }, [groups])
+
+    const getAuctions = async () => {
+        try {
+            const currentSession = localStorage.getItem("advertiser-session-aukt");
+            if (!currentSession) {
+                console.error("No session found");
+                return;
+            }
+            const sessionData = JSON.parse(currentSession);
+
+            const advertiserResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`, {
+                headers: { 'Authorization': `Bearer ${sessionData.token}` },
+                params: { email: sessionData.email }
+            });
+
+            const advertiser = advertiserResponse.data;
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
+                headers: { 'Authorization': `Bearer ${sessionData.token}` },
+                params: { creator_id: advertiser.id }
+            });
+
+            console.log("pegando leilões -> ", response.data)
+            setAuctions(response.data);
+            const uniqueGroups = [...new Set(selectedAuction.auct_dates.map(date => date.group))];
+            setGroups(uniqueGroups);
+
+            // Se já temos um leilão no Redux, selecione-o na lista
+            if (generalAUK.auct) {
+                handleSelectAuction(generalAUK.auct);
+            }
+        } catch (error) {
+            console.error("Error fetching auctions:", error);
+        }
+    };
+
     const handleSelectAuction = (auction) => {
         dispatch(setAuct(auction));
         dispatch(setStatus(auction.status));
         dispatch(setGroup(null));
         setLotCount(0);
+        setSelectedAuction(auction)
     };
 
     const handleSelectGroup = (group) => {
@@ -90,12 +98,23 @@ function AuctionsSelectorController() {
             const sessionData = JSON.parse(currentSession);
 
             try {
-
+                // Mudança de status do grupo
                 await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct-dates/change-group-dates-status?auct_date_id=${auctDateId}`, {
                     group_status: "cataloged"
                 }, {
-                    headers: { 'Authorization': `Bearer ${sessionData.token}` } 
+                    headers: { 'Authorization': `Bearer ${sessionData.token}` }
                 });
+
+                // Obtenha o leilão atualizado
+                const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${selectedAuction.id}`);
+                const currentAuct = result.data;
+
+                // Atualiza o estado local
+                setSelectedAuction(currentAuct);
+                const uniqueGroups = [...new Set(currentAuct.auct_dates.map(date => date.group))];
+                setGroups(uniqueGroups);
+                dispatch(setGroup(null)); // Resetando o grupo no Redux
+                dispatch(setAuct(currentAuct)); // Atualizando o leilão no Redux
 
             } catch (error) {
                 console.error("Error changing group status:", error);
@@ -104,6 +123,7 @@ function AuctionsSelectorController() {
             }
         }
     };
+
 
     return (
         <div className="flex flex-col w-full h-[60%] justify-around items-center p-4 bg-white rounded-md 
@@ -118,10 +138,10 @@ function AuctionsSelectorController() {
             </div>
 
             <section className={`flex w-full h-[90%] relative ${generalAUK.auct ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
-                {generalAUK.auct && (
+                {selectedAuction && (
                     <img
-                        src={generalAUK.auct?.auct_cover_img}
-                        alt={generalAUK.auct?.title}
+                        src={selectedAuction?.auct_cover_img}
+                        alt={selectedAuction?.title}
                         className="h-[80%] object-cover rounded-[12px]"
                     />
                 )}
@@ -130,7 +150,7 @@ function AuctionsSelectorController() {
                         id="auction-select"
                         className="w-[90%] h-[60px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
                         onChange={(e) => handleSelectAuction(auctions.find(a => a.id === e.target.value))}
-                        value={generalAUK.auct?.id || ""}
+                        value={selectedAuction && selectedAuction?.id || ""}
                     >
                         <option value="">Selecione um leilão</option>
                         {auctions.map(auction => (
@@ -155,7 +175,7 @@ function AuctionsSelectorController() {
                                 <option value="">Selecione um grupo</option>
                                 {groups.map(group => {
                                     // Encontrar o status do grupo correspondente
-                                    const groupStatus = generalAUK.auct.auct_dates.find(date => date.group === group)?.group_status;
+                                    const groupStatus = selectedAuction && selectedAuction.auct_dates.find(date => date.group === group)?.group_status;
 
                                     return (
                                         <option key={group} value={group} className="flex w-full justify-around items-center">
@@ -167,7 +187,7 @@ function AuctionsSelectorController() {
 
                             {selectedGroup && (
                                 // Verifica se o grupo já está catalogado
-                                generalAUK.auct.auct_dates.find(date => date.group === selectedGroup)?.group_status !== "cataloged" && (
+                                selectedAuction && selectedAuction.auct_dates.find(date => date.group === selectedGroup)?.group_status !== "cataloged" && (
                                     <button
                                         onClick={handleChangeGroupStatus}
                                         disabled={loading} // Desabilita o botão enquanto carrega

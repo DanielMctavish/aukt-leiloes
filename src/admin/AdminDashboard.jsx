@@ -10,7 +10,7 @@ const advertisers = [
   { id: "1", name: "João Silva", CPF: "123.456.789-00", company_name: "João's Company", amount: 1000 },
   { id: "2", name: "Maria Oliveira", CPF: "987.654.321-00", company_name: "Maria's Business", amount: 2000 },
   { id: "3", name: "Carlos Pereira", CPF: "456.789.123-00", company_name: "Carlos Inc.", amount: 1500 },
-  { id: "4", name: "Ana Costa", CPF: "321.654.987-00", company_name: "Ana's Solutions", amount: 2500 },
+  { id: "4", name: "Marta Costa", CPF: "321.654.987-00", company_name: "Mar's Solutions", amount: 2500 },
   { id: "5", name: "Lucas Santos", CPF: "654.321.987-00", company_name: "Lucas Tech", amount: 3000 },
   { id: "6", name: "Fernanda Lima", CPF: "789.123.456-00", company_name: "Fernanda's Services", amount: 1800 },
   { id: "7", name: "Roberto Almeida", CPF: "159.753.486-00", company_name: "Roberto's Ventures", amount: 2200 },
