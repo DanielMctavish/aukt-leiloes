@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import bg_hub from "../../media/backgrounds/background_hub.png"
 import axios from "axios";
 import { useEffect, useState } from "react";
 import blueLogo from "../../media/logos/logos-auk/aukt_blue.png";
@@ -70,7 +71,9 @@ const FloorHub = () => {
                     key={i}
                     onClick={() => navigate(`/floor/${auction.id}`)}
                     className={`flex flex-col justify-center items-center relative bg-white rounded-[20px] gap-3 overflow-hidden
-                        p-2 cursor-pointer hover:bg-blue-100 shadow-lg ${isVertical ? 'min-h-[400px]' : 'min-h-[300px]'}`}
+                        p-3 cursor-pointer hover:bg-blue-100 shadow-lg ${isVertical ? 'min-h-[400px]' : 'min-h-[300px]'}
+                        ${label === 'live' ? 'border-[#6e1313] border-[4px]' : 'border-none'}
+                        `}
                     style={{
                         gridColumn: isVertical ? 'span 1' : 'span 2',
                         gridRow: isVertical ? 'span 2' : 'span 1',
@@ -98,12 +101,14 @@ const FloorHub = () => {
     return (
         <div
             className="flex flex-col justify-start items-center w-full relative 
-            h-auto overflow-hidden bg-[#D8DEE8] text-[#2d2d2d]"
+            h-[100vh] overflow-hidden bg-[#D8DEE8] text-[#2d2d2d]"
         >
+            <img src={bg_hub} alt="" className="object-cover w-full h-[100vh] absolute opacity-70" />
+
             <nav
                 className="flex justify-between items-center 
-                border-b-[2px] border-[#e9e9e9]
-                w-full h-[60px] bg-white p-2"
+                border-[1px] border-[#e9e9e9] backdrop-blur-[4px]
+                w-[96%] h-[60px] rounded-[12px] mt-[1vh] bg-[#e0e0e0a6] p-2 z-10"
             >
                 <img
                     src={blueLogo}
@@ -114,20 +119,15 @@ const FloorHub = () => {
                 <span>{currentClient && currentClient.name}</span>
             </nav>
 
-            <nav
-                className="flex justify-between items-center w-full h-[60px] 
-                bg-[#F4F4F4] p-2 shadow-lg shadow-[#1212120f]"
-            ></nav>
-
             <section
-                className="grid grid-cols-4 gap-1 w-[70%] h-[80vh] justify-start bg-transparent overflow-y-auto p-1 transition-all duration-[1s] mt-[6vh]"
+                className="grid grid-cols-4 gap-1 w-[70%] h-[80vh] justify-start bg-transparent 
+                overflow-y-auto p-1 transition-all duration-[1s] mt-[6vh]"
             >
                 {renderAuctionCards(allAuctions.auctionLive, "live")}
                 {renderAuctionCards(allAuctions.auctionCataloged, "cataloged")}
             </section>
 
-            <footer className="w-full h-[40vh] bg-white mt-[6vh]"></footer>
-
+                <span className="text-[#51759A] z-10">leia nossos termos e condições, obrigado pela sua presença!</span>
         </div>
     );
 };

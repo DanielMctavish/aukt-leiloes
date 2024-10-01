@@ -39,9 +39,6 @@ function CenterFloor({ title, description, auction, currentProduct }) {
         setCurrentImageIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
     };
 
-    useEffect(() => { }, [isAuctionFinished])
-    useEffect(() => { }, [currentProduct])
-
     return (
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
         lg:justify-center justify-start items-center rounded-[22px] bg-gradient-to-br from-gray-100 to-gray-300
@@ -52,7 +49,8 @@ function CenterFloor({ title, description, auction, currentProduct }) {
                 </div>
             )}
 
-            {auction.status === "cataloged" && (
+            {/* Verifica se o leilão está catalogado antes de renderizar a tela de descanso */}
+            {auction.status === "cataloged" && !isAuctionFinished && !currentProduct && (
                 <div className="w-full h-full flex lg:flex-row flex-col items-center justify-between">
                     <div className="lg:w-1/2 w-full h-full relative overflow-hidden rounded-lg shadow-lg">
                         <img src={auction.auct_cover_img} alt="capa do leilão" className="absolute inset-0 w-full h-full object-cover filter blur-sm opacity-50" />

@@ -67,7 +67,7 @@ const Navigation = () => {
               <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
                 <Gavel sx={{ fontSize: "24px" }} />
               </button>
-              {currentAdvertiser ? (
+              {currentAdvertiser && currentAdvertiser.url_profile_cover ? (
                 <img
                   className="ml-3 h-8 w-8 rounded-full cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
@@ -110,7 +110,7 @@ const Navigation = () => {
               <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
                 <Gavel />
               </button>
-              {currentAdvertiser ? (
+              {currentAdvertiser && currentAdvertiser.url_profile_cover? (
                 <img
                   className="ml-3 h-8 w-8 rounded-full cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
