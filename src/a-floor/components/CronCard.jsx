@@ -7,7 +7,7 @@ import axios from "axios";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
-function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct }) {
+function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct, onNewBid }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [clientSession, setClientSession] = useState();
     const [deadline, setDeadline] = useState(1);
@@ -76,25 +76,29 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
         setIsloadingBid(true);
 
         try {
-            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
+            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
                 value: parseFloat(bidValue),
                 client_id: clientSession.id,
                 auct_id: auct_id,
                 product_id: currentProduct.id,
-                Client: clientSession, // Inclua o Client
-                Product: currentProduct // Inclua o Product
+                Client: clientSession,
+                Product: currentProduct
             }, {
                 headers: {
                     "Authorization": `Bearer ${currentSession.token}`
                 }
-            }).then((response) => {
-                console.log("lance live dado com sucesso -> ", response.data);
-                setIsloadingBid(false);
-                dispatch(addBidLive({
-                    value: bidValue,
-                    product_id: currentProduct.id
-                }));
             });
+
+            console.log("lance live dado com sucesso -> ", response.data);
+            setIsloadingBid(false);
+            dispatch(addBidLive({
+                value: bidValue,
+                product_id: currentProduct.id
+            }));
+
+            // Passar o novo lance para o componente pai
+            onNewBid(response.data);
+
         } catch (error) {
             setIsloadingBid(false);
             console.log("error at try bid live: ", error.message);

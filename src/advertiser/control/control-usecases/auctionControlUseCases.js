@@ -65,8 +65,9 @@ export const handleResumeAuction = (selectedAuction, cookieSession, dispatch) =>
     }
 };
 
-export const handleNextProduct = (selectedAuction, cookieSession) => async () => {
-    console.log("Passando para o próximo lote...");
+export const handleNextProduct = (selectedAuction, cookieSession, setLoadNext) => async () => {
+    console.log("Iniciando transição para o próximo lote...");
+    setLoadNext(true);
     try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/next-product`, {
             headers: {
@@ -76,12 +77,18 @@ export const handleNextProduct = (selectedAuction, cookieSession) => async () =>
                 auct_id: selectedAuction.id,
             }
         });
-        console.log("Next Product Response:", response.data);
+        console.log("Resposta recebida:", response.data);
     } catch (error) {
-        console.error("Next Product Error:", error.message);
-        alert("Erro ao passar para o próximo lote. Por favor, tente novamente.");
+        console.error("Erro ao carregar o próximo lote:", error);
+        alert("Erro ao passar para o próximo lote.");
+    } finally {
+        setTimeout(() => {
+            setLoadNext(false);
+            console.log("Botão liberado após respawn de 3 segundos.");
+        }, 6000); 
     }
 };
+
 
 export const handleAddTime = (selectedAuction, cookieSession, time) => async () => {
     console.log(`Adicionando ${time} segundos...`);
@@ -116,13 +123,13 @@ export const killAuction = (selectedAuction, cookieSession, dispatch) => async (
             }
         });
         console.log("Kill Auction Response:", response.data);
-        
+
         // Resetar o estado do generalAUK
         dispatch(resetGeneralAUK());
-        
+
         // Notificar todos os componentes que o leilão foi finalizado
         dispatch(setStatus('finished'));
-        
+
         alert("Leilão finalizado com sucesso.");
     } catch (error) {
         console.error("Kill Auction Error:", error.message);
