@@ -15,6 +15,7 @@ import {
 
 function AuctionController() {
     const [cookieSession, setCookieSession] = useState(null);
+    const [loadNext, setLoadNext] = useState(false)
     const generalAUK = useSelector(state => state.generalAUK);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -33,7 +34,7 @@ function AuctionController() {
     const isFinished = generalAUK.status === 'finished';
 
     const playAuction = useCallback(() => {
-        console.log('observando grupo -> ',generalAUK.group);
+        console.log('observando grupo -> ', generalAUK.group);
         handlePlayAuction(generalAUK.auct, generalAUK.group, cookieSession, dispatch)();
     }, [generalAUK.auct, generalAUK.group, cookieSession, dispatch]);
 
@@ -46,7 +47,7 @@ function AuctionController() {
     }, [generalAUK.auct, cookieSession, dispatch]);
 
     const nextProduct = useCallback(() => {
-        handleNextProduct(generalAUK.auct, cookieSession)();
+        handleNextProduct(generalAUK.auct, cookieSession, setLoadNext)();
     }, [generalAUK.auct, cookieSession]);
 
     const addTime = useCallback((time) => {
@@ -57,6 +58,11 @@ function AuctionController() {
         killAuction(generalAUK.auct, cookieSession, dispatch)();
     }, [generalAUK.auct, cookieSession, dispatch]);
 
+    useEffect(() => {
+        console.log("Estado loadNext mudou:", loadNext);
+    }, [loadNext]);
+    
+
     // Desabilitar botões se não houver leilão selecionado ou se o leilão estiver finalizado
     const isDisabled = !generalAUK.auct || isFinished;
 
@@ -65,63 +71,66 @@ function AuctionController() {
             <div className="flex flex-col w-full h-full bg-white rounded-md overflow-hidden shadow-lg shadow-[#12121244]">
                 <span className="flex w-full h-[46px] bg-[#012038] text-white p-2 font-bold text-[14px]">Painel de controles</span>
                 <div className="grid grid-cols-3 gap-2 p-4">
-                    
-                    <button onClick={playAuction} 
-                    disabled={isRunning || isDisabled} className={`w-full h-[60px] p-2 text-white rounded-md flex 
+
+                    <button onClick={playAuction}
+                        disabled={isRunning || isDisabled} className={`w-full h-[60px] p-2 text-white rounded-md flex 
                     justify-center items-center gap-2 ${isRunning || isDisabled ? 'bg-gray-400' : 'bg-[#139a0a] hover:bg-[#37c72d]'}`}>
                         <PlayArrow sx={{ fontSize: "33px" }} />
                         <span className="text-[14px]">Iniciar</span>
                     </button>
 
-                    <button onClick={nextProduct} 
-                    disabled={!isRunning || isDisabled}
-                    className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white 
+                    {!loadNext ? <button onClick={nextProduct}
+                        disabled={!isRunning || isDisabled}
+                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white 
                     rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
                         <SkipNext sx={{ fontSize: "33px" }} />
                         <span>Próximo</span>
-                    </button>
+                    </button> :
+                        <div className="bg-[#1e3d54] w-full h-[60px] p-2 text-white 
+                        rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">passando...</div>
+                    }
 
                     {isPaused ? (
-                        <button onClick={resumeAuction} 
-                        disabled={isDisabled}
-                        className="bg-[#139a0a] hover:bg-[#37c72d] 
+                        <button onClick={resumeAuction}
+                            disabled={isDisabled}
+                            className="bg-[#139a0a] hover:bg-[#37c72d] 
                         w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
                             <PlayCircleFilledWhite sx={{ fontSize: "33px" }} />
                             <span>Retomar</span>
                         </button>
                     ) : (
-                        <button onClick={pauseAuction} 
-                        disabled={!isRunning || isDisabled}
-                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
+                        <button onClick={pauseAuction}
+                            disabled={!isRunning || isDisabled}
+                            className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
                             <PauseCircleFilledOutlined sx={{ fontSize: "33px" }} />
                             <span>Pausar</span>
                         </button>
                     )}
 
-                    <button onClick={() => addTime(5)} 
-                    disabled={!isRunning || isDisabled}
-                    className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
+                    <button onClick={() => addTime(5)}
+                        disabled={!isRunning || isDisabled}
+                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
                         <AccessTime sx={{ fontSize: "33px" }} />
                         <span>+5s</span>
                     </button>
 
-                    <button onClick={() => addTime(15)} 
-                    disabled={!isRunning || isDisabled}
-                    className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
+                    <button onClick={() => addTime(15)}
+                        disabled={!isRunning || isDisabled}
+                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
                         <AccessTime sx={{ fontSize: "33px" }} />
                         <span>+15s</span>
                     </button>
 
-                    <button onClick={() => addTime(30)} 
-                    disabled={!isRunning || isDisabled}
-                    className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
+                    <button onClick={() => addTime(30)}
+                        disabled={!isRunning || isDisabled}
+                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
                         <AccessTime sx={{ fontSize: "33px" }} />
                         <span>+30s</span>
                     </button>
 
                     {generalAUK.auct && generalAUK.status === "live" && (
-                        <button onClick={killAuctionHandler} 
-                        className="col-span-3 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2">
+                        <button onClick={killAuctionHandler}
+                            className="col-span-3 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2">
                             Finalizar Leilão
                         </button>
                     )}

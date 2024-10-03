@@ -4,13 +4,18 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { Star } from "@mui/icons-material";
 import io from 'socket.io-client';
 import dayjs from 'dayjs';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function CenterFloor({ title, description, auction, currentProduct }) {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
+    const [sortedAuctions, setSortedAuctions] = useState([]);
+    const navigate = useNavigate();
 
     const images = currentProduct ? [currentProduct.cover_img_url, ...(currentProduct.group_imgs_url || [])] : [];
 
@@ -22,10 +27,14 @@ function CenterFloor({ title, description, auction, currentProduct }) {
             setIsAuctionFinished(true);
         });
 
+        if (isAuctionFinished) {
+            listAuctions();
+        }
+
         return () => {
             socket.disconnect();
         };
-    }, [auction.id]);
+    }, [auction.id, isAuctionFinished]);
 
     const handleToggleFullscreen = () => {
         setIsFullscreen(!isFullscreen);
@@ -39,13 +48,90 @@ function CenterFloor({ title, description, auction, currentProduct }) {
         setCurrentImageIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
     };
 
+    const listAuctions = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
+                params: {
+                    status: "cataloged",
+                }
+            });
+            getSortedAuctions(response.data);
+        } catch (error) {
+            console.log("Error loading auctions:", error.message);
+        }
+    }
+
+    const getSortedAuctions = (auctions) => {
+        const shuffled = auctions.sort(() => 0.5 - Math.random());
+        setSortedAuctions(shuffled.slice(0, 6));
+    };
+
+    const renderStars = () => {
+        return (
+            <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="text-yellow-400 text-sm" />
+                ))}
+            </div>
+        );
+    };
+
     return (
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
         lg:justify-center justify-start items-center rounded-[22px] bg-gradient-to-br from-gray-100 to-gray-300
         shadow-xl relative z-[2] p-6 gap-6 overflow-hidden">
             {isAuctionFinished && (
-                <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-30">
-                    <h2 className="text-white text-4xl font-bold">Leilão Finalizado</h2>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0D1733] to-[#d7d7d7] flex flex-col items-center justify-center z-30 p-8 overflow-y-auto">
+                    <div className="max-w-6xl w-full">
+                        <h2 className="text-3xl font-bold text-white mb-4 text-center">Leilão Finalizado</h2>
+                        <p className="text-xl text-white mb-6 text-center">Obrigado pela sua participação!</p>
+                        <div className="w-16 h-1 bg-yellow-500 mx-auto mb-6"></div>
+                        <h3 className="text-2xl font-bold text-white mb-8 text-center">Próximos Leilões em Destaque</h3>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                            {sortedAuctions.map(auction => (
+                                auction && (
+                                    <div key={auction.id} className="bg-white flex flex-col h-80 overflow-hidden
+                                    rounded-lg shadow-lg shadow-[#1c1c1c37] transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105">
+                                        <div className="p-4 flex-shrink-0">
+                                            <span className="text-sm text-gray-600">{auction.Advertiser.name}</span>
+                                            <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">{auction.title}</h3>
+                                        </div>
+
+                                        <div className="flex-grow p-4 grid grid-cols-2 gap-2 overflow-hidden">
+                                            {
+                                                auction.product_list && auction.product_list.slice(0, 4).map(product => (
+                                                    <div
+                                                        key={product.id}
+                                                        className="flex flex-col items-center bg-gray-100 rounded-md shadow p-2 relative overflow-hidden group aspect-square"
+                                                    >
+                                                        <img
+                                                            src={product.cover_img_url}
+                                                            alt={product.title}
+                                                            className="w-full h-full object-cover rounded-md transition-all duration-300 group-hover:scale-110"
+                                                        />
+                                                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
+                                                            {renderStars()}
+                                                            <p className="text-xs font-semibold text-white truncate w-full">{product.title}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+
+                                        <div className="p-4 flex-shrink-0">
+                                            <button 
+                                                onClick={() => navigate(`/advertiser/home/shop/${auction.id}`)}
+                                                className="w-full h-10 bg-[#0D1733] rounded-md text-white hover:bg-[#1A2547] transition-colors duration-300"
+                                            >
+                                                Ver mais
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
 
