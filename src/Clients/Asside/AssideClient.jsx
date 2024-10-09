@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 const menuItems = [
   { id: "menu-1", icon: <Dashboard />, label: "Dashboard", route: "/client/dashboard" },
-  { id: "menu-2", icon: <LocalAtm />, label: "Arremates", route: "/client/arremates" },
+  { id: "menu-2", icon: <LocalAtm />, label: "Lances", route: "/client/bids" }, // Restaurado "Lances"
   { id: "menu-3", icon: <Group />, label: "Leilões", route: "/client/aucts" },
   { id: "menu-8", icon: <Gavel />, label: "Cartelas", route: "/client/cartelas" },
   { id: "menu-5", icon: <AccountBalanceWallet />, label: "Carteira", route: "/client/wallet" },

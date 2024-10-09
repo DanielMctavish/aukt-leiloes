@@ -26,14 +26,14 @@ function ProductDetailAdv() {
     const [modalOn, setIsModalOn] = useState(false);
     const [showBids, setShowBids] = useState(false);
     const [anotherProducts, setAnotherProducts] = useState([]);
-    const [currentClient, setCurrentClient] = useState([]);
-    const [, setSessionsClient] = useState();
+    const [currentClient, setCurrentClient] = useState(null);
+    const [, setSessionClient] = useState(null);
 
     const [currentProduct, setCurrentProduct] = useState({});
     const [showMenu, setShowMenu] = useState(false);
     const [currentAuct, setCurrentAuct] = useState({});
     const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
-    const [bidInformations, setBidInformations] = useState([]); // Mantenha o estado dos lances
+    const [bidInformations, setBidInformations] = useState([]);
 
     const navigate = useNavigate();
 
@@ -52,8 +52,33 @@ function ProductDetailAdv() {
 
     useEffect(() => {
         getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
-        getClientSession(setSessionsClient, setCurrentClient);
+        getClientSession(setSessionClient, setCurrentClient);
+        checkClientSession();
     }, [modalOn, product_id]);
+
+    const checkClientSession = async () => {
+        const currentSessionClient = localStorage.getItem("client-auk-session-login");
+        if (currentSessionClient) {
+            try {
+                const sessionData = JSON.parse(currentSessionClient);
+                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/verify-token`, {
+                    headers: {
+                        Authorization: `Bearer ${sessionData.token}`
+                    }
+                });
+                if (!response.data) {
+                    localStorage.removeItem("client-auk-session-login");
+                    setCurrentClient(null);
+                    setSessionClient(null);
+                }
+            } catch (error) {
+                console.error("Erro ao verificar token:", error);
+                localStorage.removeItem("client-auk-session-login");
+                setCurrentClient(null);
+                setSessionClient(null);
+            }
+        }
+    };
 
     useEffect(() => {
         if (currentAuct && currentAuct.id) {
@@ -85,7 +110,6 @@ function ProductDetailAdv() {
             }
         })
     }, [])
-
 
     return (
         <div className="flex flex-col justify-start items-center w-full h-[160vh] bg-[#0D1733] p-[1.5vh] relative overflow-hidden">
@@ -136,7 +160,6 @@ function ProductDetailAdv() {
                 }
             </div>
 
-
             {/*Main Body*/}
             <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-2">
 
@@ -178,7 +201,6 @@ function ProductDetailAdv() {
                     />
 
                 </section>
-
 
                 {/* Recomendados */}
                 <Recomendados anotherProducts={anotherProducts} />

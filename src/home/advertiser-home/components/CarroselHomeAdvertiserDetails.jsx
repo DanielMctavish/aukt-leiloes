@@ -3,6 +3,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { useEffect, useState } from 'react';
+import carimboImage from "../../../media/carimbo.png";
 
 function CarroselHomeAdvertiserDetails({ currentProduct }) {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -13,9 +14,24 @@ function CarroselHomeAdvertiserDetails({ currentProduct }) {
         setTotalImages(1 + imgsGroup.length); // cover + group images
     }, [currentProduct]);
 
+    const renderCarimbo = () => {
+        if (currentProduct?.Winner) {
+            return (
+                <img
+                    src={carimboImage}
+                    alt="Arrematado"
+                    className="absolute top-2 left-2 w-[200px] h-[200px]
+                     object-cover transform z-10"
+                />
+            );
+        }
+        return null;
+    };
+
     return (
         <div className='flex flex-col w-[600px] overflow-hidden transition-none'>
-            <div className="flex w-[600px] h-[600px] justify-center items-center bg-transparent">
+            <div className="flex w-[600px] h-[600px] justify-center items-center bg-transparent relative">
+                {renderCarimbo()}
                 <Swiper
                     style={{
                         '--swiper-navigation-color': '#fff',
