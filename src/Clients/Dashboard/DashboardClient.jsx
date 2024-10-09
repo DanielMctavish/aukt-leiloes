@@ -35,21 +35,6 @@ function DashboardClient() {
     let countAuct = 0
     let countAuctined = 0
 
-    // const AnimatedNumber = ({ number }) => {
-    //     const { number: animatedNumber } = useSpring({
-    //         from: { number: 0 },
-    //         number: number,
-    //         delay: 200,
-    //         config: { mass: 1, tension: 180, friction: 12 }
-    //     });
-
-    //     return (
-    //         <animated.span>
-    //             {animatedNumber.to(n => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
-    //         </animated.span>
-    //     );
-    // };
-
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
             <AssideClient MenuSelected="menu-1" />

@@ -1,8 +1,11 @@
 import axios from "axios"
 
-const handleBidproduct = async (bidValue, messageRef, currentProduct,
-    currentClient, currentAuct, sessionClient, setBidValue, setIsloadingBid) => {
-    console.log("dentro da função, value -> ", bidValue)
+const handleBidproduct = async (bidValue, 
+    messageRef, currentProduct,
+    currentClient, currentAuct, 
+    sessionClient, setBidValue, 
+    setIsloadingBid, isAutoBidEnabled) => {
+    console.log("dentro da função, value -> ", bidValue, isAutoBidEnabled)
 
     if (messageRef && bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.display = "flex"
@@ -30,70 +33,55 @@ const handleBidproduct = async (bidValue, messageRef, currentProduct,
         return
     }
 
-    setIsloadingBid &&
-        setIsloadingBid(true)
-
-    const isValueAbove = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-bid?value=${parseFloat(bidValue)}`, {
-        headers: {
-            "Authorization": `Bearer ${sessionClient.token}`
-        }
-    }).then(response => {
-        if (response.data) {
-            setIsloadingBid(false)
-            console.log("valor precisa ser maior do que o atual!")
-            return
-        }
-    }).catch(error => {
-        console.log("error ao tentar encontrar um bid", error.message)
-
-    })
+    setIsloadingBid && setIsloadingBid(true)
 
     try {
-        if (isValueAbove && isValueAbove.data.value < bidValue) {
-            setIsloadingBid(false)
-            console.log("valor precisa ser maior do que o atual!")
-            return
-        }
-
-        if (isValueAbove && parseFloat(isValueAbove.data.value) === parseFloat(bidValue)) {
-            setIsloadingBid(false)
-            console.log("valor já foi lancado!")
-            return
-        }
-
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
+        const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
             value: parseFloat(bidValue),
             client_id: currentClient.id,
             auct_id: currentAuct.id,
             Product: currentProduct,
             Client: currentClient,
-            product_id: currentProduct.id
+            product_id: currentProduct.id,
+            cover_auto: isAutoBidEnabled // Incluindo a informação de lance automático
         }, {
             headers: {
                 "Authorization": `Bearer ${sessionClient.token}`
             }
-        }).then((response) => {
-            //console.log("lance realizado com sucesso... ", response.data)
-            if (messageRef) {
-                messageRef.current.style.display = "flex"
-                messageRef.current.innerHTML = "Parabéns! seu lance foi registrado"
-                messageRef.current.style.color = "#105500"
-            }
-            setTimeout(() => {
-                messageRef.current.style.display = "none"
-            }, 6000);
-            if (setBidValue)
-                setBidValue(response.data.value)
+        });
 
-            setIsloadingBid(false)
-        })
+        if (messageRef) {
+            messageRef.current.style.display = "flex"
+            messageRef.current.innerHTML = `Parabéns! Seu lance ${isAutoBidEnabled ? 'automático ' : ''}foi registrado`
+            messageRef.current.style.color = "#105500"
+        }
+        setTimeout(() => {
+            messageRef.current.style.display = "none"
+        }, 6000);
+        
+        if (setBidValue) {
+            setBidValue(response.data.value)
+        }
+
+        setIsloadingBid && setIsloadingBid(false)
+
+        return response.data; // Retornando os dados do lance para uso posterior, se necessário
 
     } catch (error) {
-        setIsloadingBid &&
-            setIsloadingBid(false)
-        console.log(error.message)
-    }
+        setIsloadingBid && setIsloadingBid(false)
+        console.log("Erro ao dar lance:", error.message)
+        
+        if (messageRef) {
+            messageRef.current.style.display = "flex"
+            messageRef.current.innerHTML = "Erro ao registrar o lance. Tente novamente."
+            messageRef.current.style.color = "red"
+        }
+        setTimeout(() => {
+            messageRef.current.style.display = "none"
+        }, 6000);
 
+        throw error; // Lançando o erro para ser tratado no componente chamador, se necessário
+    }
 }
 
 export { handleBidproduct }

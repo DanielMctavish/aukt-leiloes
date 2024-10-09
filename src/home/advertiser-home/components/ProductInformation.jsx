@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import axios from "axios"
 import { ArrowLeft, ArrowRight } from "@mui/icons-material";
@@ -9,8 +10,10 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     const [currentSession, setCurrentSession] = useState();
     const [bidValue, setBidValue] = useState(0);
     const [isLoadingBid, setIsloadingBid] = useState(false);
-    const [showWarningModal, setShowWarningModal] = useState(false); // Estado para o modal de aviso
-    const [warningMessage, setWarningMessage] = useState(""); // Mensagem de aviso
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [warningMessage, setWarningMessage] = useState("");
+    const [isAutoBidEnabled, setIsAutoBidEnabled] = useState(false);
+    const [hasAutoBid, setHasAutoBid] = useState(false);
     const navigate = useNavigate();
     const messageRef = useRef();
 
@@ -18,6 +21,23 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
         setCurrentSession(currentSession);
     }, []);
+
+    useEffect(() => {
+        checkAutoBid();
+    }, [currentProduct, currentClient]);
+
+    const checkAutoBid = () => {
+        if (currentProduct && currentProduct.Bid && currentClient) {
+            const autoBid = currentProduct.Bid.find(bid => 
+                bid.cover_auto === true && bid.client_id === currentClient.id
+            );
+            setHasAutoBid(!!autoBid);
+            setIsAutoBidEnabled(!!autoBid);
+        } else {
+            setHasAutoBid(false);
+            setIsAutoBidEnabled(false);
+        }
+    };
 
     const handleNextProduct = async () => {
         console.log("produto atual -> ", currentProduct.lote + 1)
@@ -61,41 +81,131 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
         setBidValue(Number(value));
     }
 
+    const toggleAutoBid = () => {
+        setIsAutoBidEnabled(!isAutoBidEnabled);
+    };
+
     const handleBidConfirm = async () => {
-        const threshold = currentProduct.initial_value * 1.7; // 70% acima do valor atual
+        const threshold = currentProduct.initial_value * 1.7;
         if (bidValue > threshold) {
             setWarningMessage(`Você está prestes a dar um lance de R$ ${bidValue}, que é 70% maior que o valor do produto. Tem certeza?`);
-            setShowWarningModal(true); // Exibe o modal de aviso
+            setShowWarningModal(true);
             return;
         }
 
-        await handleBidproduct(bidValue, messageRef, currentProduct, currentClient, currentAuct, currentSession, setBidValue, setIsloadingBid);
-        
-        // Adicionar o novo lance ao array de lances do currentProduct
-        const newBid = {
-            client: currentClient,
-            value: bidValue,
-        };
+        setIsloadingBid(true);
+        try {
+            await handleBidproduct(
+                bidValue,
+                messageRef,
+                currentProduct,
+                currentClient,
+                currentAuct,
+                currentSession,
+                setBidValue,
+                setIsloadingBid,
+                isAutoBidEnabled
+            );
 
-        // Atualizar o estado de bidInformations
-        setBidInformations(prevBids => [...prevBids, newBid]);
+            const newBid = {
+                client: currentClient,
+                value: bidValue,
+                cover_auto: isAutoBidEnabled
+            };
 
-        // Atualizar o currentProduct com o novo lance e o valor atual
-        setCurrentProduct(prevProduct => ({
-            ...prevProduct,
-            Bid: [...prevProduct.Bid, newBid],
-            initial_value: bidValue
-        }));
+            setBidInformations(prevBids => [...prevBids, newBid]);
+
+            setCurrentProduct(prevProduct => ({
+                ...prevProduct,
+                Bid: [...prevProduct.Bid, newBid],
+                initial_value: bidValue
+            }));
+        } catch (error) {
+            console.error("Erro ao dar lance:", error);
+        } finally {
+            setIsloadingBid(false);
+        }
     }
 
     const handleConfirmBid = () => {
-        // Lógica para confirmar o lance após o aviso
-        handleBidproduct(bidValue, messageRef, currentProduct, currentClient, currentAuct, currentSession, setBidValue, setIsloadingBid);
-        setShowWarningModal(false); // Fecha o modal
+        handleBidConfirm();
+        setShowWarningModal(false);
     };
 
     const handleCancelBid = () => {
-        setShowWarningModal(false); // Fecha o modal
+        setShowWarningModal(false);
+    };
+
+    const renderBiddingInterface = () => {
+        if (currentProduct.Winner) {
+            return (
+                <div className="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Este produto já foi arrematado!</h3>
+                    <p className="text-lg text-gray-600 mb-4">
+                        Não se preocupe, temos muitos outros itens incríveis esperando por você. 
+                        Continue explorando nosso catálogo para encontrar sua próxima aquisição especial!
+                    </p>
+                    <p className="text-md text-gray-500">
+                        Dica: Fique de olho em nossos leilões futuros para não perder oportunidades únicas.
+                    </p>
+                </div>
+            );
+        }
+
+        return currentSession ? (
+            <div className='flex gap-2 text-white font-bold'>
+                {!hasAutoBid && (
+                    <input
+                        onChange={handleSetBid}
+                        type="text"
+                        value={bidValue}
+                        className="w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2"
+                        disabled={isLoadingBid}
+                    />
+                )}
+
+                {!hasAutoBid && (
+                    <button
+                        onClick={handleBidConfirm}
+                        className={`w-[150px] h-[40px] rounded-md transition-colors ${
+                            isLoadingBid 
+                                ? 'bg-gray-500 cursor-not-allowed' 
+                                : 'bg-[#141839] hover:bg-[#1e2456]'
+                        }`}
+                        disabled={isLoadingBid}
+                    >
+                        {isLoadingBid ? (
+                            <div className="flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                            </div>
+                        ) : (
+                            'Fazer Lance'
+                        )}
+                    </button>
+                )}
+
+                <div
+                    onClick={!isLoadingBid ? toggleAutoBid : undefined}
+                    className={`flex w-[260px] h-[40px] justify-center items-center gap-2 rounded-md cursor-pointer 
+                    transition-all duration-300 ease-in-out
+                    ${isAutoBidEnabled
+                            ? 'bg-[#13a664] hover:bg-[#0a943d]'
+                            : 'bg-[#1399CF] hover:bg-[#0d7eaa]'}
+                    ${isLoadingBid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    <span>
+                        {isAutoBidEnabled ? 'Desativar' : 'Ativar'} Lances Automáticos
+                    </span>
+                </div>
+            </div>
+        ) : (
+            <button
+                onClick={() => setIsModalOn(true)}
+                className="bg-[#9f9f9f] p-2 rounded-[6px] text-white hover:bg-[#8a8a8a] transition-colors"
+            >
+                Faça login para dar lances
+            </button>
+        );
     };
 
     return (
@@ -109,11 +219,11 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                         <span onClick={handlePrevProduct} className='hover:text-[#9f9f9f]'>
                             <ArrowLeft className='cursor-pointer' sx={{ fontSize: "43px" }} />
                         </span>
-                        <span 
-                            onClick={handleNextProduct} 
+                        <span
+                            onClick={handleNextProduct}
                             className='cursor-pointer animate-pulse text-[#145d79]'
                         >
-                            <ArrowRight sx={{fontSize: "70px" }}/>
+                            <ArrowRight sx={{ fontSize: "70px" }} />
                         </span>
                     </div>
                 </div>
@@ -125,26 +235,11 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(currentProduct.initial_value)}
                 </span>
 
-                {currentSession ?
-                    <div className='flex gap-1 text-white font-bold'>
-                        <input onChange={handleSetBid} type="text" value={bidValue} className="w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2" />
-
-                        {!isLoadingBid ?
-                            <button onClick={handleBidConfirm} className='w-[150px] h-[40px] bg-[#141839] rounded-md'>Fazer Lance</button> :
-                            <span>dando lance...</span>
-                        }
-
-                        <div className='flex w-[210px] h-[40px] bg-[#1399CF] justify-center items-center gap-2 rounded-md'>
-                            <input type="checkbox" name="" id="" className='w-[20px] h-[20px]' />
-                            <span>Lances Automáticos</span>
-                        </div>
-                    </div> :
-                    <button onClick={() => setIsModalOn(true)} className="bg-[#9f9f9f] p-2 rounded-[6px] text-white">faça login para dar lances</button>
-                }
+                {renderBiddingInterface()}
 
                 {/* Botão para Ver Catálogo Inteiro */}
-                <button 
-                    onClick={() => navigate(`/advertiser/home/shop/${currentAuct.id}`)} // Redireciona para a rota do catálogo
+                <button
+                    onClick={() => navigate(`/advertiser/home/shop/${currentAuct.id}`)}
                     className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     Ver Catálogo Inteiro

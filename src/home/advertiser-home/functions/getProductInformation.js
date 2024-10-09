@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const getProductInformations = async (product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser, setIsWinner) => {
+const getProductInformations = async (product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser) => {
 
     const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
 
@@ -8,10 +8,7 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
         const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`);
         const currentBids = response.data.Bid;
 
-        if (response.data.Winner) { setIsWinner(true) }
-
         const bidPromises = currentBids.map(async (bid) => {
-
             try {
                 const currentClient = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${bid.client_id}`, {
                     headers: {
@@ -21,13 +18,13 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
                 return {
                     value: bid.value,
                     client: currentClient.data,
-                    bidTime: bid.created_at // Supondo que há um campo 'created_at' para data do lance
+                    bidTime: bid.created_at,
+                    cover_auto: bid.cover_auto // Adicionando a informação de lance automático
                 };
             } catch (error) {
                 console.log("Error at get client -> ", error.message);
                 return null; // Retorne null em caso de erro para filtrar posteriormente
             }
-
         });
 
         const bidResults = await Promise.all(bidPromises);
@@ -43,7 +40,6 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
     } catch (error) {
         console.log("Error at get product information -> ", error.message);
     }
-
 };
 
 export { getProductInformations }

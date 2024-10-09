@@ -15,6 +15,7 @@ function ClientBids() {
     const [, setBidsWinners] = useState([]);
     const [, setBudget] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const bidsPerPage = 5; // Número de lances por página
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -23,6 +24,12 @@ function ClientBids() {
     useEffect(() => {
         getClientInformations(navigate, getBidsByClient, setCurrentClient, setAllBids, setBidsWinners, setBudget, currentClient);
     }, []);
+
+    useEffect(() => {
+        if (allBids.length > 0) {
+            setTotalPages(Math.ceil(allBids.length / bidsPerPage));
+        }
+    }, [allBids]);
 
     const AnimatedNumber = ({ number }) => {
         const { number: animatedNumber } = useSpring({
@@ -39,16 +46,8 @@ function ClientBids() {
         );
     };
 
-    const handleNextPage = () => {
-        if (currentPage < Math.ceil(filteredBids.length / bidsPerPage)) {
-            setCurrentPage(prevPage => prevPage + 1);
-        }
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(prevPage => prevPage - 1);
-        }
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
     const filteredBids = allBids.filter(bid => bid.Product[0].title.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -58,10 +57,45 @@ function ClientBids() {
     const indexOfFirstBid = indexOfLastBid - bidsPerPage;
     const currentBids = filteredBids.slice(indexOfFirstBid, indexOfLastBid);
 
+    const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+        const visiblePages = Array.from({ length: Math.min(totalPages, 7) });
+      
+        return (
+          <div className="flex justify-center items-center mt-4">
+            <ul className="flex list-none">
+              {visiblePages.map((_, index) => {
+                const pageNumber = index + 1;
+                return (
+                  <li
+                    key={index}
+                    className={`mx-1 px-2 ${
+                      currentPage === pageNumber
+                        ? 'text-[#8B8B8B] cursor-pointer'
+                        : 'text-gray-700 cursor-pointer'
+                    }`}
+                    onClick={() => onPageChange(pageNumber)}
+                  >
+                    {pageNumber}
+                  </li>
+                );
+              })}
+              {totalPages > 7 && (
+                <li
+                  className={`mx-1 px-2 text-gray-700 cursor-pointer`}
+                  onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+                >
+                  Próximo
+                </li>
+              )}
+            </ul>
+          </div>
+        );
+    };
+
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
             <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] overflow-y-auto">
-                <AssideClient MenuSelected="menu-3" />
+                <AssideClient MenuSelected="menu-2" />
                 <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2 text-zinc-600">
                     <NavClient currentClient={currentClient} />
                     <h1 className="w-full text-left text-[28px] p-3">Seus Lances</h1>
@@ -105,23 +139,11 @@ function ClientBids() {
                             ))
                         }
                     </div>
-                    <div className="flex justify-between items-center w-full p-4">
-                        <button
-                            className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300"
-                            onClick={handlePreviousPage}
-                            disabled={currentPage === 1}
-                        >
-                            Anterior
-                        </button>
-                        <span>Página {currentPage} de {Math.ceil(filteredBids.length / bidsPerPage)}</span>
-                        <button
-                            className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300"
-                            onClick={handleNextPage}
-                            disabled={currentPage === Math.ceil(filteredBids.length / bidsPerPage)}
-                        >
-                            Próxima
-                        </button>
-                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </section>
             </div>
         </div>
