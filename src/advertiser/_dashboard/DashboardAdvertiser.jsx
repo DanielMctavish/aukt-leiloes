@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import PanelGraph from "../../admin/panels/PanelGraph"
 import AssideAdvertiser from "../_asside/AssideAdvertiser"
@@ -9,55 +9,48 @@ import CircleStatisticDisplay from "./components/CircleStatisticDisplay"
 import AuctionSelection from "./components/AuctionSelection"
 import { useNavigate } from "react-router-dom"
 
-
 export const DashboardAdvertiser = () => {
     const navigate = useNavigate()
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const currentLocalAdvertiser = JSON.parse(localStorage.getItem('advertiser-session-aukt'))
         if (!currentLocalAdvertiser) {
             navigate('/advertiser/login')
+        } else {
+            verifyAdvertiserSession(currentLocalAdvertiser)
         }
-
-        verifyAdvertiserSession(currentLocalAdvertiser)
     }, [])
 
     const verifyAdvertiserSession = async (currentLocalAdvertiser) => {
-
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentLocalAdvertiser.email}`, {
-            headers: {
-                'Authorization': `Bearer ${currentLocalAdvertiser.token}`
-            }
-        })
-            .then(() => {
-
-                navigate('/advertiser/dashboard')
-
-            }).catch(err => {
-                localStorage.removeItem('advertiser-session-aukt')
-                console.log('advertiser out!', err.response);
-                navigate('/advertiser/login')
+        setIsLoading(true)
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentLocalAdvertiser.email}`, {
+                headers: {
+                    'Authorization': `Bearer ${currentLocalAdvertiser.token}`
+                }
             })
 
+            const advertiserStatus = response.data.police_status
+            if (advertiserStatus === 'BANNED' || advertiserStatus === 'SUSPENDED') {
+                localStorage.removeItem('advertiser-session-aukt')
+                navigate('/advertiser/login')
+            }
+        } catch (err) {
+            console.error('Erro ao verificar sessão do anunciante:', err.response)
+            localStorage.removeItem('advertiser-session-aukt')
+            navigate('/advertiser/login')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    const refDashboard = useRef()
-
-    useEffect(() => {
-        const darkMode = localStorage.getItem("dark-mode-advertiser-auct") === "true";
-        if (darkMode) {
-            refDashboard.current.style.transition = "1s"
-            refDashboard.current.style.background = "#2c2c2c"
-            refDashboard.current.style.color = "#e0e0e0"
-        } else {
-            refDashboard.current.style.background = "#ffffff"
-            refDashboard.current.style.color = "#2b2b2b"
-        }
-    }, []);
+    if (isLoading) {
+        return <div>Carregando...</div>
+    }
 
     return (
-        <div ref={refDashboard} className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
-
+        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white">
             <AssideAdvertiser MenuSelected="menu-1" />
 
             <section className="w-full min-h-[130vh] flex flex-col justify-start items-center overflow-y-auto gap-2">
@@ -79,10 +72,7 @@ export const DashboardAdvertiser = () => {
                 <section className="w-full p-3">
                     <LastAdvertisersAuctsTable />
                 </section>
-
             </section>
-
-
         </div>
     )
 }
