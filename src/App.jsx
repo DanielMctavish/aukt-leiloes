@@ -9,7 +9,6 @@ import { DashboardAdvertiser } from "./advertiser/_dashboard/DashboardAdvertiser
 import AdminAuctions from "./admin/AdminAuctions";
 import AuctsDetail from "./admin/AdminAuctsDetail";
 import AdminAdvertisers from "./admin/AdminAdvertisers";
-import AdminClient from "./admin/AdminClient";
 import AdminProfile from "./admin/AdminProfile";
 import AdminWallet from "./admin/wallet/AdminWallet";
 import AuctionedProductDetails from "./admin/AuctsDetails/auctionedProductDetails";
@@ -81,7 +80,6 @@ function App() {
           <Route Component={AdminDashboard} path="/admin" exact />
           <Route Component={AdminAuctions} path="/admin/aucts" exact />
           <Route Component={AdminAdvertisers} path="/admin/advertisers" exact />
-          <Route Component={AdminClient} path="/admin/clients" exact />
           <Route Component={AdminProfile} path="/admin/profile" exact />
           <Route Component={AuctsDetail} path="/admin/aucts/details" exact />
           <Route Component={AdminWallet} path="/admin/wallet" exact />

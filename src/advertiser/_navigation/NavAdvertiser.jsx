@@ -2,50 +2,20 @@
 /* eslint-disable react/prop-types */
 import { ArrowDropDown } from "@mui/icons-material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { useEffect, useRef, useState } from "react";
+import WarningIcon from "@mui/icons-material/Warning";
+import { useEffect, useState } from "react";
 import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
 import "../styles/AdvertiserStyle.css"
-import { useDispatch } from "react-redux";
-import { changeTheme } from "../../features/theme/PlataformTheme";
 
 function NavAdvertiser({ path }) {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({});
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem("dark-mode-advertiser-auct");
-    return savedMode === "true";
-  });
-
-  const dispatch = useDispatch()
-  const refNav = useRef()
 
   useEffect(() => {
     getAdvertiserInformations(setAdvertiserInfor);
   }, []);
 
-  useEffect(() => {
-    if (darkMode) {
-
-      dispatch(changeTheme({ dark: true }))
-      document.documentElement.classList.add('dark');
-      refNav.current.style.transition = "1s"
-      refNav.current.style.background = "#2d2d2d"
-      refNav.current.style.color = "#e0e0e0"
-      localStorage.setItem("dark-mode-advertiser-auct", "true");
-
-    } else {
-
-      dispatch(changeTheme({ dark: false }))
-      document.documentElement.classList.remove('dark');
-      refNav.current.style.background = "#ffffff"
-      refNav.current.style.color = "#2b2b2b"
-      localStorage.setItem("dark-mode-advertiser-auct", "false");
-
-    }
-  }, [darkMode]);
-
-
   return (
-    <nav className="
+    <nav className={`
         ml-0
         nav-auk
         lg:left-auto
@@ -66,8 +36,9 @@ function NavAdvertiser({ path }) {
         items-center 
         gap-2 
         text-[12px]
-        cursor-pointer"
-      ref={refNav}
+        cursor-pointer
+        ${AdvertiserInfor.police_status === 'WARNED' ? 'bg-orange-400' : ''}
+      `}
     >
       <section
         className="
@@ -96,17 +67,12 @@ function NavAdvertiser({ path }) {
           {path}
         </span>
 
-        <div className="flex items-center">
-          <span className="mr-2">Dark Mode</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-            />
-            <span className="slider round"></span>
-          </label>
-        </div>
+        {AdvertiserInfor.police_status === 'WARNED' && (
+          <div className="flex items-center text-red-700 font-bold">
+            <WarningIcon className="mr-2" />
+            <span>Conta sob aviso</span>
+          </div>
+        )}
 
         <section className="flex flex-row justify-center items-center gap-6">
           <span>
