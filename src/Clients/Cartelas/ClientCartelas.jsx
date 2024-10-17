@@ -80,7 +80,7 @@ function ClientCartelas() {
                     {isLoading ? (
                         <LoadingModal isVisible={isLoading} />
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
                             {cartelas.length > 0 ? (
                                 cartelas.map(cartela => (
                                     <div key={cartela.id} className="border p-4 rounded-lg shadow-sm">
