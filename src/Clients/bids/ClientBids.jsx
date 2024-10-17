@@ -50,7 +50,8 @@ function ClientBids() {
         setCurrentPage(page);
     };
 
-    const filteredBids = allBids.filter(bid => bid.Product[0].title.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const filteredBids = allBids.filter(bid => bid.Product[0] && bid.Product[0].title.toLowerCase().includes(searchTerm.toLowerCase()));
 
     // Cálculo dos lances para a página atual
     const indexOfLastBid = currentPage * bidsPerPage;
@@ -59,36 +60,35 @@ function ClientBids() {
 
     const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         const visiblePages = Array.from({ length: Math.min(totalPages, 7) });
-      
+
         return (
-          <div className="flex justify-center items-center mt-4">
-            <ul className="flex list-none">
-              {visiblePages.map((_, index) => {
-                const pageNumber = index + 1;
-                return (
-                  <li
-                    key={index}
-                    className={`mx-1 px-2 ${
-                      currentPage === pageNumber
-                        ? 'text-[#8B8B8B] cursor-pointer'
-                        : 'text-gray-700 cursor-pointer'
-                    }`}
-                    onClick={() => onPageChange(pageNumber)}
-                  >
-                    {pageNumber}
-                  </li>
-                );
-              })}
-              {totalPages > 7 && (
-                <li
-                  className={`mx-1 px-2 text-gray-700 cursor-pointer`}
-                  onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-                >
-                  Próximo
-                </li>
-              )}
-            </ul>
-          </div>
+            <div className="flex justify-center items-center mt-4">
+                <ul className="flex list-none">
+                    {visiblePages.map((_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                            <li
+                                key={index}
+                                className={`mx-1 px-2 ${currentPage === pageNumber
+                                    ? 'text-[#8B8B8B] cursor-pointer'
+                                    : 'text-gray-700 cursor-pointer'
+                                    }`}
+                                onClick={() => onPageChange(pageNumber)}
+                            >
+                                {pageNumber}
+                            </li>
+                        );
+                    })}
+                    {totalPages > 7 && (
+                        <li
+                            className={`mx-1 px-2 text-gray-700 cursor-pointer`}
+                            onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+                        >
+                            Próximo
+                        </li>
+                    )}
+                </ul>
+            </div>
         );
     };
 

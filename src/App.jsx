@@ -41,6 +41,7 @@ import Categorias from "./home/components/Categorias";
 import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
 import Arrematantes from "./advertiser/arrematantes/Arrematantes";
 import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
+import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
 
 
 function App() {
@@ -101,6 +102,7 @@ function App() {
           <Route Component={AdvertiserProfile} path="/advertiser/profile" exact />
           <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
           <Route Component={Arrematantes} path="/advertiser/arrematantes" exact />
+          <Route Component={AdvertiserTemplate} path="/advertiser/templates" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={FloorHub} path="/floor/hub" exact />

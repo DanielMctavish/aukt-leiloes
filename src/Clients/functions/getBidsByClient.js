@@ -31,7 +31,8 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
             allBidsByClient = response.data
 
             allBidsByClient.forEach((bids) => {
-                if (bids.Product[0].winner_id === clientFounded.id) {
+
+                if (bids.Product[0] && bids.Product[0].winner_id === clientFounded.id) {
                     bidsAuctined.push(bids)
                 }
             });
@@ -45,7 +46,7 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
                 if (!bidsFiltered.find((b) => b.Product[0].id === bid.Product[0].id)) {
 
                     bidsFiltered.push(bid)
-                    localBudget += bid.Product[0].initial_value
+                    localBudget += bid.Product[0] ? bid.Product[0].initial_value : 0
                 }
 
             })
