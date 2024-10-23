@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import logo_aukt_blue from "../../media/logos/logos-auk/aukt_blue.png";
 import logo_auk_white from "../../media/logos/logos-auk/logo_model01_white.png"
 import { Leaderboard, Event, Gavel, Web, Visibility } from "@mui/icons-material"
@@ -16,8 +17,10 @@ import { useNavigate } from "react-router-dom";
 function AssideAdvertiser(props) {
   const [desktopMenuVisible, setDesktopMenuVisible] = useState(false)
   const [intervalMouse, setIntervalMouse] = useState(null)
+  const [advertiserId, setAdvertiserId] = useState(null)
 
   const menuDesktopRef = useRef()
+  const navigate = useNavigate();
 
   useEffect(() => {
     const menuBtn = document.querySelector(`#${props.MenuSelected}`);
@@ -26,12 +29,36 @@ function AssideAdvertiser(props) {
       menuBtn.style.border = "solid 1px #bdc3fe4d"
       menuBtn.style.borderRadius = "4px";
     }
+
+    const currentLocalAdvertiser = JSON.parse(localStorage.getItem('advertiser-session-aukt'))
+    if (currentLocalAdvertiser) {
+      verifyAdvertiserSession(currentLocalAdvertiser)
+    } else {
+      navigate('/advertiser/login')
+    }
   }, [])
 
-  const navigate = useNavigate();
+  const verifyAdvertiserSession = async (currentLocalAdvertiser) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentLocalAdvertiser.email}`, {
+        headers: {
+          'Authorization': `Bearer ${currentLocalAdvertiser.token}`
+        }
+      })
+      setAdvertiserId(response.data.id)
+    } catch (err) {
+      console.error('Erro ao verificar sessão do anunciante:', err.response)
+      localStorage.removeItem('advertiser-session-aukt')
+      navigate('/advertiser/login')
+    }
+  }
 
   function handleClick(route) {
-    navigate(route);
+    if (route === "/advertiser/templates" && advertiserId) {
+      navigate(`/advertiser/templates/${advertiserId}`);
+    } else {
+      navigate(route);
+    }
   }
 
   const handleLogoutAdveriser = () => {

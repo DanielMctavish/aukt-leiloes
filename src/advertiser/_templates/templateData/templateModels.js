@@ -1,21 +1,21 @@
 const cleanColors = {
-    1: "#ffffff",
-    2: "#c6ffe6",
-    3: "#dcf7ff",
-    4: "#d0e8ff",
-    5: "#fff5e7",
-    6: "#ffecd4",
-    7: "#e5ffe5",
+    1: "#B8F1B0",
+    2: "#7B9CC4",
+    3: "#FDCEDF",
+    4: "#C2B8A3",
+    5: "#C3AED6",
+    6: "#D47D7D",
+    7: "#DCE381",
 }
 
 const candyColors = {
-    1: "#ff5b79",
-    2: "#02ff91",
-    3: "#039eff",
-    4: "#00d9ff",
-    5: "#ffa633",
-    6: "#fefe34",
-    7: "#4af94a",
+    1: "#F3C623",
+    2: "#006CD0",
+    3: "#F95454",
+    4: "#00B8A9",
+    5: "#D14D72",
+    6: "#17B978",
+    7: "#DC0000",
 }
 
 const sizeTypes = {
@@ -34,23 +34,23 @@ const sectionTypes = {
 }
 
 const darkColors = {
-    1: "#1a1a1a",
-    2: "#360101",
-    3: "#09291d",
-    4: "#291710",
-    5: "#1f0625",
-    6: "#0e1b35",
-    7: "#070109",
+    1: "#510000",
+    2: "#03001C",
+    3: "#3C2A21",
+    4: "#2E001F",
+    5: "#711D00",
+    6: "#384A00",
+    7: "#0e0e0e",
 }
 
 const monochromaticColors = {
-    1: "#ffffff",
-    2: "#eaeaea",
-    3: "#c9c9c9",
-    4: "#969696",
-    5: "#b3b3b3",
-    6: "#a4b3b7",
-    7: "#a5a9a7",
+    1: "#EEEEEE",
+    2: "#272121",
+    3: "#423F3E",
+    4: "#3C2A21",
+    5: "#697565",
+    6: "#3C3D37",
+    7: "#181C14",
 }
 
 const fontStyles = {
@@ -70,12 +70,154 @@ const fontStyles = {
     tillana: "'Tillana', cursive"
 }
 
+const constructorModels = {
+    model_01: {
+        elements: [
+            {
+                id: "element_1",
+                clean: {
+                    saturation: 100,
+                    lightness: 81,
+                },
+                candy: {
+                    saturation: 70,
+                    lightness: 61,
+                },
+                dark: {
+                    saturation: 60,
+                    lightness: 9,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 16,
+                },
+                color: "#FFFF",
+                main: false
+            },
+            {
+                id: "element_2",
+                clean: {
+                    saturation: 100,
+                    lightness: 70,
+                },
+                candy: {
+                    saturation: 100,
+                    lightness: 36,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 8,
+                },
+                dark: {
+                    saturation: 100,
+                    lightness: 9,
+                },
+                color: "#FFFF",
+                main: false
+            },
+            {
+                id: "element_3",
+                clean: {
+                    saturation: 100,
+                    lightness: 82,
+                },
+                candy: {
+                    saturation: 70,
+                    lightness: 36,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 14,
+                },
+                dark: {
+                    saturation: 60,
+                    lightness: 9,
+                },
+                color: "#FFFF",
+                main: false
+            },
+            {
+                id: "element_4",
+                color: "#FFFF",
+                main: true
+            },
+            {
+                id: "element_5",
+                clean: {
+                    saturation: 100,
+                    lightness: 82,
+                },
+                candy: {
+                    saturation: 70,
+                    lightness: 61,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 14,
+                },
+                dark: {
+                    saturation: 100,
+                    lightness: 9,
+                },
+                color: "#FFFF",
+                main: false
+            },
+            {
+                id: "element_6",
+                clean: {
+                    saturation: 100,
+                    lightness: 82,
+                },
+                candy: {
+                    saturation: 70,
+                    lightness: 61,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 14,
+                },
+                dark: {
+                    saturation: 100,
+                    lightness: 9,
+                },
+                color: "#FFFF",
+                main: false
+            }
+        ],
+        background_element: {
+            clean: {
+                saturation: 70,
+                lightness: 70,
+            },
+            candy: {
+                saturation: 100,
+                lightness: 26,
+            },
+            monochromatic: {
+                saturation: 17,
+                lightness: 30,
+            },
+            dark: {
+                saturation: 100,
+                lightness: 4,
+            },
+            color: "#FFFF",
+            main: false
+        },
+        background_img: ""
+    }
+}
+
 const templateModels = {
     colorPalette: 'clean',
     fontStyle: fontStyles.robotoCondensed,
     header: {
         color: cleanColors[1],
-        sizeType: sizeTypes.third
+        sizeType: sizeTypes.third,
+        backgroundImage: null,
+        backgroundImageOpacity: 30,
+        backgroundImageBlur: 2,
+        backgroundImageBrightness: 100,
     },
     sections: [],
     footer: {
@@ -84,4 +226,4 @@ const templateModels = {
     }
 }
 
-export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles }
+export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels }

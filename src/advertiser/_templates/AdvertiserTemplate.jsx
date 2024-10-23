@@ -1,11 +1,23 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { templateModels, candyColors, sizeTypes, cleanColors, darkColors, monochromaticColors } from "./templateData/templateModels";
 import AdvertiserTemplateControls from './AdvertiserTemplateControls';
+import HeaderTemplate from './header/HeaderTemplate';
+import FooterTemplate from './footer/FooterTemplate';
+import WelcomeScreen from './welcome_template/WelcomeScreen';
 
 // construtor de site do anunciante
 function AdvertiserTemplate() {
     const [template, setTemplate] = useState(templateModels);
+    const [selectedHeaderModel, setSelectedHeaderModel] = useState(1);
+    const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
+    const [fadeIn, setFadeIn] = useState(false);
+
+    useEffect(() => {
+        if (!showWelcomeScreen) {
+            setTimeout(() => setFadeIn(true), 100);
+        }
+    }, [showWelcomeScreen]);
 
     const getSizeClass = (sizeType) => {
         switch (sizeType) {
@@ -53,10 +65,10 @@ function AdvertiserTemplate() {
 
             setTemplate(prevTemplate => ({
                 ...prevTemplate,
-                sections: [...prevTemplate.sections, { 
-                    type, 
-                    color: colorPalette[Math.floor(Math.random() * 7) + 1], 
-                    sizeType: sizeTypes.half 
+                sections: [...prevTemplate.sections, {
+                    type,
+                    color: colorPalette[Math.floor(Math.random() * 7) + 1],
+                    sizeType: sizeTypes.half
                 }]
             }));
         }
@@ -72,7 +84,7 @@ function AdvertiserTemplate() {
     const updateInitialConfig = (property, value) => {
         setTemplate(prevTemplate => {
             const newTemplate = { ...prevTemplate, [property]: value };
-            
+
             // Atualizar cores apenas se a paleta de cores for alterada
             if (property === 'colorPalette') {
                 const colorPalette = {
@@ -96,8 +108,12 @@ function AdvertiserTemplate() {
 
     const textColorClass = getTextColor();
 
+    if (showWelcomeScreen) {
+        return <WelcomeScreen onContinue={() => setShowWelcomeScreen(false)} />;
+    }
+
     return (
-        <div className="flex w-full h-screen bg-white overflow-hidden">
+        <div className={`flex w-full h-screen bg-white overflow-hidden transition-opacity duration-1000 ease-in-out ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
             <AdvertiserTemplateControls
                 template={template}
                 updateHeader={updateHeader}
@@ -106,22 +122,26 @@ function AdvertiserTemplate() {
                 addSection={addSection}
                 removeSection={removeSection}
                 updateInitialConfig={updateInitialConfig}
+                selectedHeaderModel={selectedHeaderModel}
+                setSelectedHeaderModel={setSelectedHeaderModel}
             />
 
             {/* ÁREA DE SESSÕES */}
             <div className={`w-4/5 h-screen bg-gray-800 p-1 overflow-y-auto flex flex-col ${textColorClass}`} style={{ fontFamily: template.fontStyle }}>
-                <header
-                    className={`w-full ${getSizeClass(template.header.sizeType)}`}
-                    style={{ backgroundColor: template.header.color }}
-                >
-                    <h2 className={`text-2xl font-bold p-4 ${textColorClass}`}>Header</h2>
-                </header>
+                <HeaderTemplate 
+                    getSizeClass={getSizeClass}
+                    template={template}
+                    selectedHeaderModel={selectedHeaderModel} 
+                />
 
                 {template.sections.map((section, index) => (
                     <section
                         key={index}
-                        className={`w-full ${getSizeClass(section.sizeType)}`}
-                        style={{ backgroundColor: section.color }}
+                        className={`w-full ${getSizeClass(section.sizeType)} transition-all duration-1000 ease-in-out ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                        style={{ 
+                            backgroundColor: section.color,
+                            transitionDelay: `${index * 200}ms`
+                        }}
                     >
                         <h2 className={`text-2xl font-bold p-4 ${textColorClass}`}>
                             {section.type.charAt(0).toUpperCase() + section.type.slice(1)}
@@ -129,15 +149,14 @@ function AdvertiserTemplate() {
                     </section>
                 ))}
 
-                <footer
-                    className={`w-full ${getSizeClass(template.footer.sizeType)}`}
-                    style={{ backgroundColor: template.footer.color }}
-                >
-                    <h2 className={`text-2xl font-bold p-4 ${textColorClass}`}>Footer</h2>
-                </footer>
+                <FooterTemplate
+                    getSizeClass={getSizeClass}
+                    template={template}
+                    textColorClass={textColorClass}
+                />
             </div>
         </div>
-    )
+    );
 }
 
 export default AdvertiserTemplate;
