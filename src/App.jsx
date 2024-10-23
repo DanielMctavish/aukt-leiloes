@@ -42,6 +42,7 @@ import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
 import Arrematantes from "./advertiser/arrematantes/Arrematantes";
 import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
 import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
+import AdminTransactions from './admin/AdminTransactions'; // Adicione esta importação
 
 
 function App() {
@@ -87,6 +88,7 @@ function App() {
           <Route Component={AuctionedProductDetails} path="/admin/products/details" exact />
           <Route Component={AssideAdmin} path="asside-admin" exact />
           <Route Component={AdminLogin} path="/admin/login" exact />
+          <Route Component={AdminTransactions} path="/admin/transactions" exact />
 
           {/* Anunciante */}
           <Route Component={DashboardAdvertiser} path="/advertiser/dashboard" exact />
@@ -102,7 +104,7 @@ function App() {
           <Route Component={AdvertiserProfile} path="/advertiser/profile" exact />
           <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
           <Route Component={Arrematantes} path="/advertiser/arrematantes" exact />
-          <Route Component={AdvertiserTemplate} path="/advertiser/templates" exact />
+          <Route Component={AdvertiserTemplate} path="/advertiser/templates/:advertiser_id" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={FloorHub} path="/floor/hub" exact />

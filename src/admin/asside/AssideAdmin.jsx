@@ -10,6 +10,7 @@ import {
   AccountBalanceWallet,
   Person,
   Logout,
+  Receipt,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -45,6 +46,7 @@ function AssideAdmin({ MenuSelected }) {
     { id: "menu-3", icon: Group, text: "Anunciantes", route: "/admin/advertisers" },
     { id: "menu-5", icon: AccountBalanceWallet, text: "Carteira", route: "/admin/wallet" },
     { id: "menu-6", icon: Person, text: "Perfil", route: "/admin/profile" },
+    { id: "menu-transactions", icon: Receipt, text: "Transações", route: "/admin/transactions" },
     { id: "menu-7", icon: Logout, text: "Logout", onClick: handleLogoutAdmin },
   ];
 

@@ -2,6 +2,13 @@
 import { Palette, AspectRatio, Add, Delete, FormatSize } from '@mui/icons-material';
 import { cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles } from "./templateData/templateModels";
 import { useState } from 'react';
+//background template imgs import
+import bg_template_01 from "../../media/backgrounds/templates/template_bg_01.jpg";
+import bg_template_02 from "../../media/backgrounds/templates/template_bg_02.jpg";
+import bg_template_03 from "../../media/backgrounds/templates/template_bg_03.jpg";
+import bg_template_04 from "../../media/backgrounds/templates/template_bg_04.jpg";
+import bg_template_05 from "../../media/backgrounds/templates/template_bg_05.jpg";
+import bg_template_06 from "../../media/backgrounds/templates/template_bg_06.jpg";
 
 // Função auxiliar para determinar a cor do texto com base na cor de fundo
 const getContrastColor = (hexColor) => {
@@ -17,7 +24,10 @@ const getContrastColor = (hexColor) => {
     return luminance > 0.5 ? '#000000' : '#FFFFFF';
 };
 
-function AdvertiserTemplateControls({ template, updateHeader, updateFooter, updateSection, addSection, removeSection, updateInitialConfig }) {
+function AdvertiserTemplateControls({ template,
+    updateHeader, updateFooter, updateSection, addSection,
+    removeSection, updateInitialConfig, selectedHeaderModel, setSelectedHeaderModel }) {
+
     const ColorSelector = ({ colors, currentColor, onChange, label }) => {
         const [isOpen, setIsOpen] = useState(false);
 
@@ -73,6 +83,19 @@ function AdvertiserTemplateControls({ template, updateHeader, updateFooter, upda
     // Usar a paleta de cores selecionada
     const selectedPalette = colorPalettes[template.colorPalette] || cleanColors;
 
+    const backgroundImages = [
+        { name: "Imagem 1", src: bg_template_01 },
+        { name: "Imagem 2", src: bg_template_02 },
+        { name: "Imagem 3", src: bg_template_03 },
+        { name: "Imagem 4", src: bg_template_04 },
+        { name: "Imagem 5", src: bg_template_05 },
+        { name: "Imagem 6", src: bg_template_06 },
+    ];
+
+    const handleImageEffectChange = (effect, value) => {
+        updateHeader(`backgroundImage${effect.charAt(0).toUpperCase() + effect.slice(1)}`, value);
+    };
+
     return (
         <aside className="w-1/5 h-screen bg-gray-100 p-4 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">AUK CONSTRUCTOR</h2>
@@ -126,22 +149,121 @@ function AdvertiserTemplateControls({ template, updateHeader, updateFooter, upda
                         />
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Tamanho</label>
-                            <div className="relative">
+                            <div className="relative h-[3.2vh] hover:bg-gray-200 rounded-md">
                                 <select
                                     value={template.header.sizeType}
-                                    onChange={e => updateHeader('sizeType', e.target.value)}
+                                    onChange={(e) => updateHeader('sizeType', e.target.value)}
                                     className="block w-full pl-10 pr-4 py-2 bg-[#e8e8e8]
                                     text-base border-gray-300 focus:outline-none 
                                     focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                                 >
-                                    {Object.values(sizeTypes).map(size => (
-                                        <option key={size} value={size}>{size}</option>
+                                    {Object.entries(sizeTypes).map(([key, value]) => (
+                                        <option key={key} value={value}>{key}</option>
                                     ))}
                                 </select>
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <AspectRatio className="h-5 w-5 text-gray-400" />
                                 </div>
                             </div>
+                        </div>
+
+                        <section className='flex flex-col w-full mt-4'>
+                            <h3 className="font-semibold mb-2">Selecione seu modelo:</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[1, 2, 3, 4].map((model) => (
+                                    <button
+                                        key={model}
+                                        className={`p-2 rounded h-24 overflow-hidden relative ${
+                                            selectedHeaderModel === model
+                                                ? 'ring-2 ring-blue-500'
+                                                : 'hover:bg-gray-100'
+                                        }`}
+                                        onClick={() => setSelectedHeaderModel(model)}
+                                    >
+                                        {model === 1 && (
+                                            <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                                <div className="absolute left-0 top-0 w-1/3 h-full bg-gray-300 transform -skew-x-12"></div>
+                                                <div className="absolute right-0 top-0 w-1/4 h-full bg-gray-300"></div>
+                                                <div className="z-10 text-xs">Modelo 01</div>
+                                            </div>
+                                        )}
+                                        {model === 2 && (
+                                            <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                                <div className="absolute left-1 bottom-1 w-10 h-10 bg-gray-300 rounded-full"></div>
+                                                <div className="absolute right-1 top-1 w-12 h-12 bg-gray-300 rounded-full"></div>
+                                                <div className="z-10 text-xs">Modelo 02</div>
+                                            </div>
+                                        )}
+                                        {model === 3 && (
+                                            <div className="w-full h-full bg-gray-200 flex flex-col justify-between items-center">
+                                                <div className="w-full h-3 flex">
+                                                    {[...Array(6)].map((_, i) => (
+                                                        <div key={i} className="flex-1 bg-gray-300 m-0.5"></div>
+                                                    ))}
+                                                </div>
+                                                <div className="z-10 text-xs">Modelo 03</div>
+                                                <div className="w-full h-3 flex">
+                                                    {[...Array(6)].map((_, i) => (
+                                                        <div key={i} className="flex-1 bg-gray-300 m-0.5"></div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {model === 4 && (
+                                            <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                                <div className="absolute inset-0 bg-gray-300 opacity-50 transform -skew-y-6"></div>
+                                                <div className="z-10 text-xs">Modelo 04</div>
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem de Fundo</label>
+                            <div className="grid grid-cols-3 gap-2 mb-2">
+                                {backgroundImages.map((img, index) => (
+                                    <div
+                                        key={index}
+                                        className={`cursor-pointer border-2 ${template.header.backgroundImage === img.src ? 'border-blue-500' : 'border-gray-300'}`}
+                                        onClick={() => updateHeader('backgroundImage', img.src)}
+                                    >
+                                        <img src={img.src} alt={img.name} className="w-full h-16 object-cover" />
+                                    </div>
+                                ))}
+                            </div>
+                            {template.header.backgroundImage && (
+                                <div className="mt-2">
+                                    <label className="block text-sm font-medium text-gray-700">Opacidade</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={template.header.backgroundImageOpacity || 30}
+                                        onChange={(e) => handleImageEffectChange('opacity', e.target.value)}
+                                        className="w-full"
+                                    />
+                                    <label className="block text-sm font-medium text-gray-700 mt-2">Desfoque</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="10"
+                                        value={template.header.backgroundImageBlur || 2}
+                                        onChange={(e) => handleImageEffectChange('blur', e.target.value)}
+                                        className="w-full"
+                                    />
+                                    <label className="block text-sm font-medium text-gray-700 mt-2">Brilho</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="200"
+                                        value={template.header.backgroundImageBrightness || 100}
+                                        onChange={(e) => handleImageEffectChange('brightness', e.target.value)}
+                                        className="w-full"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
