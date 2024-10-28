@@ -35,7 +35,12 @@ function AdvertiserTemplate() {
     const updateHeader = (property, value) => {
         setTemplate(prevTemplate => ({
             ...prevTemplate,
-            header: { ...prevTemplate.header, [property]: value }
+            header: { 
+                ...prevTemplate.header, 
+                [property]: value,
+                // Se a propriedade for 'texts', atualize também os textos do modelo atual
+                ...(property === 'texts' && { texts: value })
+            }
         }));
     };
 
@@ -131,7 +136,8 @@ function AdvertiserTemplate() {
                 <HeaderTemplate 
                     getSizeClass={getSizeClass}
                     template={template}
-                    selectedHeaderModel={selectedHeaderModel} 
+                    selectedHeaderModel={selectedHeaderModel}
+                    updateHeader={updateHeader}
                 />
 
                 {template.sections.map((section, index) => (
