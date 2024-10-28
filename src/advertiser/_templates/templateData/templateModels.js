@@ -40,7 +40,8 @@ const darkColors = {
     4: "#2E001F",
     5: "#711D00",
     6: "#384A00",
-    7: "#0e0e0e",
+    7: "#2b2b2b",
+    8: "#021208",
 }
 
 const monochromaticColors = {
@@ -138,6 +139,22 @@ const constructorModels = {
             },
             {
                 id: "element_4",
+                clean: {
+                    saturation: 100,
+                    lightness: 75,
+                },
+                candy: {
+                    saturation: 70,
+                    lightness: 50,
+                },
+                dark: {
+                    saturation: 60,
+                    lightness: 12,
+                },
+                monochromatic: {
+                    saturation: 17,
+                    lightness: 20,
+                },
                 color: "#FFFF",
                 main: true
             },
@@ -208,6 +225,72 @@ const constructorModels = {
     }
 }
 
+const textsSessions = {
+    textsHeader: [
+        {
+            model: 1,
+            texts: [
+                {
+                    id: 1,
+                    title: "Título Principal",
+                    content: "Conteúdo principal do seu leilão. Descreva aqui os principais destaques e informações importantes.",
+                    position: {
+                        top: '30%',
+                        left: '5%',
+                        width: '30vw'
+                    },
+                    style: {
+                        titleBackground: 'transparent',
+                        titleColor: '#ffffff',
+                        contentColor: '#ffffff',
+                        titleSize: '1x', // Novo: tamanho do título (1x, 2x, 3x)
+                        titleBorderRadius: '0px' // Novo: arredondamento da borda
+                    },
+                    visible: true
+                },
+                {
+                    id: 2,
+                    title: "Título Secundário",
+                    content: "Informações adicionais sobre seu leilão. Use este espaço para detalhar condições especiais ou outros aspectos relevantes.",
+                    position: {
+                        top: '45%',
+                        left: '60%',
+                        width: '30vw'
+                    },
+                    style: {
+                        titleBackground: 'transparent',
+                        titleColor: '#ffffff',
+                        contentColor: '#ffffff',
+                        titleSize: '1x', // Novo: tamanho do título (1x, 2x, 3x)
+                        titleBorderRadius: '0px' // Novo: arredondamento da borda
+                    },
+                    visible: true
+                }
+            ],
+            carousel: {
+                enabled: false,
+                title: "Produtos em Destaque",
+                size: {
+                    width: "600px",
+                    height: "400px"
+                },
+                itemsToShow: 4,
+                speed: 3000,
+                position: {
+                    top: '60%',
+                    left: '10%'
+                },
+                showTitle: true,
+                showPrice: true,
+                showCarouselTitle: true,
+                showNavigation: true
+            }
+        }
+    ],
+    textsSections: [],
+    textsFooter: []
+};
+
 const templateModels = {
     colorPalette: 'clean',
     fontStyle: fontStyles.robotoCondensed,
@@ -218,12 +301,14 @@ const templateModels = {
         backgroundImageOpacity: 30,
         backgroundImageBlur: 2,
         backgroundImageBrightness: 100,
+        elementsOpacity: 100, // Nova propriedade
+        texts: textsSessions.textsHeader[0].texts
     },
     sections: [],
     footer: {
         color: cleanColors[4],
         sizeType: sizeTypes.third
     }
-}
+};
 
-export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels }
+export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions }
