@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
-import { ArrowCircleRight, PeopleAltOutlined } from "@mui/icons-material"
+import { ArrowCircleRight, PeopleAltOutlined, Gavel } from "@mui/icons-material"
 import aukLogo from "../../media/logos/logos-auk/aukt_blue.png"
 import avatar_01 from '../../media/avatar-floor/avatar_01.png'
 import avatar_02 from '../../media/avatar-floor/avatar_02.png'
@@ -90,20 +90,31 @@ function HomeAdvSection01({ currentAdvertiser }) {
     return (
         <section className="flex flex-col justify-center items-center w-full h-[100vh] bg-[#0D1733] relative p-[26px]">
 
-            {/* Login Client */}
-            <div className='flex fixed z-[99] top-[3vh] right-[3vh] gap-2 bg-white p-1.5 rounded-md cursor-pointer hover:bg-[#ededed]'>
-                {
-                    currentClient && currentClient.name ? // Verifique se currentClient não é null
+            {/* Botão de Login e Pregão */}
+            <div className='flex fixed z-[999] top-[3vh] right-[3vh] gap-4'>
+                {/* Botão do Pregão */}
+                <button 
+                    onClick={() => navigate("/floor/hub")}
+                    className='flex items-center gap-2 bg-[#012038] text-white 
+                    px-4 py-2 rounded-md hover:bg-[#012038]/90 transition-all shadow-lg'
+                >
+                    <Gavel />
+                </button>
+
+                {/* Login Client */}
+                <div className='flex bg-white p-1.5 rounded-md cursor-pointer hover:bg-[#ededed]'>
+                    {currentClient && currentClient.name ? (
                         <div onClick={() => navigate("/client/dashboard")} className='flex gap-2 justify-start items-center'>
                             <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[30px] h-[30px] rounded-full' />
                             <span className='font-bold text-sm'>{currentClient.name}</span>
                         </div>
-                        :
+                    ) : (
                         <div onClick={() => navigate("/client/login")} className='w-full h-full p-1.5'>
                             <PeopleAltOutlined sx={{ fontSize: "1.2rem" }} />
                             <button className="text-sm">Entrar</button>
                         </div>
-                }
+                    )}
+                </div>
             </div>
 
             <div className="w-full h-full bg-white flex justify-center items-center 

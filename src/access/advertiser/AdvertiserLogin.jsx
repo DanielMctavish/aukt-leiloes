@@ -9,6 +9,7 @@ import AdvertiserLoginFooterModal from "./AdvertiserLoginFooterModal"
 
 function AdvertiserLogin() {
     const [messageDisplay, setMessageDisplay] = useState("")
+    const [messageType, setMessageType] = useState("")
     const [showFooterModal, setShowFooterModal] = useState(true)
     const [accountStatus, setAccountStatus] = useState(null)
     const [showWarningModal, setShowWarningModal] = useState(false)
@@ -49,7 +50,8 @@ function AdvertiserLogin() {
         const password = refPassword.current.value
 
         if (!email) {
-            setMessageDisplay("Preencha o email")
+            setMessageDisplay("Por favor, preencha o email")
+            setMessageType("error")
             return
         }
 
@@ -85,16 +87,19 @@ function AdvertiserLogin() {
                 return
             }
 
-            setMessageDisplay("logado com sucesso!")
+            setMessageDisplay("Logado com sucesso!")
+            setMessageType("success")
             localStorage.setItem("advertiser-session-aukt", JSON.stringify(currentAdvertiser))
             navigate("/advertiser/dashboard")
 
         } catch (err) {
             console.log("erro login advertiser --> ", err.response?.status)
-            if (err.response?.status === 401 || err.response?.status === 404) {
-                setMessageDisplay("Usuário ou senha inválidos")
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                setMessageDisplay("Email ou senha incorretos. Por favor, verifique suas credenciais.")
+                setMessageType("error")
             } else {
-                setMessageDisplay("Erro ao conectar com o servidor")
+                setMessageDisplay("Não foi possível conectar ao servidor. Por favor, tente novamente mais tarde.")
+                setMessageType("error")
             }
         }
     }
@@ -185,7 +190,26 @@ function AdvertiserLogin() {
 
             {showWarningModal && <WarningModal />}
 
-            <span className="text-zinc-600">{messageDisplay}</span>
+            {messageDisplay && (
+                <div className={`
+                    fixed top-4 left-1/2 transform -translate-x-1/2 z-50
+                    px-6 py-3 rounded-lg shadow-lg
+                    ${messageType === 'error' ? 'bg-red-500' : 'bg-green-500'}
+                    transition-all duration-300 ease-in-out
+                    flex items-center gap-2
+                `}>
+                    {messageType === 'error' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    )}
+                    <span className="text-white font-medium">{messageDisplay}</span>
+                </div>
+            )}
 
             <section className="w-[80%] h-[90vh] flex bg-[#012038cd] backdrop-blur-sm rounded-[4px] relative overflow-hidden shadow-2xl">
 

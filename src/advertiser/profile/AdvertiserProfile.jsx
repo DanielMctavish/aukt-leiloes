@@ -18,7 +18,7 @@ function AdvertiserProfile() {
       <section className="w-full h-[100vh] flex flex-col justify-start items-center">
         <NavAdvertiser />
 
-        <section className="w-full h-full flex justify-center items-center gap-6">
+        <section className="w-full h-full flex justify-center items-center gap-6  overflow-y-auto">
           <FormProfile />
         </section>
 

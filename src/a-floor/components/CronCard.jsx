@@ -7,8 +7,9 @@ import axios from "axios";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
-function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct, onNewBid }) {
+function CronCard({ currentTime, duration, auct_id, initial_value, currentProduct, onNewBid, isAuctionFinished }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
+    const [canBid, setCanBid] = useState(true);
     const [clientSession, setClientSession] = useState();
     const [deadline, setDeadline] = useState(1);
     const [percentual, setPercentual] = useState(1); // Começar em 1%
@@ -71,6 +72,9 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
     };
 
     const handleBidAuctionLive = async () => {
+        if (!canBid) return;
+        
+        setCanBid(false);
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
         const bidValue = initial_value + 20;
         setIsloadingBid(true);
@@ -96,11 +100,15 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                 product_id: currentProduct.id
             }));
 
-            // Passar o novo lance para o componente pai
             onNewBid(response.data);
+
+            setTimeout(() => {
+                setCanBid(true);
+            }, 1000);
 
         } catch (error) {
             setIsloadingBid(false);
+            setCanBid(true);
             console.log("error at try bid live: ", error.message);
         }
     };
@@ -119,7 +127,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
             items-center rounded-md bg-[#e3e3e3] relative">
 
                 {
-                    !isFinishedLot ?
+                    !isFinishedLot && !isAuctionFinished ?
                         <>
                             <div ref={refBarDeadline} className="h-[60px] absolute bg-[#ff9800] ml-[-1.3vh] transition-all duration-[1.8s]"></div>
 
@@ -132,41 +140,40 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                             </div>
                         </> :
                         <div ref={refBarDeadline}
-                            className="h-[60px] absolute bg-red-600 ml-[-1.3vh]
-                            flex justify-center items-center ">
+                            className="h-[60px] absolute bg-red-600 ml-[-1.3vh] w-full
+                            flex justify-center items-center">
                             <span className="font-extrabold text-white">Lote Finalizado!</span>
                         </div>
                 }
-
             </div>
 
-            <div className="w-full h-[100%] flex justify-between items-center relative gap-2 text-[16px]">
+            {!isAuctionFinished && (
+                <div className="w-full h-[100%] flex justify-between items-center relative gap-2 text-[16px]">
+                    <span className="flex flex-1 h-[40px] bg-[#e3e3e3] 
+                    shadow-lg shadow-[#0000001d] transition-all duration-[.3s]
+                    font-light justify-center items-center rounded-md">
+                        R$ {initial_value && initial_value.toFixed(2)}
+                    </span>
 
-                <span className="flex flex-1 h-[40px] bg-[#e3e3e3] 
-                shadow-lg shadow-[#0000001d] transition-all duration-[.3s]
-                font-light justify-center items-center rounded-md">
-                    R$ {initial_value && initial_value.toFixed(2)}
-                </span>
-
-                {clientSession && !isLoadingBid ?
-                    <button
-                        onClick={handleBidAuctionLive}
-                        className="flex flex-1 h-[40px] 
+                    {clientSession && !isLoadingBid ?
+                        <button
+                            onClick={handleBidAuctionLive}
+                            disabled={!canBid}
+                            className={`flex flex-1 h-[40px] 
+                            justify-center items-center ${canBid ? 'bg-[#159a29]' : 'bg-[#159a29]/50'} gap-2
+                            rounded-md shadow-lg shadow-[#0000001d] font-bold 
+                            text-white`}>
+                            <Paid />
+                            <span>+ R$ 20,00</span>
+                        </button> :
+                        clientSession &&
+                        <span className="flex flex-1 h-[40px] 
                         justify-center items-center bg-[#159a29] gap-2
                         rounded-md shadow-lg shadow-[#0000001d] font-bold 
-                        text-white">
-                        <Paid />
-                        <span>+ R$ 20,00</span>
-                    </button> :
-                    clientSession &&
-                    <span className="flex flex-1 h-[40px] 
-                    justify-center items-center bg-[#159a29] gap-2
-                    rounded-md shadow-lg shadow-[#0000001d] font-bold 
-                    text-white">dando lance...</span>
-                }
-
-            </div>
-
+                        text-white">dando lance...</span>
+                    }
+                </div>
+            )}
         </div>
     );
 }

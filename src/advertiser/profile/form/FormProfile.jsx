@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Shield } from "@mui/icons-material";
-//import { useNavigate } from "react-router-dom";
+import { Person, Business, LocationOn, Lock } from "@mui/icons-material";
 import ModAuthPassword from "./ModAuthPassword";
 import ModChangePassword from "./ModChangePassword";
 import UploadCompanyFile from "./UploadCompanyFile";
@@ -27,8 +26,6 @@ function FormProfile() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isEditing, setIsisEditing] = useState(false);
-
-    //const navigate = useNavigate();
 
     //Adress fields................................................................
     const refState = useRef();
@@ -67,171 +64,183 @@ function FormProfile() {
     }
 
     return (
-        <div className="w-[96%] h-[90%] flex flex-col justify-start items-center relative bg-white rounded-md overflow-hidden">
-            {/* ........................AUTH CONFIRMATION.............................. */}
+        <div className="w-[96%] h-[90%] flex flex-col justify-start items-center relative bg-white rounded-lg shadow-lg overflow-y-auto">
+            {/* Modais */}
             <ModAuthPassword authorization={isAuth} set={setIsAuth} setPassword={setPassword} setConfirmPassword={setConfirmPassword} setChangeAuthorized={setChangeAuthorized} />
             <ModChangePassword authorization={changeAuthorized} set={setChangeAuthorized} setPassword={setPassword} setConfirmPassword={setConfirmPassword} setPassReady={setPassReady} />
 
-            {messageDisplay && <span className="flex justify-center items-center w-[80%] h-[40px] bg-red-400 text-red-100 rounded-md absolute top-1 z-10">
-                {messageDisplay}
-            </span>}
+            {/* Mensagem de erro/sucesso */}
+            {messageDisplay && (
+                <div className="flex justify-center items-center w-[80%] h-[40px] bg-red-500 text-white rounded-lg absolute top-4 z-10 shadow-lg transition-all duration-300">
+                    {messageDisplay}
+                </div>
+            )}
 
-            {/* CABEÇALHO */}
-            <div className="w-full min-h-[320px] bg-gradient-to-r flex justify-center items-center 
-            from-[#012038] via-[#76bff7] to-[#012038] relative gap-3">
-
-                {/* Profile image */}
+            {/* Cabeçalho com imagens */}
+            <div className="w-full min-h-[320px] bg-gradient-to-r from-[#012038] via-[#012038]/80 to-[#012038] 
+                relative flex justify-center items-center gap-8 p-8">
                 <UploadProfileFile />
-
-                {/* Company image */}
                 <UploadCompanyFile currentAdvertiser={currentAdvertiser} />
-
             </div>
 
-            <section className="w-full h-[100%] flex p-3 justify-around items-center">
-                {/* INFORMAÇÕES PESSOAIS */}
-                <div className="flex flex-col gap-3 h-[90%] justify-between">
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Nome</span>
+            {/* Formulário principal */}
+            <section className="w-full flex p-8 justify-around items-start gap-8">
+                {/* Informações Pessoais */}
+                <div className="flex flex-col gap-6 flex-1">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-[#012038] mb-4">
+                        <Person /> Informações Pessoais
+                    </h2>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">Nome</label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="p-2 w-[270px] h-[34px] bg-transparent border-[1px] border-[#D3D3D3] rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>CPF</span>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">CPF</label>
                         <input
                             type="text"
                             value={cpf}
                             onChange={(e) => setCpf(e.target.value)}
-                            className="p-2 w-[270px] h-[34px] bg-transparent border-[1px] border-[#D3D3D3] rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Email</span>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">Email</label>
                         <input
                             type="text"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="p-2 w-[270px] h-[34px] bg-transparent border-[1px] border-[#D3D3D3] rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
                 </div>
 
-                {/* INFORMAÇÕES DE ENDEREÇO */}
-                <div className="flex flex-col gap-3 h-[90%] justify-between">
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Cep</span>
+                {/* Endereço */}
+                <div className="flex flex-col gap-6 flex-1">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-[#012038] mb-4">
+                        <LocationOn /> Endereço
+                    </h2>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">CEP</label>
                         <input
                             onChange={handleGetAddress}
                             ref={refCep}
                             type="text"
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-[#D3D3D3] bg-transparent rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Estado</span>
-                        <input
-                            onChange={(e) => refState.current.value = e.target.value}
-                            ref={refState}
-                            type="text"
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-[#D3D3D3] bg-transparent rounded-md"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-gray-600">Estado</label>
+                            <input
+                                ref={refState}
+                                type="text"
+                                className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-gray-600">Cidade</label>
+                            <input
+                                ref={refCity}
+                                type="text"
+                                className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Cidade</span>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">Rua</label>
                         <input
-                            onChange={(e) => refCity.current.value = e.target.value}
-                            ref={refCity}
-                            type="text"
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-[#D3D3D3] bg-transparent rounded-md"
-                        />
-                    </div>
-
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Rua</span>
-                        <input
-                            onChange={(e) => refStreet.current.value = e.target.value}
                             ref={refStreet}
                             type="text"
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-[#D3D3D3] bg-transparent rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>número</span>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">Número</label>
                         <input
-                            onChange={(e) => refNumber.current.value = e.target.value}
                             ref={refNumber}
                             type="text"
-                            className="w-[300px] h-[41px] p-2 border-[1px] border-[#D3D3D3] bg-transparent rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
                 </div>
 
-                {/* INFORMAÇÕES SOBRE EMPRESA E BOTÕES */}
-                <div className="flex flex-col gap-3 h-[90%] justify-between">
-                    <div className="flex flex-col justify-start items-start">
-                        <span>Nome da empresa</span>
+                {/* Informações da Empresa e Botões */}
+                <div className="flex flex-col gap-6 flex-1">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-[#012038] mb-4">
+                        <Business /> Informações da Empresa
+                    </h2>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">Nome da empresa</label>
                         <input
                             onChange={(e) => setCompany(e.target.value)}
                             type="text"
                             value={company_name}
-                            className="p-2 w-[270px] h-[34px] bg-transparent border-[1px] border-[#D3D3D3] rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <div className="flex flex-col justify-start items-start">
-                        <span>CNPJ</span>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-gray-600">CNPJ</label>
                         <input
                             onChange={(e) => setCNPJ(e.target.value)}
                             type="text"
                             value={CNPJ}
-                            className="p-2 w-[270px] h-[34px] bg-transparent border-[1px] border-[#D3D3D3] rounded-md"
+                            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#012038] outline-none transition-all"
                         />
                     </div>
 
-                    <button onClick={async () => {
+                    <div className="flex flex-col gap-4 mt-4">
+                        <button
+                            onClick={async () => {
+                                await getFiles().then(result => {
+                                    handleEditAdvertiser(
+                                        refsData,
+                                        name,
+                                        email,
+                                        cpf,
+                                        CNPJ,
+                                        company_name,
+                                        setMessageDisplay,
+                                        passData,
+                                        setIsisEditing,
+                                        result[0],
+                                        result[1],
+                                        currentAdvertiser
+                                    );
+                                });
+                            }}
+                            className="w-full p-3 bg-[#012038] text-white rounded-lg hover:bg-[#012038]/90 
+                            transition-colors shadow-lg flex items-center justify-center gap-2"
+                        >
+                            <Business />
+                            Editar anunciante
+                        </button>
 
-                        await getFiles().then(result => {
-                            handleEditAdvertiser(
-                                refsData,
-                                name,
-                                email,
-                                cpf,
-                                CNPJ,
-                                company_name,
-                                setMessageDisplay,
-                                passData,
-                                setIsisEditing,
-                                result[0],
-                                result[1],
-                                currentAdvertiser);
-                        });
-
-                    }} className="flex justify-center items-center w-[270px] h-[34px] 
-                    bg-orange-600 text-white border-[1px] border-[#ffe4c5] rounded-md">
-                        Editar anunciante
-                    </button>
-                    {
-                        passReady ?
-                            <button style={{ textShadow: "2px 2px 1px #1010106c" }} onClick={() => setIsAuth(true)} className="flex justify-between items-center w-[270px] h-[34px] 
-                            bg-[#57df2a] border-[1px] border-[#c6ffbc] rounded-md p-2 text-white">
-                                <Shield />
-                                senha alterada
-                            </button> :
-                            <button onClick={() => setIsAuth(true)} className="flex justify-between items-center w-[270px] h-[34px] 
-                            bg-transparent border-[1px] border-[#D3D3D3] rounded-md p-2">
-                                <Shield />
-                                Alterar senha
-                            </button>
-                    }
+                        <button
+                            onClick={() => setIsAuth(true)}
+                            className={`w-full p-3 rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2
+                                ${passReady ?
+                                    'bg-green-500 text-white hover:bg-green-600' :
+                                    'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        >
+                            <Lock />
+                            {passReady ? 'Senha alterada' : 'Alterar senha'}
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
