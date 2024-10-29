@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
+import { loadDraft, autoSaveDraft } from '../functions/draftManager';
+import { Description } from "@mui/icons-material";
 
 function DisplayInformations({ currentAuct }) {
     const stateTheme = useSelector(state => state.theme)
@@ -30,25 +32,38 @@ function DisplayInformations({ currentAuct }) {
     }, [stateTheme])
 
     useEffect(() => {
-
-        if (currentAuct) {
-            refInformations.current.value = currentAuct.descriptions_informations
-            dispatch(addAuct({ descriptions_informations: currentAuct.descriptions_informations }))
+        const draft = loadDraft();
+        if (draft?.descriptions_informations) {
+            refInformations.current.value = draft.descriptions_informations;
+            dispatch(addAuct({ descriptions_informations: draft.descriptions_informations }));
         }
+    }, []);
 
-    }, [])
-
-    const handleDispatchInformations = () => {
-        dispatch(addAuct({ descriptions_informations: refInformations.current.value }))
+    const handleDispatchInformations = (e) => {
+        const newInfo = e.target.value;
+        dispatch(addAuct({ descriptions_informations: newInfo }));
+        autoSaveDraft({ descriptions_informations: newInfo });
     }
 
     return (
-        <div ref={refMain} className="w-full h-[100%] bg-white rounded-md
-        hover:z-[77] hover:scale-[1.02] transition-[1s] 
-        shadow-2xl shadow-[#00000039] p-3">
-            <h2 className="font-bold">descrições e informações</h2>
-            <textarea onChange={handleDispatchInformations} ref={refInformations} 
-            className="w-full h-[90%] rounded-md p-3 bg-[#e1e1e1] text-zinc-800"></textarea>
+        <div ref={refMain} className="w-full h-[100%] bg-white rounded-lg p-4
+            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            shadow-xl shadow-[#00000020] overflow-hidden">
+            <h2 className="font-bold text-xl flex items-center gap-2 mb-4">
+                <Description className="text-blue-600" />
+                Descrições e Informações
+            </h2>
+            <textarea 
+                onChange={handleDispatchInformations} 
+                ref={refInformations}
+                placeholder="Digite aqui as informações detalhadas do leilão..."
+                className="w-full h-[calc(100%-3rem)] rounded-lg p-4 
+                bg-gray-50 text-gray-800 resize-none
+                border border-gray-200 focus:border-blue-500
+                focus:ring-2 focus:ring-blue-500 outline-none
+                transition-all duration-300 ease-in-out
+                overflow-y-auto"
+            />
         </div>
     )
 }

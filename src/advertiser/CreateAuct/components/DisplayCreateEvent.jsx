@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { Close, PhotoCamera } from "@mui/icons-material"
+import { Close, PhotoCamera, Title, LocalOffer, Category } from "@mui/icons-material"
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { handleImageChange } from "../functions/handleImageChange";
 import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 import CategorySelect from "./CategorySelect";
+import { autoSaveDraft, loadDraft } from '../functions/draftManager';
 
-function DisplayCreateEvent({ currentAuct }) {
+function DisplayCreateEvent() {
     const stateTheme = useSelector(state => state.theme)
     const [imageSrc, setImageSrc] = useState(null);
     const [tagList, setTagList] = useState([])
@@ -21,46 +22,42 @@ function DisplayCreateEvent({ currentAuct }) {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refMain.current.style.color = "#efefef"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
         }
-
     }, [stateTheme])
 
-
     useEffect(() => {
-
-        if (currentAuct) {
-            refTitle.current.value = currentAuct.title
-            refCategories.current.value = currentAuct.categorie
-            setTagList(currentAuct.tags)
-            setImageSrc(currentAuct.auct_cover_img)
-
-            dispatch(addAuct({
-                title: currentAuct.title,
-                categorie: currentAuct.categorie,
-                tags: currentAuct.tags,
-                auct_cover_img: currentAuct.auct_cover_img
-            }))
+        // Carregar rascunho ao montar o componente
+        const draft = loadDraft();
+        if (draft) {
+            if (draft.title && refTitle.current) {
+                refTitle.current.value = draft.title;
+                dispatch(addAuct({ title: draft.title }));
+            }
+            if (draft.categories && refCategories.current) {
+                refCategories.current.value = draft.categories;
+                dispatch(addAuct({ categories: draft.categories }));
+            }
+            if (draft.tags) {
+                setTagList(draft.tags);
+                dispatch(addAuct({ tags: draft.tags }));
+                autoSaveDraft({ tags: draft.tags });
+            }
+            if (draft.auct_cover_img) {
+                setImageSrc(draft.auct_cover_img);
+                dispatch(addAuct({ auct_cover_img: draft.auct_cover_img }));
+            }
         }
-
-        if (!refTitle.current.value || !refCategories.current.value) {
-            dispatch(reportError('Todos os campos são obrigatórios!'))
-        }
-
-    }, [])
+    }, []);
 
     useEffect(() => {
         dispatch(addAuct({ tags: tagList }));
+        autoSaveDraft({ tags: tagList });
     }, [tagList])
-
-
-    //REGISTRANDO TAGS PARA UMA LISTA
 
     function HandleCreationTags(event) {
         const currentTag = event.target.value.split('')
@@ -68,98 +65,116 @@ function DisplayCreateEvent({ currentAuct }) {
         const tagsInput = document.querySelector(".tags-input")
 
         if (currentTag[currentTag.length - 1] === ',') {
-            //console.log('tag encontrada -> ', currentWord.split(",")[0]);
-            setTagList(prevArray => [...prevArray, currentWord.split(",")[0]])
-            tagsInput.value = ''
+            const newTag = currentWord.split(",")[0];
+            setTagList(prevArray => [...prevArray, newTag]);
+            tagsInput.value = '';
         }
-
     }
 
     function HandleRemoveTag(tag) {
-        //console.log('tag a ser deletada --> ', tag);
-        setTagList(prevArray => prevArray.filter(item => item !== tag));
-        dispatch(addAuct({ tags: tagList }));
+        setTagList(prevArray => {
+            const newTags = prevArray.filter(item => item !== tag);
+            autoSaveDraft({ tags: newTags });
+            return newTags;
+        });
     }
 
-    function handleDispatchTitle() {
-
-        dispatch(addAuct({ title: refTitle.current.value }));
-
-        if (!refTitle.current.value || !refCategories.current.value) {
-            dispatch(reportError('Título do leilão é obrigatório!'))
-        } else {
-            dispatch(reportError(false))
-        }
-
+    function handleDispatchTitle(e) {
+        const newTitle = e.target.value;
+        dispatch(addAuct({ title: newTitle }));
+        autoSaveDraft({ title: newTitle });
     }
 
     function handleDispatchCategories() {
-
-        if (refCategories.current.value === "" || !refTitle.current.value) {
+        const newCategory = refCategories.current.value;
+        if (newCategory === "" || !refTitle.current.value) {
             dispatch(reportError('Categorias do leilão são obrigatórias!'))
         } else {
             dispatch(reportError(false))
         }
-
-        dispatch(addAuct({ categories: refCategories.current.value }));
-
+        dispatch(addAuct({ categories: newCategory }));
+        autoSaveDraft({ categories: newCategory });
     }
 
-
-
     return (
-        <div ref={refMain} className="min-w-[30%] h-[100%] bg-white rounded-md p-2
-        hover:z-[77] hover:scale-[1.02] transition-[1s]  overflow-y-auto
-        shadow-2xl shadow-[#00000039] relative">
-            <h2 className="font-bold absolute left-2 top-2">Criação de Evento</h2>
+        <div ref={refMain} className="min-w-[30%] h-[100%] bg-white rounded-lg p-4
+            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            shadow-xl shadow-[#00000020] relative overflow-y-auto">
+            <h2 className="font-bold text-xl flex items-center gap-2 mb-6">
+                <Title className="text-[#012038]" />
+                Criação de Evento
+            </h2>
 
-            <section className="w-full h-[20%] flex flex-col gap-2 justify-center items-center mt-4">
-                <div className="w-[80%] flex flex-col gap-3">
-                    <span>Títullo do leilão</span>
-                    <input onChange={handleDispatchTitle} ref={refTitle}
+            <section className="w-full flex flex-col gap-4 mb-6">
+                <div className="w-full">
+                    <span className="flex items-center gap-2 text-gray-700 mb-2">
+                        <LocalOffer className="text-[#012038]" />
+                        Título do leilão
+                    </span>
+                    <input 
+                        onChange={handleDispatchTitle} 
+                        ref={refTitle}
                         type="text"
-                        className="w-full h-[40px] p-2 border-[1px] border-zinc-300 bg-transparent rounded-md" />
+                        className="w-full h-12 px-4 border border-gray-300 bg-transparent rounded-lg 
+                        focus:ring-2 focus:ring-[#012038] focus:border-transparent transition-all
+                        outline-none" 
+                    />
                 </div>
             </section>
-            {/* TAGS */}
-            <section className="w-full h-[20%] flex flex-col gap-2 justify-center items-center mt-6">
-                <div className="w-[80%] flex-wrap p-2 gap-2 flex justify-start items-center 
-                text-[12px] min-h-[60px] overflow-y-auto mt-3 bg-[#ebebeb] rounded-md">
-                    {
-                        tagList.map((tag, index) => (
-                            <span key={index} className="font-light italic text-zinc-600 
-                            flex justify-center gap-3 bg-zinc-200 p-1 rounded-md ">
-                                {tag}
-                                <span onClick={() => { HandleRemoveTag(tag) }}>
-                                    <Close className="cursor-pointer" style={{ fontSize: '16px' }} />
-                                </span>
-                            </span>
-                        ))
-                    }
-                </div>
-                <div className="w-[80%] flex flex-col gap-3">
-                    <span>Tags</span>
-                    <input type="text"
-                        placeholder="digite as tags separando-as por vírgulas"
-                        className="p-2 text-[#3d3d3d] tags-input rounded-md 
-                    bg-transparent  border-[1px] border-zinc-300" onChange={HandleCreationTags} />
-                </div>
-            </section>
-            {/* CATEGORIA */}
-            <CategorySelect handleDispatchCategories={handleDispatchCategories} refCategories={refCategories} />
 
-            <section className="w-full h-[30%] flex flex-col gap-2 justify-center items-center mt-6">
+            {/* TAGS */}
+            <section className="w-full mb-6">
+                <div className="w-full p-3 flex flex-wrap gap-2 min-h-[60px] 
+                    bg-gray-50 rounded-lg mb-3">
+                    {tagList.map((tag, index) => (
+                        <span key={index} className="flex items-center gap-2 px-3 py-1.5 
+                            bg-white rounded-full text-sm text-gray-700 shadow-sm">
+                            {tag}
+                            <Close 
+                                onClick={() => HandleRemoveTag(tag)}
+                                className="w-4 h-4 cursor-pointer hover:text-red-500 transition-colors" 
+                            />
+                        </span>
+                    ))}
+                </div>
+                <div className="w-full">
+                    <span className="flex items-center gap-2 text-gray-700 mb-2">
+                        <LocalOffer className="text-[#012038]" />
+                        Tags
+                    </span>
+                    <input type="text"
+                        placeholder="Digite as tags separando-as por vírgulas"
+                        className="w-full h-12 px-4 border border-gray-300 bg-transparent rounded-lg
+                        focus:ring-2 focus:ring-[#012038] focus:border-transparent transition-all
+                        outline-none tags-input" 
+                        onChange={HandleCreationTags} 
+                    />
+                </div>
+            </section>
+
+            {/* CATEGORIA */}
+            <section className="w-full mb-6">
+                <span className="flex items-center gap-2 text-gray-700 mb-2">
+                    <Category className="text-[#012038]" />
+                    Categoria do leilão
+                </span>
+                <CategorySelect handleDispatchCategories={handleDispatchCategories} refCategories={refCategories} />
+            </section>
+
+            {/* IMAGEM */}
+            <section className="w-full">
                 <label htmlFor="upload-auct-cover"
-                    className="w-full h-[20vh] 
-                                border-[1px] border-zinc-300 
-                                rounded-lg flex justify-center 
-                                items-center cursor-pointer">
+                    className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg
+                    flex flex-col justify-center items-center cursor-pointer
+                    hover:border-[#012038] transition-colors">
                     {imageSrc ? (
-                        <img src={imageSrc} alt="Capa do leilão" className="w-full h-full object-cover rounded-lg" />
+                        <img src={imageSrc} alt="Capa do leilão" 
+                            className="w-full h-full object-cover rounded-lg" 
+                        />
                     ) : (
-                        <div>
-                            <PhotoCamera style={{ fontSize: '60px' }} />
-                            <p>Selecione uma imagem</p>
+                        <div className="flex flex-col items-center gap-2 text-gray-500">
+                            <PhotoCamera style={{ fontSize: '48px' }} className="text-[#012038]" />
+                            <p className="text-sm">Clique para selecionar uma imagem</p>
                         </div>
                     )}
                 </label>
@@ -167,11 +182,10 @@ function DisplayCreateEvent({ currentAuct }) {
                     type="file"
                     id="upload-auct-cover"
                     accept="image/*"
-                    style={{ display: 'none' }}
+                    className="hidden"
                     onChange={(e) => handleImageChange(e, setImageSrc)}
                 />
             </section>
-
         </div>
     )
 }

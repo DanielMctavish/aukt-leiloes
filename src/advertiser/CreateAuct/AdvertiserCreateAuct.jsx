@@ -18,15 +18,20 @@ import DisplayLimitations from "./components/DisplayLimitations"
 import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
+import { saveDraft, loadDraft, clearDraft } from './functions/draftManager';
+import { addAuct } from "../../features/auct/Auct";
+import { useDispatch } from "react-redux";
 
 export const AdvertiserCreateAuct = () => {
     const state = useSelector(state => state.aucts)
     const stateErrors = useSelector(state => state.errorReports)
+    const dispatch = useDispatch();
 
     const [progressBar, setProgressBar] = useState(0)
     const [aucts, setAucts] = useState([])
     const [errorDetector, setErrorDetector] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [hasDraft, setHasDraft] = useState(false);
 
     const navigate = useNavigate()
 
@@ -35,22 +40,68 @@ export const AdvertiserCreateAuct = () => {
     const loadScreen = useRef()
     const logoElement = useRef()
 
+    // Efeito para verificar o login e carregar rascunho
     useEffect(() => {
-
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-        if (!currentSession) navigate("/")
+        if (!currentSession) {
+            navigate("/")
+            return;
+        }
 
+        // Verifica se existe um rascunho ao carregar
+        const draft = loadDraft();
+        if (draft) {
+            setHasDraft(true);
+            dispatch(addAuct(draft));
+        }
+    }, []); // Removido state, stateErrors, errorDetector, isLoading das dependências
+
+    // Efeito separado para atualizar aucts e erros
+    useEffect(() => {
         setAucts(state)
-        utilsFunctionr.errorSend(errorDetector)
+    }, [state]);
 
+    useEffect(() => {
         if (stateErrors.error) {
             setErrorDetector(true)
+            if (refErroSpanElement.current) {
+                refErroSpanElement.current.innerHTML = stateErrors.error
+                refErroSpanElement.current.style.opacity = "1"
+                refErroSpanElement.current.style.display = "flex"
+                refErroSpanElement.current.style.position = "fixed"
+
+                setTimeout(() => {
+                    if (refErroSpanElement.current) {
+                        refErroSpanElement.current.style.transition = "3s"
+                        refErroSpanElement.current.style.opacity = "0"
+                    }
+                }, 300);
+
+                setTimeout(() => {
+                    if (refErroSpanElement.current) {
+                        refErroSpanElement.current.style.display = "none"
+                    }
+                }, 3000);
+            }
         } else {
             setErrorDetector(false)
         }
+    }, [stateErrors]);
 
-    }, [state, stateErrors, errorDetector, isLoading])
+    // Efeito para salvar rascunho
+    useEffect(() => {
+        if (Object.keys(state).length > 0) {
+            saveDraft(state);
+            setHasDraft(true);
+        }
+    }, [state]);
 
+    const handleClearDraft = () => {
+        clearDraft();
+        setHasDraft(false);
+        dispatch(addAuct({}));
+        window.location.reload();
+    };
 
     const handleSaveAuct = async () => {
 
@@ -157,21 +208,20 @@ export const AdvertiserCreateAuct = () => {
                     lote: parseInt(index + 1),
                     advertiser_id: getAdvertiser.data.id,
                     cartela_id: undefined,
-                    group: product.Group,
+                    group: product.group,
                     auct_nanoid: currentAuctNanoId,
                     auct_id: currentAuctId,
                     title: product.title,
                     description: product.description,
                     categorie: product.categorie,
                     initial_value: product.initial_value,
-                    final_value: product.final_value,
                     reserve_value: product.reserve_value,
-                    color: product.color,
                     width: 0,
                     height: 0,
                     weight: 0,
                     cover_img_url: "string",
-                    highlight_product: true
+                    highlight_product: true,
+                    group_imgs_url: [],
                 }, configAuth).then(response => {
                     console.log('produto criado', response.data);
                 }).catch(err => {
@@ -196,28 +246,6 @@ export const AdvertiserCreateAuct = () => {
             setIsLoading(false)
         }
 
-    }
-
-    const utilsFunctionr = {
-        errorSend: () => {
-
-            if (stateErrors.error) {
-
-                refErroSpanElement.current.innerHTML = stateErrors.error
-                refErroSpanElement.current.style.opacity = "1"
-                refErroSpanElement.current.style.display = "flex"
-                refErroSpanElement.current.style.position = "fixed"
-
-                setTimeout(() => {
-                    refErroSpanElement.current.style.transition = "3s"
-                    refErroSpanElement.current.style.opacity = "0"
-                }, 300);
-
-                setTimeout(() => {
-                    refErroSpanElement.current.style.display = "none"
-                }, 3000);
-            }
-        }
     }
 
     return (
@@ -271,12 +299,23 @@ export const AdvertiserCreateAuct = () => {
 
             </section>
 
-            <section className="fixed bottom-2 right-6 z-[999]">
+            <section className="fixed bottom-2 z-[999] flex gap-4 justify-center w-full">
                 {!errorDetector ?
                     !isLoading ?
-                        <button onClick={handleSaveAuct} className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
-                            confirmar
-                        </button> :
+                        <>
+                            <button onClick={handleSaveAuct} 
+                                className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
+                                confirmar
+                            </button>
+                            {hasDraft && (
+                                <button
+                                    onClick={handleClearDraft}
+                                    className="w-[130px] h-[50px] bg-red-500 text-white rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-red-600 transition-colors"
+                                >
+                                    Apagar Rascunho
+                                </button>
+                            )}
+                        </> :
                         <span>criando...</span>
                     :
                     <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">

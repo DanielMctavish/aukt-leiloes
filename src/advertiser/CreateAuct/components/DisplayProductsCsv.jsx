@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addProducts } from "../../../features/product/Products";
 import { addAuct } from "../../../features/auct/Auct";
 import { addGroupDate } from "../../../features/GroupDates/GroupDate";
+import { loadDraft, autoSaveDraft } from '../functions/draftManager';
+import { CloudUpload } from "@mui/icons-material";
 
 function DisplayProductsCsv() {
     const stateTheme = useSelector(state => state.theme)
@@ -19,67 +21,84 @@ function DisplayProductsCsv() {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refMain.current.style.color = "#efefef"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
         }
-
     }, [stateTheme])
 
+    useEffect(() => {
+        const draft = loadDraft();
+        if (draft?.product_list) {
+            dispatch(addProducts({ columns, values: draft.product_list }));
+            setProductsCount(draft.product_list.length);
+        }
+    }, []);
+
+    const formatProductData = (rawValues) => {
+        return rawValues.map((row) => ({
+            title: row[0] || '',
+            description: row[1] || '',
+            categorie: row[2] || '',
+            initial_value: parseFloat(row[3]) || 0,
+            reserve_value: parseFloat(row[4]) || 0,
+            group: row[5] || '',
+            owner_id: row[6] || '',
+            width: 0,
+            height: 0,
+            weight: 0,
+            cover_img_url: "string",
+            highlight_product: true,
+            group_imgs_url: [],
+        }));
+    };
 
     useEffect(() => {
-        // Utilize useEffect para garantir que o estado seja atualizado antes do dispatch
-        dispatch(addProducts({ columns, values }));
-
-        const product_list = []
-        //create and push into array product_list objects, where the keys are columns and values are "values"
-        for (let i = 0; i < values.length; i++) {
-            const product = {}
-            for (let j = 0; j < values[i].length; j++) {
-                product[columns[j]] = values[i][j]
-            }
-            product_list.push(product)
+        if (values.length > 0) {
+            const formattedProducts = formatProductData(values);
+            dispatch(addProducts({ columns, values }));
+            dispatch(addAuct({ product_list: formattedProducts }));
+            setProductsCount(values.length);
+            identifyAndSetGroupDates();
+            autoSaveDraft({ product_list: formattedProducts });
         }
-        //console.log(product_list);
-        dispatch(addAuct({ product_list: product_list }));
-        setProductsCount(values.length)
-        identifyAndSetGroupDates()
     }, [values]);
 
-
-    const handleImportProducts = async () => {
-        refFile.current.click()
-
-
-        refFile.current.addEventListener('change', () => {
-            const currentFile = refFile.current.files
-            // console.log('arquivo carregado com sucesso... ', currentFile[0]);
-            importExcelOperation(currentFile[0])
-        });
-
-
+    const handleImportProducts = () => {
+        refFile.current.click();
     }
+
+    useEffect(() => {
+        const fileInput = refFile.current;
+        
+        const handleFileChange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                importExcelOperation(file);
+            }
+        };
+
+        fileInput.addEventListener('change', handleFileChange);
+        return () => fileInput.removeEventListener('change', handleFileChange);
+    }, []);
 
     const importExcelOperation = (currentFile) => {
         const reader = new FileReader();
-        dispatch(addProducts({ columns: [], values: [] }));
 
         reader.onload = function (e) {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
-
-            // Aqui você pode acessar os dados do arquivo Excel
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-            setColumns(excelData[0])
+            const headers = excelData[0];
+            const filteredValues = excelData.filter((row, index) => 
+                index !== 0 && row.some(cell => cell !== "")
+            );
 
-            // Filtra as linhas em branco antes de definir os valores
-            const filteredValues = excelData.filter((row, index) => index !== 0 && row.some(cell => cell !== ""));
+            setColumns(headers);
             setValues(filteredValues);
         };
 
@@ -91,38 +110,42 @@ function DisplayProductsCsv() {
         let uniqueValues = new Set();
 
         values.forEach(line => {
-            line.map((value, index) => {
-                if (index === 5 && !uniqueValues.has(value)) {
-                    uniqueValues.add(value);
-                    groupDates.push(value);
-                }
-            });
+            if (line[5] && !uniqueValues.has(line[5])) {
+                uniqueValues.add(line[5]);
+                groupDates.push(line[5]);
+            }
         });
 
-        dispatch(addGroupDate({ groupDates }));
+        if (groupDates.length > 0) {
+            dispatch(addGroupDate({ groupDates }));
+        }
     };
 
-
-
     return (
-        <div ref={refMain} className="w-[33%] h-[100%]
-        hover:z-[77] hover:scale-[1.02] transition-[1s]
-        flex flex-col justify-center items-center 
-        bg-white rounded-md relative
-        shadow-2xl shadow-[#00000039] p-3">
-            <h2 className="font-bold absolute top-3 left-3">Produtos</h2>
+        <div ref={refMain} className="w-[33%] h-[100%] bg-white rounded-lg p-4
+            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            shadow-xl shadow-[#00000020] flex flex-col justify-center items-center gap-6">
 
-            <section className="flex gap-3 justify-center items-center">
-                <span className="font-bold text-[63px]">{productsCount}</span>
+            <section className="flex gap-4 justify-center items-center">
+                <span className="text-6xl font-bold text-[#012038]">{productsCount}</span>
                 <div className="flex flex-col">
-                    <span>TOTAL</span>
-                    <button>adicionar produto</button>
+                    <span className="text-lg font-medium">TOTAL</span>
+                    <button className="text-[#012038] hover:underline">
+                        adicionar produto
+                    </button>
                 </div>
             </section>
-            <input type="file" ref={refFile} className="hidden" />
-            <button onClick={handleImportProducts} className="p-1 w-[150px] h-[40px] bg-[#cfcfcf] rounded-md">importar CSV</button>
+
+            <input type="file" ref={refFile} className="hidden" accept=".csv,.xlsx,.xls" />
+            <button 
+                onClick={handleImportProducts} 
+                className="flex items-center gap-2 px-6 py-3 bg-[#012038] text-white 
+                rounded-lg hover:bg-[#012038]/90 transition-colors shadow-md">
+                <CloudUpload />
+                Importar CSV
+            </button>
         </div>
     )
 }
 
-export default DisplayProductsCsv
+export default DisplayProductsCsv;

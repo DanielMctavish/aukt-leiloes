@@ -3,104 +3,127 @@
 import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { useEffect, useRef, useState } from "react";
-import { CreditCard, PixOutlined, Article } from "@mui/icons-material";
+import { CreditCard, PixOutlined, Article, Payments } from "@mui/icons-material";
+import { loadDraft, autoSaveDraft } from '../functions/draftManager';
 
-function DisplayMethodsPayments({ currentAuct }) {
+function DisplayMethodsPayments() {
     const stateTheme = useSelector(state => state.theme)
     const [methodsPayments, setMethodsPayments] = useState([]);
     const dispatch = useDispatch();
-
-    const handleCheckboxChange = (event) => {
-        const { value } = event.target;
-        if (methodsPayments.includes(value)) {
-            setMethodsPayments(methodsPayments.filter((method) => method !== value));
-        } else {
-            setMethodsPayments([...methodsPayments, value]);
-        }
-    };
-
     const refMain = useRef()
 
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refMain.current.style.color = "#efefef"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
         }
-
     }, [stateTheme])
 
     useEffect(() => {
-        if (currentAuct) {
-            setMethodsPayments(currentAuct.methods_payments);
-            dispatch(addAuct({ methods_payments: currentAuct.methods_payments }));
+        const draft = loadDraft();
+        if (draft?.methods_payments) {
+            setMethodsPayments(draft.methods_payments);
+            dispatch(addAuct({ methods_payments: draft.methods_payments }));
         }
     }, []);
 
-    useEffect(() => {
-        dispatch(addAuct({ methods_payments: methodsPayments }));
-    }, [methodsPayments]);
+    const handleCheckboxChange = (event) => {
+        const { value } = event.target;
+        let newMethods;
+        if (methodsPayments.includes(value)) {
+            newMethods = methodsPayments.filter((method) => method !== value);
+        } else {
+            newMethods = [...methodsPayments, value];
+        }
+        setMethodsPayments(newMethods);
+        dispatch(addAuct({ methods_payments: newMethods }));
+        autoSaveDraft({ methods_payments: newMethods });
+    };
 
     return (
-        <div ref={refMain} className="w-full sm:w-1/3 h-full bg-white hover:z-50 hover:scale-105 transition-transform 
-        duration-300 ease-in-out flex flex-col justify-around items-start overflow-y-auto rounded-lg shadow-2xl p-6 relative">
-            <h2 className="font-bold text-xl mb-2 w-[300px]">Selecione os métodos de pagamento aceitos</h2>
-            <div className="flex w-full flex-wrap justify-start items-center gap-4 text-white">
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md cursor-pointer
-                    ${methodsPayments.includes("Pix") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
+        <div ref={refMain} className="w-full sm:w-1/3 h-full bg-white rounded-lg p-6
+            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out overflow-y-auto
+            shadow-xl shadow-[#00000020] flex flex-col justify-start gap-6">
+            <h2 className="font-bold text-xl flex items-center gap-2">
+                <Payments className="text-[#012038]" />
+                Métodos de Pagamento
+            </h2>
+
+            <div className="grid grid-cols-2 gap-4">
+                <label className={`
+                    flex items-center gap-3 p-4 rounded-lg cursor-pointer
+                    border-2 transition-all duration-200 ease-in-out
+                    ${methodsPayments.includes("Pix") 
+                        ? 'border-[#012038] bg-[#012038] text-white' 
+                        : 'border-gray-200 hover:border-[#012038] text-gray-700'}
+                `}>
                     <input
                         type="checkbox"
                         name="method"
                         value="Pix"
                         onChange={handleCheckboxChange}
-                        className="form-checkbox h-5 w-5 text-indigo-600 hidden"
+                        className="hidden"
                     />
-                    <span className="ml-2">Pix</span>
-                    <PixOutlined />
+                    <PixOutlined className={methodsPayments.includes("Pix") ? 'text-white' : 'text-[#012038]'} />
+                    <span className="font-medium">Pix</span>
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md cursor-pointer 
-                    ${methodsPayments.includes("Credit") ? 'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
+                <label className={`
+                    flex items-center gap-3 p-4 rounded-lg cursor-pointer
+                    border-2 transition-all duration-200 ease-in-out
+                    ${methodsPayments.includes("Credit") 
+                        ? 'border-[#012038] bg-[#012038] text-white' 
+                        : 'border-gray-200 hover:border-[#012038] text-gray-700'}
+                `}>
                     <input
                         type="checkbox"
                         name="method"
                         value="Credit"
                         onChange={handleCheckboxChange}
-                        className="form-checkbox h-5 w-5 text-indigo-600 hidden"
+                        className="hidden"
                     />
-                    <span className="ml-2">Crédito</span>
-                    <CreditCard />
+                    <CreditCard className={methodsPayments.includes("Credit") ? 'text-white' : 'text-[#012038]'} />
+                    <span className="font-medium">Crédito</span>
                 </label>
 
-                <label className={`inline-flex items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Debit") ?
-                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out cursor-pointer`}>
+                <label className={`
+                    flex items-center gap-3 p-4 rounded-lg cursor-pointer
+                    border-2 transition-all duration-200 ease-in-out
+                    ${methodsPayments.includes("Debit") 
+                        ? 'border-[#012038] bg-[#012038] text-white' 
+                        : 'border-gray-200 hover:border-[#012038] text-gray-700'}
+                `}>
                     <input
                         type="checkbox"
                         name="method"
                         value="Debit"
                         onChange={handleCheckboxChange}
-                        className="form-checkbox h-5 w-5 text-indigo-600 hidden"
+                        className="hidden"
                     />
-                    <span className="ml-2">Débito</span>
-                    <CreditCard />
+                    <CreditCard className={methodsPayments.includes("Debit") ? 'text-white' : 'text-[#012038]'} />
+                    <span className="font-medium">Débito</span>
                 </label>
 
-                <label className={`inline-flex cursor-pointer items-center mr-4 gap-2 p-2 rounded-md ${methodsPayments.includes("Ticket") ?
-                    'bg-[#03243a]' : 'bg-[#232323]'} transition duration-150 ease-in-out`}>
+                <label className={`
+                    flex items-center gap-3 p-4 rounded-lg cursor-pointer
+                    border-2 transition-all duration-200 ease-in-out
+                    ${methodsPayments.includes("Ticket") 
+                        ? 'border-[#012038] bg-[#012038] text-white' 
+                        : 'border-gray-200 hover:border-[#012038] text-gray-700'}
+                `}>
                     <input
                         type="checkbox"
                         name="method"
                         value="Ticket"
                         onChange={handleCheckboxChange}
-                        className="form-checkbox h-5 w-5 text-indigo-600 hidden"
+                        className="hidden"
                     />
-                    <span className="ml-2">Boleto</span>
-                    <Article />
+                    <Article className={methodsPayments.includes("Ticket") ? 'text-white' : 'text-[#012038]'} />
+                    <span className="font-medium">Boleto</span>
                 </label>
             </div>
         </div>
