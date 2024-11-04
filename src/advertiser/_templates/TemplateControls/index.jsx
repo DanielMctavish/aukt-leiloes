@@ -17,7 +17,7 @@ function TemplateControls({
     const isInitialConfigComplete = template.colorPalette && template.fontStyle;
 
     return (
-        <aside className="w-1/5 h-screen bg-gray-100 p-4 overflow-y-auto">
+        <aside className="w-full h-screen bg-gray-100 p-4 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">AUK CONSTRUCTOR</h2>
 
             <InitialConfigControls 

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { templateModels, candyColors, sizeTypes, cleanColors, darkColors, monochromaticColors } from "./templateData/templateModels";
 import AdvertiserTemplateControls from './AdvertiserTemplateControls';
 import HeaderTemplate from './header/HeaderTemplate';
@@ -12,12 +12,44 @@ function AdvertiserTemplate() {
     const [selectedHeaderModel, setSelectedHeaderModel] = useState(1);
     const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
     const [fadeIn, setFadeIn] = useState(false);
+    const [asideWidth, setAsideWidth] = useState(20); // Largura inicial em porcentagem
+    const [isResizing, setIsResizing] = useState(false);
+    const asideRef = useRef(null);
 
     useEffect(() => {
         if (!showWelcomeScreen) {
             setTimeout(() => setFadeIn(true), 100);
         }
     }, [showWelcomeScreen]);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizing) return;
+
+            const newWidth = (e.clientX / window.innerWidth) * 100;
+            // Limitar a largura entre 20% e 50%
+            if (newWidth >= 20 && newWidth <= 50) {
+                setAsideWidth(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+            document.body.style.cursor = 'default';
+        };
+
+        if (isResizing) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'ew-resize';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'default';
+        };
+    }, [isResizing]);
 
     const getSizeClass = (sizeType) => {
         switch (sizeType) {
@@ -119,20 +151,42 @@ function AdvertiserTemplate() {
 
     return (
         <div className={`flex w-full h-screen bg-white overflow-hidden transition-opacity duration-1000 ease-in-out ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
-            <AdvertiserTemplateControls
-                template={template}
-                updateHeader={updateHeader}
-                updateFooter={updateFooter}
-                updateSection={updateSection}
-                addSection={addSection}
-                removeSection={removeSection}
-                updateInitialConfig={updateInitialConfig}
-                selectedHeaderModel={selectedHeaderModel}
-                setSelectedHeaderModel={setSelectedHeaderModel}
-            />
+            {/* Aside com controles */}
+            <div 
+                ref={asideRef}
+                style={{ width: `${asideWidth}%`, minWidth: '300px', maxWidth: '600px' }}
+                className="relative h-screen"
+            >
+                <div className="h-full overflow-y-auto">
+                    <AdvertiserTemplateControls
+                        template={template}
+                        updateHeader={updateHeader}
+                        updateFooter={updateFooter}
+                        updateSection={updateSection}
+                        addSection={addSection}
+                        removeSection={removeSection}
+                        updateInitialConfig={updateInitialConfig}
+                        selectedHeaderModel={selectedHeaderModel}
+                        setSelectedHeaderModel={setSelectedHeaderModel}
+                    />
+                </div>
+                
+                {/* Borda arrastável */}
+                <div
+                    className="absolute top-0 right-0 w-1 h-full cursor-ew-resize hover:bg-[#012038]/20 transition-colors"
+                    onMouseDown={() => setIsResizing(true)}
+                />
+            </div>
 
-            {/* ÁREA DE SESSÕES */}
-            <div className={`w-4/5 h-screen bg-gray-800 p-1 overflow-y-auto flex flex-col ${textColorClass}`} style={{ fontFamily: template.fontStyle }}>
+            {/* Área principal */}
+            <div 
+                className={`h-screen bg-gray-800 p-1 overflow-y-auto flex flex-col ${textColorClass}`} 
+                style={{ 
+                    width: `calc(100% - ${asideWidth}%)`,
+                    minWidth: '50%', // Garante um tamanho mínimo para a área principal
+                    fontFamily: template.fontStyle 
+                }}
+            >
                 <HeaderTemplate 
                     getSizeClass={getSizeClass}
                     template={template}
@@ -161,6 +215,11 @@ function AdvertiserTemplate() {
                     textColorClass={textColorClass}
                 />
             </div>
+
+            {/* Overlay para evitar seleção de texto durante o redimensionamento */}
+            {isResizing && (
+                <div className="fixed inset-0 bg-transparent z-50" />
+            )}
         </div>
     );
 }
