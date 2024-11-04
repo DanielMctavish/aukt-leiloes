@@ -17,18 +17,20 @@ function AdvertiserTemplateControls({ template,
     const selectedPalette = colorPalettes[template.colorPalette] || cleanColors;
 
     return (
-        <TemplateControls
-            template={template}
-            updateHeader={updateHeader}
-            updateFooter={updateFooter}
-            updateSection={updateSection}
-            addSection={addSection}
-            removeSection={removeSection}
-            updateInitialConfig={updateInitialConfig}
-            selectedHeaderModel={selectedHeaderModel}
-            setSelectedHeaderModel={setSelectedHeaderModel}
-            selectedPalette={selectedPalette}
-        />
+        <div className='w-full'>
+            <TemplateControls
+                template={template}
+                updateHeader={updateHeader}
+                updateFooter={updateFooter}
+                updateSection={updateSection}
+                addSection={addSection}
+                removeSection={removeSection}
+                updateInitialConfig={updateInitialConfig}
+                selectedHeaderModel={selectedHeaderModel}
+                setSelectedHeaderModel={setSelectedHeaderModel}
+                selectedPalette={selectedPalette}
+            />
+        </div>
     );
 }
 
