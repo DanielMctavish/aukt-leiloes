@@ -291,6 +291,40 @@ const textsSessions = {
     textsFooter: []
 };
 
+const footerSections = {
+    about: {
+        title: "Sobre nós",
+        links: [
+            { label: "Nossa história", url: "#" },
+            { label: "Equipe", url: "#" },
+            { label: "Carreiras", url: "#" }
+        ]
+    },
+    services: {
+        title: "Serviços",
+        links: [
+            { label: "Leilões", url: "#" },
+            { label: "Avaliações", url: "#" },
+            { label: "Consultoria", url: "#" }
+        ]
+    },
+    contact: {
+        title: "Contato",
+        links: [
+            { label: "+55 11 1234-5678", url: "#" },
+            { label: "contato@empresa.com", url: "#" },
+            { label: "São Paulo, SP", url: "#" }
+        ]
+    }
+};
+
+const socialLinks = {
+    facebook: "#",
+    twitter: "#",
+    instagram: "#",
+    linkedin: "#"
+};
+
 const templateModels = {
     colorPalette: 'clean',
     fontStyle: fontStyles.robotoCondensed,
@@ -307,8 +341,15 @@ const templateModels = {
     sections: [],
     footer: {
         color: cleanColors[4],
-        sizeType: sizeTypes.third
+        sizeType: sizeTypes.third,
+        sections: footerSections,
+        socialLinks: socialLinks,
+        companyName: "EMPRESA",
+        showSocialLinks: true,
+        textColor: "#FFFFFF",
+        borderColor: "rgba(255,255,255,0.2)",
+        elementsOpacity: 100
     }
 };
 
-export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions }
+export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions, footerSections, socialLinks }

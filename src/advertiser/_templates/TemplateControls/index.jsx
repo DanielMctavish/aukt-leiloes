@@ -1,17 +1,14 @@
 /* eslint-disable react/prop-types */
 import InitialConfigControls from './InitialConfigControls';
 import HeaderControls from './HeaderControls';
-import { Add, Delete } from '@mui/icons-material';
-import ColorSelector from './ColorSelector';
-import { sizeTypes, sectionTypes } from '../templateData/templateModels';
+import FooterControls from './FooterControls';
+import { Add } from '@mui/icons-material';
 
 function TemplateControls({ 
     template,
     updateHeader,
     updateFooter,
-    updateSection,
     addSection,
-    removeSection,
     updateInitialConfig,
     selectedHeaderModel,
     setSelectedHeaderModel,
@@ -46,9 +43,11 @@ function TemplateControls({
                     ))}
 
                     {/* Footer */}
-                    <div className="bg-white shadow rounded-lg p-4 mb-4">
-                        {/* ... (código do footer) */}
-                    </div>
+                    <FooterControls 
+                        template={template}
+                        updateFooter={updateFooter}
+                        selectedPalette={selectedPalette}
+                    />
 
                     <button
                         onClick={() => addSection('section')}
