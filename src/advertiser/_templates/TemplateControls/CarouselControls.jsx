@@ -1,12 +1,48 @@
 /* eslint-disable react/prop-types */
-import { ViewCarousel, Speed, Image, Settings } from '@mui/icons-material';
+import { ViewCarousel, Speed, Image, Settings, Store } from '@mui/icons-material';
 import TextPositionControls from './TextPositionControls';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 function CarouselControls({ carousel, onUpdate }) {
+    const [aucts, setAucts] = useState([]);
+    const [selectedAuct, setSelectedAuct] = useState(null);
+    const { advertiser_id } = useParams();
+
+    useEffect(() => {
+        const fetchAucts = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
+                    params: {
+                        creator_id: advertiser_id
+                    }
+                });
+                setAucts(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar leilões:", error);
+            }
+        };
+
+        if (advertiser_id) {
+            fetchAucts();
+        }
+    }, [advertiser_id]);
+
     const handleChange = (property, value) => {
         onUpdate({
             ...carousel,
             [property]: value
+        });
+    };
+
+    const handleAuctChange = (auctId) => {
+        const selectedAuct = aucts.find(auct => auct.id === auctId);
+        setSelectedAuct(selectedAuct);
+        onUpdate({
+            ...carousel,
+            selectedAuctId: auctId,
+            products: selectedAuct?.product_list || []
         });
     };
 
@@ -27,12 +63,33 @@ function CarouselControls({ carousel, onUpdate }) {
                     <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full 
                         peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] 
                         after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full 
-                        after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        after:h-5 after:w-5 after:transition-all peer-checked:bg-[#012038]"></div>
                 </label>
             </div>
 
             {carousel.enabled && (
                 <div className="space-y-6 bg-gray-50 p-4 rounded-lg">
+                    {/* Seleção do Leilão */}
+                    <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <Store className="text-gray-400 text-sm" />
+                            Selecione o Leilão
+                        </label>
+                        <select
+                            value={carousel.selectedAuctId || ''}
+                            onChange={(e) => handleAuctChange(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm 
+                            focus:ring-[#012038] focus:border-[#012038]"
+                        >
+                            <option value="">Selecione um leilão</option>
+                            {aucts.map((auct) => (
+                                <option key={auct.id} value={auct.id}>
+                                    {auct.title} ({auct.product_list?.length || 0} produtos)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Título */}
                     <div className="relative">
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
@@ -43,7 +100,8 @@ function CarouselControls({ carousel, onUpdate }) {
                             type="text"
                             value={carousel.title}
                             onChange={(e) => handleChange('title', e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm 
+                            focus:ring-[#012038] focus:border-[#012038]"
                             placeholder="Digite o título do carrossel"
                         />
                     </div>
@@ -160,16 +218,16 @@ function CarouselControls({ carousel, onUpdate }) {
                                     type="checkbox"
                                     checked={carousel.showTitle !== false}
                                     onChange={(e) => handleChange('showTitle', e.target.checked)}
-                                    className="rounded text-blue-500 focus:ring-blue-500"
+                                    className="rounded text-[#012038] focus:ring-[#012038]"
                                 />
-                                <span className="text-sm text-gray-600">Título</span>
+                                <span className="text-sm text-gray-600">Título do Produto</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={carousel.showPrice !== false}
                                     onChange={(e) => handleChange('showPrice', e.target.checked)}
-                                    className="rounded text-blue-500 focus:ring-blue-500"
+                                    className="rounded text-[#012038] focus:ring-[#012038]"
                                 />
                                 <span className="text-sm text-gray-600">Preço</span>
                             </label>
@@ -178,7 +236,7 @@ function CarouselControls({ carousel, onUpdate }) {
                                     type="checkbox"
                                     checked={carousel.showCarouselTitle !== false}
                                     onChange={(e) => handleChange('showCarouselTitle', e.target.checked)}
-                                    className="rounded text-blue-500 focus:ring-blue-500"
+                                    className="rounded text-[#012038] focus:ring-[#012038]"
                                 />
                                 <span className="text-sm text-gray-600">Título do Carrossel</span>
                             </label>
@@ -187,7 +245,7 @@ function CarouselControls({ carousel, onUpdate }) {
                                     type="checkbox"
                                     checked={carousel.showNavigation !== false}
                                     onChange={(e) => handleChange('showNavigation', e.target.checked)}
-                                    className="rounded text-blue-500 focus:ring-blue-500"
+                                    className="rounded text-[#012038] focus:ring-[#012038]"
                                 />
                                 <span className="text-sm text-gray-600">Setas de Navegação</span>
                             </label>
