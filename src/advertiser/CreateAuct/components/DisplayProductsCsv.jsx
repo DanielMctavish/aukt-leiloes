@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { addProducts } from "../../../features/product/Products";
 import { addAuct } from "../../../features/auct/Auct";
 import { addGroupDate } from "../../../features/GroupDates/GroupDate";
-import { loadDraft, autoSaveDraft } from '../functions/draftManager';
 import { CloudUpload } from "@mui/icons-material";
 
 function DisplayProductsCsv() {
@@ -29,13 +28,7 @@ function DisplayProductsCsv() {
         }
     }, [stateTheme])
 
-    useEffect(() => {
-        const draft = loadDraft();
-        if (draft?.product_list) {
-            dispatch(addProducts({ columns, values: draft.product_list }));
-            setProductsCount(draft.product_list.length);
-        }
-    }, []);
+
 
     const formatProductData = (rawValues) => {
         return rawValues.map((row) => ({
@@ -62,7 +55,6 @@ function DisplayProductsCsv() {
             dispatch(addAuct({ product_list: formattedProducts }));
             setProductsCount(values.length);
             identifyAndSetGroupDates();
-            autoSaveDraft({ product_list: formattedProducts });
         }
     }, [values]);
 

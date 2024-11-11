@@ -213,9 +213,9 @@ function WelcomeScreen({ onContinue }) {
                     onContinue();
                     return 100;
                 }
-                return prev + 1;
+                return prev + 5;
             });
-        }, 30);
+        }, 35);
     };
 
     return (

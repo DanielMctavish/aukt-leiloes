@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { useEffect, useRef, useState } from "react";
 import { CreditCard, PixOutlined, Article, Payments } from "@mui/icons-material";
-import { loadDraft, autoSaveDraft } from '../functions/draftManager';
+
 
 function DisplayMethodsPayments() {
     const stateTheme = useSelector(state => state.theme)
@@ -23,13 +23,7 @@ function DisplayMethodsPayments() {
         }
     }, [stateTheme])
 
-    useEffect(() => {
-        const draft = loadDraft();
-        if (draft?.methods_payments) {
-            setMethodsPayments(draft.methods_payments);
-            dispatch(addAuct({ methods_payments: draft.methods_payments }));
-        }
-    }, []);
+ 
 
     const handleCheckboxChange = (event) => {
         const { value } = event.target;
@@ -41,7 +35,6 @@ function DisplayMethodsPayments() {
         }
         setMethodsPayments(newMethods);
         dispatch(addAuct({ methods_payments: newMethods }));
-        autoSaveDraft({ methods_payments: newMethods });
     };
 
     return (

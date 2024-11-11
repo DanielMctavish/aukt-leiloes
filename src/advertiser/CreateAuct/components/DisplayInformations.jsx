@@ -3,10 +3,9 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
-import { loadDraft, autoSaveDraft } from '../functions/draftManager';
 import { Description } from "@mui/icons-material";
 
-function DisplayInformations({ currentAuct }) {
+function DisplayInformations() {
     const stateTheme = useSelector(state => state.theme)
     const refInformations = useRef()
     const dispatch = useDispatch()
@@ -31,18 +30,10 @@ function DisplayInformations({ currentAuct }) {
 
     }, [stateTheme])
 
-    useEffect(() => {
-        const draft = loadDraft();
-        if (draft?.descriptions_informations) {
-            refInformations.current.value = draft.descriptions_informations;
-            dispatch(addAuct({ descriptions_informations: draft.descriptions_informations }));
-        }
-    }, []);
 
     const handleDispatchInformations = (e) => {
         const newInfo = e.target.value;
         dispatch(addAuct({ descriptions_informations: newInfo }));
-        autoSaveDraft({ descriptions_informations: newInfo });
     }
 
     return (

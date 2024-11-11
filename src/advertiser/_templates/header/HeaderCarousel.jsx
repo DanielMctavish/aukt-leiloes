@@ -9,19 +9,71 @@ import 'swiper/css/navigation';
 
 function HeaderCarousel({ config }) {
     const [selectedAuct, setSelectedAuct] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const { advertiser_id } = useParams();
 
+    // Primeiro useEffect para carregar o leilão inicial
     useEffect(() => {
-        const fetchAuctDetails = async () => {
-            if (!config.selectedAuctId || !advertiser_id) return;
+        const fetchInitialAuct = async () => {
+            if (!advertiser_id) return;
 
             try {
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
-                    params: {
-                        creator_id: advertiser_id,
-                        id: config.selectedAuctId
+                const advertiserSession = localStorage.getItem('advertiser-session-aukt');
+                if (!advertiserSession) return;
+
+                const { token } = JSON.parse(advertiserSession);
+                
+                // Primeiro, buscar todos os leilões do anunciante
+                const response = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`,
+                    {
+                        params: { creator_id: advertiser_id },
+                        headers: { 'Authorization': `Bearer ${token}` }
                     }
-                });
+                );
+
+                // Se temos um leilão específico configurado, use-o
+                if (config.selectedAuctId) {
+                    const auct = response.data.find(a => a.id === config.selectedAuctId);
+                    if (auct) {
+                        setSelectedAuct(auct);
+                    }
+                } 
+                // Caso contrário, use o primeiro leilão disponível
+                else if (response.data.length > 0) {
+                    setSelectedAuct(response.data[0]);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar leilões:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchInitialAuct();
+    }, [advertiser_id]); // Executar apenas quando o advertiser_id mudar
+
+    // Segundo useEffect para atualizar quando o selectedAuctId mudar
+    useEffect(() => {
+        if (!config.selectedAuctId || !advertiser_id) return;
+
+        const fetchSelectedAuct = async () => {
+            try {
+                const advertiserSession = localStorage.getItem('advertiser-session-aukt');
+                if (!advertiserSession) return;
+
+                const { token } = JSON.parse(advertiserSession);
+                
+                const response = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`,
+                    {
+                        params: {
+                            creator_id: advertiser_id,
+                            id: config.selectedAuctId
+                        },
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
                 
                 const auct = response.data.find(a => a.id === config.selectedAuctId);
                 if (auct) {
@@ -32,9 +84,12 @@ function HeaderCarousel({ config }) {
             }
         };
 
-        setSelectedAuct(null);
-        fetchAuctDetails();
+        fetchSelectedAuct();
     }, [config.selectedAuctId, advertiser_id]);
+
+    if (isLoading) {
+        return <div className="text-white text-center">Carregando carrossel...</div>;
+    }
 
     if (!selectedAuct || !selectedAuct.product_list?.length) return null;
 
