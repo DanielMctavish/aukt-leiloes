@@ -7,7 +7,6 @@ import { addAuct } from "../../../features/auct/Auct";
 import { handleImageChange } from "../functions/handleImageChange";
 import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
 import CategorySelect from "./CategorySelect";
-import { autoSaveDraft, loadDraft } from '../functions/draftManager';
 
 function DisplayCreateEvent() {
     const stateTheme = useSelector(state => state.theme)
@@ -30,33 +29,10 @@ function DisplayCreateEvent() {
         }
     }, [stateTheme])
 
-    useEffect(() => {
-        // Carregar rascunho ao montar o componente
-        const draft = loadDraft();
-        if (draft) {
-            if (draft.title && refTitle.current) {
-                refTitle.current.value = draft.title;
-                dispatch(addAuct({ title: draft.title }));
-            }
-            if (draft.categories && refCategories.current) {
-                refCategories.current.value = draft.categories;
-                dispatch(addAuct({ categories: draft.categories }));
-            }
-            if (draft.tags) {
-                setTagList(draft.tags);
-                dispatch(addAuct({ tags: draft.tags }));
-                autoSaveDraft({ tags: draft.tags });
-            }
-            if (draft.auct_cover_img) {
-                setImageSrc(draft.auct_cover_img);
-                dispatch(addAuct({ auct_cover_img: draft.auct_cover_img }));
-            }
-        }
-    }, []);
+  
 
     useEffect(() => {
         dispatch(addAuct({ tags: tagList }));
-        autoSaveDraft({ tags: tagList });
     }, [tagList])
 
     function HandleCreationTags(event) {
@@ -74,7 +50,6 @@ function DisplayCreateEvent() {
     function HandleRemoveTag(tag) {
         setTagList(prevArray => {
             const newTags = prevArray.filter(item => item !== tag);
-            autoSaveDraft({ tags: newTags });
             return newTags;
         });
     }
@@ -82,7 +57,6 @@ function DisplayCreateEvent() {
     function handleDispatchTitle(e) {
         const newTitle = e.target.value;
         dispatch(addAuct({ title: newTitle }));
-        autoSaveDraft({ title: newTitle });
     }
 
     function handleDispatchCategories() {
@@ -93,7 +67,6 @@ function DisplayCreateEvent() {
             dispatch(reportError(false))
         }
         dispatch(addAuct({ categories: newCategory }));
-        autoSaveDraft({ categories: newCategory });
     }
 
     return (

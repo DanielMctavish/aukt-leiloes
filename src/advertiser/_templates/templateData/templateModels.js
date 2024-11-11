@@ -6,6 +6,7 @@ const cleanColors = {
     5: "#C3AED6",
     6: "#D47D7D",
     7: "#DCE381",
+    8: "#efefef",
 }
 
 const candyColors = {
@@ -16,22 +17,74 @@ const candyColors = {
     5: "#D14D72",
     6: "#17B978",
     7: "#DC0000",
+    8: "#efefef"
 }
 
 const sizeTypes = {
-    full: "full",//100vh
-    half: "half",//50vh
-    third: "third"//33vh
+    small: "small",    // 25vh
+    medium: "medium",  // 50vh
+    full: "full"      // 100vh
 }
 
 const sectionTypes = {
-    section: "section",
-    content: "content",
-    galeria: "galeria",
-    contato: "contato",
-    leiloes: "leiloes",
-    produtos: "produtos",
-}
+    gallery: {
+        id: 'gallery',
+        label: 'Galeria de Produtos',
+        description: 'Exibe os produtos de um leilão específico em um carrossel',
+        config: {
+            selectedAuctId: null,
+            layout: 'grid', // ou 'carousel'
+            itemsPerRow: 4,
+            showPrice: true,
+            showTitle: true,
+            autoplay: true,
+            speed: 3000
+        }
+    },
+    text: {
+        id: 'text',
+        label: 'Seção de Texto',
+        description: 'Área para conteúdo textual livre',
+        config: {
+            content: '',
+            alignment: 'left', // 'center', 'right'
+            fontSize: '16', // Agora é uma string com o valor em pixels
+            showTitle: true,
+            title: '',
+            textColor: '#000000',
+            preserveLineBreaks: true // Nova propriedade
+        }
+    },
+    form: {
+        id: 'form',
+        label: 'Formulário de Contato',
+        description: 'Formulário personalizável para captação de leads',
+        config: {
+            title: 'Entre em contato',
+            destination: 'whatsapp', // ou 'email'
+            whatsappNumber: '',
+            email: '',
+            fields: [
+                { type: 'text', label: 'Nome', required: true },
+                { type: 'email', label: 'Email', required: true },
+                { type: 'tel', label: 'Telefone', required: false },
+                { type: 'textarea', label: 'Mensagem', required: false }
+            ],
+            buttonText: 'Enviar',
+            successMessage: 'Mensagem enviada com sucesso!'
+        }
+    },
+    auctList: {
+        id: 'auctList',
+        label: 'Lista de Leilões',
+        description: 'Exibe os leilões disponíveis do anunciante',
+        config: {
+            layout: 'grid', // ou 'list'
+            itemsPerRow: 3,
+            showDate: true
+        }
+    }
+};
 
 const darkColors = {
     1: "#510000",
@@ -42,6 +95,7 @@ const darkColors = {
     6: "#384A00",
     7: "#2b2b2b",
     8: "#021208",
+    9: "#efefef",
 }
 
 const monochromaticColors = {
@@ -52,6 +106,7 @@ const monochromaticColors = {
     5: "#697565",
     6: "#3C3D37",
     7: "#181C14",
+    8: "#ffffff",
 }
 
 const fontStyles = {
@@ -243,8 +298,8 @@ const textsSessions = {
                         titleBackground: 'transparent',
                         titleColor: '#ffffff',
                         contentColor: '#ffffff',
-                        titleSize: '1x', // Novo: tamanho do título (1x, 2x, 3x)
-                        titleBorderRadius: '0px' // Novo: arredondamento da borda
+                        titleSize: '1x', 
+                        titleBorderRadius: '0px' 
                     },
                     visible: true
                 },
@@ -261,8 +316,8 @@ const textsSessions = {
                         titleBackground: 'transparent',
                         titleColor: '#ffffff',
                         contentColor: '#ffffff',
-                        titleSize: '1x', // Novo: tamanho do título (1x, 2x, 3x)
-                        titleBorderRadius: '0px' // Novo: arredondamento da borda
+                        titleSize: '1x', 
+                        titleBorderRadius: '0px' 
                     },
                     visible: true
                 }
@@ -351,5 +406,6 @@ const templateModels = {
         elementsOpacity: 100
     }
 };
+
 
 export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions, footerSections, socialLinks }

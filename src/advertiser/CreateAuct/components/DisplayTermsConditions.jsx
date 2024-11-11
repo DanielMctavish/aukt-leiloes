@@ -3,7 +3,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
 import { useEffect, useRef } from "react";
-import { loadDraft, autoSaveDraft } from '../functions/draftManager';
 import { Gavel } from "@mui/icons-material";
 
 function DisplayTermsConditions({ currentAuct }) {
@@ -16,33 +15,21 @@ function DisplayTermsConditions({ currentAuct }) {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refMain.current.style.color = "#efefef"
             refTermsConditions.current.style.background = "#404040"
             refTermsConditions.current.style.color = "#dcdcdc"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
             refTermsConditions.current.style.background = "#e1e1e1"
             refTermsConditions.current.style.color = "#202020"
         }
-
     }, [stateTheme])
-
-    useEffect(() => {
-        const draft = loadDraft();
-        if (draft?.terms_conditions) {
-            refTermsConditions.current.value = draft.terms_conditions;
-            dispatch(addAuct({ terms_conditions: draft.terms_conditions }));
-        }
-    }, []);
 
     const handleDispatchTermsConditions = (e) => {
         const newTerms = e.target.value;
         dispatch(addAuct({ terms_conditions: newTerms }));
-        autoSaveDraft({ terms_conditions: newTerms });
     }
 
     return (

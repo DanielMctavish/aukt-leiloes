@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Palette, FormatSize } from '@mui/icons-material';
 import { fontStyles } from "../templateData/templateModels";
 

@@ -18,7 +18,6 @@ import DisplayLimitations from "./components/DisplayLimitations"
 import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
-import { saveDraft, loadDraft, clearDraft } from './functions/draftManager';
 import { addAuct } from "../../features/auct/Auct";
 import { useDispatch } from "react-redux";
 
@@ -31,7 +30,6 @@ export const AdvertiserCreateAuct = () => {
     const [aucts, setAucts] = useState([])
     const [errorDetector, setErrorDetector] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [hasDraft, setHasDraft] = useState(false);
 
     const navigate = useNavigate()
 
@@ -40,23 +38,16 @@ export const AdvertiserCreateAuct = () => {
     const loadScreen = useRef()
     const logoElement = useRef()
 
-    // Efeito para verificar o login e carregar rascunho
+    // Verificar login
     useEffect(() => {
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
         if (!currentSession) {
             navigate("/")
             return;
         }
+    }, []);
 
-        // Verifica se existe um rascunho ao carregar
-        const draft = loadDraft();
-        if (draft) {
-            setHasDraft(true);
-            dispatch(addAuct(draft));
-        }
-    }, []); // Removido state, stateErrors, errorDetector, isLoading das dependências
-
-    // Efeito separado para atualizar aucts e erros
+    // Atualizar aucts e erros
     useEffect(() => {
         setAucts(state)
     }, [state]);
@@ -88,23 +79,7 @@ export const AdvertiserCreateAuct = () => {
         }
     }, [stateErrors]);
 
-    // Efeito para salvar rascunho
-    useEffect(() => {
-        if (Object.keys(state).length > 0) {
-            saveDraft(state);
-            setHasDraft(true);
-        }
-    }, [state]);
-
-    const handleClearDraft = () => {
-        clearDraft();
-        setHasDraft(false);
-        dispatch(addAuct({}));
-        window.location.reload();
-    };
-
     const handleSaveAuct = async () => {
-
         const currentSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
         const configAuth = {
             headers: {
@@ -113,7 +88,6 @@ export const AdvertiserCreateAuct = () => {
         }
 
         try {
-
             const messages = {
                 title: "necessário ter um título.",
                 categories: "selecione uma categoria.",
@@ -134,15 +108,12 @@ export const AdvertiserCreateAuct = () => {
                 }
             }
 
-
-            //Load Operation -------------------------------------------------------------------------------------------------------------------------------
-
+            //Load Operation
             refGeneralBody.current.style.display = 'none'
             loadScreen.current.style.display = 'flex'
             setIsLoading(true)
 
-            //FIREBASE Operation --------------------------------------------------------------------------------------------------------------------------
-
+            //FIREBASE Operation
             const formData = new FormData();
             formData.append("cover-auct-image", getCurrentFile());
             let currentUploadedImage
@@ -153,17 +124,14 @@ export const AdvertiserCreateAuct = () => {
             }).then(response => {
                 console.log('resposta ao upar imagem -> ', response.data.currentImage);
                 currentUploadedImage = response.data.currentImage
-
             }).catch(err => {
                 console.log('err ao tentar upor cover foto auct', err.response)
                 throw new Error("necessário enviar uma imagem de leilão")
             })
 
-            //Create Auct Operation-------------------------------------------------------------------------------------------------------------------------
-
+            //Create Auct Operation
             // REQUEST02
             const getAdvertiser = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentSession.email}`, configAuth)
-            //console.log('observando advertiser ', getAdvertiser.data);
 
             if (!getAdvertiser) {
                 throw new Error("erro ao tentar identificar anunciante.", getAdvertiser, currentSession)
@@ -181,7 +149,7 @@ export const AdvertiserCreateAuct = () => {
                 auct_cover_img: currentUploadedImage,
                 descriptions_informations: aucts.descriptions_informations,
                 terms_conditions: aucts.terms_conditions,
-                auct_dates: aucts.auct_dates,//datas e grupos
+                auct_dates: aucts.auct_dates,
                 limit_client: false,
                 limit_date: false,
                 accept_payment_methods: aucts.accept_payment_methods,
@@ -194,15 +162,11 @@ export const AdvertiserCreateAuct = () => {
                 currentAuctNanoId = response.data.nano_id
             })
 
-            console.log("observando IDS -> ", currentAuctId, currentAuctNanoId)
-
             // create Products Operation
             const productsCount = aucts.product_list.length;
             let productsCreated = 0;
 
             for (const [index, product] of aucts.product_list.entries()) {
-                console.log('observando produto data -> ', product);
-
                 // REQUEST03
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/create-product`, {
                     lote: parseInt(index + 1),
@@ -235,7 +199,6 @@ export const AdvertiserCreateAuct = () => {
                 setProgressBar(progress);
             }
 
-
             navigate("/advertiser/auctions")
             setIsLoading(false)
 
@@ -245,12 +208,10 @@ export const AdvertiserCreateAuct = () => {
             loadScreen.current.style.display = 'none';
             setIsLoading(false)
         }
-
     }
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative">
-
             <AssideAdvertiser MenuSelected="menu-2" />
 
             <section ref={loadScreen} className="w-full h-[100vh] hidden flex-col justify-center items-center overflow-y-auto bg-zinc-800 gap-1 text-white">
@@ -267,9 +228,7 @@ export const AdvertiserCreateAuct = () => {
                 <NavAdvertiser path='anunciante > criar leilão' />
 
                 <span ref={refErroSpanElement}
-                    className="w-[80%] hidden justify-center 
-                items-center p-2 bg-red-600/80 z-[99]
-                absolute top-2 rounded-md text-white">
+                    className="w-[80%] hidden justify-center items-center p-2 bg-red-600/80 z-[99] absolute top-2 rounded-md text-white">
                     erro detectado!
                 </span>
 
@@ -288,34 +247,20 @@ export const AdvertiserCreateAuct = () => {
                     <DisplayTermsConditions />
                 </section>
 
-                <section className="w-full min-h-[20vh]
-                justify-between items-center gap-3 
-                p-3 flex">
+                <section className="w-full min-h-[20vh] justify-between items-center gap-3 p-3 flex">
                     <DisplayMethodsPayments />
                     <DisplayLimitations />
                     <DisplayDateLimite />
                 </section>
-
-
             </section>
 
             <section className="fixed bottom-2 z-[999] flex gap-4 justify-center w-full">
                 {!errorDetector ?
                     !isLoading ?
-                        <>
-                            <button onClick={handleSaveAuct} 
-                                className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
-                                confirmar
-                            </button>
-                            {hasDraft && (
-                                <button
-                                    onClick={handleClearDraft}
-                                    className="w-[130px] h-[50px] bg-red-500 text-white rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-red-600 transition-colors"
-                                >
-                                    Apagar Rascunho
-                                </button>
-                            )}
-                        </> :
+                        <button onClick={handleSaveAuct} 
+                            className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
+                            confirmar
+                        </button> :
                         <span>criando...</span>
                     :
                     <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">
@@ -323,7 +268,6 @@ export const AdvertiserCreateAuct = () => {
                     </button>
                 }
             </section>
-
         </div>
     )
 }

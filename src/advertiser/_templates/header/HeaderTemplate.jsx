@@ -7,7 +7,7 @@ import axios from 'axios';
 import HeaderCarousel from './HeaderCarousel';
 
 function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHeader }) {
-    const [, setAdvertiser] = useState(null);
+    const [advertiser, setAdvertiser] = useState(null);
     const { advertiser_id } = useParams();
     const [editingText, setEditingText] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
@@ -20,10 +20,9 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
         console.log("observando template -> ", template.colorPalette);
         console.log("constructorModels -> ", constructorModels.model_01.elements[0]);
 
-
         const fetchAdvertiserData = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?adv_id=${advertiser_id}`);
+                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-advertiser?advertiserId=${advertiser_id}`);
                 setAdvertiser(response.data);
             } catch (error) {
                 console.error("Erro ao buscar dados do anunciante:", error);
@@ -97,23 +96,28 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
     };
 
     const getBackgroundImageStyle = () => {
-        if (template.header.backgroundImage) {
-            return {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: `url(${template.header.backgroundImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                opacity: (template.header.backgroundImageOpacity || 30) / 100,
-                filter: `blur(${template.header.backgroundImageBlur || 2}px) brightness(${template.header.backgroundImageBrightness || 100}%)`,
-            };
-        }
-        return {};
-    };
+        if (!template.header.backgroundImage) return {};
 
+        // Verificar se a imagem de background é a logo da empresa
+        const isCompanyLogo = advertiser?.url_profile_company_logo_cover === template.header.backgroundImage;
+
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url("${template.header.backgroundImage}")`,
+            backgroundSize: isCompanyLogo ? 'auto 100%' : 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: (template.header.backgroundImageOpacity || 30) / 100,
+            filter: `blur(${template.header.backgroundImageBlur || 2}px) brightness(${template.header.backgroundImageBrightness || 100}%)`,
+            zIndex: 0,
+            maxHeight: '100%',
+            height: '100%'
+        };
+    };
 
     const getPositionStyle = (position) => {
         return {
@@ -349,7 +353,17 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                     ref={headerRef}
                     className={`w-full flex relative overflow-hidden ${getSizeClass(template.header.sizeType)}`}
                     style={getHeaderStyle()}>
-                    {/* Elementos decorativos */}
+
+                    {/* Background Image - Primeira camada (z-0) */}
+                    {template.header.backgroundImage && (
+                        <div 
+                            key={template.header.backgroundImage}
+                            className="absolute inset-0 z-0"
+                            style={getBackgroundImageStyle()}
+                        />
+                    )}
+
+                    {/* Elementos decorativos - Segunda camada (z-10) */}
                     <div className="absolute inset-0 z-10">
                         <div name="element_3" className="w-[110px] h-full absolute right-[48%]" 
                             style={getDecorativeElementStyle("element_3")}></div>
@@ -365,8 +379,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         transform rotate-[-50deg]" style={getDecorativeElementStyle("element_6")}></div>
                     </div>
 
-
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada (z-20) */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -381,9 +394,8 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada (z-30) */}
                     {renderCarousel()}
-
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
                 </header>
             );
         case 2:
@@ -402,7 +414,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         <div className="w-[240px] h-[240px] rounded-full absolute right-[20vh] top-[-50px]" style={getDecorativeElementStyle("element_1")}></div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -417,9 +429,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
         case 3:
@@ -443,7 +459,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         </div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -458,9 +474,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
         case 4:
@@ -482,7 +502,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         }}></div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -497,9 +517,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
         case 5:
@@ -522,7 +546,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         <div className="absolute bottom-20 left-20 w-14 h-14 rounded-full" style={getDecorativeElementStyle("element_6")}></div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -537,9 +561,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
 
@@ -583,7 +611,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         </div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -598,9 +626,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
 
@@ -622,7 +654,7 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         </div>
                     </div>
 
-                    {/* Caixas de texto */}
+                    {/* Textos - Terceira camada */}
                     <section className='absolute inset-0 z-20'>
                         {template.header.texts?.map((text) => (
                             text.visible !== false && (
@@ -637,9 +669,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
 
@@ -663,9 +699,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
 
@@ -689,9 +729,13 @@ function HeaderTemplate({ getSizeClass, template, selectedHeaderModel, updateHea
                         ))}
                     </section>
 
+                    {/* Carrossel - Quarta camada */}
                     {renderCarousel()}
 
-                    {template.header.backgroundImage && <div style={getBackgroundImageStyle()}></div>}
+                    {/* Background Image */}
+                    {template.header.backgroundImage && (
+                        <div style={getBackgroundImageStyle()}></div>
+                    )}
                 </header>
             );
     }

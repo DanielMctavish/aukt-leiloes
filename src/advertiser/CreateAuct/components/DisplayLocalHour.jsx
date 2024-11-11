@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { addAuct } from "../../../features/auct/Auct";
-import { loadDraft, autoSaveDraft } from '../functions/draftManager';
 
 function DisplayLocalHour() {
     const stateTheme = useSelector(state => state.theme)
@@ -17,7 +16,7 @@ function DisplayLocalHour() {
         group_status: "cataloged"
     }])
     const [group, setGroup] = useState([])
-    const [spanMessenger, setSpanMessenger] = useState('')
+    const [errorMessage, setErrorMessage] = useState('')
 
     const dispatch = useDispatch()
     const refMain = useRef()
@@ -51,38 +50,23 @@ function DisplayLocalHour() {
         }
     }, [group])
 
-    useEffect(() => {
-        const draft = loadDraft();
-        if (draft?.auct_dates) {
-            setDateList(draft.auct_dates);
-            dispatch(addAuct({ auct_dates: draft.auct_dates }));
-        }
-    }, []);
-
     const handleDateChange = (index, newDate) => {
+        if (dayjs(newDate).isBefore(dayjs(), 'day')) {
+            setErrorMessage('A data não pode ser no passado');
+            return;
+        }
+
+        setErrorMessage('');
         const newDateList = [...dateList];
         newDateList[index] = { ...newDateList[index], date_auct: dayjs(newDate).format('YYYY-MM-DD') };
         setDateList(newDateList);
         dispatch(addAuct({ auct_dates: newDateList }));
-        autoSaveDraft({ auct_dates: newDateList });
     }
 
     const handleHourChange = (index, newHour) => {
         const newDateList = [...dateList]
         newDateList[index] = { ...newDateList[index], hour: newHour }
         setDateList(newDateList)
-    }
-
-    const validateDateTime = () => {
-
-        let isTimeMachine = false;
-        dateList.forEach(group => {
-            if (dayjs(group.date_auct).valueOf() < dayjs(new Date()).valueOf()) {
-                isTimeMachine = true;
-            }
-        });
-        setSpanMessenger(isTimeMachine ? 'A data está no passado' : '');
-
     }
 
     return (
@@ -94,12 +78,12 @@ function DisplayLocalHour() {
                 Data e Horário
             </h2>
 
-            {spanMessenger && (
+            {errorMessage && (
                 <span className="text-red-500 text-sm flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    {spanMessenger}
+                    {errorMessage}
                 </span>
             )}
 
