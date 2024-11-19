@@ -28,7 +28,6 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
                 password: password
             });
 
-            console.log("logado com sucesso --> ", response.data)
             setMessageDisplay("Login realizado com sucesso!")
             setMessageType("success")
 
@@ -43,7 +42,7 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
                 setIsModalOn(false)
             }, 500)
         } catch (error) {
-            console.log("Error ao logar cliente -> ", error.message)
+          
             if (error.response?.status === 401 || error.response?.status === 403) {
                 setMessageDisplay("Email ou senha incorretos. Por favor, verifique suas credenciais.")
                 setMessageType("error")

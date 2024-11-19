@@ -15,11 +15,9 @@ const getClientSession = async (setSessionsClient, setCurrentClient) => {
             });
             setCurrentClient(result.data);
         } catch (error) {
-            console.log("Erro ao buscar cliente:", error);
             setCurrentClient(null); // Defina como null ou um valor padrão
         }
     } else {
-        console.log("Nenhuma sessão de cliente encontrada.");
         setSessionsClient(null); // Defina como null ou um valor padrão
         setCurrentClient(null); // Defina como null ou um valor padrão
     }

@@ -17,6 +17,7 @@ import ProductsGroupArrematantes from "./mod/ProductsGroupArrematantes";
 import LoadingModal from "./mod/LoadingModal"; // Import the LoadingModal
 import { useNavigate } from "react-router-dom";
 
+
 function Arrematantes() {
     const [isCreating, setIsCreating] = useState(false)
     const [selectedCartelaStatus, setCartelaStatus] = useState("PENDENT")
@@ -90,7 +91,6 @@ function Arrematantes() {
 
         setClientGroupData(Object.values(groupedClients));
 
-        console.log("observando mudança -> ", selectedAuction)
     }, [aucts, showMod, selectedAuction, cartelas]);
 
     const fetchCartelas = async (auction_id) => {
@@ -112,7 +112,6 @@ function Arrematantes() {
 
         } catch (error) {
             setCartelas([]);
-            console.log("error listagem de cartelas-> ", error.response)
         }
     }
 
@@ -149,7 +148,6 @@ function Arrematantes() {
 
         } catch (error) {
             setIsCreating(false)
-            console.log(error.response)
         }
     }
 
@@ -186,16 +184,13 @@ function Arrematantes() {
             // Atualiza a lista de cartelas após a atualização
             fetchCartelas(selectedAuction);
         } catch (error) {
-            console.log("Erro ao atualizar a cartela:", error.response);
+            return error
         } finally {
             setUpdatingCartelas(prev => ({ ...prev, [cartela_id]: false }));
         }
     };
 
-    useEffect(() => {
-        console.log('cartelas: ', cartelas);
-
-    }, [cartelas])
+    useEffect(() => {}, [cartelas])
 
     return (
         <div className="w-full h-[100vh] flex justify-center items-center bg-[#efefef]">

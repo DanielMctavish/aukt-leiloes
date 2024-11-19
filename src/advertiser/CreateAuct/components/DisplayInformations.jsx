@@ -15,13 +15,11 @@ function DisplayInformations() {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refInformations.current.style.background = "#404040"
             refInformations.current.style.color = "#dcdcdc"
             refMain.current.style.color = "#efefef"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
             refInformations.current.style.background = "#e1e1e1"

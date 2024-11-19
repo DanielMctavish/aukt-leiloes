@@ -89,17 +89,13 @@ function ProductDetailAdv() {
     const getAnotherProducts = async () => {
         if (!currentAuct || !currentAuct.id) return;
 
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-                params: {
-                    auct_id: currentAuct.id,
-                    take: 14,
-                }
-            });
-            setAnotherProducts(response.data);
-        } catch (error) {
-            console.log("Error loading page:", error.message);
-        }
+        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+            params: {
+                auct_id: currentAuct.id,
+                take: 14,
+            }
+        });
+        setAnotherProducts(response.data);
     }
 
     useEffect(() => {

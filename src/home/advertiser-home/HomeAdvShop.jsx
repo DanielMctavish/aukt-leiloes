@@ -4,7 +4,6 @@ import axios from "axios"
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import HomeAdvFooter from "./HomeAdvFooter";
 import { Clear, ViewModule, ViewList } from "@mui/icons-material";
 import PaginationComponent from "./components/Pagination";
 import debounce from 'lodash/debounce';
@@ -40,18 +39,14 @@ function HomeAdvShop() {
     }, [searchQuery, selectedCategory, selectedGroup, sortBy, currentAuct, currentPage]);
 
     const getAuctionById = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct`, {
-                params: { auct_id }
-            });
-            setCurrentAuction(response.data);
-            const totalProductsCount = response.data.product_list ? response.data.product_list.length : 0;
-            setTotalProducts(totalProductsCount);
-            const totalPages = Math.ceil(totalProductsCount / 12);
-            setPagesCount(Array.from({ length: totalPages }, (_, i) => i));
-        } catch (error) {
-            console.log("error at get auction by id: ", error.message);
-        }
+        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct`, {
+            params: { auct_id }
+        });
+        setCurrentAuction(response.data);
+        const totalProductsCount = response.data.product_list ? response.data.product_list.length : 0;
+        setTotalProducts(totalProductsCount);
+        const totalPages = Math.ceil(totalProductsCount / 12);
+        setPagesCount(Array.from({ length: totalPages }, (_, i) => i));
     };
 
     const extractCategories = () => {
@@ -89,20 +84,14 @@ function HomeAdvShop() {
                 skip: currentPage * 12
             };
 
-            console.log("Parâmetros enviados para a API:", params);
-
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, { params });
-
-            console.log("Resposta da API:", response.data);
 
             if (Array.isArray(response.data)) {
                 setProductsFiltered(response.data);
             } else {
-                console.error("Resposta da API em formato inesperado:", response.data);
                 setProductsFiltered([]);
             }
         } catch (error) {
-            console.log("Error applying filters:", error.message);
             setProductsFiltered([]);
         } finally {
             setIsLoading(false);
@@ -253,7 +242,6 @@ function HomeAdvShop() {
                             <select
                                 value={selectedGroup}
                                 onChange={(e) => {
-                                    console.log("Grupo selecionado:", e.target.value);
                                     setSelectedGroup(e.target.value);
                                     setCurrentPage(0);
                                 }}
@@ -326,8 +314,6 @@ function HomeAdvShop() {
                 </div>
             </div>
 
-            {/* Footer */}
-            <HomeAdvFooter />
         </div>
     );
 }

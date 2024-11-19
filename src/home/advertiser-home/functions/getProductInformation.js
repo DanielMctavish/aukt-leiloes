@@ -22,7 +22,6 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
                     cover_auto: bid.cover_auto // Adicionando a informação de lance automático
                 };
             } catch (error) {
-                console.log("Error at get client -> ", error.message);
                 return null; // Retorne null em caso de erro para filtrar posteriormente
             }
         });
@@ -38,7 +37,7 @@ const getProductInformations = async (product_id, setBidInformations, setCurrent
         setCurrentAuct(response.data.Auct);
         setCurrentAdvertiser(response.data.Advertiser);
     } catch (error) {
-        console.log("Error at get product information -> ", error.message);
+        return error
     }
 };
 

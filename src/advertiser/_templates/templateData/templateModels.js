@@ -21,9 +21,9 @@ const candyColors = {
 }
 
 const sizeTypes = {
-    small: "small",    // 25vh
-    medium: "medium",  // 50vh
-    full: "full"      // 100vh
+    small: "SMALL",    // 25vh
+    medium: "MEDIUM",  // 50vh
+    full: "FULL"      // 100vh
 }
 
 const sectionTypes = {
@@ -346,33 +346,6 @@ const textsSessions = {
     textsFooter: []
 };
 
-const footerSections = {
-    about: {
-        title: "Sobre nós",
-        links: [
-            { label: "Nossa história", url: "#" },
-            { label: "Equipe", url: "#" },
-            { label: "Carreiras", url: "#" }
-        ]
-    },
-    services: {
-        title: "Serviços",
-        links: [
-            { label: "Leilões", url: "#" },
-            { label: "Avaliações", url: "#" },
-            { label: "Consultoria", url: "#" }
-        ]
-    },
-    contact: {
-        title: "Contato",
-        links: [
-            { label: "+55 11 1234-5678", url: "#" },
-            { label: "contato@empresa.com", url: "#" },
-            { label: "São Paulo, SP", url: "#" }
-        ]
-    }
-};
-
 const socialLinks = {
     facebook: "#",
     twitter: "#",
@@ -382,30 +355,78 @@ const socialLinks = {
 
 const templateModels = {
     colorPalette: 'clean',
-    fontStyle: fontStyles.robotoCondensed,
+    fontStyle: 'robotoCondensed',
     header: {
         color: cleanColors[1],
-        sizeType: sizeTypes.third,
+        sizeType: 'MEDIUM',
+        model: 'MODEL_1',
         backgroundImage: null,
-        backgroundImageOpacity: 30,
-        backgroundImageBlur: 2,
-        backgroundImageBrightness: 100,
-        elementsOpacity: 100, // Nova propriedade
-        texts: textsSessions.textsHeader[0].texts
+        backgroundImageOpacity: 1,
+        backgroundImageBlur: 0,
+        backgroundImageBrightness: 1,
+        elementsOpacity: 1,
+        texts: [],
+        carousel: {
+            enabled: false,
+            title: "Produtos em Destaque",
+            selectedAuctId: null,
+            sizeWidth: "600px",
+            sizeHeight: "400px",
+            itemsToShow: 4,
+            speed: 3000,
+            positionTop: "50%",
+            positionLeft: "50%",
+            showTitle: true,
+            showPrice: true,
+            showCarouselTitle: true,
+            showNavigation: true
+        }
     },
-    sections: [],
     footer: {
         color: cleanColors[4],
-        sizeType: sizeTypes.third,
-        sections: footerSections,
-        socialLinks: socialLinks,
+        sizeType: 'MEDIUM',
+        sections: {
+            section_1: {
+                title: "Sobre Nós",
+                links: [
+                    {
+                        label: "Nossa História",
+                        url: "#"
+                    },
+                    {
+                        label: "Contato",
+                        url: "#"
+                    }
+                ]
+            },
+            section_2: {
+                title: "Links Úteis",
+                links: [
+                    {
+                        label: "FAQ",
+                        url: "#"
+                    },
+                    {
+                        label: "Termos de Uso",
+                        url: "#"
+                    }
+                ]
+            }
+        },
+        socialLinks: {
+            facebook: "",
+            twitter: "",
+            instagram: "",
+            linkedin: ""
+        },
         companyName: "EMPRESA",
         showSocialLinks: true,
         textColor: "#FFFFFF",
         borderColor: "rgba(255,255,255,0.2)",
         elementsOpacity: 100
-    }
+    },
+    sections: []
 };
 
 
-export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions, footerSections, socialLinks }
+export { templateModels, cleanColors, candyColors, darkColors, monochromaticColors, sizeTypes, sectionTypes, fontStyles, constructorModels, textsSessions, socialLinks }

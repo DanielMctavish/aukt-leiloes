@@ -30,7 +30,6 @@ function AdvertiserProductDetails() {
         }).then(async response => {
             setCurrentProduct(response.data)
         }).catch(err => {
-            console.log('err get auct >>', err.message)
             if (err.response.status === 404) {
                 navigate('/advertiser/auctions')
             }
@@ -48,7 +47,6 @@ function AdvertiserProductDetails() {
             });
             setDeleteIsLoading(false)
         } catch (error) {
-            console.log('Error deleting image >>', error.message);
             setDeleteIsLoading(false)
         }
     }

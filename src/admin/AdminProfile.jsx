@@ -27,7 +27,7 @@ function AdminProfile() {
         email: !refEmail.current.value ? currentAdm.email : refEmail.current.value,
         password: refPassword.current.value
       })
-      console.log('observando response update -> ', response.data);
+
       const JsonString = JSON.stringify({
         token: response.data.token,
         email: response.data.email,
@@ -38,7 +38,7 @@ function AdminProfile() {
       navigate("/admin/dashboard")
 
     } catch (error) {
-      console.log(error)
+      return error
     }
 
   }

@@ -64,14 +64,10 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
 
     const getCurrentProduct = async (product_id) => {
         setBidsCards([])
-        try {
-            const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
-            setCurrentProduct(result.data)
-            if (result.data.Bid) {
-                setBidsCards(result.data.Bid.slice(-10).reverse())
-            }
-        } catch (error) {
-            console.log("error ao tentar encontrar produto ", error.message)
+        const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`)
+        setCurrentProduct(result.data)
+        if (result.data.Bid) {
+            setBidsCards(result.data.Bid.slice(-10).reverse())
         }
     }
 
@@ -80,7 +76,6 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
         socketRef.current = socket;
 
         socket.on(`${auct_id}-bid`, (message) => {
-            console.log("Novo lance recebido via socket:", message);
             const newBid = message.data;
             getCurrentProduct(productId)
             updateBidsCards(newBid);
@@ -100,7 +95,6 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
     }
 
     const handleNewBid = (newBid) => {
-        console.log("Novo lance feito localmente:", newBid);
         updateBidsCards(newBid);
     };
 

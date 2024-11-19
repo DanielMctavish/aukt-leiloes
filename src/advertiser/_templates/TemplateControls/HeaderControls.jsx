@@ -1,14 +1,20 @@
 /* eslint-disable react/prop-types */
 import { AspectRatio, Visibility, VisibilityOff, TextFields, FormatSize, BorderAll, Palette, Opacity, ExpandMore, ExpandLess } from '@mui/icons-material';
-import { sizeTypes } from "../templateData/templateModels";
 import BackgroundImageControls from './BackgroundImageControls';
 import HeaderModelSelector from './HeaderModelSelector';
 import TextPositionControls from './TextPositionControls';
 import CarouselControls from './CarouselControls';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelectedHeaderModel, selectedPalette }) {
     const [isExpanded, setIsExpanded] = useState(true);
+
+    useEffect(() => {
+        if (template.header?.model) {
+            const modelNumber = parseInt(template.header.model.replace('MODEL_', ''));
+            setSelectedHeaderModel(modelNumber);
+        }
+    }, [template.header?.model, setSelectedHeaderModel]);
 
     const handleTextUpdate = (textId, changes) => {
         const updatedTexts = template.header.texts.map(text => 
@@ -32,6 +38,41 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
 
     const handleElementsOpacityChange = (value) => {
         updateHeader('elementsOpacity', value);
+    };
+
+    const handleModelChange = (modelNumber) => {
+        console.log('Mudando para modelo:', modelNumber);
+        setSelectedHeaderModel(modelNumber);
+        updateHeader('model', `MODEL_${modelNumber}`);
+    };
+
+    const handleAddText = () => {
+        const newText = {
+            id: template.header.texts.length + 1,
+            title: "Novo Título",
+            content: "Novo conteúdo",
+            position: {
+                top: '50%',
+                left: '50%',
+                width: '30vw'
+            },
+            style: {
+                titleBackground: 'transparent',
+                titleColor: '#ffffff',
+                contentColor: '#ffffff',
+                titleSize: '1x',
+                titleBorderRadius: '0px'
+            },
+            visible: true
+        };
+
+        const updatedTexts = [...template.header.texts, newText];
+        updateHeader('texts', updatedTexts);
+    };
+
+    const handleSizeChange = (size) => {
+        console.log('Mudando tamanho para:', size);
+        updateHeader('sizeType', size);
     };
 
     return (
@@ -81,10 +122,14 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                         Tamanho do Header
                     </label>
                     <div className="flex gap-3">
-                        {Object.entries(sizeTypes).map(([key, value]) => (
+                        {[
+                            { key: 'small', value: 'SMALL', label: 'Pequeno' },
+                            { key: 'medium', value: 'MEDIUM', label: 'Médio' },
+                            { key: 'full', value: 'FULL', label: 'Completo' }
+                        ].map(({ key, value, label }) => (
                             <button
                                 key={key}
-                                onClick={() => updateHeader('sizeType', value)}
+                                onClick={() => handleSizeChange(value)}
                                 className={`flex-1 p-3 rounded-lg border transition-all ${
                                     template.header.sizeType === value
                                         ? 'border-blue-500 bg-blue-50 text-blue-600'
@@ -92,16 +137,13 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                 }`}
                             >
                                 <div className="flex flex-col items-center gap-2">
-                                    {/* Ícones representativos dos tamanhos */}
                                     <div className={`w-full ${
                                         key === 'full' ? 'h-8' :
-                                        key === 'half' ? 'h-6' :
+                                        key === 'medium' ? 'h-6' :
                                         'h-4'
                                     } bg-current opacity-20 rounded`}></div>
-                                    <span className="text-sm font-medium capitalize">
-                                        {key === 'full' ? 'Completo' :
-                                         key === 'half' ? 'Médio' :
-                                         'Pequeno'}
+                                    <span className="text-sm font-medium">
+                                        {label}
                                     </span>
                                 </div>
                             </button>
@@ -111,15 +153,23 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
 
                 <HeaderModelSelector 
                     selectedHeaderModel={selectedHeaderModel}
-                    setSelectedHeaderModel={setSelectedHeaderModel}
+                    setSelectedHeaderModel={handleModelChange}
                     template={template}
                     updateHeader={updateHeader}
                 />
 
                 <div className="mt-6 border-t pt-4">
-                    <div className="flex items-center gap-2 mb-4">
-                        <TextFields className="text-gray-500" />
-                        <h4 className="font-medium">Textos do Header</h4>
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-2">
+                            <TextFields className="text-gray-500" />
+                            <h4 className="font-medium">Textos do Header</h4>
+                        </div>
+                        <button
+                            onClick={handleAddText}
+                            className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            Adicionar Texto
+                        </button>
                     </div>
 
                     {template.header.texts?.map(text => (
@@ -207,36 +257,6 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                         Cores do Título
                                     </label>
                                     <div className="grid gap-4">
-                                        <div>
-                                            <label className="text-sm text-gray-600 mb-2 block">Background</label>
-                                            <div className="flex flex-wrap gap-2">
-                                                <button
-                                                    onClick={() => handleTextUpdate(text.id, {
-                                                        style: { ...text.style, titleBackground: 'transparent' }
-                                                    })}
-                                                    className={`w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center transition-all ${
-                                                        text.style?.titleBackground === 'transparent' ? 'ring-2 ring-offset-2 ring-blue-500' : ''
-                                                    }`}
-                                                    title="Transparente"
-                                                >
-                                                    <span className="text-xs">T</span>
-                                                </button>
-                                                {Object.entries(selectedPalette).map(([key, color]) => (
-                                                    <button
-                                                        key={key}
-                                                        onClick={() => handleTextUpdate(text.id, {
-                                                            style: { ...text.style, titleBackground: color }
-                                                        })}
-                                                        className={`w-8 h-8 rounded-full transition-all ${
-                                                            text.style?.titleBackground === color ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-105'
-                                                        }`}
-                                                        style={{ backgroundColor: color }}
-                                                        title={`Cor ${key}`}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-
                                         <div>
                                             <label className="text-sm text-gray-600 mb-2 block">Cor do Texto</label>
                                             <div className="flex flex-wrap gap-2">

@@ -37,9 +37,7 @@ function UploadCompanyFile({ currentAdvertiser }) {
         }
     });
 
-    useEffect(() => {
-        //console.log("foto da empresa -> ", profileCompany)
-    }, [profileCompany])
+    useEffect(() => {}, [profileCompany])
 
     const { getRootProps, getInputProps, isDragActive } = dropzone;
 

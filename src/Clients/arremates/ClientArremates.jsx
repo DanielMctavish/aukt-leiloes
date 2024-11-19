@@ -25,7 +25,7 @@ function ClientArremates() {
     }, []);
 
     useEffect(() => {
-        // console.log("observando bids: ", bidsWinners);
+    
     }, [bidsWinners]);
 
     const AnimatedNumber = ({ number }) => {

@@ -51,7 +51,7 @@ function FormProfile() {
             refCity.current.value = res.data.localidade;
             refStreet.current.value = res.data.logradouro;
         }).catch(err => {
-            console.log(err.response);
+            return err
         });
     };
 

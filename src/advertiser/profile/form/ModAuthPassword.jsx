@@ -27,7 +27,7 @@ function ModAuthPassword({ authorization, set, setPassword, setConfirmPassword, 
             })
 
         } catch (error) {
-            console.log(error)
+            return error
         }
     }
 

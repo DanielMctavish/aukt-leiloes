@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import CloseIcon from '@mui/icons-material/Close';
@@ -23,7 +24,6 @@ function CenterFloor({ title, description, auction, currentProduct }) {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
 
         socket.on(`${auction.id}-auct-finished`, () => {
-            console.log("Auction finished websocket!");
             setIsAuctionFinished(true);
         });
 
@@ -57,7 +57,7 @@ function CenterFloor({ title, description, auction, currentProduct }) {
             });
             getSortedAuctions(response.data);
         } catch (error) {
-            console.log("Error loading auctions:", error.message);
+            return error
         }
     }
 
@@ -87,7 +87,7 @@ function CenterFloor({ title, description, auction, currentProduct }) {
                         <p className="text-xl text-white mb-6 text-center">Obrigado pela sua participação!</p>
                         <div className="w-16 h-1 bg-yellow-500 mx-auto mb-6"></div>
                         <h3 className="text-2xl font-bold text-white mb-8 text-center">Próximos Leilões em Destaque</h3>
-                        
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                             {sortedAuctions.map(auction => (
                                 auction && (
@@ -120,7 +120,7 @@ function CenterFloor({ title, description, auction, currentProduct }) {
                                         </div>
 
                                         <div className="p-4 flex-shrink-0">
-                                            <button 
+                                            <button
                                                 onClick={() => navigate(`/advertiser/home/shop/${auction.id}`)}
                                                 className="w-full h-10 bg-[#0D1733] rounded-md text-white hover:bg-[#1A2547] transition-colors duration-300"
                                             >

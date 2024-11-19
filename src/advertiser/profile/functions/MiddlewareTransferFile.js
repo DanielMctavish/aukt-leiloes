@@ -12,7 +12,6 @@ const setFiles = (profile, company) => {
             resolve(true)
 
         } catch (error) {
-            console.log("error at try get file -> ", error)
             reject(error)
         }
 
@@ -30,7 +29,6 @@ const getFiles = () => {
             resolve(data)
 
         } catch (error) {
-            console.log("error at try get file -> ", error)
             reject(error)
         }
 

@@ -67,7 +67,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                     setClientSession(response.data);
                 });
             } catch (error) {
-                console.log(error.message);
+                return error
             }
     };
 
@@ -93,7 +93,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
                 }
             });
 
-            console.log("lance live dado com sucesso -> ", response.data);
             setIsloadingBid(false);
             dispatch(addBidLive({
                 value: bidValue,
@@ -109,7 +108,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, currentProduc
         } catch (error) {
             setIsloadingBid(false);
             setCanBid(true);
-            console.log("error at try bid live: ", error.message);
         }
     };
 

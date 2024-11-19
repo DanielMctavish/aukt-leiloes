@@ -12,15 +12,11 @@ const getAdvertiserInformations = async (setAdvertiserInfor) => {
     }
 
     try {
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserSession.email}`, configAuth)
-            .then(response => {
-                setAdvertiserInfor(response.data)
-            })
-            .catch(error => {
-                console.log(error)
-            })
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email?email=${currentAdvertiserSession.email}`, configAuth).then(response => {
+            setAdvertiserInfor(response.data)
+        })
     } catch (error) {
-        console.log(error)
+        return error
     }
 
 }

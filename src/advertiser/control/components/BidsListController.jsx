@@ -39,14 +39,13 @@ function BidsListController() {
             socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
 
             socket.on(`${generalAUK.auct.id}-bid`, (message) => {
-                console.log("Received bid:", message);
+
                 if (message && message.data) {
                     updateBids(message.data);
                 }
             });
 
             socket.on(`${generalAUK.auct.id}-auct-finished`, () => {
-                console.log("Auction finished");
                 // Adicione aqui a lógica para lidar com o fim do leilão
             });
         }

@@ -10,7 +10,6 @@ const auctSelectedSlice = createSlice({
     initialState,
     reducers: {
         selectedAuct: (state, action) => {
-            //console.log('observando action payload --> ', action.payload);
             return state = action.payload.auct_id
         }
     }

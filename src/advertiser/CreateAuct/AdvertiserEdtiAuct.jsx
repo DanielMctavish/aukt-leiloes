@@ -28,7 +28,7 @@ export const AdvertiserEdtiAuct = () => {
     const loadScreen = useRef()
     const logoElement = useRef()
 
-    useEffect(() => {}, [state, stateAuctToEdit])
+    useEffect(() => { }, [state, stateAuctToEdit])
 
 
     const handleEditAuct = async () => {
@@ -41,10 +41,9 @@ export const AdvertiserEdtiAuct = () => {
         let currentUploadedImage
         if (getCurrentFile()) {
 
-            axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-cover-auct?url=${state.auct_cover_img}&auct_id=${stateCurrentEditAuk.selectedAuct}`)
-                .then(response => {
-                    console.log(response.data);
-                })
+            axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-cover-auct?url=${state.auct_cover_img}&auct_id=${stateCurrentEditAuk.selectedAuct}`).then(response => {
+                return response
+            })
 
             const formData = new FormData();
             formData.append("cover-auct-image", getCurrentFile());
@@ -52,10 +51,9 @@ export const AdvertiserEdtiAuct = () => {
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
                 "Content-Type": "multipart/form-data"
             }).then(response => {
-                console.log('resposta ao upar imagem -> ', response.data.currentImage);
                 currentUploadedImage = response.data.currentImage
             }).catch(err => {
-                console.log('err ao tentar upar cover foto auct', err)
+                return err
             })
 
         }
@@ -79,13 +77,11 @@ export const AdvertiserEdtiAuct = () => {
             descriptions_informations: state.descriptions_informations,
             terms_conditions: state.terms_conditions,
         }, configAuth).then(response => {
-            console.log('resposta ao editar leilão -> ', response.data);
             setProgressBar(100)
             currentAuctId = response.data.currentAuct.id
             currentAuctNanoId = response.data.currentAuct.nano_id
         }).catch(err => {
             setProgressBar(100)
-            console.log('erro ao editar o leilão -> ', err);
         })
 
 

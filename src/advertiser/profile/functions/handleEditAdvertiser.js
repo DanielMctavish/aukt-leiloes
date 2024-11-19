@@ -61,8 +61,6 @@ const handleEditAdvertiser = async (
 
     setIsisEditing(true)
 
-    console.log("observando advertiser atual -> ", currentAdvertiser)
-
     async function* deleteImagesAdvertiser(currentAdvertiser) {
         try {
             // Inclui o ID e a URL na requisição de deleção
@@ -75,7 +73,7 @@ const handleEditAdvertiser = async (
                 });
             yield "deleted profile"; // Gera uma mensagem após a deleção
         } catch (error) {
-            console.error("Error at delete profile: ", error);
+            return error
         }
 
         try {
@@ -89,14 +87,14 @@ const handleEditAdvertiser = async (
                 });
             yield "deleted company"; // Gera uma mensagem após a deleção
         } catch (error) {
-            console.error("Error at delete company: ", error);
+            return error
         }
     }
 
 
     const executeDeletion = async () => {
         for await (const message of deleteImagesAdvertiser()) {
-            console.log(message); // Exibe as mensagens geradas
+            return message
         }
     };
 
@@ -116,10 +114,8 @@ const handleEditAdvertiser = async (
 
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/upload-cover-profile?adv_id=${currentAdvertiser.id}`, formDataSingleProfile)
                 .then(response => {
-                    console.log("Profile successfully uploaded", response.data);
                     currentProfile = response.data.body;
                 }).catch(response => {
-                    console.error("Error at upload profile: ", response);
                     throw new Error(`Error at upload profile: ${response.data}`);
                 });
 
@@ -136,10 +132,8 @@ const handleEditAdvertiser = async (
 
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/upload-logo-company?adv_id=${currentAdvertiser.id}`, formDataSingleCompany)
                 .then(response => {
-                    console.log("Company successfully uploaded", response.data);
                     currentCompany = response.data.body;
                 }).catch(response => {
-                    console.error("Error at upload company: ", response);
                     throw new Error(`Error at upload company: ${response.data}`);
                 });
 
@@ -156,17 +150,15 @@ const handleEditAdvertiser = async (
             address: JSON.stringify(addressInformations),
             url_profile_cover: currentProfile,
             url_profile_company_logo_cover: currentCompany
-        }).then(data => {
+        }).then(() => {
             setMessageDisplay("Usuário criado com sucesso!");
             setIsisEditing(false);
-            console.log(data);
         }).catch(error => {
             throw new Error(`Error at update advertiser: ${error.message}`);
         });
 
     } catch (error) {
         setIsisEditing(false);
-        console.log(error)
     }
 
 

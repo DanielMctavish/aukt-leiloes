@@ -41,10 +41,6 @@ function TemplateControls({
                     return;
                 }
 
-                console.log('Fazendo requisição com:', {
-                    advertiserId: advertiser_id,
-                    token: token.substring(0, 10) + '...' // Log parcial do token por segurança
-                });
 
                 const response = await axios.get(
                     `${import.meta.env.VITE_APP_BACKEND_API}/template/find`,
@@ -56,19 +52,16 @@ function TemplateControls({
                         }
                     }
                 );
-                
-                console.log('Resposta do servidor:', response.data);
-                
+
                 const firstTemplate = response.data[0];
-                console.log("Template encontrado:", firstTemplate);
-                
+
                 if (firstTemplate) {
                     setExistingTemplate(firstTemplate);
-                    
+
                     // Mapeando os dados do backend para o formato do frontend
                     updateInitialConfig('colorPalette', firstTemplate.colorPalette.toLowerCase());
                     updateInitialConfig('fontStyle', firstTemplate.fontStyle.toLowerCase());
-                    
+
                     // Header
                     const header = firstTemplate.header;
                     updateHeader('color', header.color);
@@ -187,29 +180,16 @@ function TemplateControls({
 
                     // Extrair o número do modelo do enum (ex: MODEL_1 -> 1)
                     setSelectedHeaderModel(parseInt(header.model.replace('MODEL_', '')));
-                } else {
-                    console.log('Nenhum template encontrado para este anunciante');
-                }
+                } 
             } catch (error) {
-                console.error("Erro detalhado:", {
-                    message: error.message,
-                    status: error.response?.status,
-                    statusText: error.response?.statusText,
-                    data: error.response?.data,
-                    url: error.config?.url,
-                    method: error.config?.method,
-                    headers: error.config?.headers
-                });
 
-                // Se houver dados específicos do erro do servidor
                 if (error.response?.data) {
-                    console.error("Erro do servidor:", error.response.data);
+                    return error
                 }
             }
         };
 
         if (advertiser_id) {
-            console.log('Iniciando busca de template para advertiser_id:', advertiser_id);
             checkExistingTemplate();
         }
     }, [advertiser_id]);
@@ -246,7 +226,7 @@ function TemplateControls({
                 header: {
                     color: template.header.color || '#FFFFFF',
                     sizeType: (template.header.sizeType || 'MEDIUM').toUpperCase(),
-                    model: `MODEL_${selectedHeaderModel}`,
+                    model: selectedHeaderModel ? `MODEL_${selectedHeaderModel}` : 'MODEL_1',
                     backgroundImage: template.header.backgroundImage || null,
                     backgroundImageOpacity: (template.header.backgroundImageOpacity || 30) / 100,
                     backgroundImageBlur: template.header.backgroundImageBlur || 2,
@@ -314,6 +294,13 @@ function TemplateControls({
                 }
             };
 
+            // Log para debug
+            console.log('Dados sendo enviados para o backend:', {
+                headerModel: formattedTemplate.header.model,
+                selectedHeaderModel,
+                originalModel: template.header.model
+            });
+
             if (existingTemplate) {
                 // Atualizar template existente
                 await axios.patch(
@@ -325,7 +312,7 @@ function TemplateControls({
             } else {
                 // Criar novo template
                 await axios.post(
-                    `${import.meta.env.VITE_APP_BACKEND_API}/template/create-template`, 
+                    `${import.meta.env.VITE_APP_BACKEND_API}/template/create-template`,
                     {
                         ...formattedTemplate,
                         advertiserId: advertiser_id
@@ -336,7 +323,7 @@ function TemplateControls({
             }
         } catch (error) {
             console.error("Erro ao fazer deploy do template:", error);
-            
+
             // Mensagens de erro mais específicas
             if (error.message === 'Sessão do anunciante não encontrada') {
                 alert("Sua sessão expirou. Por favor, faça login novamente.");
@@ -400,8 +387,8 @@ function TemplateControls({
                         disabled={template.sections.length >= 3}
                         className={`w-full flex items-center justify-center px-4 py-3 
                             text-gray-700 font-medium rounded-lg transition-all
-                            ${template.sections.length >= 3 
-                                ? 'bg-gray-100 cursor-not-allowed opacity-50' 
+                            ${template.sections.length >= 3
+                                ? 'bg-gray-100 cursor-not-allowed opacity-50'
                                 : 'bg-[#effdff] hover:bg-[#effdff]/80'}`}
                     >
                         <Add className="h-5 w-5 mr-2" />

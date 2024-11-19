@@ -12,7 +12,6 @@ function PanelGraph() {
                 try {
                     const bids = [];
                     for (const product of selectedAuction.product_list) {
-                        console.log("Product:", product); // Log do produto para depuração
                         if (product.Bid) {
                             bids.push({
                                 productId: product.id,

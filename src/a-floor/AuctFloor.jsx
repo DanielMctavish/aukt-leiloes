@@ -62,7 +62,6 @@ function AuctFloor() {
             setCurrentAuct(response.data);
             setIsLoading(false);
         } catch (error) {
-            console.log("error at try get auction: ", error.message);
             setIsLoading(false);
         }
     };
@@ -73,7 +72,7 @@ function AuctFloor() {
             const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`);
             setCurrentProduct(result.data);
         } catch (error) {
-            console.log("error ao tentar encontrar produto ", error.message);
+            return error
         }
     }
 
@@ -82,7 +81,7 @@ function AuctFloor() {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
             setSocketWinner(response.data);
         } catch (error) {
-            console.log("error at try get client: ", error.message);
+            return error
         }
     }
 

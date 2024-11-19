@@ -48,7 +48,7 @@ const AdvertiserProductDetailsUpdate = ({ product, onClose, onUpdate }) => {
             onUpdate();
             onClose();
         } catch (error) {
-            console.log('Error updating product >>', error.message);
+            return error
         }
     };
 

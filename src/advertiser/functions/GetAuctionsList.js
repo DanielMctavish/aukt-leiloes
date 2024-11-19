@@ -12,7 +12,6 @@ const getAuctionsList = async (currentLocalAdvertiser, setAucts) => {
                     'Authorization': `Bearer ${currentAdvertiserStorage.token}`
                 }
             }).catch(err => {
-                console.log('erro>>>>>>>>> ', err.response);
                 throw new Error('error ao tentar pegar advertiser by email: ', err.response)
             })
 
@@ -23,13 +22,13 @@ const getAuctionsList = async (currentLocalAdvertiser, setAucts) => {
         }).then(response => {
 
             setAucts(response.data)
-            
+
         }).catch(err => {
-            console.log('erro ao tentar lista leilões >>', err.response)
+            return err
         })
 
     } catch (error) {
-        console.log('erro ao tentar listar leilões ->> ', error.message);
+        return error
     }
 
 }

@@ -25,8 +25,6 @@ const auctsSlice = createSlice({
     initialState,
     reducers: {
         addAuct: (state, action) => {
-            //console.log('observando action payload --> ', action.payload);
-            // Save fields inidvidualy on the field preserve previews state
             return state = { ...state, ...action.payload }
         }
     }

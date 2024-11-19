@@ -20,12 +20,17 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
     const [isExpanded, setIsExpanded] = useState(true);
 
     const handleAddSection = () => {
-        const newSections = { ...template.footer.sections };
-        const sectionKey = `section_${Object.keys(newSections).length + 1}`;
-        newSections[sectionKey] = {
-            title: "Nova Seção",
-            links: []
+        const currentSections = template.footer.sections || {};
+        const sectionKey = `section_${Object.keys(currentSections).length + 1}`;
+        
+        const newSections = {
+            ...currentSections,
+            [sectionKey]: {
+                title: "Nova Seção",
+                links: []
+            }
         };
+
         updateFooter('sections', newSections);
     };
 
@@ -37,31 +42,69 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
 
     const handleAddLink = (sectionKey) => {
         const newSections = { ...template.footer.sections };
-        newSections[sectionKey].links.push({
-            label: "Novo Link",
-            url: "#"
-        });
+        if (!newSections[sectionKey]) {
+            newSections[sectionKey] = { title: "", links: [] };
+        }
+        if (!Array.isArray(newSections[sectionKey].links)) {
+            newSections[sectionKey].links = [];
+        }
+        
+        newSections[sectionKey].links = [
+            ...newSections[sectionKey].links,
+            {
+                label: "Novo Link",
+                url: "#"
+            }
+        ];
+        
         updateFooter('sections', newSections);
     };
 
     const handleRemoveLink = (sectionKey, linkIndex) => {
         const newSections = { ...template.footer.sections };
-        newSections[sectionKey].links.splice(linkIndex, 1);
+        newSections[sectionKey].links = newSections[sectionKey].links.filter((_, idx) => idx !== linkIndex);
         updateFooter('sections', newSections);
     };
 
     const handleUpdateSection = (sectionKey, field, value) => {
         const newSections = { ...template.footer.sections };
-        if (field === 'title') {
-            newSections[sectionKey].title = value;
+        if (!newSections[sectionKey]) {
+            newSections[sectionKey] = { title: "", links: [] };
         }
+        
+        newSections[sectionKey] = {
+            ...newSections[sectionKey],
+            [field]: value
+        };
+        
         updateFooter('sections', newSections);
     };
 
     const handleUpdateLink = (sectionKey, linkIndex, field, value) => {
         const newSections = { ...template.footer.sections };
-        newSections[sectionKey].links[linkIndex][field] = value;
+        if (!newSections[sectionKey]?.links) return;
+        
+        const updatedLinks = [...newSections[sectionKey].links];
+        updatedLinks[linkIndex] = {
+            ...updatedLinks[linkIndex],
+            [field]: value
+        };
+        
+        newSections[sectionKey] = {
+            ...newSections[sectionKey],
+            links: updatedLinks
+        };
+        
         updateFooter('sections', newSections);
+    };
+
+    const handleUpdateSocialLink = (network, value) => {
+        const newSocialLinks = {
+            ...template.footer.socialLinks,
+            [network]: value.trim()
+        };
+        
+        updateFooter('socialLinks', newSocialLinks);
     };
 
     return (
@@ -91,7 +134,7 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
                         </h4>
                         <button
                             onClick={handleAddSection}
-                            disabled={Object.keys(template.footer.sections).length >= 4}
+                            disabled={Object.keys(template.footer.sections || {}).length >= 4}
                             className="flex items-center gap-2 px-4 py-2 bg-[#012038] text-white rounded-lg 
                                      hover:bg-[#012038]/90 transition-all duration-300 disabled:opacity-50
                                      disabled:cursor-not-allowed"
@@ -103,13 +146,13 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
 
                     {/* Lista de Seções */}
                     <div className="space-y-4">
-                        {Object.entries(template.footer.sections).map(([key, section]) => (
+                        {Object.entries(template.footer.sections || {}).map(([key, section]) => (
                             <div key={key} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:border-[#012038] transition-all duration-300">
                                 {/* Cabeçalho da Seção */}
                                 <div className="bg-gray-100 p-4 flex justify-between items-center">
                                     <input
                                         type="text"
-                                        value={section.title}
+                                        value={section.title || ''}
                                         onChange={(e) => handleUpdateSection(key, 'title', e.target.value)}
                                         className="font-medium bg-transparent border-b border-transparent hover:border-gray-300 
                                                  focus:border-[#012038] px-2 py-1 outline-none transition-all duration-300"
@@ -125,7 +168,7 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
 
                                 {/* Links da Seção */}
                                 <div className="p-4 space-y-3">
-                                    {section.links.map((link, linkIndex) => (
+                                    {(section.links || []).map((link, linkIndex) => (
                                         <div key={linkIndex} className="flex flex-col gap-2 group bg-white p-3 rounded-lg border border-gray-100">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm font-medium text-gray-600">Link {linkIndex + 1}</span>
@@ -233,11 +276,8 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
                             </div>
                             <input
                                 type="text"
-                                value={template.footer.socialLinks.facebook}
-                                onChange={(e) => updateFooter('socialLinks', {
-                                    ...template.footer.socialLinks,
-                                    facebook: e.target.value
-                                })}
+                                value={template.footer.socialLinks.facebook || ''}
+                                onChange={(e) => handleUpdateSocialLink('facebook', e.target.value)}
                                 className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg
                                 focus:ring-2 focus:ring-[#012038] focus:border-transparent
                                 transition-all outline-none"
@@ -252,11 +292,8 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
                             </div>
                             <input
                                 type="text"
-                                value={template.footer.socialLinks.twitter}
-                                onChange={(e) => updateFooter('socialLinks', {
-                                    ...template.footer.socialLinks,
-                                    twitter: e.target.value
-                                })}
+                                value={template.footer.socialLinks.twitter || ''}
+                                onChange={(e) => handleUpdateSocialLink('twitter', e.target.value)}
                                 className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg
                                 focus:ring-2 focus:ring-[#012038] focus:border-transparent
                                 transition-all outline-none"
@@ -271,11 +308,8 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
                             </div>
                             <input
                                 type="text"
-                                value={template.footer.socialLinks.instagram}
-                                onChange={(e) => updateFooter('socialLinks', {
-                                    ...template.footer.socialLinks,
-                                    instagram: e.target.value
-                                })}
+                                value={template.footer.socialLinks.instagram || ''}
+                                onChange={(e) => handleUpdateSocialLink('instagram', e.target.value)}
                                 className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg
                                 focus:ring-2 focus:ring-[#012038] focus:border-transparent
                                 transition-all outline-none"
@@ -290,11 +324,8 @@ function FooterControls({ template, updateFooter, selectedPalette }) {
                             </div>
                             <input
                                 type="text"
-                                value={template.footer.socialLinks.linkedin}
-                                onChange={(e) => updateFooter('socialLinks', {
-                                    ...template.footer.socialLinks,
-                                    linkedin: e.target.value
-                                })}
+                                value={template.footer.socialLinks.linkedin || ''}
+                                onChange={(e) => handleUpdateSocialLink('linkedin', e.target.value)}
                                 className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg
                                 focus:ring-2 focus:ring-[#012038] focus:border-transparent
                                 transition-all outline-none"

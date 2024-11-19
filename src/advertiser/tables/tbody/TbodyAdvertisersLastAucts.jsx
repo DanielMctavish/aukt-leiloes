@@ -33,7 +33,7 @@ function TbodyAdvertisersLastAucts() {
                 })
 
         } catch (error) {
-            console.log('error at try get auctions -> ', error.message)
+            return error
         }
     }
 

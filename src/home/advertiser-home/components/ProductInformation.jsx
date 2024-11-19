@@ -28,7 +28,7 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
 
     const checkAutoBid = () => {
         if (currentProduct && currentProduct.Bid && currentClient) {
-            const autoBid = currentProduct.Bid.find(bid => 
+            const autoBid = currentProduct.Bid.find(bid =>
                 bid.cover_auto === true && bid.client_id === currentClient.id
             );
             setHasAutoBid(!!autoBid);
@@ -40,39 +40,30 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     };
 
     const handleNextProduct = async () => {
-        console.log("produto atual -> ", currentProduct.lote + 1)
 
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
-                params: {
-                    lote: currentProduct.lote + 1,
-                    auct_id: currentAuct.id
-                }
-            }).then(response => {
-                setCurrentProduct(response.data);
-                setBidInformations(response.data.Bid)
-                navigate(`/advertiser/home/product/${response.data.id}`)
-            })
-        } catch (error) {
-            console.log("Error ao encontrar próximo produto -> ", error.message)
-        }
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
+            params: {
+                lote: currentProduct.lote + 1,
+                auct_id: currentAuct.id
+            }
+        }).then(response => {
+            setCurrentProduct(response.data);
+            setBidInformations(response.data.Bid)
+            navigate(`/advertiser/home/product/${response.data.id}`)
+        })
     }
 
     const handlePrevProduct = async () => {
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
-                params: {
-                    lote: currentProduct.lote - 1,
-                    auct_id: currentAuct.id
-                }
-            }).then(response => {
-                setCurrentProduct(response.data);
-                setBidInformations(response.data.Bid)
-                navigate(`/advertiser/home/product/${response.data.id}`)
-            })
-        } catch (error) {
-            console.log("Error ao encontrar próximo produto -> ", error.message)
-        }
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
+            params: {
+                lote: currentProduct.lote - 1,
+                auct_id: currentAuct.id
+            }
+        }).then(response => {
+            setCurrentProduct(response.data);
+            setBidInformations(response.data.Bid)
+            navigate(`/advertiser/home/product/${response.data.id}`)
+        })
     }
 
     const handleSetBid = async (e) => {
@@ -121,7 +112,7 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 initial_value: bidValue
             }));
         } catch (error) {
-            console.error("Erro ao dar lance:", error);
+            // console.error("Erro ao dar lance:", error);
         } finally {
             setIsloadingBid(false);
         }
@@ -142,7 +133,7 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 <div className="bg-gray-100 p-6 rounded-lg shadow-md text-center">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Este produto já foi arrematado!</h3>
                     <p className="text-lg text-gray-600 mb-4">
-                        Não se preocupe, temos muitos outros itens incríveis esperando por você. 
+                        Não se preocupe, temos muitos outros itens incríveis esperando por você.
                         Continue explorando nosso catálogo para encontrar sua próxima aquisição especial!
                     </p>
                     <p className="text-md text-gray-500">
@@ -167,11 +158,10 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 {!hasAutoBid && (
                     <button
                         onClick={handleBidConfirm}
-                        className={`w-[150px] h-[40px] rounded-md transition-colors ${
-                            isLoadingBid 
-                                ? 'bg-gray-500 cursor-not-allowed' 
-                                : 'bg-[#141839] hover:bg-[#1e2456]'
-                        }`}
+                        className={`w-[150px] h-[40px] rounded-md transition-colors ${isLoadingBid
+                            ? 'bg-gray-500 cursor-not-allowed'
+                            : 'bg-[#141839] hover:bg-[#1e2456]'
+                            }`}
                         disabled={isLoadingBid}
                     >
                         {isLoadingBid ? (

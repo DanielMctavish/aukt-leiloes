@@ -18,9 +18,6 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
             clientFounded = response.data
         })
 
-
-        //console.log("client_id vem? ", client_id)
-
         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/list-bid?client_id=${client_id}`, {
             headers: {
                 "Authorization": `Bearer ${currentSessionClient.token}`
@@ -57,6 +54,6 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
         });
 
     } catch (error) {
-        console.log("error at get bids by client -> ", error.message);
+       return error
     }
 };

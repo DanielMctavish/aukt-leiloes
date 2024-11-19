@@ -36,9 +36,7 @@ function UploadProfileFile() {
         }
     });
 
-    useEffect(() => {
-        //console.log("foto de perfil -> ", profilePicture)
-    }, [profilePicture])
+    useEffect(() => {}, [profilePicture])
 
     const { getRootProps, getInputProps, isDragActive } = dropzone;
 

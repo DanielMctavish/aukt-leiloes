@@ -28,8 +28,8 @@ const FloorHub = () => {
             );
 
             setAllAuctions({
-                auctionCataloged: catalogedResponse.data,
-                auctionLive: liveResponse.data,
+                auctionCataloged: catalogedResponse.data.filter(auct => auct.public === true),
+                auctionLive: liveResponse.data.filter(auct => auct.public === true),
             });
 
         } catch (error) {
@@ -60,7 +60,6 @@ const FloorHub = () => {
     };
 
     useEffect(() => {
-        // console.log("observando dados pregressos -> ", allAuctions.auctionLive);
     }, [allAuctions, currentClient]);
 
     const renderAuctionCards = (auctions, label) => {

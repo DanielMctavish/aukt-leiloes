@@ -37,14 +37,11 @@ const handleRegisterAdvertiser = async (data) => {
         email: refEmail.current.value,
         password: refPassword.current.value,
         address: JSON.stringify(addressInformations)
-    }).then((res) => {
+    }).then(() => {
 
         setMessageDisplay("Usuário criado com sucesso!")
-        console.log(res.data);
         navigate("/advertiser/login")
 
-    }).catch(err => {
-        console.log(err.response);
     })
 }
 

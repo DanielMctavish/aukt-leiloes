@@ -56,7 +56,6 @@ function ClientLogin() {
             }, 500)
             
         } catch (err) {
-            console.log("err login >> ", err.message)
             if (err.response?.status === 401 || err.response?.status === 403) {
                 setMessageDisplay("Email ou senha incorretos. Por favor, verifique suas credenciais.")
                 setMessageType("error")

@@ -36,9 +36,7 @@ function AdvertiserAuctDetails() {
         getCurrentAuctById(auct_id)
     }, [auct_id, state.finishedUpload])
 
-    useEffect(() => {
-        console.log("observando datas -> ", currentAuct.auct_dates)
-    }, [currentAuct.auct_dates])
+    useEffect(() => {}, [currentAuct.auct_dates])
 
     const getCurrentAuctById = async (auctId) => {
         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${auctId}`, {
@@ -47,9 +45,7 @@ function AdvertiserAuctDetails() {
             }
         }).then(async response => {
             setCurrentAuct(response.data)
-            console.log('Received dates:', response.data.auct_dates); // Log the received dates
         }).catch(err => {
-            console.log('err get auct >>', err.message)
             if (err.response.status === 404) {
                 navigate('/advertiser/auctions')
             }
@@ -88,13 +84,11 @@ function AdvertiserAuctDetails() {
                 headers: {
                     'Authorization': `Bearer ${localAdvertiser.token}`
                 }
-            }).then(response => {
-                console.log(response.data)
+            }).then(() => {
                 setIsDeleting(false)
             })
         } catch (error) {
             setIsDeleting(false)
-            console.log(error)
         }
     }
 
