@@ -50,7 +50,6 @@ function AdminLogin() {
                 setMessageDisplay("email ou senha inválido")
             }   
             
-            console.log('erro ao tentar logar -->', err.response)
         })
     }
 

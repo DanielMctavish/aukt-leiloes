@@ -15,7 +15,6 @@ function ClientCartelas() {
     useEffect(() => {
         const fetchClientCartelas = async () => {
             const clientSession = JSON.parse(localStorage.getItem('client-auk-session-login'));
-            console.log("sessão cliente -> ", clientSession)
 
             if (!clientSession || !clientSession.token) { // Verificação aprimorada
                 navigate("/client/login");
@@ -34,7 +33,6 @@ function ClientCartelas() {
                 setCurrentClient(result.data);
                 await getList(result.data.id, clientSession.token); // Passando ID e token
             } catch (error) {
-                console.log("Erro ao buscar cartelas do cliente: ", error.message);
                 if (error.response && error.response.status === 401) { // Tratamento de erro 401
                     navigate("/client/login");
                 }
@@ -47,8 +45,6 @@ function ClientCartelas() {
     }, [navigate]);
 
     const getList = async (clientId, token) => { // Ajuste nos parâmetros
-        console.log("clientId -> ", clientId)
-        console.log("token usado -> ", token)
 
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/list-cartelas-by-client`, {
@@ -60,7 +56,6 @@ function ClientCartelas() {
 
             setCartelas(response.data);
         } catch (error) {
-            console.log("Erro ao buscar cartelas: ", error.message);
             if (error.response && error.response.status === 401) { // Tratamento de erro 401
                 navigate("/client/login");
             }

@@ -122,10 +122,8 @@ export const AdvertiserCreateAuct = () => {
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/auct/upload-cover-auct`, formData, {
                 "Content-Type": "multipart/form-data"
             }).then(response => {
-                console.log('resposta ao upar imagem -> ', response.data.currentImage);
                 currentUploadedImage = response.data.currentImage
             }).catch(err => {
-                console.log('err ao tentar upor cover foto auct', err.response)
                 throw new Error("necessário enviar uma imagem de leilão")
             })
 
@@ -157,7 +155,6 @@ export const AdvertiserCreateAuct = () => {
                 status: 'cataloged',
                 product_timer_seconds: 30
             }, configAuth).then(response => {
-                console.log('resposta ao criar leilão -> ', response.data);
                 currentAuctId = response.data.id
                 currentAuctNanoId = response.data.nano_id
             })
@@ -187,9 +184,8 @@ export const AdvertiserCreateAuct = () => {
                     highlight_product: true,
                     group_imgs_url: [],
                 }, configAuth).then(response => {
-                    console.log('produto criado', response.data);
+    
                 }).catch(err => {
-                    console.log('erro ao criar produto >>> ', err.response);
                     throw new Error(err.response.data)
                 })
 
@@ -203,7 +199,6 @@ export const AdvertiserCreateAuct = () => {
             setIsLoading(false)
 
         } catch (error) {
-            console.log('erro ao criar leilão -> ', error)
             refGeneralBody.current.style.display = 'flex';
             loadScreen.current.style.display = 'none';
             setIsLoading(false)

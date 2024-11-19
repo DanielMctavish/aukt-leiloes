@@ -44,9 +44,7 @@ function AddProductMod() {
         refLabelZoneArea.current.style.border = "3px dashed #13384d";
     };
 
-    useEffect(() => {
-        //console.log('observando files -> ', files);
-    }, [files, loadFinished]);
+    useEffect(() => {}, [files, loadFinished]);
 
     const handleCloseCurrentWindow = () => {
         const currentProductWindow = document.querySelector(".section-add-product");
@@ -68,11 +66,9 @@ function AddProductMod() {
             //ADICIONANDO SINGLE IMAGE..............................................................
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/upload-cover-img?product_id=${stateSelectedProduct.product.id}`, formDataSingle)
                 .then(() => {
-                    console.log('upload single sucess!');
                     setIsLoading(false)
                     setLoadFinished(true)
                 }).catch(err => {
-                    console.log('primeira requisição -> ', err.response.data);
                     if (err.response.data === "O arquivo é muito grande, máximo 2MB") {
                         setErrMessage(err.response.data)
                         setIsLoading(false)
@@ -83,7 +79,6 @@ function AddProductMod() {
             //ADICIONANDO MULTIPLES IMAGE..............................................................
             if (files.length > 1) {
                 const filesOutIndex0 = await files.filter((_, i) => i !== 0)
-                console.log('observando imagens filtradas', filesOutIndex0);
                 const formDataMultiples = new FormData();
                 filesOutIndex0.forEach((image) => {
                     formDataMultiples.append("aukt-products-imgs", image);
@@ -91,7 +86,6 @@ function AddProductMod() {
 
                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/products/upload-products-imgs?product_id=${stateSelectedProduct.product.id}`, formDataMultiples)
                     .then(() => {
-                        console.log('upload multiples sucess!');
                         setIsLoading(false)
                         dispatch(uploadFinished({
                             payload: true
@@ -115,13 +109,6 @@ function AddProductMod() {
                 document.querySelector(".main-window-blur-add").style.display = 'none';
                 setFiles([])
             }
-            // //ATUALIZANDO PRODUTO.....................................................................
-            // await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/products/update?product_id=${stateSelectedProduct.product.id}`, {
-            //     cover_img_url: currentProductCover,
-            //     group_imgs_url: currentProductMultiples
-            // }).catch(err => {
-            //     console.log('terceira requisição -> ', err.response.data);
-            // })
 
         } catch (error) {
             setFiles([])

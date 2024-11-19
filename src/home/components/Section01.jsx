@@ -37,38 +37,33 @@ function Section01() {
 
   const getCountersAuct = async () => {
     await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/counter`).then(response => {
-      console.log("response counters -> ", response.data);
       setCounters(prevCounters => ({ ...prevCounters, ...response.data }));
     });
   };
 
   const getProductCounters = async () => {
-    try {
-      const [countProducts, countProductsWithBids] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products`),
-        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products-with-bids`)
-      ]);
+    const [countProducts, countProductsWithBids] = await Promise.all([
+      axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products`),
+      axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products-with-bids`)
+    ]);
 
-      setProductCounters({
-        count: countProducts.data.countAll,
-        countWithBid: countProductsWithBids.data.countAll
-      });
-    } catch (error) {
-      console.log("Error fetching product counters:", error);
-    }
+    setProductCounters({
+      count: countProducts.data.countAll,
+      countWithBid: countProductsWithBids.data.countAll
+    });
   };
 
   useEffect(() => { }, [counters]);
 
   const counterItems = [
     { icon: <Gavel sx={{ fontSize: "33px" }} />, label: "Leilões Registrados", value: counters.countAll },
-    { 
-        icon: <LiveTv sx={{ fontSize: "33px" }} />, 
-        label: "Ao vivo", 
-        value: counters.countLive, 
-        color: "#ff5050",
-        onClick: () => navigate("/floor/hub"),
-        isClickable: true
+    {
+      icon: <LiveTv sx={{ fontSize: "33px" }} />,
+      label: "Ao vivo",
+      value: counters.countLive,
+      color: "#ff5050",
+      onClick: () => navigate("/floor/hub"),
+      isClickable: true
     },
     { icon: <LibraryBooks sx={{ fontSize: "33px" }} />, label: "Catalogado", value: counters.countCataloged, color: "#1c7ea4" },
     { icon: <CheckCircle sx={{ fontSize: "33px" }} />, label: "Realizados", value: counters.countFinished, color: "#2ada2f" },
@@ -141,21 +136,21 @@ function Section01() {
       <div className="flex flex-col w-full h-auto justify-center items-center gap-3 py-8">
         <div className="hidden lg:flex lg:w-[70%] w-[98%] min-h-[14vh] text-[#e1e1e1] justify-around items-center flex-wrap">
           {counterItems.map((item, index) => (
-            <div 
-                key={index} 
-                className={`flex flex-col gap-3 justify-center items-center p-4 
+            <div
+              key={index}
+              className={`flex flex-col gap-3 justify-center items-center p-4 
                     ${item.isClickable ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
-                onClick={item.onClick}
+              onClick={item.onClick}
             >
-                {React.cloneElement(item.icon, { 
-                    style: { 
-                        color: item.color,
-                        transition: 'transform 0.2s',
-                        transform: item.isClickable ? 'scale(1.1)' : 'none'
-                    } 
-                })}
-                <span className="text-[14px]">{item.label}</span>
-                <span className="font-bold text-[22px]" style={{ color: item.color }}>{item.value}</span>
+              {React.cloneElement(item.icon, {
+                style: {
+                  color: item.color,
+                  transition: 'transform 0.2s',
+                  transform: item.isClickable ? 'scale(1.1)' : 'none'
+                }
+              })}
+              <span className="text-[14px]">{item.label}</span>
+              <span className="font-bold text-[22px]" style={{ color: item.color }}>{item.value}</span>
             </div>
           ))}
         </div>
@@ -169,17 +164,17 @@ function Section01() {
           >
             {counterItems.map((item, index) => (
               <SwiperSlide key={index}>
-                <div 
-                    className={`flex flex-col gap-3 justify-center items-center p-4 text-[#e1e1e1]
+                <div
+                  className={`flex flex-col gap-3 justify-center items-center p-4 text-[#e1e1e1]
                         ${item.isClickable ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
-                    onClick={item.onClick}
+                  onClick={item.onClick}
                 >
-                  {React.cloneElement(item.icon, { 
-                      style: { 
-                          color: item.color,
-                          transition: 'transform 0.2s',
-                          transform: item.isClickable ? 'scale(1.1)' : 'none'
-                      } 
+                  {React.cloneElement(item.icon, {
+                    style: {
+                      color: item.color,
+                      transition: 'transform 0.2s',
+                      transform: item.isClickable ? 'scale(1.1)' : 'none'
+                    }
                   })}
                   <span className="text-[12px] text-center">{item.label}</span>
                   <span className="font-bold text-[18px]" style={{ color: item.color }}>{item.value}</span>

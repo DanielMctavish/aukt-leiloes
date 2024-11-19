@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { 
     ExpandMore, ExpandLess, Delete, Palette,
     ViewCarousel, Email, WhatsApp,
-    FormatAlignLeft, FormatAlignCenter, FormatAlignRight,
-    Speed, GridView, ViewList
+    FormatAlignLeft, FormatAlignCenter, FormatAlignRight, GridView, ViewList
 } from '@mui/icons-material';
 import { sectionTypes, sizeTypes } from "../templateData/templateModels";
 import axios from 'axios';
@@ -12,6 +11,7 @@ import { useParams } from 'react-router-dom';
 
 function SectionsControls({ template, updateSection, removeSection, selectedPalette }) {
     const [isExpanded, setIsExpanded] = useState(true);
+    const [expandedSections, setExpandedSections] = useState({});
     const [aucts, setAucts] = useState([]);
     const { advertiser_id } = useParams();
 
@@ -37,6 +37,9 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
     const handleSectionTypeChange = (index, type) => {
         updateSection(index, 'type', type);
         updateSection(index, 'config', sectionTypes[type].config);
+        if (!template.sections[index].sizeType) {
+            updateSection(index, 'sizeType', 'MEDIUM');
+        }
     };
 
     const handleConfigChange = (index, key, value) => {
@@ -154,24 +157,75 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                         </div>
 
                         {section.config.layout === 'carousel' && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Velocidade do Carrossel
-                                </label>
-                                <div className="flex items-center gap-2">
-                                    <Speed />
-                                    <input
-                                        type="range"
-                                        min="1000"
-                                        max="5000"
-                                        step="500"
-                                        value={section.config.speed}
-                                        onChange={(e) => handleConfigChange(index, 'speed', parseInt(e.target.value))}
-                                        className="flex-1"
-                                    />
-                                    <span>{section.config.speed / 1000}s</span>
+                            <>
+                                {/* Largura do Carrossel */}
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Largura do Carrossel
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="range"
+                                            min="25"
+                                            max="100"
+                                            step="5"
+                                            value={parseInt(section.config.carouselWidth || '80')}
+                                            onChange={(e) => handleConfigChange(index, 'carouselWidth', `${e.target.value}%`)}
+                                            className="w-full accent-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-500 w-20 text-right">
+                                            {section.config.carouselWidth || '80%'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-xs text-gray-500 px-2 mt-1">
+                                        <span>25%</span>
+                                        <span>50%</span>
+                                        <span>75%</span>
+                                        <span>100%</span>
+                                    </div>
                                 </div>
-                            </div>
+
+                                {/* Altura do Carrossel */}
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Altura do Carrossel
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="range"
+                                            min="200"
+                                            max="600"
+                                            step="50"
+                                            value={parseInt(section.config.carouselHeight || '400')}
+                                            onChange={(e) => handleConfigChange(index, 'carouselHeight', `${e.target.value}px`)}
+                                            className="w-full accent-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-500 w-20 text-right">
+                                            {section.config.carouselHeight || '400px'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Velocidade do Carrossel */}
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Velocidade de Transição
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="10"
+                                            value={section.config.speed / 1000 || 3}
+                                            onChange={(e) => handleConfigChange(index, 'speed', e.target.value * 1000)}
+                                            className="w-full accent-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-500 w-20 text-right">
+                                            {(section.config.speed / 1000) || 3}s
+                                        </span>
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         <div>
@@ -305,6 +359,23 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
             case 'form':
                 return (
                     <div className="space-y-4">
+                        {/* Título do Formulário */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título do Formulário
+                            </label>
+                            <input
+                                type="text"
+                                value={section.config.title}
+                                onChange={(e) => handleConfigChange(index, 'title', e.target.value)}
+                                className="w-full p-3 border rounded-lg bg-white text-gray-900
+                                    focus:ring-2 focus:ring-[#012038] outline-none
+                                    placeholder:text-gray-400"
+                                placeholder="Digite o título do formulário..."
+                            />
+                        </div>
+
+                        {/* Destino do Formulário */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Destino do Formulário
@@ -315,7 +386,7 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                     className={`flex-1 p-2 rounded flex items-center justify-center gap-2 ${
                                         section.config.destination === 'whatsapp' 
                                             ? 'bg-[#012038] text-white' 
-                                            : 'bg-gray-100'
+                                            : 'bg-white text-gray-700 border border-gray-300'
                                     }`}
                                 >
                                     <WhatsApp /> WhatsApp
@@ -325,7 +396,7 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                     className={`flex-1 p-2 rounded flex items-center justify-center gap-2 ${
                                         section.config.destination === 'email' 
                                             ? 'bg-[#012038] text-white' 
-                                            : 'bg-gray-100'
+                                            : 'bg-white text-gray-700 border border-gray-300'
                                     }`}
                                 >
                                     <Email /> Email
@@ -342,7 +413,9 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                     type="tel"
                                     value={section.config.whatsappNumber}
                                     onChange={(e) => handleConfigChange(index, 'whatsappNumber', e.target.value)}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-3 border rounded-lg bg-white text-gray-900
+                                        focus:ring-2 focus:ring-[#012038] outline-none
+                                        placeholder:text-gray-400"
                                     placeholder="+55 (11) 99999-9999"
                                 />
                             </div>
@@ -357,11 +430,29 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                     type="email"
                                     value={section.config.email}
                                     onChange={(e) => handleConfigChange(index, 'email', e.target.value)}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-3 border rounded-lg bg-white text-gray-900
+                                        focus:ring-2 focus:ring-[#012038] outline-none
+                                        placeholder:text-gray-400"
                                     placeholder="contato@exemplo.com"
                                 />
                             </div>
                         )}
+
+                        {/* Texto do Botão */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Texto do Botão
+                            </label>
+                            <input
+                                type="text"
+                                value={section.config.buttonText}
+                                onChange={(e) => handleConfigChange(index, 'buttonText', e.target.value)}
+                                className="w-full p-3 border rounded-lg bg-white text-gray-900
+                                    focus:ring-2 focus:ring-[#012038] outline-none
+                                    placeholder:text-gray-400"
+                                placeholder="Enviar mensagem"
+                            />
+                        </div>
                     </div>
                 );
 
@@ -409,7 +500,11 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                 Tamanho da Seção
             </label>
             <div className="grid grid-cols-3 gap-2">
-                {Object.entries(sizeTypes).map(([key, value]) => (
+                {[
+                    { key: 'small', value: 'small', label: 'Pequeno', height: '25vh' },
+                    { key: 'medium', value: 'medium', label: 'Médio', height: '50vh' },
+                    { key: 'full', value: 'full', label: 'Completo', height: '100vh' }
+                ].map(({ key, value, label, height }) => (
                     <button
                         key={key}
                         onClick={() => updateSection(index, 'sizeType', value)}
@@ -419,15 +514,11 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                 : 'border-gray-200 hover:border-[#012038] text-gray-700'
                         }`}
                     >
-                        <span className="text-sm font-medium capitalize">
-                            {key === 'small' ? 'Pequeno' :
-                             key === 'medium' ? 'Médio' :
-                             'Completo'}
+                        <span className="text-sm font-medium">
+                            {label}
                         </span>
                         <span className="text-xs opacity-75">
-                            {key === 'small' ? '25vh' :
-                             key === 'medium' ? '50vh' :
-                             '100vh'}
+                            {height}
                         </span>
                     </button>
                 ))}
@@ -435,8 +526,15 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
         </div>
     );
 
+    const toggleSection = (index) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
     return (
-        <div className="bg-white shadow rounded-lg p-4 mb-4 overflow-y-hidden">
+        <div className="bg-white shadow rounded-lg p-4 mb-4">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-xl flex items-center gap-2">
                     <GridView className="text-[#012038]" />
@@ -454,8 +552,8 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                 </button>
             </div>
 
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+            <div className={`transition-all duration-300 ease-in-out ${
+                isExpanded ? 'max-h-[calc(100vh-200px)] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'
             }`}>
                 {template.sections.map((section, index) => (
                     <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#012038] transition-colors">
@@ -464,71 +562,87 @@ function SectionsControls({ template, updateSection, removeSection, selectedPale
                                 {renderSectionTypeIcon(section.type)}
                                 <h4 className="font-medium text-lg">Seção {index + 1}</h4>
                             </div>
-                            <button
-                                onClick={() => removeSection(index)}
-                                className="p-2 hover:bg-red-100 rounded-full text-red-500 transition-colors"
-                                title="Remover seção"
-                            >
-                                <Delete />
-                            </button>
-                        </div>
-
-                        {/* Seleção do tipo de seção */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Tipo de Seção
-                            </label>
-                            <div className="relative">
-                                <select
-                                    value={section.type}
-                                    onChange={(e) => handleSectionTypeChange(index, e.target.value)}
-                                    className="w-full p-3 pr-10 border border-gray-300 rounded-lg appearance-none
-                                    focus:ring-2 focus:ring-[#012038] focus:border-transparent
-                                    transition-all outline-none bg-white"
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => toggleSection(index)}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                    title={expandedSections[index] ? "Recolher seção" : "Expandir seção"}
                                 >
-                                    {Object.entries(sectionTypes).map(([key, value]) => (
-                                        <option key={key} value={key}>
-                                            {value.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <ExpandMore className="text-gray-400" />
-                                </div>
+                                    {expandedSections[index] ? 
+                                        <ExpandLess className="text-gray-600" /> : 
+                                        <ExpandMore className="text-gray-600" />
+                                    }
+                                </button>
+                                <button
+                                    onClick={() => removeSection(index)}
+                                    className="p-2 hover:bg-red-100 rounded-full text-red-500 transition-colors"
+                                    title="Remover seção"
+                                >
+                                    <Delete />
+                                </button>
                             </div>
-                            <p className="mt-1 text-sm text-gray-500">
-                                {sectionTypes[section.type]?.description}
-                            </p>
                         </div>
 
-                        {/* Tamanho da Seção */}
-                        {renderSizeButtons(section, index)}
+                        <div className={`transition-all duration-300 overflow-hidden ${
+                            expandedSections[index] ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                        }`}>
+                            {/* Seleção do tipo de seção */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Seção
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={section.type}
+                                        onChange={(e) => handleSectionTypeChange(index, e.target.value)}
+                                        className="w-full p-3 pr-10 border border-gray-300 rounded-lg appearance-none
+                                        focus:ring-2 focus:ring-[#012038] focus:border-transparent
+                                        transition-all outline-none bg-white"
+                                    >
+                                        {Object.entries(sectionTypes).map(([key, value]) => (
+                                            <option key={key} value={key}>
+                                                {value.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <ExpandMore className="text-gray-400" />
+                                    </div>
+                                </div>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    {sectionTypes[section.type]?.description}
+                                </p>
+                            </div>
 
-                        {/* Controles específicos do tipo de seção */}
-                        <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
-                            {renderSectionControls(section, index)}
-                        </div>
+                            {/* Tamanho da Seção - só mostra se NÃO for formulário */}
+                            {section.type !== 'form' && renderSizeButtons(section, index)}
 
-                        {/* Cor da Seção */}
-                        <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-                                <Palette className="text-[#012038]" />
-                                Cor da Seção
-                            </label>
-                            <div className="flex flex-wrap gap-2 p-3 bg-white rounded-lg border border-gray-200">
-                                {Object.entries(selectedPalette).map(([key, color]) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => updateSection(index, 'color', color)}
-                                        className={`w-10 h-10 rounded-lg transition-all ${
-                                            section.color === color 
-                                                ? 'ring-2 ring-offset-2 ring-[#012038] scale-110' 
-                                                : 'hover:scale-105'
-                                        }`}
-                                        style={{ backgroundColor: color }}
-                                        title={`Cor ${key}`}
-                                    />
-                                ))}
+                            {/* Controles específicos do tipo de seção */}
+                            <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                                {renderSectionControls(section, index)}
+                            </div>
+
+                            {/* Cor da Seção */}
+                            <div>
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                                    <Palette className="text-[#012038]" />
+                                    Cor da Seção
+                                </label>
+                                <div className="flex flex-wrap gap-2 p-3 bg-white rounded-lg border border-gray-200">
+                                    {Object.entries(selectedPalette).map(([key, color]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => updateSection(index, 'color', color)}
+                                            className={`w-10 h-10 rounded-lg transition-all ${
+                                                section.color === color 
+                                                    ? 'ring-2 ring-offset-2 ring-[#012038] scale-110' 
+                                                    : 'hover:scale-105'
+                                            }`}
+                                            style={{ backgroundColor: color }}
+                                            title={`Cor ${key}`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

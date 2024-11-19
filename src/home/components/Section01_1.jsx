@@ -13,16 +13,12 @@ function Section01_1() {
     }, [])
 
     const listAuctions = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
-                params: {
-                    status: "cataloged",
-                }
-            });
-            getSortedAuctions(response.data)
-        } catch (error) {
-            console.log("Error loading auctions:", error.message);
-        }
+        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
+            params: {
+                status: "cataloged",
+            }
+        });
+        getSortedAuctions(response.data)
     }
 
     const getSortedAuctions = (auctions) => {

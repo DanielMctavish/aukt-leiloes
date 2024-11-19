@@ -70,7 +70,6 @@ export const GraphElement = () => {
                         return 2000
                     },
                     callback: (value) => {
-                        //console.log('obs value >> ', value);
 
                         if (value > 1000) {
                             return "R$ " + value / 1000 + 'k'

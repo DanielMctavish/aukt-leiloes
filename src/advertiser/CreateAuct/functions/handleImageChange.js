@@ -11,8 +11,6 @@ export const handleImageChange = (e, setImageSrc) => {
         reader.readAsDataURL(currentFile);
     }
 
-   // console.log('dentro do handleImageChange -> ', currentFile);
-
 };
 
 export const getCurrentFile = () => {

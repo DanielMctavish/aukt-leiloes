@@ -15,13 +15,11 @@ export const getAuctsByBids = async (allBids, setAllAucts) => {
                     }
                 });
                 aucts.push(response.data);
-                // console.log("response get aucts -> ", response.data)
             } catch (error) {
-                console.log(`Error fetching auction with ID ${bid.auct_id}: `, error.message);
+                return error
             }
         }
     }
 
-    //console.log("leilões participados ->", aucts)
     setAllAucts(aucts);
 };

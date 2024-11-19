@@ -14,7 +14,6 @@ function SecurityConfirmation() {
 
     useEffect(() => {
         const currentSessionToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"));
-        console.log("existe? ", currentSessionToken)
 
         if (currentSessionToken) {
             const expiration = dayjs(currentSessionToken.expiration).valueOf()
@@ -43,10 +42,7 @@ function SecurityConfirmation() {
 
     const handleRefirectToRegister = () => {
 
-        console.log("obs -> ", tokenInput.toString() === currentToken.toString())
-
         if (tokenInput === currentToken) {
-            console.log("caiu na condição... ")
             const currentUUID = v4()
             const tokenData = {
                 token: currentUUID,

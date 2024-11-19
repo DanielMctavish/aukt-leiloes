@@ -23,11 +23,9 @@ function DisplayTableProducts() {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refTableWindow.current.style.background = "#2d2d2dd8"
             refTableWindow.current.style.color = "#f6f6f6fe"
         } else {
-            console.log("desligado")
             refTableWindow.current.style.background = "#ffffffbe"
             refTableWindow.current.style.color = "#595959"
         }
@@ -39,7 +37,6 @@ function DisplayTableProducts() {
     }, [])
 
     useEffect(() => {
-        //console.log("observando estado tabelas -> ", state.values);
         setProducts(state)
     }, [state, errors])
 
@@ -63,7 +60,6 @@ function DisplayTableProducts() {
         }
 
         if (products.columns[0] !== 'title') {
-            console.log('acusou o erro');
             newErrors.push('A primeira coluna deve ser "title"');
         }
 

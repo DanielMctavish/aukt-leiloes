@@ -2,13 +2,8 @@
 /* eslint-disable react/prop-types */
 import { ArrowCircleLeft, ArrowCircleRight } from "@mui/icons-material";
 import { loadPage } from "../functions/loadPage";
-import { useEffect } from "react";
 
 function PaginationComponent({ pages_count, current_page, auct_id, setproductsfiltered, setcurrentpage }) {
-
-    useEffect(() => {
-        console.log("quantidade de páginas -> ", pages_count)
-    }, []);
 
     const handlePageChange = (pageIndex) => {
         loadPage(pageIndex, auct_id, setproductsfiltered, setcurrentpage);

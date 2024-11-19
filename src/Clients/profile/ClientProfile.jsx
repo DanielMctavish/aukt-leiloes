@@ -30,7 +30,7 @@ function ClientProfile() {
         getClientInformations(navigate, null, setCurrentClient, null, null, null, null)
     }, [])
 
-    useEffect(() => { console.log("observando cliente: ", currentClient) }, [currentClient])
+    useEffect(() => { }, [currentClient])
 
     const handleSelectedAvatar = (i) => {
         setClientAvatar(i)
@@ -54,7 +54,6 @@ function ClientProfile() {
             })
         } catch (error) {
             setIsloading(false)
-            console.log(error.response)
         }
 
     }

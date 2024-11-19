@@ -21,14 +21,11 @@ function AdvertiserClients() {
                         }
                     });
                     const advertiser = advertiserResponse.data;
-                    console.log("obs advertiser", advertiser)
                     if (advertiser && advertiser.Clients) {
                         setClients(advertiser.Clients); // Assumindo que o campo é "clients"
-                    } else {
-                        console.log("No clients found for this advertiser.");
                     }
                 } catch (error) {
-                    console.log("Error fetching clients:", error.message);
+                    return error
                 }
             }
         };

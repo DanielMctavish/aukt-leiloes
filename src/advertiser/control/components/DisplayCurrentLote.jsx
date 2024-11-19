@@ -34,7 +34,6 @@ function DisplayCurrentLote() {
             });
 
             socket.on(`${generalAUK.auct.id}-auct-finished`, () => {
-                console.log("Auction finished");
                 dispatch(setStatus('finished'));
             });
 
@@ -47,13 +46,12 @@ function DisplayCurrentLote() {
     const getCurrentClientWinner = async (client_id) => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
-            console.log("VENCEDOR! ->", response.data);
             setWinner(response.data);
             setTimeout(() => {
                 setWinner(null);
             }, 3000);
         } catch (error) {
-            console.log("Erro ao tentar obter o cliente vencedor: ", error.message);
+            return error
         }
     };
 

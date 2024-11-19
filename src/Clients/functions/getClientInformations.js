@@ -14,7 +14,6 @@ export const getClientInformations = async (navigate, getBidsByClient, setCurren
             "Authorization": `Bearer ${currentSessionClient.token}`
         }
     }).then((response) => {
-        // console.log("dashboard client found -> ", response.data)
         getBidsByClient &&
             getBidsByClient(response.data.id, currentClient,
                 setAllBids, setBidsWinners, setBudget);

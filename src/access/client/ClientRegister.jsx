@@ -130,7 +130,6 @@ function ClientRegister() {
             });
             navigate("/client/dashboard");
         } catch (err) {
-            console.log("erro ao tentar criar cliente -> ", err.response);
             alert('Erro ao criar cliente. Por favor, tente novamente.');
         } finally {
             setIsCreating(false);
@@ -146,7 +145,7 @@ function ClientRegister() {
             setCity(res.data.localidade);
             setStreet(res.data.logradouro);
         }).catch(err => {
-            console.log(err.response);
+            return err
         });
     };
 

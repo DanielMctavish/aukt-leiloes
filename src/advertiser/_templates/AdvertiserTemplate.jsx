@@ -31,7 +31,6 @@ function AdvertiserTemplate() {
             // Verificar se existe sessão
             const advertiserSession = localStorage.getItem('advertiser-session-aukt');
             if (!advertiserSession) {
-                console.log("Sessão não encontrada");
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
@@ -40,7 +39,7 @@ function AdvertiserTemplate() {
             // Verificar se o token existe
             const { token } = JSON.parse(advertiserSession);
             if (!token) {
-                console.log("Token não encontrado");
+               
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
@@ -56,7 +55,7 @@ function AdvertiserTemplate() {
             );
 
             if (!response.data) {
-                console.log("Anunciante não encontrado");
+                
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
@@ -65,18 +64,6 @@ function AdvertiserTemplate() {
             setAdvertiser(response.data);
 
         } catch (error) {
-            console.error("Erro ao buscar dados do anunciante:", error);
-            
-            // Tratamento específico de erros
-            if (error.response?.status === 401) {
-                console.log("Token inválido ou expirado");
-            } else if (error.response?.status === 403) {
-                console.log("Sem permissão para acessar");
-            } else if (error.response?.status === 404) {
-                console.log("Anunciante não encontrado");
-            }
-
-            // Em qualquer erro, limpar a sessão e redirecionar
             localStorage.removeItem('advertiser-session-aukt');
             navigate("/");
         }

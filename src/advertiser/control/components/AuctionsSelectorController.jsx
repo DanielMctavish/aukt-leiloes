@@ -54,7 +54,6 @@ function AuctionsSelectorController() {
                 params: { creator_id: advertiser.id }
             });
 
-            console.log("pegando leilões -> ", response.data)
             setAuctions(response.data);
             const uniqueGroups = [...new Set(selectedAuction.auct_dates.map(date => date.group))];
             setGroups(uniqueGroups);
@@ -64,7 +63,7 @@ function AuctionsSelectorController() {
                 handleSelectAuction(generalAUK.auct);
             }
         } catch (error) {
-            console.error("Error fetching auctions:", error);
+            return error
         }
     };
 

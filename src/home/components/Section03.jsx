@@ -3,7 +3,7 @@ import diversidadeDisplay from "../../media/display/diversidade.png"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Email } from "@mui/icons-material"
+import { Email } from "@mui/icons-material"
 
 // Import Swiper styles
 import 'swiper/css';
@@ -20,22 +20,17 @@ function Section03() {
   }, [])
 
   const getProducts = async () => {
-    try {
-      const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-        params: {
-          take: 8,
-        }
-      });
-      setProducts(result.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
+    const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+      params: {
+        take: 8,
+      }
+    });
+    setProducts(result.data);
   }
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     // Implement email submission logic here
-    console.log("Email submitted:", email);
     setEmail('');
   }
 
@@ -57,7 +52,7 @@ function Section03() {
         >
           {products.map((product, index) => (
             <SwiperSlide key={index}>
-              <div 
+              <div
                 onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
                 className="flex flex-col items-center bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
               >
@@ -86,13 +81,13 @@ function Section03() {
             <label htmlFor="email" className="block text-sm font-semibold text-[#0D1733] mb-2">DIGITE SEU EMAIL:</label>
             <div className="flex items-center bg-[#0D1733] p-2 rounded-md shadow-md">
               <Email sx={{ color: "#ffffff" }} />
-              <input 
-                type="email" 
+              <input
+                type="email"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-[#f0f0f0] text-[#0D1733] p-2 rounded-md ml-2 w-full"
-                placeholder="seu email aqui" 
+                placeholder="seu email aqui"
                 required
               />
               <button type="submit" className="ml-2 bg-[#005699] text-white px-4 py-2 rounded-md hover:bg-[#004477] transition-colors duration-300">

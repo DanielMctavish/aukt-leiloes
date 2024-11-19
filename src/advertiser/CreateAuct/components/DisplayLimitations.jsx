@@ -9,11 +9,9 @@ function DisplayLimitations() {
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
         if (cookieTheme === "true") {
-            console.log("ligado")
             refMain.current.style.background = "#2d2d2d"
             refMain.current.style.color = "#efefef"
         } else {
-            console.log("desligado")
             refMain.current.style.background = "#ffffff"
             refMain.current.style.color = "#595959"
         }

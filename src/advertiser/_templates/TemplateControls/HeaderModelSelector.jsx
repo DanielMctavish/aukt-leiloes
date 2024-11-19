@@ -1,6 +1,12 @@
+/* eslint-disable react/prop-types */
 import { Opacity } from '@mui/icons-material';
 
 function HeaderModelSelector({ selectedHeaderModel, setSelectedHeaderModel, template, updateHeader }) {
+    const handleModelSelect = (model) => {
+        console.log('Modelo selecionado:', model); // Debug
+        setSelectedHeaderModel(model); // Esta função já formata para MODEL_X
+    };
+
     return (
         <section className='flex flex-col w-full mt-4'>
             <h3 className="font-semibold mb-2">Selecione seu modelo:</h3>
@@ -14,7 +20,7 @@ function HeaderModelSelector({ selectedHeaderModel, setSelectedHeaderModel, temp
                                 ? 'ring-2 ring-blue-500'
                                 : 'hover:bg-gray-100'
                         }`}
-                        onClick={() => setSelectedHeaderModel(model)}
+                        onClick={() => handleModelSelect(model)}
                     >
                         {model === 1 && (
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">

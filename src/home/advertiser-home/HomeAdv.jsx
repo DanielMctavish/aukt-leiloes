@@ -1,83 +1,120 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import HomeAdvSection01 from "./HomeAdvSection01";
-import HomeAdvSection02 from "./HomeAdvSection02";
-import HomeAdvSection03 from "./HomeAdvSection03";
-import HomeAdvFooter from "./HomeAdvFooter";
+import { useParams } from "react-router-dom";
+import {
+    HeaderModel1, HeaderModel2, HeaderModel3, HeaderModel4,
+    HeaderModel5, HeaderModel6, HeaderModel7, HeaderModel8
+} from "./decorations";
+import HeaderTexts from "./texts/HeaderTexts";
+import HeaderCarousel from "./carousels/HeaderCarousel";
 
 function HomeAdvertiser() {
-    const [currentAdvertiser, setAdvertiser] = useState({})
-    const [displayAuct, setDisplayAuct] = useState({})
+    const [header, setHeader] = useState(null);
+    const [fontStyle, setFontStyle] = useState(null);
     const { advertiser_id } = useParams();
 
-    const navigate = useNavigate()
-
-    useEffect(() => { 
-        getAdvertiserInformations();
-        getClientInformations();
+    useEffect(() => {
+        getSiteTemplate()
     }, [])
 
-    const getAdvertiserInformations = async () => {
-        try {
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find?adv_id=${advertiser_id}`)
-                .then(result => {
-                    setAdvertiser(result.data)
-                })
+    const getSiteTemplate = async () => {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/template/find`, {
+            params: { advertiserId: advertiser_id }
+        });
 
-            await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?creator_id=${advertiser_id}`)
-                .then(result => {
-                    result.data.forEach((auct) => {
-                        if (auct.status === "cataloged") {
-                            // console.log("AUK >> ", auct)
-                            setDisplayAuct(auct)
-                            return false
-                        }
-                    })
-                })
-        } catch (error) {
-            navigate("/")
+        if (response.data && response.data[0]) {
+            const templateData = response.data[0];
+            setHeader(templateData.header);
+            setFontStyle(templateData.fontStyle);
         }
     }
 
-    const getClientInformations = async () => {
-        const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
-
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
-                headers: {
-                    "Authorization": `Bearer ${currentSessionClient.token}`
-                }
-            });
-
-            if (!response.data) {
-                localStorage.removeItem("client-auk-session-login");
-            }
-        } catch (error) {
-            console.log(error.message);
-            localStorage.removeItem("client-auk-session-login");
+    useEffect(() => {
+        if (header) {
+            getSelectedAuction()
         }
+    }, [header])
+
+    const getSelectedAuction = async () => {
+        if (!header?.carousel?.selectedAuctId) return;
+
+        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct`, {
+            params: { auct_id: header.carousel.selectedAuctId }
+        });
     }
+
+    const getBackgroundImageStyle = () => {
+        if (!header?.backgroundImage) return {};
+
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${header.backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: header.backgroundImageOpacity,
+            filter: `blur(${header.backgroundImageBlur}px) brightness(${header.backgroundImageBrightness * 100}%)`,
+            zIndex: 0,
+            maxHeight: '100%',
+            height: '100%'
+        };
+    };
+
+    const renderHeaderModel = () => {
+        if (!header?.model) return null;
+
+        switch (header.model) {
+            case "MODEL_1":
+                return <HeaderModel1 header={header} />;
+            case "MODEL_2":
+                return <HeaderModel2 header={header} />;
+            case "MODEL_3":
+                return <HeaderModel3 header={header} />;
+            case "MODEL_4":
+                return <HeaderModel4 header={header} />;
+            case "MODEL_5":
+                return <HeaderModel5 header={header} />;
+            case "MODEL_6":
+                return <HeaderModel6 header={header} />;
+            case "MODEL_7":
+                return <HeaderModel7 header={header} />;
+            case "MODEL_8":
+                return <HeaderModel8 header={header} />;
+            default:
+                return null;
+        }
+    };
 
     return (
-        <div className="w-full h-auto flex flex-col justify-start items-center relative roboto-condensed-advertiser">
+        <div className="w-full h-[100vh] bg-[#fff] overflow-y-auto overflow-x-hidden" style={{ fontFamily: fontStyle }}>
+            <header
+                className={`w-full relative overflow-hidden
+                    ${header?.sizeType === "FULL" && "h-[100vh]"} 
+                    ${header?.sizeType === "MEDIUM" && "h-[50vh]"}
+                    ${header?.sizeType === "SMALL" && "h-[25vh]"}`}
+                style={{ backgroundColor: header?.color || '#ffffff' }}>
 
-            {/* SECTION 01 ------------------------------------------------------------------------------------------------------------------------- */}
-            <HomeAdvSection01 currentAdvertiser={currentAdvertiser} displayAuct={displayAuct} />
+                {/* Background Image Layer */}
+                {header?.backgroundImage && (
+                    <div style={getBackgroundImageStyle()} />
+                )}
 
-            {/* SECTION 02 ------------------------------------------------------------------------------------------------------------------------- */}
+                {/* Decorative Elements Layer */}
+                {renderHeaderModel()}
 
-            <HomeAdvSection02 currentAdvertiser={currentAdvertiser} />
+                {/* Text Layer */}
+                <HeaderTexts texts={header?.texts} fontStyle={fontStyle} />
 
-            {/* SECTION 03 */}
-
-            <HomeAdvSection03 currentAdvertiser={currentAdvertiser} />
-
-            {/* RODAPÉ ------------------------------------------------------------------------------------------------------------------------- */}
-            <HomeAdvFooter currentAdvertiser={currentAdvertiser} />
+                {/* Carousel Layer */}
+                <HeaderCarousel config={header?.carousel} advertiser_id={advertiser_id} />
+            </header>
         </div>
-    )
+    );
 }
 
 export default HomeAdvertiser;

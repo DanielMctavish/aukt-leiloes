@@ -204,18 +204,33 @@ function WelcomeScreen({ onContinue }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        // Efeito para controlar o loading
+        let interval;
+        
+        if (isLoading) {
+            interval = setInterval(() => {
+                setLoading(currentLoading => {
+                    if (currentLoading >= 100) {
+                        clearInterval(interval);
+                        // Movido para fora do setState para evitar o warning
+                        setTimeout(() => onContinue(), 0);
+                        return 100;
+                    }
+                    return currentLoading + 5;
+                });
+            }, 35);
+        }
+
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [isLoading, onContinue]);
+
     const handleContinueClick = () => {
         setIsLoading(true);
-        loadingInterval.current = setInterval(() => {
-            setLoading(prev => {
-                if (prev >= 100) {
-                    clearInterval(loadingInterval.current);
-                    onContinue();
-                    return 100;
-                }
-                return prev + 5;
-            });
-        }, 35);
     };
 
     return (

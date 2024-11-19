@@ -64,8 +64,6 @@ function AdvertiserLogin() {
                 password: password
             })
 
-            console.log("resposta login advertiser --> ", res)
-
             if (res.data.user.police_status === 'BANNED' || res.data.user.police_status === 'SUSPENDED') {
                 setAccountStatus(res.data.user.police_status)
                 return
@@ -93,7 +91,6 @@ function AdvertiserLogin() {
             navigate("/advertiser/dashboard")
 
         } catch (err) {
-            console.log("erro login advertiser --> ", err.response?.status)
             if (err.response?.status === 401 || err.response?.status === 403) {
                 setMessageDisplay("Email ou senha incorretos. Por favor, verifique suas credenciais.")
                 setMessageType("error")

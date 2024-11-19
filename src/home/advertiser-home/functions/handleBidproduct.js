@@ -5,7 +5,6 @@ const handleBidproduct = async (bidValue,
     currentClient, currentAuct, 
     sessionClient, setBidValue, 
     setIsloadingBid, isAutoBidEnabled) => {
-    console.log("dentro da função, value -> ", bidValue, isAutoBidEnabled)
 
     if (messageRef && bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.display = "flex"
@@ -69,7 +68,6 @@ const handleBidproduct = async (bidValue,
 
     } catch (error) {
         setIsloadingBid && setIsloadingBid(false)
-        console.log("Erro ao dar lance:", error.message)
         
         if (messageRef) {
             messageRef.current.style.display = "flex"

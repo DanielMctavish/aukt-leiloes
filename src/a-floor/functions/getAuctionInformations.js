@@ -9,7 +9,7 @@ const getAuctionInformations = async (auct_id, setCurrentAuct) => {
             setCurrentAuct(response.data)
 
         }).catch(err => {
-            console.log('err get auct >>', err.message)
+            return err
         })
 
 }
