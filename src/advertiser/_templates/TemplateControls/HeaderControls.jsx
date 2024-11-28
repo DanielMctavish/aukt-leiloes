@@ -1,54 +1,34 @@
 /* eslint-disable react/prop-types */
-import { AspectRatio, Visibility, VisibilityOff, TextFields, FormatSize, BorderAll, Palette, Opacity, ExpandMore, ExpandLess } from '@mui/icons-material';
+import { AspectRatio, TextFields, FormatSize, BorderAll, Palette, Opacity, ExpandMore, ExpandLess, DeleteForever } from '@mui/icons-material';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
+import { 
+    setHeaderSize,
+    setHeaderColor,
+    setHeaderModel,
+    setHeaderBackground,
+    setElementsOpacity,
+    addHeaderText,
+    updateHeaderText,
+    removeHeaderText,
+    setCarouselConfig,
+    toggleCarousel
+} from '../../../features/template/HeaderSlice';
+
 import BackgroundImageControls from './BackgroundImageControls';
 import HeaderModelSelector from './HeaderModelSelector';
 import TextPositionControls from './TextPositionControls';
 import CarouselControls from './CarouselControls';
-import { useState, useEffect } from 'react';
 
-function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelectedHeaderModel, selectedPalette }) {
+function HeaderControls() {
+    const dispatch = useDispatch();
+    const { headerData } = useSelector(state => state.header);
     const [isExpanded, setIsExpanded] = useState(true);
-
-    useEffect(() => {
-        if (template.header?.model) {
-            const modelNumber = parseInt(template.header.model.replace('MODEL_', ''));
-            setSelectedHeaderModel(modelNumber);
-        }
-    }, [template.header?.model, setSelectedHeaderModel]);
-
-    const handleTextUpdate = (textId, changes) => {
-        const updatedTexts = template.header.texts.map(text => 
-            text.id === textId ? { ...text, ...changes } : text
-        );
-        updateHeader('texts', updatedTexts);
-    };
-
-    const handleTextPositionChange = (textId, newPosition) => {
-        handleTextUpdate(textId, { position: newPosition });
-    };
-
-    const handleVisibilityToggle = (textId) => {
-        const text = template.header.texts.find(t => t.id === textId);
-        handleTextUpdate(textId, { visible: !text.visible });
-    };
-
-    const handleCarouselUpdate = (carouselConfig) => {
-        updateHeader('carousel', carouselConfig);
-    };
-
-    const handleElementsOpacityChange = (value) => {
-        updateHeader('elementsOpacity', value);
-    };
-
-    const handleModelChange = (modelNumber) => {
-        console.log('Mudando para modelo:', modelNumber);
-        setSelectedHeaderModel(modelNumber);
-        updateHeader('model', `MODEL_${modelNumber}`);
-    };
 
     const handleAddText = () => {
         const newText = {
-            id: template.header.texts.length + 1,
+            id: uuidv4(),
             title: "Novo Título",
             content: "Novo conteúdo",
             position: {
@@ -66,13 +46,31 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
             visible: true
         };
 
-        const updatedTexts = [...template.header.texts, newText];
-        updateHeader('texts', updatedTexts);
+        dispatch(addHeaderText(newText));
+    };
+
+    const handleTextUpdate = (textId, updates) => {
+        dispatch(updateHeaderText({ id: textId, updates }));
+    };
+
+    const handleCarouselUpdate = (carouselConfig) => {
+        dispatch(setCarouselConfig(carouselConfig));
+    };
+
+    const handleElementsOpacityChange = (value) => {
+        dispatch(setElementsOpacity(value));
+    };
+
+    const handleModelChange = (modelNumber) => {
+        dispatch(setHeaderModel(`MODEL_${modelNumber}`));
     };
 
     const handleSizeChange = (size) => {
-        console.log('Mudando tamanho para:', size);
-        updateHeader('sizeType', size);
+        dispatch(setHeaderSize(size));
+    };
+
+    const handleDeleteText = (textId) => {
+        dispatch(removeHeaderText(textId));
     };
 
     return (
@@ -100,12 +98,12 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                         Cor do Header
                     </label>
                     <div className="flex flex-wrap gap-2">
-                        {Object.entries(selectedPalette).map(([key, color]) => (
+                        {Object.entries(headerData.palettes[headerData.colorPalette] || {}).map(([key, color]) => (
                             <button
                                 key={key}
-                                onClick={() => updateHeader('color', color)}
+                                onClick={() => dispatch(setHeaderColor(color))}
                                 className={`w-8 h-8 rounded-full transition-all ${
-                                    template.header.color === color 
+                                    headerData.color === color 
                                         ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' 
                                         : 'hover:scale-105'
                                 }`}
@@ -131,7 +129,7 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                 key={key}
                                 onClick={() => handleSizeChange(value)}
                                 className={`flex-1 p-3 rounded-lg border transition-all ${
-                                    template.header.sizeType === value
+                                    headerData.size === value
                                         ? 'border-blue-500 bg-blue-50 text-blue-600'
                                         : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50'
                                 }`}
@@ -152,10 +150,11 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                 </div>
 
                 <HeaderModelSelector 
-                    selectedHeaderModel={selectedHeaderModel}
-                    setSelectedHeaderModel={handleModelChange}
-                    template={template}
-                    updateHeader={updateHeader}
+                    selectedModel={headerData.model}
+                    onModelChange={handleModelChange}
+                    color={headerData.color}
+                    elementsOpacity={headerData.elementsOpacity}
+                    onOpacityChange={handleElementsOpacityChange}
                 />
 
                 <div className="mt-6 border-t pt-4">
@@ -172,36 +171,32 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                         </button>
                     </div>
 
-                    {template.header.texts?.map(text => (
+                    {headerData.texts?.map((text, index) => (
                         <div 
                             key={text.id} 
-                            className={`mb-6 bg-gray-50 rounded-lg border border-gray-100 overflow-hidden transition-all duration-300 ease-in-out ${
-                                text.visible ? 'max-h-[1000px] p-4' : 'max-h-[60px]'
-                            }`}
+                            className="mb-6 bg-gray-50 rounded-lg border border-gray-100 p-4"
                         >
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <span className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-medium">
-                                        {text.id}
+                                        {index + 1}
                                     </span>
-                                    <span className="font-medium text-gray-700">Área de Texto {text.id}</span>
+                                    <span className="font-medium text-gray-700">Área de Texto {index + 1}</span>
                                 </div>
                                 <button
-                                    onClick={() => handleVisibilityToggle(text.id)}
-                                    className={`p-2 hover:bg-gray-200 rounded-full transition-colors ${
-                                        text.visible ? 'rotate-0' : 'rotate-180'
-                                    }`}
-                                    title={text.visible ? "Recolher área" : "Expandir área"}
+                                    onClick={() => handleDeleteText(text.id)}
+                                    className="p-2 hover:bg-red-50 rounded-full transition-colors text-red-500 hover:text-red-600"
+                                    title="Excluir texto"
                                 >
-                                    {text.visible ? <Visibility className="text-blue-500" /> : <VisibilityOff className="text-gray-400" />}
+                                    <DeleteForever />
                                 </button>
                             </div>
 
-                            <div className={`space-y-6 mt-4 transition-all duration-300 ${text.visible ? 'opacity-100' : 'opacity-0'}`}>
+                            <div className="space-y-6 mt-4">
                                 <div className="bg-white p-3 rounded-md border border-gray-200">
                                     <TextPositionControls
                                         text={text}
-                                        onPositionChange={handleTextPositionChange}
+                                        onPositionChange={handleTextUpdate}
                                     />
                                 </div>
 
@@ -254,11 +249,11 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                 <div>
                                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                                         <Palette className="text-gray-400 text-sm" />
-                                        Cores do Título
+                                        Cores do Texto
                                     </label>
                                     <div className="grid gap-4">
                                         <div>
-                                            <label className="text-sm text-gray-600 mb-2 block">Cor do Texto</label>
+                                            <label className="text-sm text-gray-600 mb-2 block">Cor do Título</label>
                                             <div className="flex flex-wrap gap-2">
                                                 <button
                                                     onClick={() => handleTextUpdate(text.id, {
@@ -269,7 +264,7 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                                     }`}
                                                     title="Branco"
                                                 />
-                                                {Object.entries(selectedPalette).map(([key, color]) => (
+                                                {Object.entries(headerData.palettes[headerData.colorPalette] || {}).map(([key, color]) => (
                                                     <button
                                                         key={key}
                                                         onClick={() => handleTextUpdate(text.id, {
@@ -284,12 +279,51 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                                                 ))}
                                             </div>
                                         </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600 mb-2 block">Cor do Conteúdo</label>
+                                            <div className="flex flex-wrap gap-2">
+                                                <button
+                                                    onClick={() => handleTextUpdate(text.id, {
+                                                        style: { ...text.style, contentColor: '#ffffff' }
+                                                    })}
+                                                    className={`w-8 h-8 rounded-full bg-white border border-gray-300 transition-all ${
+                                                        text.style?.contentColor === '#ffffff' ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-105'
+                                                    }`}
+                                                    title="Branco"
+                                                />
+                                                {Object.entries(headerData.palettes[headerData.colorPalette] || {}).map(([key, color]) => (
+                                                    <button
+                                                        key={key}
+                                                        onClick={() => handleTextUpdate(text.id, {
+                                                            style: { ...text.style, contentColor: color }
+                                                        })}
+                                                        className={`w-8 h-8 rounded-full transition-all ${
+                                                            text.style?.contentColor === color ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-105'
+                                                        }`}
+                                                        style={{ backgroundColor: color }}
+                                                        title={`Cor ${key}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+
+                <BackgroundImageControls 
+                    background={headerData.background}
+                    onUpdate={(updates) => dispatch(setHeaderBackground(updates))}
+                    color={headerData.color}
+                />
+
+                <CarouselControls
+                    carousel={headerData.carousel}
+                    onUpdate={handleCarouselUpdate}
+                    onToggle={(enabled) => dispatch(toggleCarousel(enabled))}
+                />
 
                 <div className="mb-4">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -301,38 +335,15 @@ function HeaderControls({ template, updateHeader, selectedHeaderModel, setSelect
                             type="range"
                             min="0"
                             max="100"
-                            value={template.header.elementsOpacity || 100}
+                            value={headerData.elementsOpacity}
                             onChange={(e) => handleElementsOpacityChange(parseInt(e.target.value))}
                             className="w-full accent-blue-500"
                         />
                         <span className="text-sm text-gray-500 w-16 text-right">
-                            {template.header.elementsOpacity || 100}%
+                            {headerData.elementsOpacity}%
                         </span>
                     </div>
                 </div>
-
-                <CarouselControls
-                    carousel={template.header.carousel || {
-                        enabled: false,
-                        title: "Produtos em Destaque",
-                        size: {
-                            width: "600px",
-                            height: "400px"
-                        },
-                        itemsToShow: 4,
-                        speed: 3000,
-                        position: {
-                            top: '60%',
-                            left: '10%'
-                        }
-                    }}
-                    onUpdate={handleCarouselUpdate}
-                />
-
-                <BackgroundImageControls 
-                    template={template}
-                    updateHeader={updateHeader}
-                />
             </div>
         </div>
     );

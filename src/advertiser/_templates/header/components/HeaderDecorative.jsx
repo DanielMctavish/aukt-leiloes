@@ -1,6 +1,9 @@
 /* eslint-disable react/prop-types */
+import { useSelector } from 'react-redux';
 
-function HeaderDecorative({ model, getDecorativeElementStyle }) {
+function HeaderDecorative({ getDecorativeElementStyle }) {
+    const { headerData } = useSelector(state => state.header);
+
     const decorativeElements = {
         MODEL_1: () => (
             <div className="absolute inset-0 z-10">
@@ -133,7 +136,7 @@ function HeaderDecorative({ model, getDecorativeElementStyle }) {
         MODEL_8: () => null // Modelo sem elementos decorativos
     };
 
-    const RenderDecorative = decorativeElements[model];
+    const RenderDecorative = decorativeElements[headerData.model];
     return RenderDecorative ? <RenderDecorative /> : null;
 }
 

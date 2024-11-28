@@ -1,130 +1,128 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { Facebook, Twitter, Instagram, LinkedIn } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import {
+    Facebook,
+    Instagram,
+    LinkedIn,
+    Twitter,
+    YouTube,
+    WhatsApp,
+    MusicNote
+} from "@mui/icons-material";
 
-function FooterTemplate({ getSizeClass, template }) {
-    const [footer, setFooter] = useState(null);
-    const { advertiser_id } = useParams();
+// Mapeamento de ícones para cada tipo de rede social
+const SOCIAL_ICONS = {
+    facebook: <Facebook />,
+    instagram: <Instagram />,
+    twitter: <Twitter />,
+    linkedin: <LinkedIn />,
+    youtube: <YouTube />,
+    tiktok: <MusicNote />,
+    whatsapp: <WhatsApp />
+};
 
-    useEffect(() => {
-        const fetchFooterData = async () => {
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/template/find`, {
-                    params: { advertiserId: advertiser_id }
-                });
+function FooterTemplate() {
+    const { footerData } = useSelector(state => state.footer);
+    const { headerData } = useSelector(state => state.header);
 
-                if (response.data && response.data[0]) {
-                    const templateData = response.data[0];
-                    setFooter(templateData.footer);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar dados do footer:", error);
-            }
-        };
-
-        if (advertiser_id) {
-            fetchFooterData();
+    // Função para determinar a altura e padding baseado no tamanho selecionado
+    const getFooterStyles = () => {
+        switch (footerData.size) {
+            case 'SMALL':
+                return {
+                    height: 'min-h-[30vh]',
+                    mainPadding: 'py-4',
+                };
+            case 'MEDIUM':
+                return {
+                    height: 'min-h-[60vh]',
+                    mainPadding: 'py-8',
+                };
+            case 'LARGE':
+                return {
+                    height: 'min-h-[100vh]',
+                    mainPadding: 'py-16',
+                };
+            default:
+                return {
+                    height: 'min-h-[60vh]',
+                    mainPadding: 'py-8',
+                };
         }
-    }, [advertiser_id]);
+    }
 
-    const formatUrl = (url) => {
-        if (!url) return '#';
-        if (url === '#') return url;
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            return `https://${url}`;
+    const styles = getFooterStyles();
+
+    // Função para dividir as seções em grupos de 4 (melhor distribuição)
+    const getSectionRows = () => {
+        const rows = [];
+        const sections = footerData.sections || [];
+        for (let i = 0; i < sections.length; i += 4) {
+            rows.push(sections.slice(i, i + 4));
         }
-        return url;
-    };
-
-    // Use footer do backend ou template.footer para edição
-    const currentFooter = footer || template.footer;
+        return rows;
+    }
 
     return (
         <footer
-            className={`w-full ${getSizeClass(currentFooter.sizeType)} flex flex-col justify-between`}
+            className={`w-full ${styles.height} flex flex-col justify-between transition-all`}
             style={{
-                backgroundColor: currentFooter.color,
-                color: currentFooter.textColor
+                backgroundColor: footerData.color,
+                fontFamily: headerData.fontStyle,
+                color: footerData.textColor,
+                opacity: footerData.elementsOpacity / 100
             }}
         >
-            {/* Seção Principal */}
-            <div className="container mx-auto px-6 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {/* Seções Dinâmicas */}
-                    {currentFooter.sections && Object.entries(currentFooter.sections).map(([key, section]) => (
-                        <div key={key} className="space-y-4">
-                            <h3 className="text-lg font-bold uppercase tracking-wider mb-6 pb-2 relative"
-                                style={{
-                                    borderColor: currentFooter.borderColor,
-                                }}
-                            >
-                                {section.title}
-                                <span
-                                    className="absolute bottom-0 left-0 w-12 h-0.5 transition-all duration-300"
-                                    style={{ backgroundColor: currentFooter.borderColor }}
-                                ></span>
-                            </h3>
-                            <div className="flex flex-col space-y-3">
-                                {section.links?.map((link, linkIndex) => (
-                                    <a
-                                        key={linkIndex}
-                                        href={formatUrl(link.url)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group flex items-center hover:translate-x-2 transition-all duration-300"
-                                    >
-                                        <span
-                                            className="w-1.5 h-1.5 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                                            style={{ backgroundColor: currentFooter.textColor }}
-                                        ></span>
-                                        <span className="hover:opacity-80 transition-opacity">
-                                            {link.label}
-                                        </span>
-                                    </a>
+            {/* Seções do Footer */}
+            <div className={`w-full ${styles.mainPadding}`}>
+                <div className="container mx-auto px-4 md:px-6">
+                    {/* Organiza as seções em linhas */}
+                    <div className="flex flex-col gap-8 md:gap-12">
+                        {getSectionRows().map((row, rowIndex) => (
+                            <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {row.map((section, index) => (
+                                    <div key={index} className="flex flex-col gap-4">
+                                        <h3 className="text-lg font-semibold text-center md:text-left">
+                                            {section.title}
+                                        </h3>
+                                        <div className="flex flex-col gap-2">
+                                            {section.links.map((link, linkIndex) => (
+                                                <a
+                                                    key={linkIndex}
+                                                    href={link.url}
+                                                    className="hover:opacity-80 transition-opacity text-center md:text-left"
+                                                    style={{ color: footerData.textColor }}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {link.name}
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
-                    {/* Conecte-se e Newsletter */}
-                    {currentFooter.showSocialLinks && (
-                        <div className="space-y-6">
-                            <h3 className="text-lg font-bold uppercase tracking-wider mb-6 pb-2 relative"
-                                style={{ borderColor: currentFooter.borderColor }}
-                            >
-                                Conecte-se
-                                <span
-                                    className="absolute bottom-0 left-0 w-12 h-0.5 transition-all duration-300"
-                                    style={{ backgroundColor: currentFooter.borderColor }}
-                                ></span>
-                            </h3>
-
-                            {/* Redes Sociais */}
-                            <div className="flex space-x-4 mt-6">
-                                {Object.entries(currentFooter.socialLinks).map(([platform, url]) => (
-                                    url && (
-                                        <a
-                                            key={platform}
-                                            href={formatUrl(url)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="transform hover:scale-110 transition-all duration-300"
-                                        >
-                                            <div
-                                                className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-all duration-300"
-                                                style={{ backgroundColor: currentFooter.borderColor }}
-                                            >
-                                                {platform === 'facebook' && <Facebook className="text-xl" style={{ color: currentFooter.color }} />}
-                                                {platform === 'twitter' && <Twitter className="text-xl" style={{ color: currentFooter.color }} />}
-                                                {platform === 'instagram' && <Instagram className="text-xl" style={{ color: currentFooter.color }} />}
-                                                {platform === 'linkedin' && <LinkedIn className="text-xl" style={{ color: currentFooter.color }} />}
-                                            </div>
-                                        </a>
-                                    )
-                                ))}
-                            </div>
+                    {/* Redes Sociais */}
+                    {footerData.socialMedia?.length > 0 && (
+                        <div
+                            className="flex justify-center gap-6 mt-8 pt-8"
+                            style={{ borderTop: `1px solid ${footerData.borderColor}` }}
+                        >
+                            {footerData.socialMedia.map((social, index) => (
+                                <a
+                                    key={index}
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-2xl hover:opacity-80 transition-opacity"
+                                    style={{ color: footerData.textColor }}
+                                >
+                                    {SOCIAL_ICONS[social.type]}
+                                </a>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -133,10 +131,13 @@ function FooterTemplate({ getSizeClass, template }) {
             {/* Copyright */}
             <div
                 className="w-full py-4"
-                style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
+                style={{
+                    backgroundColor: footerData.borderColor,
+                    color: footerData.textColor
+                }}
             >
-                <div className="container mx-auto px-6 text-center text-sm">
-                    <p>© {new Date().getFullYear()} {currentFooter.companyName}. Todos os direitos reservados.</p>
+                <div className="container mx-auto px-4 md:px-6 text-center text-sm">
+                    <p>© {new Date().getFullYear()}. Todos os direitos reservados | {footerData.companyName || 'Empresa'}.</p>
                 </div>
             </div>
         </footer>

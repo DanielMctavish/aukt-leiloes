@@ -1,11 +1,13 @@
-import React from 'react';
+import { useSelector } from 'react-redux';
 
-function HeaderBackground({ backgroundImage, getBackgroundImageStyle }) {
-    if (!backgroundImage) return null;
+function HeaderBackground({ getBackgroundImageStyle }) {
+    const { headerData } = useSelector(state => state.header);
+    
+    if (!headerData.background?.image) return null;
     
     return (
         <div
-            key={backgroundImage}
+            key={headerData.background.image}
             className="absolute inset-0 z-0"
             style={getBackgroundImageStyle()}
         />

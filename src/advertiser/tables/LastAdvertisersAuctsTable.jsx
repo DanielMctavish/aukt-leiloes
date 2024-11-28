@@ -1,44 +1,62 @@
-import {ArrowDropDown} from "@mui/icons-material"
+import { ArrowDropDown } from "@mui/icons-material"
 import TbodyAdvertisersLastAucts from "./tbody/TbodyAdvertisersLastAucts";
 
 function LastAdvertisersAuctsTable() {
   return (
-    <table className="w-full bg-[#ffffff] overflow-hidden rounded-[12px]">
-      <thead>
-        <tr className="border-b-[.4px] border-zinc-300 bg-[#012038] text-white">
-          <th className="px-6 py-3 text-left font-semibold">
-            Nº
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            ID - Leilão
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            título
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            lotes quant.
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            lotes com lance
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            lotes sem lance
-            <ArrowDropDown  />
-          </th>
-          <th className="px-6 py-3 text-left font-semibold">
-            Avaliação
-            <ArrowDropDown  />
-          </th>
-        </tr>
-      </thead>
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-[#012038] text-white">
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Nº
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  ID - Leilão
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Título
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Lotes Quant.
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Com Lance
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Sem Lance
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left font-medium text-sm tracking-wider whitespace-nowrap">
+                <div className="flex items-center gap-1 hover:text-blue-200 transition-colors cursor-pointer">
+                  Avaliação
+                  <ArrowDropDown className="text-blue-300" />
+                </div>
+              </th>
+            </tr>
+          </thead>
 
-      <TbodyAdvertisersLastAucts />
-    </table>
+          <TbodyAdvertisersLastAucts />
+        </table>
+      </div>
+    </div>
   );
 }
 
