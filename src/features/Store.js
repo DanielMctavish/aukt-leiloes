@@ -17,6 +17,9 @@ import { controlButtonsReducer } from './auct/controlButtonsSlice';
 import { auctionListReducer } from './auct/AuctionListSlice';
 import { currentProductReducer } from './auct/CurrentProductSlice';
 import generalAUKReducer from './auct/generalAUKSlice';
+import { footerReducer } from './template/FooterSlice';
+import { headerReducer } from './template/HeaderSlice';
+import { sectionsReducer } from './template/SectionsSlice';
 
 const store = configureStore({
     reducer: {
@@ -37,7 +40,10 @@ const store = configureStore({
         controlButtons: controlButtonsReducer,
         auctionList: auctionListReducer,
         currentProduct: currentProductReducer,
-        generalAUK: generalAUKReducer
+        generalAUK: generalAUKReducer,
+        footer: footerReducer,
+        header: headerReducer,
+        sections: sectionsReducer,
     }
 })
 

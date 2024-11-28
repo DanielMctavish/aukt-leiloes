@@ -1,47 +1,44 @@
 /* eslint-disable react/prop-types */
-import { constructorModels } from '../../../advertiser/_templates/templateData/templateModels';
+import { useSelector } from 'react-redux';
 
-function HeaderModel3({ header }) {
-  const model = constructorModels.model_01;
-  const colorScheme = header?.colorPalette?.toLowerCase() || 'clean';
+function HeaderModel3() {
+    const { headerData } = useSelector(state => state.header);
+    const colorScheme = headerData.colorPalette || 'clean';
 
-  const getElementStyle = (elementId) => {
-    const element = model.elements.find(el => el.id === elementId);
-    if (!element || !element[colorScheme]) return {};
+    const getElementStyle = (elementId) => {
+        const element = headerData.elements[elementId];
+        if (!element || !element[colorScheme]) return {};
 
-    const { saturation, lightness } = element[colorScheme];
-
-    return {
-      backgroundColor: header?.color || '#000000',
-      opacity: header?.elementsOpacity ?? 1,
-      filter: `saturate(${saturation}%) brightness(${lightness}%)`
+        return {
+            backgroundColor: headerData.color || '#000000',
+            opacity: headerData.elementsOpacity / 100
+        };
     };
-  };
 
-  return (
-    <div className="absolute inset-0 z-10">
-      <div className="flex flex-col justify-between h-full">
-        <div className="flex w-full h-[5vh] mt-[2vh]">
-          {model.elements.slice(0, 6).map((element) => (
-            <div 
-              key={element.id}
-              className="flex-1 mx-[0.5vh]"
-              style={getElementStyle(element.id)}
-            />
-          ))}
+    return (
+        <div className="absolute inset-0 z-10">
+            <div className="flex flex-col justify-between h-full">
+                <div className="flex w-full h-[5vh] mt-[2vh]">
+                    {Object.keys(headerData.elements).slice(0, 6).map((elementId) => (
+                        <div 
+                            key={elementId}
+                            className="flex-1 mx-[0.5vh]"
+                            style={getElementStyle(elementId)}
+                        />
+                    ))}
+                </div>
+                <div className="flex w-full h-[5vh] mb-[2vh]">
+                    {Object.keys(headerData.elements).slice(0, 6).map((elementId) => (
+                        <div 
+                            key={`bottom-${elementId}`}
+                            className="flex-1 mx-[0.5vh]"
+                            style={getElementStyle(elementId)}
+                        />
+                    ))}
+                </div>
+            </div>
         </div>
-        <div className="flex w-full h-[5vh] mb-[2vh]">
-          {model.elements.slice(0, 6).map((element) => (
-            <div 
-              key={`bottom-${element.id}`}
-              className="flex-1 mx-[0.5vh]"
-              style={getElementStyle(element.id)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default HeaderModel3; 

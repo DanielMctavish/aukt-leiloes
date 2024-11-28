@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Opacity } from '@mui/icons-material';
 
-function HeaderModelSelector({ selectedHeaderModel, setSelectedHeaderModel, template, updateHeader }) {
+function HeaderModelSelector({ selectedModel, onModelChange, color, elementsOpacity, onOpacityChange }) {
     const handleModelSelect = (model) => {
-        console.log('Modelo selecionado:', model); // Debug
-        setSelectedHeaderModel(model); // Esta função já formata para MODEL_X
+        onModelChange(model);
     };
 
     return (
@@ -16,7 +15,7 @@ function HeaderModelSelector({ selectedHeaderModel, setSelectedHeaderModel, temp
                     <button
                         key={model}
                         className={`p-2 rounded h-24 overflow-hidden relative ${
-                            selectedHeaderModel === model
+                            selectedModel === `MODEL_${model}`
                                 ? 'ring-2 ring-blue-500'
                                 : 'hover:bg-gray-100'
                         }`}
@@ -110,12 +109,12 @@ function HeaderModelSelector({ selectedHeaderModel, setSelectedHeaderModel, temp
                         type="range"
                         min="0"
                         max="100"
-                        value={template.header.elementsOpacity || 100}
-                        onChange={(e) => updateHeader('elementsOpacity', parseInt(e.target.value))}
+                        value={elementsOpacity}
+                        onChange={(e) => onOpacityChange(parseInt(e.target.value))}
                         className="w-full accent-blue-500"
                     />
                     <span className="text-sm text-gray-500 w-16 text-right">
-                        {template.header.elementsOpacity || 100}%
+                        {elementsOpacity}%
                     </span>
                 </div>
             </div>

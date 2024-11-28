@@ -14,7 +14,7 @@ import bgMoveis from '../../../media/backgrounds/templates/BACKGROUND-MOVEIS.jpg
 import bgRelogios from '../../../media/backgrounds/templates/BACKGROUND-RELOGIOS.jpg';
 import bgVideoGames from '../../../media/backgrounds/templates/BACKGROUND-VIDEO-GAMES.jpg';
 
-function BackgroundImageControls({ template, updateHeader }) {
+function BackgroundImageControls({ background, onUpdate }) {
     const [advertiser, setAdvertiser] = useState(null);
     const { advertiser_id } = useParams();
 
@@ -47,13 +47,12 @@ function BackgroundImageControls({ template, updateHeader }) {
     ];
 
     const handleBackgroundChange = (url) => {
-        // Limpa o background atual antes de definir o novo
-        updateHeader('backgroundImage', null);
-        
-        // Pequeno timeout para garantir que a limpeza seja processada
-        setTimeout(() => {
-            updateHeader('backgroundImage', url);
-        }, 50);
+        onUpdate({
+            image: url,
+            opacity: background?.opacity || 30,
+            blur: background?.blur || 2,
+            brightness: background?.brightness || 100
+        });
     };
 
     return (
@@ -69,7 +68,7 @@ function BackgroundImageControls({ template, updateHeader }) {
                         key={bg.id}
                         onClick={() => handleBackgroundChange(bg.url)}
                         className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
-                            template.header.backgroundImage === bg.url
+                            background?.image === bg.url
                                 ? 'border-blue-500 scale-105 shadow-lg'
                                 : 'border-gray-200 hover:border-blue-200'
                         }`}
@@ -93,7 +92,7 @@ function BackgroundImageControls({ template, updateHeader }) {
                 ))}
             </div>
 
-            {template.header.backgroundImage && (
+            {background?.image && (
                 <div className="space-y-4">
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -104,8 +103,11 @@ function BackgroundImageControls({ template, updateHeader }) {
                             type="range"
                             min="0"
                             max="100"
-                            value={template.header.backgroundImageOpacity}
-                            onChange={(e) => updateHeader('backgroundImageOpacity', parseInt(e.target.value))}
+                            value={background.opacity}
+                            onChange={(e) => onUpdate({
+                                ...background,
+                                opacity: parseInt(e.target.value)
+                            })}
                             className="w-full accent-blue-500"
                         />
                     </div>
@@ -119,8 +121,11 @@ function BackgroundImageControls({ template, updateHeader }) {
                             type="range"
                             min="0"
                             max="10"
-                            value={template.header.backgroundImageBlur}
-                            onChange={(e) => updateHeader('backgroundImageBlur', parseInt(e.target.value))}
+                            value={background.blur}
+                            onChange={(e) => onUpdate({
+                                ...background,
+                                blur: parseInt(e.target.value)
+                            })}
                             className="w-full accent-blue-500"
                         />
                     </div>
@@ -134,8 +139,11 @@ function BackgroundImageControls({ template, updateHeader }) {
                             type="range"
                             min="0"
                             max="200"
-                            value={template.header.backgroundImageBrightness}
-                            onChange={(e) => updateHeader('backgroundImageBrightness', parseInt(e.target.value))}
+                            value={background.brightness}
+                            onChange={(e) => onUpdate({
+                                ...background,
+                                brightness: parseInt(e.target.value)
+                            })}
                             className="w-full accent-blue-500"
                         />
                     </div>

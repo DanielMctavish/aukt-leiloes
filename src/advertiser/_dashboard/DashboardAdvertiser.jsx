@@ -60,13 +60,15 @@ export const DashboardAdvertiser = () => {
                     <AuctionSelection />
                 </section>
 
-                <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-center lg:gap-2 md:mt-0 mt-3 p-2 gap-1">
+                <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-stretch gap-4 p-4">
                     {/* Gráfico */}
-                    <div className="lg:w-[58%] w-full h-[40vh] bg-[#fff] rounded-md shadow-lg shadow-[#17171722]">
+                    <div className="lg:w-1/2 w-full h-[400px]">
                         <PanelGraph />
                     </div>
                     {/* Círculo de estatística */}
-                    <CircleStatisticDisplay />
+                    <div className="lg:w-1/2 w-full h-[400px]">
+                        <CircleStatisticDisplay />
+                    </div>
                 </section>
 
                 <section className="w-full p-3">
