@@ -1,24 +1,11 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { setFiles } from "../functions/MiddlewareTransferFile"
 
-function UploadProfileFile() {
+function UploadProfileFile({ currentAdvertiser }) {
     const [profilePicture, setProfilePicture] = useState()
-
-    //UPLOAD FILES OPERATIONS................................................................
-    const handleDragOver = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        refLabelZoneArea.current.style.border = "2px dashed red";
-    };
-
-    const handleDragLeave = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        refLabelZoneArea.current.style.border = "3px dashed #13384d";
-    };
-
     const refLabelZoneArea = useRef()
 
     const onDrop = useCallback((acceptedFiles) => {
@@ -36,28 +23,55 @@ function UploadProfileFile() {
         }
     });
 
-    useEffect(() => {}, [profilePicture])
-
     const { getRootProps, getInputProps, isDragActive } = dropzone;
 
     return (
-        <>
-            {!profilePicture ?
+        <div className="relative group">
+            <div {...getRootProps()}
+                ref={refLabelZoneArea}
+                className={`
+                    w-[100px] h-[100px] md:w-[90px] md:h-[90px] rounded-full overflow-hidden
+                    flex items-center justify-center
+                    ${!profilePicture && !currentAdvertiser?.url_profile_cover ? 'border-3 border-dashed border-[#012038]' : ''}
+                    transition-all duration-300
+                    group-hover:ring-4 group-hover:ring-[#012038]/20
+                    bg-white shadow-xl
+                `}
+            >
+                {profilePicture ? (
+                    <img 
+                        src={URL.createObjectURL(profilePicture)} 
+                        className="w-full h-full object-cover"
+                        alt="New Profile"
+                    />
+                ) : currentAdvertiser?.url_profile_cover ? (
+                    <img 
+                        src={currentAdvertiser.url_profile_cover}
+                        className="w-full h-full object-cover"
+                        alt="Current Profile"
+                    />
+                ) : (
+                    <div className="text-center p-4">
+                        <div className="text-[#012038] text-sm font-medium">
+                            {isDragActive ? 'Solte a imagem' : 'Foto do Perfil'}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Arraste ou clique
+                        </p>
+                    </div>
+                )}
 
-                <div {...getRootProps({ className: "dropzone" })}
-                    ref={refLabelZoneArea}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    className="w-[140px] h-[140px] flex justify-center items-center border-[3px] border-[#13384d] 
-                 hover:bg-[#13384d16] text-white text-[10px] rounded-full border-dashed text-center">
-                    {isDragActive ? (<h2>solte o arquivo</h2>) : (<h2>arraste e solte a foto do perfil</h2>)}
+                {/* Overlay hover */}
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center 
+                    opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <span className="text-white text-sm">
+                        {currentAdvertiser?.url_profile_cover ? 'Alterar foto' : 'Adicionar foto'}
+                    </span>
                 </div>
-                : <img src={URL.createObjectURL(profilePicture)} className=" w-[140px] h-[140px] object-cover rounded-full border-[3px] border-white" />
-            }
+            </div>
 
-            <input onChange={() => { }} {...getInputProps()} type="file" className="hidden" />
-
-        </>
+            <input {...getInputProps()} className="hidden" />
+        </div>
     )
 }
 

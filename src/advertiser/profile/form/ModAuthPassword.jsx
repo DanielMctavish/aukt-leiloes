@@ -31,23 +31,52 @@ function ModAuthPassword({ authorization, set, setPassword, setConfirmPassword, 
         }
     }
 
-    if (!authorization) {
-        return null;
-    }
+    if (!authorization) return null;
 
     return (
-        <div ref={refMod} className="flex flex-col justify-center items-center w-[400px] h-[240px] bg-white shadow-lg shadow-[#0e0e0e64] absolute z-30 rounded-md gap-3">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl w-[400px] p-6 transform transition-all">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                        <Shield className="text-[#012038] text-2xl" />
+                        <h2 className="text-xl font-semibold text-[#012038]">
+                            Verificação de Segurança
+                        </h2>
+                    </div>
+                    <button 
+                        onClick={() => set(false)}
+                        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                        <CloseRounded />
+                    </button>
+                </div>
 
-            <span onClick={handleCloseModal} className="absolute top-1 right-1 cursor-pointer">
-                <CloseRounded />
-            </span>
-            <div className="flex w-[80%] justify-between items-center">
-                <Shield />
-                <span>Verificação de segurança</span>
+                {/* Form */}
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Digite sua senha atual
+                        </label>
+                        <input 
+                            type="password" 
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                                focus:ring-[#012038] outline-none transition-all"
+                            placeholder="••••••••"
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleSubmitLogin}
+                        className="w-full py-3 bg-[#012038] text-white rounded-lg hover:bg-[#012038]/90 
+                            transition-colors flex items-center justify-center gap-2"
+                    >
+                        <Shield className="text-sm" />
+                        Autorizar
+                    </button>
+                </div>
             </div>
-            <input type="password" onChange={(e) => setCurrentPassword(e.target.value)} placeholder="digite sua senha" className=" w-[80%] p-2 text-white rounded-md" />
-            <button onClick={handleSubmitLogin}>autorizar</button>
-
         </div>
     )
 }

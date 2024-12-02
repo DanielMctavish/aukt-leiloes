@@ -1,17 +1,28 @@
 /* eslint-disable react/prop-types */
 import { useSelector } from 'react-redux';
 
-function HeaderModel3() {
+function HeaderModel3({ color, elementsOpacity }) {
     const { headerData } = useSelector(state => state.header);
-    const colorScheme = headerData.colorPalette || 'clean';
 
     const getElementStyle = (elementId) => {
-        const element = headerData.elements[elementId];
-        if (!element || !element[colorScheme]) return {};
+        if (!elementId) {
+            return {
+                backgroundColor: color,
+                opacity: elementsOpacity / 100
+            };
+        }
+
+        const element = headerData.elements?.[elementId];
+        const elementConfig = element?.[headerData.colorPalette];
+
+        if (!elementConfig) return {
+            backgroundColor: color,
+            opacity: elementsOpacity 
+        };
 
         return {
-            backgroundColor: headerData.color || '#000000',
-            opacity: headerData.elementsOpacity / 100
+            backgroundColor: color,
+            opacity: elementsOpacity 
         };
     };
 
@@ -19,21 +30,21 @@ function HeaderModel3() {
         <div className="absolute inset-0 z-10">
             <div className="flex flex-col justify-between h-full">
                 <div className="flex w-full h-[5vh] mt-[2vh]">
-                    {Object.keys(headerData.elements).slice(0, 6).map((elementId) => (
+                    {[...Array(12)].map((_, index) => (
                         <div 
-                            key={elementId}
-                            className="flex-1 mx-[0.5vh]"
-                            style={getElementStyle(elementId)}
-                        />
+                            key={`top-${index}`} 
+                            className="flex-1 mx-[0.5vh]" 
+                            style={getElementStyle(`element_${(index % 6) + 1}`)}
+                        ></div>
                     ))}
                 </div>
                 <div className="flex w-full h-[5vh] mb-[2vh]">
-                    {Object.keys(headerData.elements).slice(0, 6).map((elementId) => (
+                    {[...Array(12)].map((_, index) => (
                         <div 
-                            key={`bottom-${elementId}`}
-                            className="flex-1 mx-[0.5vh]"
-                            style={getElementStyle(elementId)}
-                        />
+                            key={`bottom-${index}`} 
+                            className="flex-1 mx-[0.5vh]" 
+                            style={getElementStyle(`element_${(index % 6) + 1}`)}
+                        ></div>
                     ))}
                 </div>
             </div>

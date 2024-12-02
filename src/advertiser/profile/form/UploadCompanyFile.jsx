@@ -42,30 +42,49 @@ function UploadCompanyFile({ currentAdvertiser }) {
     const { getRootProps, getInputProps, isDragActive } = dropzone;
 
     return (
-        <>
-            {!profileCompany ?
+        <div className="relative group">
+            <div {...getRootProps()}
+                ref={refLabelZoneArea}
+                className={`
+                    w-24 h-24 rounded-lg overflow-hidden
+                    flex items-center justify-center bg-white/10 backdrop-blur-sm
+                    ${!profileCompany ? 'border-2 border-dashed border-white' : ''}
+                    transition-all duration-300
+                    group-hover:ring-4 group-hover:ring-white/20
+                `}
+            >
+                {profileCompany ? (
+                    <img 
+                        src={URL.createObjectURL(profileCompany)} 
+                        className="w-full h-full object-cover"
+                        alt="Company Logo"
+                    />
+                ) : currentAdvertiser?.url_profile_company_logo_cover ? (
+                    <img 
+                        src={currentAdvertiser.url_profile_company_logo_cover}
+                        className="w-full h-full object-cover"
+                        alt="Current Company Logo"
+                    />
+                ) : (
+                    <div className="text-center p-2">
+                        <div className="text-white text-xs font-medium">
+                            {isDragActive ? 'Solte a logo' : 'Logo da Empresa'}
+                        </div>
+                    </div>
+                )}
 
-                <div {...getRootProps({ className: "dropzone" })}
-                    ref={refLabelZoneArea}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    className="w-[220px] h-[220px] flex justify-center items-center border-[3px] border-[#13384d] 
-                    hover:bg-[#13384d16] rounded-full border-dashed text-white text-[10px]">
-                    {isDragActive ? (<h2>solte o arquivo</h2>) : (<h2 className="text-center">arraste e solte a foto da empresa</h2>)}
-                </div> :
-                <img src={URL.createObjectURL(profileCompany)} className="object-cover w-[220px] h-[220px] rounded-full" />
+                {/* Overlay hover */}
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center 
+                    opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs">
+                        Alterar logo
+                    </span>
+                </div>
+            </div>
 
-            }
-
-            {
-                currentAdvertiser.url_profile_company_logo_cover &&
-                <img src={currentAdvertiser.url_profile_company_logo_cover} 
-                className="object-cover w-[80px] h-[80px] rounded-full absolute top-1 left-2 bg-white border-[3px] border-zinc-600" />
-            }
-
-            <input onChange={() => { }} {...getInputProps()} type="file" className="hidden" />
-        </>
-    )
+            <input {...getInputProps()} className="hidden" />
+        </div>
+    );
 }
 
 export default UploadCompanyFile;

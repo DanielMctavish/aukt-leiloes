@@ -1,18 +1,45 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { ArrowDropDown } from "@mui/icons-material";
+import { ArrowDropDown, Logout, Person } from "@mui/icons-material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import WarningIcon from "@mui/icons-material/Warning";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
 import "../styles/AdvertiserStyle.css"
 
 function NavAdvertiser({ path }) {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({});
+  const [contextMenu, setContextMenu] = useState(false);
+  const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAdvertiserInformations(setAdvertiserInfor);
   }, []);
+
+  useEffect(() => {
+    // Fechar menu ao clicar fora
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setContextMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleContextMenu = () => {
+    setContextMenu(!contextMenu);
+  };
+
+  const handleLogout = () => {
+    // Limpar o localStorage
+    localStorage.removeItem('advertiser-session-aukt');
+    // Redirecionar para a página de login
+    navigate('/');
+  };
 
   return (
     <nav className={`
@@ -78,19 +105,62 @@ function NavAdvertiser({ path }) {
           <span>
             <NotificationsIcon />
           </span>
-          <img
-            src={AdvertiserInfor.url_profile_cover}
-            alt="foto-perfil"
-            className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
-          />
-          <span className="font-semibold text-[18px] lg:flex hidden">
-            {AdvertiserInfor.name}
-          </span>
-          <span className="lg:flex hidden">
-            <ArrowDropDown />
-          </span>
+          <div className="relative" ref={menuRef}>
+            <div 
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              onClick={handleContextMenu}
+            >
+              <img
+                src={AdvertiserInfor.url_profile_cover}
+                alt="foto-perfil"
+                className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
+              />
+              <span className="font-semibold text-[18px] lg:flex hidden">
+                {AdvertiserInfor.name}
+              </span>
+              <ArrowDropDown className={`transition-transform duration-200 ${contextMenu ? 'rotate-180' : ''}`} />
+            </div>
+
+            {contextMenu && (
+              <div className="absolute right-0 top-full mt-2 w-[250px] bg-white rounded-lg shadow-lg py-2 z-50">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-900">{AdvertiserInfor.name}</p>
+                  <p className="text-sm text-gray-500">{AdvertiserInfor.email}</p>
+                </div>
+                
+                <div className="py-1">
+                  <button 
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    onClick={() => navigate('/advertiser/profile')}
+                  >
+                    <Person className="text-gray-400" />
+                    Perfil
+                  </button>
+                  
+                  {/* <button 
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    onClick={() => navigate('/advertiser/settings')}
+                  >
+                    <Settings className="text-gray-400" />
+                    Configurações
+                  </button> */}
+                </div>
+
+                <div className="border-t border-gray-100">
+                  <button 
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    onClick={handleLogout}
+                  >
+                    <Logout className="text-red-400" />
+                    Sair
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </section>
       </section>
+
     </nav>
   );
 }
