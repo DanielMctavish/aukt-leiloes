@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { Swiper, SwiperSlide } from 'swiper/react';
 import { WhatsApp } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { fetchTemplate } from '../../../features/template/SectionsSlice';

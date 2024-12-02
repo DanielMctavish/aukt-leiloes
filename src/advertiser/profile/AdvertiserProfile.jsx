@@ -1,28 +1,30 @@
-//import React, { useState } from "react";
 import NavAdvertiser from "../_navigation/NavAdvertiser";
 import AssideAdvertiser from "../_asside/AssideAdvertiser";
 import FormProfile from "./form/FormProfile";
 
-
-
 function AdvertiserProfile() {
-
-
   return (
-    <div
-      className="w-full lg:h-[100vh] h-auto 
-        bg-[#D8DEE8] text-zinc-600 overflow-x-hidden custom-scrollbar
-        flex lg:flex-row flex-col justify-start items-start"
-    >
-      <AssideAdvertiser MenuSelected="menu-9" />
-      <section className="w-full h-[100vh] flex flex-col justify-start items-center">
-        <NavAdvertiser />
+    <div className="w-full min-h-screen bg-gradient-to-br from-[#D8DEE8] to-[#e8edf4] text-zinc-600">
+      <div className="flex flex-col lg:flex-row min-h-screen">
+        {/* Sidebar */}
+        <AssideAdvertiser MenuSelected="menu-9" />
 
-        <section className="w-full h-full flex justify-center items-center gap-6  overflow-y-auto">
-          <FormProfile />
-        </section>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Navigation */}
+          <NavAdvertiser path="Perfil" />
 
-      </section>
+          {/* Content Area */}
+          <main className="flex-1 p-6 overflow-hidden">
+            <div className="max-w-7xl mx-auto">
+              <h1 className="text-3xl font-bold text-[#012038] mb-8">
+                Configurações do Perfil
+              </h1>
+              <FormProfile />
+            </div>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
