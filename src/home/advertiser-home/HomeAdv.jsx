@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { WhatsApp, Instagram, Facebook, YouTube, Twitter, LinkedIn, Language, MusicNote } from '@mui/icons-material';
 import {
     HeaderModel1, HeaderModel2, HeaderModel3, HeaderModel4,
@@ -9,6 +9,7 @@ import {
 } from "./decorations";
 import HeaderTexts from "./texts/HeaderTexts";
 import HeaderCarousel from "./carousels/HeaderCarousel";
+import HomeNav from './components/HomeNav';
 
 function HomeAdvertiser() {
     const [header, setHeader] = useState(null);
@@ -18,6 +19,7 @@ function HomeAdvertiser() {
     const [aucts, setAucts] = useState([]);
     const [selectedAuct, setSelectedAuct] = useState(null);
     const { advertiser_id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getSiteTemplate()
@@ -162,12 +164,26 @@ function HomeAdvertiser() {
                             gridTemplateColumns: `repeat(${window.innerWidth <= 830 ? 1 : section.config.itemsPerRow}, 1fr)`
                         }}>
                         {selectedAuct.product_list.map((product, idx) => (
-                            <div key={idx} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                <img
-                                    src={product.cover_img_url}
-                                    alt={product.title}
-                                    className="w-full h-48 object-cover"
-                                />
+                            <div 
+                                key={idx} 
+                                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer 
+                                    transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                                onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
+                            >
+                                <div className="relative">
+                                    <img
+                                        src={product.cover_img_url}
+                                        alt={product.title}
+                                        className="w-full h-48 object-cover"
+                                    />
+                                    {/* Overlay hover */}
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 
+                                        transition-opacity flex items-center justify-center">
+                                        <span className="text-white bg-black/50 px-4 py-2 rounded-full text-sm">
+                                            Ver detalhes
+                                        </span>
+                                    </div>
+                                </div>
                                 {section.config.showTitle && (
                                     <div className="p-4">
                                         <h3 className="font-bold">{product.title}</h3>
@@ -312,10 +328,13 @@ function HomeAdvertiser() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#fff] overflow-x-hidden"
+        <div className="w-full min-h-screen bg-[#fff] overflow-x-hidden relative"
             style={{ fontFamily: fontStyle }}>
+
+            <HomeNav sections={sections} />
+            
             <header
-                className={`w-full relative overflow-hidden
+                className={`w-full relative overflow-hidden mt-[8vh]
                     ${header?.sizeType === "FULL" && "h-[100vh]"} 
                     ${header?.sizeType === "MEDIUM" && "h-[50vh]"}
                     ${header?.sizeType === "SMALL" && "h-[25vh]"}`}
@@ -349,6 +368,7 @@ function HomeAdvertiser() {
                 return (
                     <section
                         key={index}
+                        data-section-type={sectionType}
                         className={`w-full flex items-center justify-center relative transition-colors duration-1000 ease-in-out`}
                         style={{
                             backgroundColor: section.color,
