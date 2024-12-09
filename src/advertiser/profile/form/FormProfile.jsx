@@ -86,16 +86,13 @@ function FormProfile() {
                 {/* Banner com Logo da Empresa */}
                 <div className="h-64 relative overflow-hidden flex justify-center items-center">
                     {/* Background Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#012038] via-[#012038]/90 to-[#012038] flex justify-center items-center" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#012038] 
+                    via-[#012038]/90 to-[#012038] flex justify-center items-center" />
 
                     {/* Logo da Empresa como Background */}
                     {currentAdvertiser.url_profile_company_logo_cover && (
-                        <div
-                            className="absolute inset-0 opacity-10 bg-center bg-no-repeat bg-contain"
-                            style={{
-                                backgroundImage: `url(${currentAdvertiser.url_profile_company_logo_cover})`
-                            }}
-                        />
+                        <img src={currentAdvertiser.url_profile_company_logo_cover}
+                            className="w-full object-cover opacity-40" />
                     )}
 
                     {/* Upload da Logo da Empresa */}
@@ -254,7 +251,7 @@ function FormProfile() {
                         <div className="pt-6 space-y-4">
                             <button
                                 onClick={async () => {
-                                    await getFiles().then(result => {
+                                    await getFiles().then(() => {
                                         handleEditAdvertiser(
                                             refsData,
                                             name,
@@ -265,8 +262,6 @@ function FormProfile() {
                                             setMessageDisplay,
                                             passData,
                                             setIsisEditing,
-                                            result[0],
-                                            result[1],
                                             currentAdvertiser
                                         );
                                     });

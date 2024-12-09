@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from 'react-router-dom';
-import { 
-    Person, Home, Collections, ContactPage, 
-    Gavel, Article 
+import {
+    Person, Home, Collections, ContactPage,
+    Gavel, Article
 } from '@mui/icons-material';
 import logo_aukt from '../../../media/logos/logos-auk/aukt_blue.png';
 
@@ -10,7 +10,7 @@ function HomeNav({ sections }) {
     const navigate = useNavigate();
 
     const getSectionInfo = (type) => {
-        switch(type.toLowerCase()) {
+        switch (type.toLowerCase()) {
             case 'gallery':
                 return {
                     icon: <Collections className="text-xl" />,
@@ -66,9 +66,9 @@ function HomeNav({ sections }) {
                 <div className="flex items-center justify-between h-full">
                     {/* Logo e Nome */}
                     <div className="flex items-center gap-3">
-                        <img 
+                        <img
                             src={logo_aukt}
-                            alt="AUK Logo" 
+                            alt="AUK Logo"
                             className="h-8"
                         />
                         <span className="text-[#012038] font-bold text-xl hidden md:block">
@@ -97,9 +97,9 @@ function HomeNav({ sections }) {
                     {/* Ações */}
                     <div className="flex items-center gap-4">
                         {/* Site Principal */}
-                        <a 
-                            href="https://aukt.com.br" 
-                            target="_blank" 
+                        <a
+                            href="https://aukt.com.br"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-gray-600 hover:text-[#012038] 
                                 transition-colors text-sm"
@@ -107,6 +107,13 @@ function HomeNav({ sections }) {
                             <Home className="text-xl" />
                             <span className="hidden md:block">AUKT</span>
                         </a>
+                        <button
+                            onClick={() => navigate('/floor/hub')}
+                            className="flex items-center gap-2 text-gray-600 hover:text-[#012038] 
+                            transition-colors text-sm"
+                        >
+                            <Gavel className="text-xl" />
+                        </button>
 
                         {/* Login Cliente */}
                         <button
