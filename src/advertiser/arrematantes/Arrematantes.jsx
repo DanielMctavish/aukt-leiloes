@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unreachable */
 import axios from "axios"
@@ -13,10 +14,10 @@ import avatar_05 from '../../media/avatar-floor/avatar_05.png'
 import avatar_06 from '../../media/avatar-floor/avatar_06.png'
 import avatar_07 from '../../media/avatar-floor/avatar_07.png'
 import avatar_08 from '../../media/avatar-floor/avatar_08.png'
-import ProductsGroupArrematantes from "./mod/ProductsGroupArrematantes";
-import LoadingModal from "./mod/LoadingModal"; // Import the LoadingModal
+import LoadingModal from "./mod/LoadingModal";
 import { useNavigate } from "react-router-dom";
-
+import CartelasToConfirm from './components/CartelasToConfirm';
+import CartelasConfirmadas from './components/CartelasConfirmadas';
 
 function Arrematantes() {
     const [isCreating, setIsCreating] = useState(false)
@@ -26,6 +27,9 @@ function Arrematantes() {
     const [ClientGroupData, setClientGroupData] = useState([]);
     const [showMod, setShowMod] = useState({});
     const [cartelas, setCartelas] = useState();
+    const [activeTab, setActiveTab] = useState('toConfirm');
+    const [trackingCodes, setTrackingCodes] = useState({});
+    const [updatingCartelas, setUpdatingCartelas] = useState({});
     const navigate = useNavigate()
 
     const avatares_pessoas = [
@@ -38,12 +42,6 @@ function Arrematantes() {
         avatar_07,
         avatar_08
     ];
-
-    // Adicione o estado para armazenar os códigos de rastreamento
-    const [trackingCodes, setTrackingCodes] = useState({});
-
-    // Adicione o estado para gerenciar o carregamento de atualizações por cartela
-    const [updatingCartelas, setUpdatingCartelas] = useState({});
 
     useEffect(() => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt');
@@ -103,7 +101,7 @@ function Arrematantes() {
                 params: {
                     auction_id:auction_id
                 },
-                headers: {
+                    headers: {
                     Authorization: `Bearer ${cookieSession.token}`
                 }
             });
@@ -117,7 +115,7 @@ function Arrematantes() {
 
     const handleAuctionSelect = async (auction_id) => {
         setSelectedAuction(auction_id);
-        fetchCartelas( auction_id);
+        fetchCartelas(auction_id);
     }
 
     const handleConfirmCard = async (advertiser_id, products, client_id, amount) => {
@@ -133,17 +131,17 @@ function Arrematantes() {
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/create-cartela`, {
                 advertiser_id: advertiser_id,
                 client_id: client_id,
-                auction_id: selectedAuction, // Ensure auction_id is being sent
+                auction_id: selectedAuction,
                 products: products,
                 amount: amount,
-                status: selectedCartelaStatus, // Ensure status is being sent
+                status: selectedCartelaStatus,
             }, {
                 headers: {
                     Authorization: `Bearer ${cookieSession.token}`
                 }
             }).then(() => {
                 setIsCreating(false)
-                fetchCartelas(advertiser_id, selectedAuction); // Refresh cartelas after creation
+                fetchCartelas(advertiser_id, selectedAuction);
             })
 
         } catch (error) {
@@ -151,11 +149,8 @@ function Arrematantes() {
         }
     }
 
-    const handleShowCurrentModal = (id, visibility) => {
-        setShowMod(prevState => ({ ...prevState, [id]: visibility }));
-    }
 
-    // {{ edit_2 }} Atualiza a função handleUpdateCartela para gerenciar o estado de loading por cartela
+
     const handleUpdateCartela = async (cartela_id) => {
         const cookieSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"));
 
@@ -192,180 +187,125 @@ function Arrematantes() {
 
     useEffect(() => {}, [cartelas])
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            const isOutsideModal = !event.target.closest('.product-modal-container');
+            const isOutsideTrigger = !event.target.closest('.product-count-trigger');
+            
+            if (isOutsideModal && isOutsideTrigger) {
+                setShowMod({});
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+   
+
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#efefef]">
-            <AssideAdvertiser MenuSelected="menu-5" />
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2 p-1">
-                <NavAdvertiser />
-                <div className="flex flex-col w-[80%] h-full bg-white p-2 overflow-y-auto gap-2">
+        <div className="w-full min-h-screen bg-[#D8DEE8] text-zinc-600">
+            <div className="flex flex-col lg:flex-row min-h-screen">
+                <AssideAdvertiser MenuSelected="menu-4" />
+                <div className="flex-1 flex flex-col">
+                    <NavAdvertiser path="Arrematantes" />
+                    
+                    <main className="flex-1 p-4">
+                        <div className="max-w-[1600px] mx-auto">
+                            {/* Header */}
+                            <div className="mb-6">
+                                <h1 className="text-2xl font-bold text-[#012038] mb-1">Arrematantes</h1>
+                                <p className="text-sm text-gray-500">Gerencie os arrematantes e suas cartelas</p>
+                            </div>
 
-                    <select onChange={(e) => handleAuctionSelect(e.target.value)}
-                        className="flex w-[300px] bg-white p-4 shadow-lg shadow-[#09090927] rounded-lg">
-                        <option value="selecione">selecione o leilão</option>
-                        {
-                            aucts.map(auct => (
-                                <option key={auct.id} value={auct.id}>{auct.title}</option>
-                            ))
-                        }
-                    </select>
+                            {/* Auction Selection */}
+                            <div className="mb-6">
+                                <label htmlFor="auction-select" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Selecione o Leilão
+                                </label>
+                                <select
+                                    id="auction-select"
+                                    onChange={(e) => handleAuctionSelect(e.target.value)}
+                                    value={selectedAuction}
+                                    className="w-full md:w-[300px] p-2 text-sm bg-white border border-gray-300 rounded-lg 
+                                        shadow-sm focus:border-[#012038] focus:ring-1 focus:ring-[#012038] outline-none"
+                                >
+                                    <option value="selecione">Selecione um leilão</option>
+                                    {aucts.map(auct => (
+                                        <option key={auct.id} value={auct.id}>{auct.title}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-
-                    <div className="flex flex-col w-full gap-2 mt-4 bg-[#f2f2f2] p-3 rounded-lg">
-                        <h2 className="text-xl font-bold text-[#3f3f3f]">Cartelas a confirmar</h2>
-                        {ClientGroupData.map(groupClient => {
-
-                            if (groupClient.id !== selectedAuction) return null
-
-                            let totalValue = 0
-                            groupClient.products.forEach(product => {
-                                totalValue += product.initial_value;
-                            })
-
-                            return (
-                                <div key={groupClient.winner_id + groupClient.auction}
-                                    className="flex justify-between items-center w-full p-2 text-[#222] bg-[#eaeaea] 
-                                rounded-[12px] shadow-lg shadow-[#09090927]">
-
-                                    <div className="flex gap-2 justify-start items-center">
-                                        <img src={avatares_pessoas[groupClient.avatar]} alt="" className="w-[63px] h-[63px] object-cover rounded-full" />
-                                        <div className="flex flex-col">
-                                            <span className="text-[18px] font-bold">{groupClient.name}</span>
-                                            <span className="text-[14px]">{groupClient.auction}</span>
-                                        </div>
-                                    </div>
-
-                                    <span onMouseEnter={() => handleShowCurrentModal(groupClient.winner_id, "flex")}
-                                        onMouseLeave={() => handleShowCurrentModal(groupClient.winner_id, "none")}
-                                        className="relative bg-white font-bold cursor-pointer
-                                rounded-full flex w-[30px] h-[30px] justify-center items-center">
-                                        {groupClient.products.length}
-                                        <div id={groupClient.winner_id} style={{ display: showMod[groupClient.winner_id] || "none" }} className="absolute">
-                                            <ProductsGroupArrematantes products={groupClient.products} />
-                                        </div>
-                                    </span>
-
-                                    <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-                                        .format(totalValue)}</span>
-
-                                    <div className="flex justify-center items-center gap-3">
-
-                                        <select onChange={(e) => setCartelaStatus(e.target.value)} className="p-3 rounded-md bg-[#1dad24] text-white">
-                                            <option value="PENDENT">pendente</option>
-                                            <option value="PAYMENT_CONFIRMED">pagamento confirmado</option>
-                                            <option value="PROCESS">processando</option>
-                                            <option value="SENDED">enviado</option>
-                                            <option value="DELIVERED">entregue</option>
-                                            <option value="DENIED">recusado</option>
-                                        </select>
-
-                                        <button onClick={() => handleConfirmCard(
-                                            groupClient.advertiser_id,
-                                            groupClient.products,
-                                            groupClient.winner_id,
-                                            totalValue)}
-                                            className="bg-[#012038] text-white p-3 rounded-md">confirmar</button>
-                                    </div>
-                                </div>
-                            )
-                        })}
-
-                    </div>
-
-
-                    <div className="flex flex-col w-full gap-2 mt-4 bg-[#f2f2f2] p-3 rounded-lg">
-                        <h2 className="text-xl font-bold text-[#3f3f3f] mb-4">Cartelas Confirmadas</h2>
-                        {cartelas &&
-                            cartelas.map(cartela => (
-                                <div key={cartela.id}
-                                    className="flex flex-row justify-between items-center w-full p-4 bg-white 
-                                rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
-
-                                    <div className="flex items-center gap-4">
-                                        <img src={avatares_pessoas[cartela.Client.client_avatar]} alt=""
-                                            className="w-16 h-16 object-cover rounded-full border-2 border-[#1dad24]" />
-                                        <div className="flex items-center gap-2">
-                                            <div>
-                                                <span className="text-lg font-semibold text-[#012038]">{cartela.Client.name}</span>
-                                                <span className="block text-sm text-gray-500">{cartela.auction}</span>
-                                            </div>
-
-                                            {/* {{ edit_5 }} Move o campo de produtos para ao lado do nome do cliente */}
-                                            <span onMouseEnter={() => handleShowCurrentModal(cartela.id, "flex")}
-                                                onMouseLeave={() => handleShowCurrentModal(cartela.id, "none")}
-                                                className="relative bg-white text-[#1dad24] font-bold cursor-pointer
-                                                rounded-full flex items-center justify-center w-8 h-8 transition-transform transform hover:scale-110">
-                                                {cartela.products.length}
-                                                <div id={cartela.id} style={{ display: showMod[cartela.id] || "none" }}
-                                                    className="absolute top-10 left-0 bg-white border rounded-md shadow-lg p-2 z-10 transition-opacity duration-300">
-                                                    <ProductsGroupArrematantes products={cartela.products} />
-                                                </div>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <span className="text-lg font-medium text-[#3f3f3f]">
-                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-                                            .format(cartela.amount)}
-                                    </span>
-
-                                    <div className="flex items-center gap-4">
-                                        {/* {{ edit_2 }} Substitui o status por um select com design aprimorado */}
-                                        <select
-                                            value={cartela.status}
-                                            onChange={(e) => {
-                                                const newStatus = e.target.value;
-                                                setCartelas(prevCartelas => prevCartelas.map(c => c.id === cartela.id ? { ...c, status: newStatus } : c));
-                                            }}
-                                            className={`p-2 rounded-md focus:outline-none focus:ring-2 transition-colors duration-300 ${cartela.status === "DENIED" ? 'bg-red-500 text-red-100' :
-                                                    cartela.status === "PAYMENT_CONFIRMED" ? 'bg-blue-500 text-white' :
-                                                        cartela.status === "PROCESS" ? 'bg-yellow-500 text-white' :
-                                                            cartela.status === "SENDED" ? 'bg-green-500 text-white' :
-                                                                cartela.status === "DELIVERED" ? 'bg-purple-500 text-white' :
-                                                                    'bg-[#1dad24] text-white'
+                            {/* Tabs */}
+                            <div className="mb-4">
+                                <div className="border-b border-gray-200">
+                                    <nav className="flex gap-4">
+                                        <button
+                                            onClick={() => setActiveTab('toConfirm')}
+                                            className={`py-2 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm
+                                                ${activeTab === 'toConfirm'
+                                                    ? 'border-[#012038] text-[#012038]'
+                                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                                 }`}
                                         >
-                                            <option value="PENDENT">Pendente</option>
-                                            <option value="PAYMENT_CONFIRMED">Pagamento Confirmado</option>
-                                            <option value="PROCESS">Processando</option>
-                                            <option value="SENDED">Enviado</option>
-                                            <option value="DELIVERED">Entregue</option>
-                                            <option value="DENIED">Recusado</option>
-                                        </select>
-
-                                        {/* {{ edit_3 }} Condicional para o campo de código de rastreio com animação */}
-                                        {cartela.status === "SENDED" && (
-                                            <input
-                                                type="text"
-                                                placeholder="Insira o código de rastreio"
-                                                value={cartela.tracking_code || trackingCodes[cartela.id] || ""}
-                                                onChange={(e) => setTrackingCodes(prev => ({ ...prev, [cartela.id]: e.target.value }))}
-                                                className={`p-3 border border-[#1dad24] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1dad24] transition-all duration-300 ${cartela.tracking_code ? 'bg-gray-100' : 'bg-white'
-                                                    }`}
-                                            />
-                                        )}
-
-                                        {/* {{ edit_4 }} Adiciona o botão "Atualizar" com loading */}
-                                        <button
-                                            onClick={() => handleUpdateCartela(cartela.id)}
-                                            className={`flex items-center justify-center px-4 py-2 bg-[#012038] text-white 
-                                                rounded-md hover:bg-[#01477f] transition-colors duration-300 
-                                                ${updatingCartelas[cartela.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            disabled={updatingCartelas[cartela.id]}
-                                        >
-                                            {updatingCartelas[cartela.id] ? (
-                                                <svg className="animate-spin h-5 w-5 mr-3 border-t-2 border-b-2 border-white rounded-full"
-                                                    viewBox="0 0 24 24">
-                                                </svg>
-                                            ) : null}
-                                            Atualizar
+                                            Cartelas a confirmar
+                                            {ClientGroupData.filter(group => group.id === selectedAuction).length > 0 && (
+                                                <span className="bg-[#1dad24] text-white text-xs px-2 py-0.5 rounded-full">
+                                                    {ClientGroupData.filter(group => group.id === selectedAuction).length}
+                                                </span>
+                                            )}
                                         </button>
-                                    </div>
+                                        <button
+                                            onClick={() => setActiveTab('confirmed')}
+                                            className={`py-2 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm
+                                                ${activeTab === 'confirmed'
+                                                    ? 'border-[#012038] text-[#012038]'
+                                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                }`}
+                                        >
+                                            Cartelas confirmadas
+                                            {cartelas?.length > 0 && (
+                                                <span className="bg-[#1dad24] text-white text-xs px-2 py-0.5 rounded-full">
+                                                    {cartelas.length}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </nav>
                                 </div>
-                            ))}
-                    </div>
+                            </div>
 
+                            {/* Tab Content */}
+                            <div className="mt-4">
+                                {activeTab === 'toConfirm' && (
+                                    <CartelasToConfirm 
+                                        ClientGroupData={ClientGroupData}
+                                        selectedAuction={selectedAuction}
+                                        avatares_pessoas={avatares_pessoas}
+                                        handleConfirmCard={handleConfirmCard}
+                                        selectedCartelaStatus={selectedCartelaStatus}
+                                        setCartelaStatus={setCartelaStatus}
+                                    />
+                                )}
+
+                                {activeTab === 'confirmed' && (
+                                    <CartelasConfirmadas 
+                                        cartelas={cartelas}
+                                        avatares_pessoas={avatares_pessoas}
+                                        setCartelas={setCartelas}
+                                        handleUpdateCartela={handleUpdateCartela}
+                                        updatingCartelas={updatingCartelas}
+                                        trackingCodes={trackingCodes}
+                                        setTrackingCodes={setTrackingCodes}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </main>
                 </div>
-            </section>
+            </div>
             <LoadingModal isVisible={isCreating} />
         </div>
     );

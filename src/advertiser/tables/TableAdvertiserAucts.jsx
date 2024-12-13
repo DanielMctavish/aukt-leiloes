@@ -8,6 +8,11 @@ import { addResume } from "../../features/auct/ResumeAuctBalance";
 import dayjs from "dayjs";
 import PaginationAdvertiser from "./Pagination";
 import axios from "axios";
+import { 
+  CheckCircle, 
+  LiveTv,
+  Inventory2,
+} from '@mui/icons-material';
 
 function TableAdvertiserAucts({ onRowClick }) {
   const [auctList, setAucts] = useState([])
@@ -29,9 +34,16 @@ function TableAdvertiserAucts({ onRowClick }) {
 
     setAucts(stateAucts)
     getSumProducts()
-
   }, [stateAucts])
 
+  // Novo useEffect para verificar status
+  useEffect(() => {
+    if (auctList && Array.isArray(auctList) && auctList.length > 0) {
+      auctList.forEach(auction => {
+        checkDatesStatus(auction);
+      });
+    }
+  }, [auctList])
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -59,13 +71,26 @@ function TableAdvertiserAucts({ onRowClick }) {
   const getStatusColor = (status) => {
     switch (status) {
       case "cataloged":
-        return "bg-[#6400C836] px-5 text-[#530e98]";
+        return "bg-[#6400C836] text-[#530e98]";
       case "finished":
         return "bg-[#00C81436] text-[#257500]";
       case "live":
-        return "bg-[#C8000036] px-8 text-[#DD1C1C]";
+        return "bg-[#C8000036] text-[#DD1C1C]";
       default:
         return "bg-gray-500 text-white";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "cataloged":
+        return <Inventory2 className="w-4 h-4 mr-1" />;
+      case "finished":
+        return <CheckCircle className="w-4 h-4 mr-1" />;
+      case "live":
+        return <LiveTv className="w-4 h-4 mr-1" />;
+      default:
+        return null;
     }
   };
 
@@ -82,7 +107,7 @@ function TableAdvertiserAucts({ onRowClick }) {
   const handlePublish = async (e, auctId) => {
     e.stopPropagation();
     setPublishFeedback({ id: auctId, status: 'loading', message: 'Publicando...' });
-    
+
     try {
       const currentSession = JSON.parse(localStorage.getItem('advertiser-session-aukt'));
       await axios.patch(
@@ -92,15 +117,15 @@ function TableAdvertiserAucts({ onRowClick }) {
           headers: { 'Authorization': `Bearer ${currentSession.token}` }
         }
       );
-      
-      setAucts(prevAucts => 
-        prevAucts.map(auct => 
+
+      setAucts(prevAucts =>
+        prevAucts.map(auct =>
           auct.id === auctId ? { ...auct, public: true } : auct
         )
       );
 
       setPublishFeedback({ id: auctId, status: 'success', message: 'Leilão publicado!' });
-      
+
       // Limpa o feedback após 3 segundos
       setTimeout(() => {
         setPublishFeedback({ id: null, status: '', message: '' });
@@ -109,10 +134,42 @@ function TableAdvertiserAucts({ onRowClick }) {
     } catch (error) {
       console.error('Erro ao publicar leilão:', error);
       setPublishFeedback({ id: auctId, status: 'error', message: 'Erro ao publicar' });
-      
+
       setTimeout(() => {
         setPublishFeedback({ id: null, status: '', message: '' });
       }, 3000);
+    }
+  };
+
+  const checkDatesStatus = async (auction) => {
+    // Verifica se todas as datas estão finalizadas
+    const allDatesFinished = auction.auct_dates.every(date => 
+      date.group_status === "finished"
+    );
+
+    // Se todas as datas estiverem finalizadas e o status não for "finished"
+    if (allDatesFinished && auction.status !== "finished") {
+      try {
+        const currentSession = JSON.parse(localStorage.getItem('advertiser-session-aukt'));
+        
+        await axios.patch(
+          `${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${auction.id}`,
+          { status: "finished" },
+          {
+            headers: { 'Authorization': `Bearer ${currentSession.token}` }
+          }
+        );
+
+        // Atualiza o estado local
+        setAucts(prevAucts =>
+          prevAucts.map(auct =>
+            auct.id === auction.id ? { ...auct, status: "finished" } : auct
+          )
+        );
+
+      } catch (error) {
+        console.error('Erro ao atualizar status do leilão:', error);
+      }
     }
   };
 
@@ -120,15 +177,15 @@ function TableAdvertiserAucts({ onRowClick }) {
     <section className="w-full flex flex-col justify-start items-center absolute">
       {/* Cabeçalho da Tabela */}
       <div className="w-[98%] bg-white rounded-t-lg shadow-md">
-        <div className="grid grid-cols-11 gap-2 p-4 text-sm font-semibold text-gray-600 border-b">
-          <div>#</div>
+        <div className="grid grid-cols-12 gap-4 p-4 text-sm font-semibold text-gray-600 border-b">
+          <div className="col-span-1">#</div>
           <div className="col-span-2">Título</div>
           <div className="col-span-2">ID</div>
           <div className="col-span-2">Email</div>
-          <div>Data</div>
-          <div>Produtos</div>
-          <div>Status</div>
-          <div>Ações</div>
+          <div className="col-span-1">Data</div>
+          <div className="col-span-1">Produtos</div>
+          <div className="col-span-2">Status</div>
+          <div className="col-span-1">Ações</div>
         </div>
 
         {/* Linhas da Tabela */}
@@ -140,24 +197,46 @@ function TableAdvertiserAucts({ onRowClick }) {
               <div
                 key={auction.id}
                 onClick={() => handleClick(auction.advertiser_id, auction.id, productsValueList[index], auction.value)}
-                className="grid grid-cols-11 gap-2 p-4 hover:bg-blue-50 cursor-pointer transition-colors items-center text-sm"
+                className="grid grid-cols-12 gap-4 p-4 hover:bg-blue-50 cursor-pointer transition-colors items-center text-sm"
               >
-                <div className="text-gray-600">{indexOfFirstItem + index + 1}</div>
+                <div className="col-span-1 text-gray-600">{indexOfFirstItem + index + 1}</div>
                 <div className="col-span-2 truncate font-medium">{auction.title}</div>
                 <div className="col-span-2 font-mono text-gray-600">{auction.nano_id}</div>
                 <div className="col-span-2 truncate">{auction.Advertiser.email}</div>
-                <div>{dayjs(auction.created_at).format("DD/MM HH:mm")}</div>
-                <div className="text-center">{auction.product_list.length}</div>
-                <div>
-                  <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium 
-                    ${getStatusColor(auction.status)}`}>
-                    {auction.status}
+                <div className="col-span-1">{dayjs(auction.created_at).format("DD/MM HH:mm")}</div>
+                <div className="col-span-1 text-center">{auction.product_list.length}</div>
+                
+                {/* Status com Ícones */}
+                <div className="col-span-2">
+                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium 
+                    ${getStatusColor(auction.status)}`}
+                  >
+                    {getStatusIcon(auction.status)}
+                    <span className="mr-2">{auction.status}</span>
+                    
+                    {/* Indicadores de Data Compactos */}
+                    <div className="flex -space-x-0.5">
+                      {auction?.auct_dates.map((date, index) => (
+                        <div key={index} 
+                          className="w-4 h-4 rounded-full flex items-center justify-center"
+                          title={`Grupo ${index + 1}: ${date.group_status === "finished" ? "Finalizado" : "Pendente"}`}
+                        >
+                          {date.group_status === "finished" ? (
+                            <div className="w-3 h-3 rounded-full bg-green-500" />
+                          ) : (
+                            <div className="w-3 h-3 rounded-full border-[1px] border-gray-100" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Ações */}
+                <div className="col-span-1">
                   {auction.public ? (
                     <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-md text-xs 
-                      font-medium flex items-center gap-1">
+                      font-medium flex items-center gap-1 whitespace-nowrap">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                       </svg>
@@ -177,13 +256,13 @@ function TableAdvertiserAucts({ onRowClick }) {
                         </svg>
                         Publicar
                       </button>
-                      
+
                       {publishFeedback.id === auction.id && (
                         <span className={`absolute -top-8 left-1/2 transform -translate-x-1/2 
                           whitespace-nowrap px-2 py-1 rounded text-xs font-medium
-                          ${publishFeedback.status === 'success' ? 'bg-green-100 text-green-700' : 
+                          ${publishFeedback.status === 'success' ? 'bg-green-100 text-green-700' :
                             publishFeedback.status === 'error' ? 'bg-red-100 text-red-700' :
-                            'bg-blue-100 text-blue-700'}`}
+                              'bg-blue-100 text-blue-700'}`}
                         >
                           {publishFeedback.message}
                         </span>

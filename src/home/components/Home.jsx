@@ -6,7 +6,7 @@ import Section02 from "./Section02";
 import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
-import Submenu from "../navigation/Submenu";
+//import Submenu from "../navigation/Submenu";
 
 function Home() {
   // const hiddenNav = () => {
@@ -21,7 +21,7 @@ function Home() {
     <div
       className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
       <Navigation />
-      <Submenu />
+      {/* <Submenu /> */}
       <Section01 />
       <Section01_1 />
       <Section02 />
