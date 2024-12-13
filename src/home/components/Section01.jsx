@@ -72,119 +72,161 @@ function Section01() {
   ];
 
   return (
-    <section className="flex flex-col w-full min-h-screen 
-    justify-start items-center gap-1 mt-[4vh]
-    bg-gradient-to-b from-[#000000] to-[#0D1733] relative overflow-hidden">
-
-      <div className="flex flex-col w-full justify-center items-center h-[20vh] relative mt-[12vh]">
-        <img src={aukWhite} alt="" className="object-cover h-[80%] ml-[-3vh] flex justify-center" />
-        <div className="flex flex-col w-full justify-center items-center">
-          <span className="text-[26px] font-bold">AUK Leilões</span>
-          <span className="text-[16px]">Grandes Oportunidades Esperam por Você</span>
-        </div>
-      </div>
-
-      {/* CARDS DE PRODUTOS */}
-      <div className="w-full flex justify-center items-center overflow-hidden gap-6 h-[40vh]">
-        <Swiper
-          pagination={{ clickable: true }}
-          loop={true}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
-          breakpoints={{
-            640: { slidesPerView: 1, spaceBetween: 3 },
-            768: { slidesPerView: 2, spaceBetween: 4 },
-            1024: { slidesPerView: 6, spaceBetween: 12 },
-          }}
-        >
-          {cardsSelecteds.map((card, index) => (
-            <SwiperSlide key={index}>
-              <div
-                onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
-                className="flex-1 h-full cursor-pointer
-                overflow-hidden flex justify-center  slide-item-img 
-                items-center gap-3 rounded-lg relative ">
-
-                <img
-                  src={card ? card.cover_img_url : ""}
-                  className="h-[300px] flex-1 object-cover rounded-md"
-                />
-
-                <div className="absolute backdrop-blur-md text-[#FFF] bg-zinc-300/60 border-[#ffffff55] border-[1px] 
-            flex flex-col justify-center items-center p-3 text-shadow-md font-inter w-full h-full z-20
-            overflow-hidden rounded-md opacity-0 hover:opacity-100 transition duration-[.3s]">
-
-                  <h1 className="lg:text-[22px] text-[16px] lg:mb-2 font-bold overflow-hidden drop-shadow-md shadow-[#060606]">
-                    {card.title}
-                  </h1>
-                  <p className="lg:text-[14px] text-[12px] block lg:mb-8 font-semibold tracking-widest overflow-hidden h-[70%] overflow-y-auto">
-                    {card.description}
-                  </p>
-                  <button onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
-                    className="w-[161px] h-[36px] bg-[#012038] rounded-[2px] text-[#f2f2f2] text-[14px] font-normal hover:space-x-3">
-                    ver este lote
-                  </button>
-
+    <section className="relative min-h-screen w-full overflow-hidden">
+        {/* Background que cobre toda a largura */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#012038] to-[#0D1733]" />
+        
+        {/* Container do conteúdo - mantém as margens */}
+        <div className="relative z-10 pt-20 pb-12">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Hero Section */}
+                <div className="flex flex-col items-center text-center mb-16">
+                    <div className="relative mb-6">
+                        <img 
+                            src={aukWhite} 
+                            alt="AUK Leilões" 
+                            className="h-24 sm:h-32 object-contain animate-float"
+                        />
+                      
+                    </div>
+                    
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 
+                        tracking-tight leading-tight">
+                        AUK Leilões
+                    </h1>
+                    <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                        Grandes Oportunidades Esperam por Você
+                    </p>
                 </div>
 
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
+                {/* Carrossel de Produtos */}
+                <div className="mb-20">
+                    <Swiper
+                        pagination={{ 
+                            clickable: true,
+                            dynamicBullets: true 
+                        }}
+                        loop={true}
+                        autoplay={{ 
+                            delay: 3000, 
+                            disableOnInteraction: false,
+                            pauseOnMouseEnter: true
+                        }}
+                        breakpoints={{
+                            640: { slidesPerView: 2, spaceBetween: 20 },
+                            768: { slidesPerView: 3, spaceBetween: 24 },
+                            1024: { slidesPerView: 4, spaceBetween: 32 },
+                            1280: { slidesPerView: 5, spaceBetween: 32 },
+                        }}
+                        className="product-carousel"
+                    >
+                        {cardsSelecteds.map((card, index) => (
+                            <SwiperSlide key={index}>
+                                <div
+                                    onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
+                                    className="group relative bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden 
+                                        cursor-pointer transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]"
+                                >
+                                    <div className="aspect-[4/5] overflow-hidden">
+                                        <img
+                                            src={card?.cover_img_url}
+                                            alt={card?.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 
+                                                group-hover:scale-110"
+                                        />
+                                    </div>
+                                    
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
+                                        opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                                            <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
+                                                {card?.title}
+                                            </h3>
+                                            <p className="text-sm text-gray-300 line-clamp-2 mb-4">
+                                                {card?.description}
+                                            </p>
+                                            <button
+                                                className="w-full py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white 
+                                                    text-sm font-medium hover:bg-white/30 transition-colors duration-300"
+                                            >
+                                                Ver este lote
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </div>
 
-      {/* Counters */}
-      <div className="flex flex-col w-full h-auto justify-center items-center gap-3 py-8">
-        <div className="hidden lg:flex lg:w-[70%] w-[98%] min-h-[14vh] text-[#e1e1e1] justify-around items-center flex-wrap">
-          {counterItems.map((item, index) => (
-            <div
-              key={index}
-              className={`flex flex-col gap-3 justify-center items-center p-4 
-                    ${item.isClickable ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
-              onClick={item.onClick}
-            >
-              {React.cloneElement(item.icon, {
-                style: {
-                  color: item.color,
-                  transition: 'transform 0.2s',
-                  transform: item.isClickable ? 'scale(1.1)' : 'none'
-                }
-              })}
-              <span className="text-[14px]">{item.label}</span>
-              <span className="font-bold text-[22px]" style={{ color: item.color }}>{item.value}</span>
+                {/* Estatísticas */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
+                    {counterItems.map((item, index) => (
+                        <div
+                            key={index}
+                            onClick={item.onClick}
+                            className={`relative bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center 
+                                transition-all duration-300 group
+                                ${item.isClickable ? 'cursor-pointer hover:bg-white/10 hover:scale-[1.02]' : ''}`}
+                        >
+                            {/* Ícone com efeito de brilho */}
+                            <div className="relative inline-flex p-3 rounded-full bg-white/10 mb-4 group-hover:scale-110 
+                                transition-transform duration-300">
+                                {React.cloneElement(item.icon, {
+                                    style: {
+                                        color: item.color || '#fff',
+                                        fontSize: '28px'
+                                    }
+                                })}
+                               
+                            </div>
+                            
+                            <h3 className="text-lg font-semibold text-white mb-2">
+                                {item.value}
+                            </h3>
+                            <p className="text-sm text-gray-400">
+                                {item.label}
+                            </p>
+
+                            {/* Efeito de borda brilhante */}
+                            <div className="absolute inset-0 rounded-xl border border-white/10 group-hover:border-white/20 
+                                transition-colors duration-300"></div>
+                        </div>
+                    ))}
+                </div>
             </div>
-          ))}
         </div>
 
-        {/* Mobile Counters Carousel */}
-        <div className="lg:hidden w-full">
-          <Swiper
-            slidesPerView={2}
-            spaceBetween={10}
-            pagination={{ clickable: true }}
-          >
-            {counterItems.map((item, index) => (
-              <SwiperSlide key={index}>
-                <div
-                  className={`flex flex-col gap-3 justify-center items-center p-4 text-[#e1e1e1]
-                        ${item.isClickable ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
-                  onClick={item.onClick}
-                >
-                  {React.cloneElement(item.icon, {
-                    style: {
-                      color: item.color,
-                      transition: 'transform 0.2s',
-                      transform: item.isClickable ? 'scale(1.1)' : 'none'
-                    }
-                  })}
-                  <span className="text-[12px] text-center">{item.label}</span>
-                  <span className="font-bold text-[18px]" style={{ color: item.color }}>{item.value}</span>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </div>
+        {/* Estilos CSS para animações */}
+        <style>{`
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
 
+            @keyframes shine {
+                from { transform: translateX(-100%); }
+                to { transform: translateX(100%); }
+            }
+
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+
+            .animate-shine {
+                animation: shine 2s infinite;
+            }
+
+            .product-carousel .swiper-pagination-bullet {
+                background: white;
+                opacity: 0.5;
+            }
+
+            .product-carousel .swiper-pagination-bullet-active {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        `}</style>
     </section>
   );
 }

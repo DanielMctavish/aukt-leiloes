@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   Menu,
   Gavel,
@@ -14,7 +13,6 @@ import { getAdvertiserInformations } from '../../advertiser/functions/GetAdverti
 const Navigation = () => {
   const [currentAdvertiser, setCurrentAdvertiser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchedProducts, setSearchedProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -24,25 +22,24 @@ const Navigation = () => {
     getAdvertiserInformations(setCurrentAdvertiser);
   }, []);
 
-  const handleSearchProduct = async (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.length < 3) {
-      setSearchedProducts([]);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-title?title=${query}`);
-      setSearchedProducts(response.data);
-    } catch (error) {
-      console.error('Error searching products:', error);
-    }
-  };
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim().length >= 3) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
 
   return (
     <nav className="bg-[#012038] text-white fixed w-full z-50">
@@ -69,7 +66,7 @@ const Navigation = () => {
               </button>
               {currentAdvertiser && currentAdvertiser.url_profile_cover ? (
                 <img
-                  className="ml-3 h-8 w-8 rounded-full cursor-pointer"
+                  className="ml-3 h-8 w-8 rounded-full object-cover cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
                   alt=""
                   onClick={() => navigate('/advertiser/login')}
@@ -110,7 +107,7 @@ const Navigation = () => {
               <button onClick={() => navigate('/floor/hub')} className="ml-3 p-1 rounded-full hover:bg-[#0D1733] focus:outline-none">
                 <Gavel />
               </button>
-              {currentAdvertiser && currentAdvertiser.url_profile_cover? (
+              {currentAdvertiser && currentAdvertiser.url_profile_cover ? (
                 <img
                   className="ml-3 h-8 w-8 rounded-full cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
@@ -128,37 +125,148 @@ const Navigation = () => {
         </div>
       </div>
 
-      {/* Search overlay */}
+      {/* Search Modal */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl">
-            <div className="p-4">
-              <div className="flex items-center border-b border-gray-300 pb-2">
-                <input
-                  type="text"
-                  placeholder="Pesquise por item ou categoria"
-                  className="flex-grow outline-none text-black"
-                  value={searchQuery}
-                  onChange={handleSearchProduct}
-                />
-                <button onClick={toggleSearch} className="ml-2 text-gray-500 hover:text-gray-700">
-                  <Close />
-                </button>
-              </div>
-              <div className="mt-4 max-h-96 overflow-y-auto">
-                {searchedProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      navigate(`/advertiser/home/product/${product.id}`);
-                      toggleSearch();
-                    }}
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {/* Overlay com blur */}
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+            onClick={toggleSearch}
+          />
+
+          {/* Modal Content */}
+          <div className="relative min-h-screen flex items-start justify-center p-4">
+            <div
+              className="w-full max-w-2xl mt-[10vh] bg-white rounded-2xl shadow-2xl 
+                transform transition-all duration-300 ease-in-out"
+            >
+              {/* Search Header */}
+              <div className="p-6 pb-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Buscar Produtos
+                  </h2>
+                  <button
+                    onClick={toggleSearch}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                   >
-                    <img src={product.cover_img_url} alt="" className="w-12 h-12 object-cover rounded-md mr-4" />
-                    <span className="text-black">{product.title}</span>
+                    <Close className="text-gray-500" />
+                  </button>
+                </div>
+
+                {/* Search Input */}
+                <div className="relative">
+                  <div className="flex items-center bg-gray-50 rounded-xl border border-gray-200 
+                    focus-within:border-[#012038] focus-within:ring-1 focus-within:ring-[#012038] 
+                    transition-all duration-200">
+                    <Search className="ml-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Digite o que você procura..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      className="w-full py-3 px-4 bg-transparent outline-none text-gray-800 
+                        placeholder-gray-400 text-base"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="p-2 hover:bg-gray-200 rounded-full mx-1"
+                      >
+                        <Close fontSize="small" className="text-gray-400" />
+                      </button>
+                    )}
                   </div>
-                ))}
+                </div>
+
+                {/* Search Tips */}
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">
+                    Pressione Enter ou clique na lupa para buscar
+                  </p>
+                </div>
+
+                {/* Quick Categories */}
+                <div className="mt-6">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => {
+                        setSearchQuery('Relógio');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      Relógio
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('coupe');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      coupe
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('ferrari');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      ferrari
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('Funko');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      Funko
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('horse');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      horse
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('espelho');
+                        handleSearch({ preventDefault: () => { } });
+                      }}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full 
+                        hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      espelho
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <div className="p-4 bg-gray-50 rounded-b-2xl border-t border-gray-100">
+                <button
+                  onClick={handleSearch}
+                  disabled={searchQuery.trim().length < 3}
+                  className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200
+                    ${searchQuery.trim().length >= 3
+                      ? 'bg-[#012038] text-white hover:bg-[#023161]'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                >
+                  Buscar
+                </button>
               </div>
             </div>
           </div>

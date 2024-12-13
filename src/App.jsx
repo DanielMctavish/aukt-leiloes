@@ -43,6 +43,7 @@ import Arrematantes from "./advertiser/arrematantes/Arrematantes";
 import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
 import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
 import AdminTransactions from './admin/AdminTransactions'; // Adicione esta importação
+import SearchResults from './search/SearchResults';
 
 
 function App() {
@@ -112,6 +113,9 @@ function App() {
 
           {/* {{ edit_1 }} Adiciona a rota para "Cartelas" do Cliente */}
           <Route path="/client/cartelas" element={<ClientCartelas />} />
+
+          {/* Adicione esta nova rota */}
+          <Route Component={SearchResults} path="/search" exact />
 
         </Routes>
       </BrowserRouter>

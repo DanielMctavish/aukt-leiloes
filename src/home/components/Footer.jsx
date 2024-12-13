@@ -14,82 +14,126 @@ import img6 from "../../media/footer-imgs/car_insta_06.png";
 
 function Footer() {
   return (
-    <section className="w-full h-[60vh] border-t-[10px] border-[#1E1E1E] bg-[#012038] overflow-hidden relative">
+    <section className="w-full border-t-[10px] border-[#1E1E1E] bg-[#012038] overflow-hidden relative">
+      <div className="flex md:flex-row flex-col w-full bg-[#0D1733] rounded-[20px] 
+            relative md:justify-center justify-start items-start gap-8 p-12 md:p-16">
 
-      <div className="flex md:flex-row flex-col w-full h-full bg-[#0D1733] rounded-[20px] 
-            relative md:justify-center justify-start items-center gap-2 overflow-hidden p-1 overflow-y-auto">
-
-        <div className="flex justify-between items-start flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh]  text-zinc-100 p-[6vh]">
-
-          <div className="flex gap-2 justify-start items-center">
-            <img src={aukLogo} alt="" className="w-[32px] h-[32px] object-cover" />
-            <h1 className="text-[16px] font-bold">
-              Auk leilões
+        {/* Coluna 1 - Sobre a AUK */}
+        <div className="flex flex-col md:flex-1 w-full space-y-6 text-zinc-100">
+          <div className="flex gap-3 items-center">
+            <img src={aukLogo} alt="AUK Leilões" className="w-[40px] h-[40px] object-cover" />
+            <h1 className="text-xl font-bold">
+              AUK Leilões
             </h1>
           </div>
 
-          <p className=" w-full text-[12px] font-bold border-b-[1px] border-[#ffffff36] pb-[2vh]">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco
-            laboris nisi ut aliquip ex ea commodo consequat.
+          <p className="text-sm leading-relaxed text-gray-300 border-b border-white/10 pb-6">
+            A AUK Leilões é uma plataforma inovadora especializada em leilões online. 
+            Conectamos vendedores e compradores em um ambiente seguro e transparente, 
+            oferecendo oportunidades únicas em diversos segmentos.
           </p>
 
-          <span className="flex w-full border-b-[1px] border-[#ffffff36] pb-[2vh] gap-2">
-            <Email sx={{ fontSize: "22px" }} />
-            aukleiloes@auk.com
-          </span>
+          <div className="space-y-4 text-sm">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <Email className="text-[#005699]" />
+              <span>contato@aukleiloes.com.br</span>
+            </div>
 
-          <span className="flex w-full border-b-[1px] border-[#ffffff36] pb-[2vh] gap-2">
-            <Phone />
-            (11)12345-6789
-          </span>
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <Phone className="text-[#005699]" />
+              <span>+55 11 91554-4171</span>
+            </div>
 
-          <span className="flex w-full text-[12px] border-b-[1px] border-[#ffffff36] pb-[2vh] gap-2 justify-center items-center">
-            <LocationCity />
-            Av. Paulista, 1243 - Bela Vista, São Paulo - SP
-          </span>
-
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <LocationCity className="text-[#005699]" />
+              <span>Rua Pereira Estefano, 114 - São Paulo - SP</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-start items-start flex-col md:flex-1 w-full md:h-[90%] min-h-[30vh]  text-zinc-100 p-[6vh] gap-[4vh]">
-          <span className="font-bold">LINKS ÚTEIS</span>
+        {/* Coluna 2 - Links Rápidos */}
+        <div className="flex flex-col md:flex-1 w-full space-y-6 text-zinc-100">
+          <h2 className="text-lg font-bold">Links Rápidos</h2>
 
-          <span className="flex gap-3"><ArrowForward /> Home</span>
-          <span className="flex gap-3"><ArrowForward /> Produtos</span>
-          <span className="flex gap-3"><ArrowForward /> Entre em contato conosco</span>
-
+          <div className="space-y-4">
+            <a href="/" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <ArrowForward className="text-[#005699]" /> Página Inicial
+            </a>
+            <a href="/floor/hub" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <ArrowForward className="text-[#005699]" /> Leilões ao Vivo
+            </a>
+            <a href="/search" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <ArrowForward className="text-[#005699]" /> Catálogo de Produtos
+            </a>
+            <a href="/client/register" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <ArrowForward className="text-[#005699]" /> Cadastre-se
+            </a>
+          </div>
         </div>
 
-        <div className="flex justify-start items-start flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh]  text-zinc-100 p-[6vh] gap-[4vh]">
-          <span className="font-bold">Fale conosco</span>
-          <p className="text-[12px]">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        {/* Coluna 3 - Newsletter */}
+        <div className="flex flex-col md:flex-1 w-full space-y-6 text-zinc-100">
+          <h2 className="text-lg font-bold">Fique por Dentro</h2>
+          
+          <p className="text-sm text-gray-300">
+            Receba em primeira mão informações sobre novos leilões, 
+            oportunidades exclusivas e dicas para aproveitar melhor 
+            nossa plataforma.
           </p>
 
-          <div className="flex">
-            <input type="email" className="bg-transparent border-[1px] h-[43px]  w-[180px] p-2" placeholder="seu email aqui" />
-            <button className="bg-[#005699] h-[43px] w-[90px] font-bold border-[1px] rounded-r-md">enviar</button>
+          <div className="space-y-4">
+            <div className="flex">
+              <input 
+                type="email" 
+                className="bg-white/5 border border-white/10 h-12 px-4 rounded-l-md w-full
+                  focus:outline-none focus:border-[#005699] transition-colors text-sm"
+                placeholder="Seu melhor e-mail" 
+              />
+              <button className="bg-[#005699] hover:bg-[#004477] transition-colors px-6 
+                rounded-r-md font-medium text-sm">
+                Assinar
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">
+              Seus dados estão seguros conosco. Não compartilhamos suas informações.
+            </p>
           </div>
-
-          <span className=" w-full border-b-[1px] border-[#ffffff36] pb-[3vh]">Seu ID do email é confidencial.</span>
         </div>
 
-        <div className="flex flex-col md:flex-1 w-full md:h-[90%] min-h-[40vh] p-[6vh] gap-3">
-          <span className="font-bold  text-white text-[16px]">Instagram</span>
-          <div className="grid grid-cols-3 gap-2 mt-4">
-            <img src={img1} alt="Instagram 1" className="w-full h-[100px] object-cover rounded-md" />
-            <img src={img2} alt="Instagram 2" className="w-full h-[100px] object-cover rounded-md" />
-            <img src={img3} alt="Instagram 3" className="w-full h-[100px] object-cover rounded-md" />
-            <img src={img4} alt="Instagram 4" className="w-full h-[100px] object-cover rounded-md" />
-            <img src={img5} alt="Instagram 5" className="w-full h-[100px] object-cover rounded-md" />
-            <img src={img6} alt="Instagram 6" className="w-full h-[100px] object-cover rounded-md" />
+        {/* Coluna 4 - Instagram Feed */}
+        <div className="flex flex-col md:flex-1 w-full space-y-6 text-zinc-100">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold">Galeria</h2>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" 
+              className="text-[#005699] hover:text-[#004477] transition-colors">
+              <InstagramIcon />
+            </a>
           </div>
-          <span className="cursor-pointer">veja mais</span>
+
+          <div className="grid grid-cols-3 gap-2">
+            {[img1, img2, img3, img4, img5, img6].map((img, index) => (
+              <div key={index} className="aspect-square overflow-hidden rounded-md group">
+                <img 
+                  src={img} 
+                  alt={`Galeria ${index + 1}`} 
+                  className="w-full h-full object-cover transition-transform duration-300 
+                    group-hover:scale-110" 
+                />
+              </div>
+            ))}
+          </div>
+
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+            className="text-sm text-[#005699] hover:text-[#004477] transition-colors">
+            Ver mais no Instagram →
+          </a>
         </div>
       </div>
 
+      {/* Copyright */}
+      <div className="text-center text-sm text-gray-400 py-4">
+        © {new Date().getFullYear()} AUK Leilões. Todos os direitos reservados.
+      </div>
     </section>
   );
 }
