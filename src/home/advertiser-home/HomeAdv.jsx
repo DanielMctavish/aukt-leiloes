@@ -2,7 +2,7 @@
 import axios from "axios"
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { WhatsApp, Instagram, Facebook, YouTube, Twitter, LinkedIn, Language, MusicNote } from '@mui/icons-material';
+import { WhatsApp } from '@mui/icons-material';
 import {
     HeaderModel1, HeaderModel2, HeaderModel3, HeaderModel4,
     HeaderModel5, HeaderModel6, HeaderModel7, HeaderModel8
@@ -10,6 +10,8 @@ import {
 import HeaderTexts from "./texts/HeaderTexts";
 import HeaderCarousel from "./carousels/HeaderCarousel";
 import HomeNav from './components/HomeNav';
+import FooterAdvHome from './components/FooterAdvHome';
+import LoginClientModalAdv from './modal/LoginClientModalAdv';
 
 function HomeAdvertiser() {
     const [header, setHeader] = useState(null);
@@ -20,6 +22,7 @@ function HomeAdvertiser() {
     const [selectedAuct, setSelectedAuct] = useState(null);
     const { advertiser_id } = useParams();
     const navigate = useNavigate();
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
     useEffect(() => {
         getSiteTemplate()
@@ -314,24 +317,16 @@ function HomeAdvertiser() {
         );
     };
 
-    const getSocialIcon = (type) => {
-        switch (type.toLowerCase()) {
-            case 'instagram': return <Instagram />;
-            case 'facebook': return <Facebook />;
-            case 'youtube': return <YouTube />;
-            case 'twitter': return <Twitter />;
-            case 'linkedin': return <LinkedIn />;
-            case 'tiktok': return <MusicNote />;
-            case 'whatsapp': return <WhatsApp />;
-            default: return <Language />;
-        }
-    };
 
     return (
         <div className="w-full min-h-screen bg-[#fff] overflow-x-hidden relative"
             style={{ fontFamily: fontStyle }}>
 
-            <HomeNav sections={sections} />
+            <HomeNav 
+                sections={sections} 
+                header={header}
+                onLoginClick={() => setIsLoginModalOpen(true)}
+            />
             
             <header
                 className={`w-full relative overflow-hidden mt-[8vh]
@@ -390,86 +385,15 @@ function HomeAdvertiser() {
             })}
 
             {/* Footer */}
-            {footer && (
-                <footer
-                    className="w-full relative overflow-hidden"
-                    style={{
-                        backgroundColor: footer.color,
-                        minHeight: footer.sizeType === "SMALL" ? "25vh" :
-                            footer.sizeType === "MEDIUM" ? "50vh" :
-                                footer.sizeType === "LARGE" ? "75vh" : "50vh"
-                    }}
-                >
-                    <div className="container mx-auto px-4 lg:px-8 py-12">
-                        {/* Company Info */}
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-bold mb-2" style={{ color: footer.textColor }}>
-                                {footer.companyName}
-                            </h2>
-                        </div>
+            {footer && <FooterAdvHome footer={footer} />}
 
-                        {/* Footer Sections */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                            {footer.sections?.map((section, index) => (
-                                <div key={index} className="space-y-4">
-                                    <h3 className="font-bold text-lg" style={{ color: footer.textColor }}>
-                                        {section.title}
-                                    </h3>
-                                    <ul className="space-y-2">
-                                        {section.links?.map((link, idx) => (
-                                            <li key={idx}>
-                                                <a
-                                                    href={link.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="hover:opacity-80 transition-opacity"
-                                                    style={{ color: footer.textColor }}
-                                                >
-                                                    {link.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Social Media */}
-                        {footer.showSocialLinks && (
-                            <div className="flex justify-center gap-4 border-t border-opacity-20 mb-8"
-                                style={{ borderColor: footer.borderColor }}>
-                                <div className="pt-8 flex gap-6">
-                                    {footer.socialMedia?.map((social, index) => (
-                                        <a
-                                            key={index}
-                                            href={social.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="hover:opacity-80 transition-opacity text-2xl"
-                                            style={{ color: footer.textColor }}
-                                        >
-                                            {getSocialIcon(social.type)}
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                    </div>
-                    {/* Copyright */}
-                    <div
-                        className="w-full py-4"
-                        style={{
-                            backgroundColor: footer.borderColor,
-                            color: footer.textColor
-                        }}
-                    >
-                        <div className="container mx-auto px-4 md:px-6 text-center text-sm">
-                            <p>© {new Date().getFullYear()}. Todos os direitos reservados | {footer.companyName || 'Arboris Codex'}.</p>
-                        </div>
-                    </div>
-                </footer>
-            )}
+            {/* Modal de Login */}
+            <LoginClientModalAdv 
+                modalOn={isLoginModalOpen}
+                setIsModalOn={setIsLoginModalOpen}
+                header={header}
+                fontStyle={fontStyle}
+            />
         </div>
     );
 }

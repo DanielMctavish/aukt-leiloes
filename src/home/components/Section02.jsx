@@ -13,6 +13,7 @@ import 'swiper/css/pagination';
 
 function Section02() {
   const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate()
 
@@ -21,16 +22,27 @@ function Section02() {
   }, [])
 
   const getProducts = async () => {
+    setIsLoading(true)
     try {
-      const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
         params: {
           take: 12,
-          bid_count_order: 'true'
+          bid_count_order: 'desc'
         }
       });
-      setProducts(result.data);
+
+      if (response.data?.products) {
+        setProducts(response.data.products);
+      } else if (Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else {
+        setProducts([]);
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -128,7 +140,12 @@ function Section02() {
                 </div>
 
                 <div className="relative px-4">
-                    <Swiper
+                    {isLoading ? (
+                      <div className="flex justify-center items-center min-h-[300px]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#012038]"></div>
+                      </div>
+                    ) : (
+                      <Swiper
                         spaceBetween={24}
                         slidesPerView={1}
                         navigation={{
@@ -142,7 +159,7 @@ function Section02() {
                             1024: { slidesPerView: 4 },
                         }}
                         className="px-4"
-                    >
+                      >
                         {products.map((product, index) => (
                             <SwiperSlide key={index}>
                                 <div 
@@ -177,7 +194,8 @@ function Section02() {
                                 </div>
                             </SwiperSlide>
                         ))}
-                    </Swiper>
+                      </Swiper>
+                    )}
                     <button className="swiper-button-prev text-[#012038] hidden lg:flex -left-2">
                         <ArrowLeft sx={{ fontSize: "40px" }} />
                     </button>

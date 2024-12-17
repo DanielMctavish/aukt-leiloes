@@ -34,6 +34,7 @@ function ProductDetailAdv() {
     const [currentAuct, setCurrentAuct] = useState({});
     const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
     const [bidInformations, setBidInformations] = useState([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
     const navigate = useNavigate();
 
@@ -89,13 +90,30 @@ function ProductDetailAdv() {
     const getAnotherProducts = async () => {
         if (!currentAuct || !currentAuct.id) return;
 
-        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-            params: {
-                auct_id: currentAuct.id,
-                take: 14,
+        setIsLoadingProducts(true);
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+                params: {
+                    auct_id: currentAuct.id,
+                    take: 14,
+                    exclude_product: product_id // Excluir o produto atual
+                }
+            });
+
+            // Verificar e tratar a resposta
+            if (response.data?.products) {
+                setAnotherProducts(response.data.products);
+            } else if (Array.isArray(response.data)) {
+                setAnotherProducts(response.data);
+            } else {
+                setAnotherProducts([]);
             }
-        });
-        setAnotherProducts(response.data);
+        } catch (error) {
+            console.error('Erro ao carregar produtos recomendados:', error);
+            setAnotherProducts([]);
+        } finally {
+            setIsLoadingProducts(false);
+        }
     }
 
     useEffect(() => {
@@ -199,7 +217,13 @@ function ProductDetailAdv() {
                 </section>
 
                 {/* Recomendados */}
-                <Recomendados anotherProducts={anotherProducts} />
+                {isLoadingProducts ? (
+                    <div className="flex justify-center items-center w-full h-[300px]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
+                    </div>
+                ) : anotherProducts.length > 0 ? (
+                    <Recomendados anotherProducts={anotherProducts} />
+                ) : null}
 
             </div>
 

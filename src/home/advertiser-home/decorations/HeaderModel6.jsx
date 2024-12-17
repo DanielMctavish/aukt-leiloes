@@ -21,7 +21,7 @@ function HeaderModel6({ color, elementsOpacity }) {
         };
 
         return {
-            borderColor: color,
+            borderColor: '#fff',
             opacity: elementsOpacity 
         };
     };
