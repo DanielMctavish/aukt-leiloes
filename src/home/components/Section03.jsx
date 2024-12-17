@@ -12,6 +12,7 @@ import 'swiper/css/pagination';
 
 function Section03() {
   const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [email, setEmail] = useState('')
   const navigate = useNavigate()
 
@@ -20,12 +21,28 @@ function Section03() {
   }, [])
 
   const getProducts = async () => {
-    const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-      params: {
-        take: 8,
+    setIsLoading(true)
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+        params: {
+          take: 8,
+          created_at_order: 'desc'
+        }
+      });
+
+      if (response.data?.products) {
+        setProducts(response.data.products);
+      } else if (Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else {
+        setProducts([]);
       }
-    });
-    setProducts(result.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleEmailSubmit = (e) => {
@@ -39,32 +56,38 @@ function Section03() {
       <h2 className="text-2xl lg:text-3xl font-bold text-[#0D1733] text-center">Produtos Recentes</h2>
 
       <div className="w-full">
-        <Swiper
-          spaceBetween={20}
-          slidesPerView={1}
-          navigation
-          pagination={{ clickable: true }}
-          breakpoints={{
-            640: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-          }}
-        >
-          {products.map((product, index) => (
-            <SwiperSlide key={index}>
-              <div
-                onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
-                className="flex flex-col items-center bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
-              >
-                <img src={product.cover_img_url} alt={product.title} className='w-full h-48 object-cover' />
-                <div className="p-4 text-center">
-                  <h3 className="text-lg font-semibold text-[#0D1733] mb-2">{product.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[300px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#012038]"></div>
+          </div>
+        ) : (
+          <Swiper
+            spaceBetween={20}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              768: { slidesPerView: 3 },
+              1024: { slidesPerView: 4 },
+            }}
+          >
+            {products.map((product, index) => (
+              <SwiperSlide key={index}>
+                <div
+                  onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
+                  className="flex flex-col items-center bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
+                >
+                  <img src={product.cover_img_url} alt={product.title} className='w-full h-48 object-cover' />
+                  <div className="p-4 text-center">
+                    <h3 className="text-lg font-semibold text-[#0D1733] mb-2">{product.title}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
       </div>
 
       <div className="w-full flex flex-col lg:flex-row gap-8 items-center">

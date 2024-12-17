@@ -15,6 +15,8 @@ function Section01() {
   const [cardsSelecteds, setCardsSelecteds] = useState([]);
   const [counters, setCounters] = useState({});
   const [productCounters, setProductCounters] = useState({ count: 0, countWithBid: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -25,32 +27,59 @@ function Section01() {
   }, []);
 
   const getProducts = async () => {
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-      params: {
-        take: 12,
-        bid_count_order: 'true'
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+        params: {
+          take: 12,
+          bid_count_order: 'desc',
+          highlight_only: true
+        }
+      });
+
+      if (response.data?.products) {
+        setCardsSelecteds(response.data.products);
+      } else if (Array.isArray(response.data)) {
+        setCardsSelecteds(response.data);
+      } else {
+        setCardsSelecteds([]);
       }
-    }).then(response => {
-      setCardsSelecteds(response.data);
-    });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError(error.message);
+      setCardsSelecteds([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getCountersAuct = async () => {
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/counter`).then(response => {
-      setCounters(prevCounters => ({ ...prevCounters, ...response.data }));
-    });
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/counter`);
+      if (response.data) {
+        setCounters(prevCounters => ({ ...prevCounters, ...response.data }));
+      }
+    } catch (error) {
+      console.error('Error fetching auction counters:', error);
+      setCounters({});
+    }
   };
 
   const getProductCounters = async () => {
-    const [countProducts, countProductsWithBids] = await Promise.all([
-      axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products`),
-      axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products-with-bids`)
-    ]);
+    try {
+      const [countProducts, countProductsWithBids] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products`),
+        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/count-products-with-bids`)
+      ]);
 
-    setProductCounters({
-      count: countProducts.data.countAll,
-      countWithBid: countProductsWithBids.data.countAll
-    });
+      setProductCounters({
+        count: countProducts.data?.countAll || 0,
+        countWithBid: countProductsWithBids.data?.countAll || 0
+      });
+    } catch (error) {
+      console.error('Error fetching product counters:', error);
+      setProductCounters({ count: 0, countWithBid: 0 });
+    }
   };
 
   useEffect(() => { }, [counters]);
@@ -101,25 +130,38 @@ function Section01() {
 
                 {/* Carrossel de Produtos */}
                 <div className="mb-20">
-                    <Swiper
+                    {isLoading ? (
+                      <div className="flex justify-center items-center min-h-[300px]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                      </div>
+                    ) : error ? (
+                      <div className="text-center text-white py-8">
+                        <p>Erro ao carregar produtos. Por favor, tente novamente mais tarde.</p>
+                      </div>
+                    ) : cardsSelecteds.length === 0 ? (
+                      <div className="text-center text-white py-8">
+                        <p>Nenhum produto encontrado.</p>
+                      </div>
+                    ) : (
+                      <Swiper
                         pagination={{ 
-                            clickable: true,
-                            dynamicBullets: true 
+                          clickable: true,
+                          dynamicBullets: true 
                         }}
                         loop={true}
                         autoplay={{ 
-                            delay: 3000, 
-                            disableOnInteraction: false,
-                            pauseOnMouseEnter: true
+                          delay: 3000, 
+                          disableOnInteraction: false,
+                          pauseOnMouseEnter: true
                         }}
                         breakpoints={{
-                            640: { slidesPerView: 2, spaceBetween: 20 },
-                            768: { slidesPerView: 3, spaceBetween: 24 },
-                            1024: { slidesPerView: 4, spaceBetween: 32 },
-                            1280: { slidesPerView: 5, spaceBetween: 32 },
+                          640: { slidesPerView: 2, spaceBetween: 20 },
+                          768: { slidesPerView: 3, spaceBetween: 24 },
+                          1024: { slidesPerView: 4, spaceBetween: 32 },
+                          1280: { slidesPerView: 5, spaceBetween: 32 },
                         }}
                         className="product-carousel"
-                    >
+                      >
                         {cardsSelecteds.map((card, index) => (
                             <SwiperSlide key={index}>
                                 <div
@@ -156,7 +198,8 @@ function Section01() {
                                 </div>
                             </SwiperSlide>
                         ))}
-                    </Swiper>
+                      </Swiper>
+                    )}
                 </div>
 
                 {/* Estatísticas */}
