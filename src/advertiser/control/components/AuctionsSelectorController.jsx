@@ -125,91 +125,128 @@ function AuctionsSelectorController() {
 
 
     return (
-        <div className="flex flex-col w-full h-[60%] justify-around items-center p-4 bg-white rounded-md 
-        shadow-lg shadow-[#12121244]">
-            <div className="flex w-[90%] justify-between mb-2 text-lg font-semibold text-gray-700">
-                <span className="text-[26px]">Selecione um leilão</span>
-                {generalAUK.auct && (
-                    <span className={`px-2 py-1 rounded ${getStatusClass(generalAUK.status)}`}>
-                        {generalAUK.status}
-                    </span>
-                )}
-            </div>
-
-            <section className={`flex w-full h-[90%] relative ${generalAUK.auct ? 'justify-around items-center' : "justify-center items-start"} p-2 bg-zinc-200 rounded-md`}>
-                {selectedAuction && (
-                    <img
-                        src={selectedAuction?.auct_cover_img}
-                        alt={selectedAuction?.title}
-                        className="h-[80%] object-cover rounded-[12px]"
-                    />
-                )}
-                <div className="flex flex-col items-center w-full">
-                    <select
-                        id="auction-select"
-                        className="w-[90%] h-[60px] p-2 mb-4 bg-[#012038] text-white rounded-[6px]"
-                        onChange={(e) => handleSelectAuction(auctions.find(a => a.id === e.target.value))}
-                        value={selectedAuction && selectedAuction?.id || ""}
-                    >
-                        <option value="">Selecione um leilão</option>
-                        {auctions.map(auction => (
-                            <option key={auction.id} value={auction.id}>
-                                {auction.title}
-                            </option>
-                        ))}
-                    </select>
-
+        <div className="flex bg-white w-full h-[60%] rounded-xl shadow-lg p-4">
+            <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
+                {/* Header */}
+                <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/10 rounded-lg">
+                            <Inventory2 sx={{ fontSize: 20 }} />
+                        </div>
+                        <span className="font-medium">Seleção de Leilão</span>
+                    </div>
                     {generalAUK.auct && (
-                        <>
-                            <select
-                                id="group-select"
-                                className="w-[90%] h-[60px] p-2 bg-[#012038] text-white rounded-[6px]"
-                                onChange={(e) => {
-                                    const group = e.target.value;
-                                    handleSelectGroup(group);
-                                    setSelectedGroup(group); // Atualiza o grupo selecionado
-                                }}
-                                value={generalAUK.group || ""}
-                            >
-                                <option value="">Selecione um grupo</option>
-                                {groups.map(group => {
-                                    // Encontrar o status do grupo correspondente
-                                    const groupStatus = selectedAuction && selectedAuction.auct_dates.find(date => date.group === group)?.group_status;
-
-                                    return (
-                                        <option key={group} value={group} className="flex w-full justify-around items-center">
-                                            {group} {groupStatus && `(${groupStatus})`} {/* Adiciona o status do grupo */}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-
-                            {selectedGroup && (
-                                // Verifica se o grupo já está catalogado
-                                selectedAuction && selectedAuction.auct_dates.find(date => date.group === selectedGroup)?.group_status !== "cataloged" && (
-                                    <button
-                                        onClick={handleChangeGroupStatus}
-                                        disabled={loading} // Desabilita o botão enquanto carrega
-                                        className={`w-[90%] h-[40px] mt-[2px] ${loading ? 'bg-gray-400' : 'bg-[#13466d]'} text-white 
-                                        rounded-[6px] hover:bg-blue-600 transition duration-200`}
-                                    >
-                                        {loading ? "Carregando..." : `Mandar grupo "${selectedGroup}" para catálogo`}
-                                    </button>
-                                )
-                            )}
-
-                            {generalAUK.group && (
-                                <div className="mt-2 text-lg font-semibold text-gray-700 flex gap-3 justify-center items-center">
-                                    <Inventory2 />
-                                    <span>
-                                        {lotCount}
-                                    </span>
-                                </div>
-                            )}
-                        </>
+                        <div className={`px-3 py-1 rounded-full text-sm ${getStatusClass(generalAUK.status)} 
+                            bg-opacity-20 border border-current`}>
+                            {generalAUK.status.toUpperCase()}
+                        </div>
                     )}
                 </div>
-            </section>
+
+                {/* Conteúdo */}
+                <div className="flex flex-1 p-6 gap-6">
+                    {/* Imagem do Leilão */}
+                    {selectedAuction && (
+                        <div className="w-1/3">
+                            <img
+                                src={selectedAuction?.auct_cover_img}
+                                alt={selectedAuction?.title}
+                                className="w-full h-full object-cover rounded-xl shadow-md"
+                            />
+                        </div>
+                    )}
+
+                    {/* Seletores */}
+                    <div className="flex flex-col flex-1 gap-4">
+                        {/* Select de Leilões */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm text-gray-600 font-medium">Leilão</label>
+                            <select
+                                className="w-full p-3 bg-[#012038] text-white rounded-xl 
+                                    border border-[#012038] hover:bg-[#023161] transition-colors"
+                                onChange={(e) => handleSelectAuction(auctions.find(a => a.id === e.target.value))}
+                                value={selectedAuction?.id || ""}
+                            >
+                                <option value="">Selecione um leilão</option>
+                                {auctions.map(auction => (
+                                    <option key={auction.id} value={auction.id}>
+                                        {auction.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {generalAUK.auct && (
+                            <>
+                                {/* Select de Grupos */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm text-gray-600 font-medium">Grupo</label>
+                                    <select
+                                        className="w-full p-3 bg-[#012038] text-white rounded-xl 
+                                            border border-[#012038] hover:bg-[#023161] transition-colors"
+                                        onChange={(e) => {
+                                            const group = e.target.value;
+                                            handleSelectGroup(group);
+                                            setSelectedGroup(group);
+                                        }}
+                                        value={generalAUK.group || ""}
+                                    >
+                                        <option value="">Selecione um grupo</option>
+                                        {groups.map(group => {
+                                            const groupStatus = selectedAuction?.auct_dates
+                                                .find(date => date.group === group)?.group_status;
+                                            return (
+                                                <option key={group} value={group}>
+                                                    {group} {groupStatus && `(${groupStatus})`}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+
+                                {/* Botão de Catalogar */}
+                                {selectedGroup && selectedAuction?.auct_dates
+                                    .find(date => date.group === selectedGroup)?.group_status !== "cataloged" && (
+                                    <button
+                                        onClick={handleChangeGroupStatus}
+                                        disabled={loading}
+                                        className={`flex items-center justify-center gap-2 p-3 rounded-xl 
+                                            font-medium transition-all duration-200 ${
+                                            loading 
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                        }`}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className="animate-spin h-5 w-5 border-2 border-white 
+                                                    border-t-transparent rounded-full" />
+                                                <span>Processando...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Inventory2 sx={{ fontSize: 20 }} />
+                                                <span>Catalogar Grupo &quot;{selectedGroup}&quot;</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+
+                                {/* Contador de Lotes */}
+                                {generalAUK.group && (
+                                    <div className="flex items-center justify-center gap-3 p-4 
+                                        bg-white rounded-xl shadow-md">
+                                        <Inventory2 className="text-[#012038]" />
+                                        <span className="text-lg font-medium text-[#012038]">
+                                            {lotCount} {lotCount === 1 ? 'Lote' : 'Lotes'}
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

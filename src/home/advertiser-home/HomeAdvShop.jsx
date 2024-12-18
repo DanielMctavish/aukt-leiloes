@@ -185,7 +185,6 @@ function HomeAdvShop() {
 
         } catch (error) {
             console.error('Erro ao filtrar produtos:', error);
-            console.error('Parâmetros que causaram erro:', params);
             setAllProducts([]);
             setProductsFiltered([]);
             setTotalProducts(0);

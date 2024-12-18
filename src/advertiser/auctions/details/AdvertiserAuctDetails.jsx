@@ -1,6 +1,6 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
@@ -27,6 +27,7 @@ function AdvertiserAuctDetails() {
     const navigate = useNavigate()
     const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
     const localAdvertiser = JSON.parse(currentLocalAdvertiser)
+    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
 
     useEffect(() => {
         if (!currentLocalAdvertiser) {
@@ -36,7 +37,7 @@ function AdvertiserAuctDetails() {
         getCurrentAuctById(auct_id)
     }, [auct_id, state.finishedUpload])
 
-    useEffect(() => {}, [currentAuct.auct_dates])
+    useEffect(() => { }, [currentAuct.auct_dates])
 
     const getCurrentAuctById = async (auctId) => {
         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/find-auct?auct_id=${auctId}`, {
@@ -61,19 +62,14 @@ function AdvertiserAuctDetails() {
         navigate(`/advertiser/product-details/${product_id}`)
     }
 
-    const refAddProdut = useRef()
 
     const handleShowPhotoAdd = (product) => {
-        document.querySelector(".mod-add-product").style.display = "flex";
-        refAddProdut.current.style.display = "flex";
-        refAddProdut.current.style.opacity = "0";
-        setTimeout(() => {
-            refAddProdut.current.style.opacity = "1";
-            refAddProdut.current.style.transition = ".3s";
-        }, 100);
+        setIsAddProductModalOpen(true);
+        dispatch(selectProduct(product));
+    }
 
-        //redux set current product
-        dispatch(selectProduct(product))
+    const handleClosePhotoAdd = () => {
+        setIsAddProductModalOpen(false);
     }
 
     const handleDeleteAuction = async (auct_id) => {
@@ -98,23 +94,22 @@ function AdvertiserAuctDetails() {
     };
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
+        <div className="w-full h-[100vh] bg-gray-50 flex flex-col md:flex-row absolute">
             <AssideAdvertiser MenuSelected="menu-3" />
 
-            <section
-                ref={refAddProdut}
-                style={{ backdropFilter: "blur(3px)" }}
-                className="absolute hidden justify-center items-center w-full h-[100vh] z-[999] section-add-product main-window-blur-add">
-                <AddProductMod />
-            </section>
+            {/* Modal de Adicionar Produto */}
+            {isAddProductModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-[999] 
+                    backdrop-blur-lg bg-black/30">
+                    <AddProductMod onClose={handleClosePhotoAdd} />
+                </div>
+            )}
 
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto relative">
+            <section className="w-full flex-1 flex flex-col">
                 <NavAdvertiser path={"anunciante > leilões > detalhes"} />
 
-                <div className="w-full h-[100vh] relative
-               flex flex-col justify-start items-center bg-[#091925]">
-
-                    {/* HEADER LEILÃO INFORMACIONAL */}
+                <div className="flex-1 p-3 md:p-6 bg-gradient-to-b from-[#091925] to-[#0d2437]">
+                    {/* Header do Leilão */}
                     <AuctionHeader
                         currentAuct={currentAuct}
                         editCurrentAuct={editCurrentAuct}
@@ -122,48 +117,199 @@ function AdvertiserAuctDetails() {
                         isDeleting={isDeleting}
                     />
 
-                    {/* PRODUTOS */}
-                    <section className="w-[97%] h-[60vh] text-zinc-700 flex flex-col justify-start items-center p-2 rounded-lg bg-white mt-3 overflow-y-auto">
-                        <div className="w-full p-2 flex flex-col justify-between items-center gap-3">
-                            {
-                                currentAuct.product_list
-                                    .sort((a, b) => a.lote - b.lote) // Ordenar pela propriedade 'lote'
-                                    .map((product, index) => (
-                                        <div className="w-full flex hover:border-[1px] border-zinc-300 cursor-pointer p-1 rounded-lg"
-                                            key={index}>
-                                            <span className="text-[16px] font-bold w-[20px] flex justify-center items-center overflow-hidden p-2">
-                                                {index + 1}
-                                            </span>
-                                            <span className="text-[16px] font-bold w-screen flex justify-center items-center overflow-hidden p-2">
-                                                {product.title}
-                                            </span>
-                                            <span className="text-[16px] w-[300px] font-bold flex justify-start items-center overflow-hidden">
-                                                {formatCurrency(product.initial_value)}
-                                            </span>
-                                            <span
-                                                onClick={() => handleShowPhotoAdd(product)}
-                                                className="min-w-[40px] min-h-[40px] mr-1 flex justify-center items-center">
-                                                {product.cover_img_url === "string" ?
-                                                    <NoPhotography /> :
-                                                    <img src={product.cover_img_url} alt=""
-                                                        className="w-[40px] h-[40px] bg-[#474747] object-cover rounded-full" />
-                                                }
-                                            </span>
-
-                                            <span
-                                                onClick={() => redirectToProductDetails(product.id)}
-                                                className="min-w-[40px] min-h-[40px] flex justify-center items-center">
-                                                <EditNote style={{ fontSize: "30px" }} />
-                                            </span>
-
-                                        </div>
-                                    ))
-                            }
+                    {/* Lista de Produtos */}
+                    <div className="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
+                        {/* Cabeçalho da Lista */}
+                        <div className="bg-gray-50 px-4 md:px-6 py-4 border-b border-gray-200">
+                            <h2 className="text-base md:text-lg font-semibold text-gray-800">
+                                Lista de Produtos
+                                <span className="ml-2 text-sm text-gray-500 font-normal">
+                                    ({currentAuct.product_list.length} itens)
+                                </span>
+                            </h2>
                         </div>
-                    </section>
 
+                        {/* Tabela de Produtos - Versão Desktop */}
+                        <div className="hidden md:block">
+                            <table className="w-full table-fixed">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Lote
+                                        </th>
+                                        <th className="w-[35%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Produto
+                                        </th>
+                                        <th className="w-[20%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Valor Inicial
+                                        </th>
+                                        <th className="w-[15%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                            Lances
+                                        </th>
+                                        <th className="w-[10%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                            Imagem
+                                        </th>
+                                        <th className="w-[10%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                            Ações
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {currentAuct.product_list
+                                        .sort((a, b) => a.lote - b.lote)
+                                        .map((product, index) => (
+                                            <tr key={index}
+                                                className={`hover:bg-gray-50 transition-colors relative
+                                                    ${product.winner_id ? 'bg-[#30de4d30]' : ''}`}
+                                            >
+
+
+                                                <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                                                    #{index + 1}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <div className="text-sm text-gray-700 truncate" title={product.title}>
+                                                        {product.title}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4 text-sm text-gray-700">
+                                                    {formatCurrency(product.initial_value)}
+                                                </td>
+                                                <td className="px-4 py-4 text-center">
+                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                                                        ${product.winner_id
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : product.Bid?.length > 0
+                                                                ? 'bg-blue-100 text-blue-800'
+                                                                : 'bg-gray-100 text-gray-800'}`}>
+                                                        {product.Bid?.length || 0} lance{product.Bid?.length !== 1 ? 's' : ''}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-4 text-center">
+                                                    <button
+                                                        onClick={() => handleShowPhotoAdd(product)}
+                                                        className="inline-flex items-center justify-center w-10 h-10 
+                                                        rounded-full hover:bg-gray-100 transition-colors mx-auto"
+                                                    >
+                                                        {product.cover_img_url === "string" ? (
+                                                            <NoPhotography className="text-gray-400" />
+                                                        ) : (
+                                                            <img
+                                                                src={product.cover_img_url}
+                                                                alt=""
+                                                                className={`w-10 h-10 rounded-full object-cover 
+                                                                ${product.winner_id
+                                                                        ? 'ring-2 ring-green-400'
+                                                                        : 'ring-2 ring-gray-200'}`}
+                                                            />
+                                                        )}
+                                                    </button>
+                                                </td>
+                                                <td className="px-4 py-4 text-center">
+                                                    {/* Tarja de Vendido - Ajustada para não interferir no layout */}
+                                                    {product.winner_id && (
+                                                        <div className="absolute right-0 top-0 w-32 h-full overflow-hidden pointer-events-none">
+                                                            <div className="absolute top-[20px] right-[-40px] w-[170px] text-center 
+                                                            transform rotate-45 bg-green-600 text-white text-xs font-bold py-1 
+                                                            shadow-md z-10">
+                                                                VENDIDO
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    <button
+                                                        onClick={() => redirectToProductDetails(product.id)}
+                                                        className="inline-flex items-center justify-center p-2 
+                                                        rounded-full hover:bg-gray-100 transition-colors mx-auto"
+                                                    >
+                                                        <EditNote className={`${product.winner_id
+                                                            ? 'text-green-600 hover:text-green-800'
+                                                            : 'text-gray-600 hover:text-[#012038]'}`}
+                                                        />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Lista de Produtos - Versão Mobile */}
+                        <div className="md:hidden">
+                            {currentAuct.product_list
+                                .sort((a, b) => a.lote - b.lote)
+                                .map((product, index) => (
+                                    <div
+                                        key={index}
+                                        className={`p-4 border-b border-gray-100 relative
+                                            ${product.winner_id ? 'bg-green-50' : ''}`}
+                                    >
+                                        {product.winner_id && (
+                                            <div className="absolute top-0 right-0">
+                                                <div className="bg-green-600 text-white text-xs font-bold 
+                                                    px-2 py-1 rounded-bl-lg">
+                                                    VENDIDO
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <button
+                                                onClick={() => handleShowPhotoAdd(product)}
+                                                className="flex-shrink-0"
+                                            >
+                                                {product.cover_img_url === "string" ? (
+                                                    <div className="w-12 h-12 rounded-full bg-gray-100 
+                                                        flex items-center justify-center">
+                                                        <NoPhotography className="text-gray-400" />
+                                                    </div>
+                                                ) : (
+                                                    <img
+                                                        src={product.cover_img_url}
+                                                        alt=""
+                                                        className={`w-12 h-12 rounded-full object-cover 
+                                                            ${product.winner_id
+                                                                ? 'ring-2 ring-green-400'
+                                                                : 'ring-2 ring-gray-200'}`}
+                                                    />
+                                                )}
+                                            </button>
+
+                                            <div className="flex-1">
+                                                <h3 className="font-medium text-gray-900">
+                                                    Lote #{index + 1} - {product.title}
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    {formatCurrency(product.initial_value)}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <span className={`inline-flex items-center px-2.5 py-1 
+                                                rounded-full text-xs font-medium
+                                                ${product.winner_id
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : product.Bid?.length > 0
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : 'bg-gray-100 text-gray-800'}`}>
+                                                {product.Bid?.length || 0} lance{product.Bid?.length !== 1 ? 's' : ''}
+                                            </span>
+
+                                            <button
+                                                onClick={() => redirectToProductDetails(product.id)}
+                                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                            >
+                                                <EditNote className={`${product.winner_id
+                                                    ? 'text-green-600'
+                                                    : 'text-gray-600'}`}
+                                                />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
                 </div>
-
             </section>
         </div>
     )

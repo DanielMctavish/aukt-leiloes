@@ -5,6 +5,7 @@ const initialState = {
   group: null,
   status: null,
   currentProduct: null,
+  currentTimer: null,
 };
 
 const generalAUKSlice = createSlice({
@@ -23,9 +24,12 @@ const generalAUKSlice = createSlice({
     setCurrentProduct: (state, action) => {
       state.currentProduct = action.payload;
     },
+    setCurrentTimer: (state, action) => {
+      state.currentTimer = action.payload;
+    },
     resetGeneralAUK: () => initialState,
   },
 });
 
-export const { setAuct, setGroup, setStatus, setCurrentProduct, resetGeneralAUK } = generalAUKSlice.actions;
+export const { setAuct, setGroup, setStatus, setCurrentProduct, setCurrentTimer, resetGeneralAUK } = generalAUKSlice.actions;
 export default generalAUKSlice.reducer;
