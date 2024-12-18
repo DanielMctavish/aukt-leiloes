@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import Wallet from "../../data/Wallet.json";
 import MasterLogo from "../../../media/logos/MasterCardlogo.svg";
 import VisaLogo from "../../../media/logos/visalogo.svg";
+import { Add, ContentCopy } from "@mui/icons-material";
 
 function getCardStyle(numero) {
   const isVisa = /^4/.test(numero);
@@ -9,51 +11,105 @@ function getCardStyle(numero) {
   if (isVisa) {
     return {
       imagem: VisaLogo,
-      cor1: "#B60000",
-      cor2: "#EB0A0A",
+      gradiente: "from-[#1A1F71] to-[#0E1D8B]",
+      logo: "text-white"
     };
   } else if (isMastercard) {
     return {
       imagem: MasterLogo,
-      cor1: "#9C009F",
-      cor2: "#3C0051",
-    };
-  } else {
-    return {
-      imagem: MasterLogo,
-      cor1: "#545454",
-      cor2: "#242424",
+      gradiente: "from-[#EB001B] to-[#C79000]",
+      logo: "text-white"
     };
   }
+  return {
+    imagem: MasterLogo,
+    gradiente: "from-gray-800 to-gray-900",
+    logo: "text-white"
+  };
 }
 
 function CardAdvertiserWallet() {
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopyNumber = (numero) => {
+    navigator.clipboard.writeText(numero);
+    setCopiedId(numero);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const formatCardNumber = (numero) => {
+    return numero.replace(/(\d{4})/g, '$1 ').trim();
+  };
+
   return (
-    <div className="flex flex-col mt-4 justify-center items-center">
-      {Wallet.map((auction, index) => {
-        const cardStyle = getCardStyle(auction.numero);
+    <div className="space-y-4">
+      {Wallet.map((card, index) => {
+        const cardStyle = getCardStyle(card.numero);
 
         return (
           <div
             key={index}
-            className="w-[70%] h-[20vh] flex-shrink-0 rounded-[12px] mt-2 bg-gradient-to-r text-[#F6F6F6]"
-            style={{
-              background: `linear-gradient(to right, ${cardStyle.cor1}, ${cardStyle.cor2})`,
-            }}
+            className={`relative group overflow-hidden rounded-xl bg-gradient-to-r ${cardStyle.gradiente} 
+              shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
           >
-            <div className="flex justify-between p-6 text-[14px]">
-              <span>{auction.data}</span>
-              <span>{auction.codigo}</span>
+            {/* Conteúdo do Cartão */}
+            <div className="p-6 text-white">
+              <div className="flex justify-between items-start mb-8">
+                <div className="space-y-1">
+                  <p className="text-xs opacity-80">Válido até</p>
+                  <p className="font-medium">{card.data}</p>
+                </div>
+                <img
+                  src={cardStyle.imagem}
+                  alt="Card Logo"
+                  className="h-8 object-contain"
+                />
+              </div>
+
+              {/* Número do Cartão */}
+              <div className="flex items-center justify-between mb-4">
+                <p className="font-mono text-lg tracking-wider">
+                  {formatCardNumber(card.numero)}
+                </p>
+                <button 
+                  onClick={() => handleCopyNumber(card.numero)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <ContentCopy className="text-white/80 text-sm" />
+                </button>
+              </div>
+
+              {/* Feedback de Cópia */}
+              {copiedId === card.numero && (
+                <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                  Copiado!
+                </div>
+              )}
+
+              {/* Código de Segurança */}
+              <div className="text-xs opacity-80">
+                <span>Código de Segurança: •••</span>
+              </div>
             </div>
-            <span className="flex pl-6">{auction.numero}</span>
-            <img
-              src={cardStyle.imagem}
-              alt="Card Logo"
-              className="float-right mt-6 mr-2"
-            />
+
+            {/* Efeito de Brilho */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 
+              pointer-events-none transition-opacity duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
+                transform -skew-x-12"></div>
+            </div>
           </div>
         );
       })}
+
+      {/* Botão Adicionar Cartão */}
+      <button className="w-full p-4 border-2 border-dashed border-gray-300 rounded-xl 
+        text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center 
+        justify-center gap-2"
+      >
+        <Add />
+        <span>Adicionar novo cartão</span>
+      </button>
     </div>
   );
 }
