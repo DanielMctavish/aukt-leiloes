@@ -5,8 +5,9 @@ import axios from "axios";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
 import { useEffect, useState } from "react";
-import { DeleteForever, ImageNotSupported } from "@mui/icons-material"
+import { DeleteForever, ImageNotSupported, Edit, Gavel, TrendingUp, AccessTime } from "@mui/icons-material"
 import AdvertiserProductDetailsUpdate from "./AdvertiserProductDetailsUpdate"; // Import the update modal
+import dayjs from "dayjs";
 
 function AdvertiserProductDetails() {
     const [currentProduct, setCurrentProduct] = useState({})
@@ -56,78 +57,256 @@ function AdvertiserProductDetails() {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
 
+    // Função para formatar data
+    const formatDate = (date) => {
+        return dayjs(date).format('DD/MM/YYYY HH:mm:ss');
+    };
+
+    // Função para ordenar lances por data (mais recente primeiro)
+    const getSortedBids = () => {
+        return currentProduct.Bid?.sort((a, b) => 
+            new Date(b.created_at) - new Date(a.created_at)
+        ) || [];
+    };
+
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#091925]">
+        <div className="w-full h-screen bg-[#f8fafc] flex flex-col md:flex-row">
             <AssideAdvertiser MenuSelected="menu-3" />
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto">
+            
+            <section className="flex-1 flex flex-col">
                 <NavAdvertiser path='anunciante > leilões > detalhes > produtos' />
 
-                <section className="flex md:flex-row flex-col justify-start items-center w-full h-[99vh] relative bg-[#1c2b3a] p-4 gap-4 text-zinc-200 overflow-hidden rounded-lg shadow-lg">
+                <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+                    {/* Header do Produto */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                                {currentProduct.title}
+                            </h1>
+                            <p className="text-gray-500">ID: {currentProduct.id}</p>
+                        </div>
+                        <button 
+                            onClick={() => setIsEditing(true)}
+                            className="mt-4 md:mt-0 px-6 py-2.5 bg-[#012038] hover:bg-[#012d52] text-white 
+                                rounded-lg transition-all duration-300 flex items-center gap-2 shadow-sm"
+                        >
+                            <Edit className="text-sm" />
+                            Editar Produto
+                        </button>
+                    </div>
 
-                    {!deleteIsLoading ? (
-                        <div className="md:w-[60%] w-full md:h-[100%] h-[50%] bg-[#2e3b4e] flex justify-center items-center rounded-lg shadow-md">
-                            <div className="w-[90%] relative">
-                                {currentProduct.cover_img_url ? (
-                                    <>
-                                        <span onClick={() => handleDeleteProductImage(currentProduct.cover_img_url, currentProduct.id)}
-                                            className="absolute top-[3vh] right-2 cursor-pointer">
-                                            <DeleteForever sx={{ color: "#c20000" }} />
-                                        </span>
-                                        <img src={currentProduct.cover_img_url} alt="" className="max-h-[92%] w-full object-cover rounded-md shadow-md" />
-                                    </>
-                                ) : (
-                                    <div className="flex justify-center items-center h-full">
-                                        <ImageNotSupported sx={{ fontSize: 100, color: "#c20000" }} />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Seção de Imagens */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                            <div className="flex flex-col gap-6">
+                                {/* Imagem Principal */}
+                                <div className="aspect-video relative rounded-xl overflow-hidden bg-gray-50">
+                                    {!deleteIsLoading ? (
+                                        currentProduct.cover_img_url ? (
+                                            <>
+                                                <button 
+                                                    onClick={() => handleDeleteProductImage(currentProduct.cover_img_url, currentProduct.id)}
+                                                    className="absolute top-3 right-3 p-2 bg-red-500/90 hover:bg-red-500 
+                                                        text-white rounded-lg shadow-lg transition-all duration-300 z-10
+                                                        hover:scale-105"
+                                                >
+                                                    <DeleteForever className="text-xl" />
+                                                </button>
+                                                <img 
+                                                    src={currentProduct.cover_img_url} 
+                                                    alt="" 
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </>
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <ImageNotSupported className="text-gray-300" sx={{ fontSize: 80 }} />
+                                            </div>
+                                        )
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <div className="flex items-center gap-3 text-gray-400">
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                                                Excluindo imagem...
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Galeria */}
+                                {Array.isArray(currentProduct.group_imgs_url) && currentProduct.group_imgs_url.length > 0 && (
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 mb-3">Galeria de Imagens</h3>
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                            {currentProduct.group_imgs_url.map((url, key) => (
+                                                <div key={key} className="relative aspect-square rounded-lg overflow-hidden group">
+                                                    <img 
+                                                        src={url} 
+                                                        className="w-full h-full object-cover" 
+                                                    />
+                                                    <button 
+                                                        onClick={() => handleDeleteProductImage(url, currentProduct.id)}
+                                                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100
+                                                            flex items-center justify-center transition-opacity duration-200"
+                                                    >
+                                                        <DeleteForever className="text-white/90 hover:text-white" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
+                        </div>
 
-                            <div className="flex flex-col w-[16%] justify-start items-center gap-2">
-                                {Array.isArray(currentProduct.group_imgs_url) && currentProduct.group_imgs_url.map((url, key) => (
-                                    <div key={key} className="relative">
-                                        <span onClick={() => handleDeleteProductImage(url, currentProduct.id)} className="absolute top-1 right-2 cursor-pointer">
-                                            <DeleteForever sx={{ color: "#c20000" }} />
-                                        </span>
-                                        <img src={url} className="w-[100px] h-[100px] object-cover rounded-[4px] shadow-lg" />
-                                    </div>
-                                ))}
+                        {/* Seção de Informações */}
+                        <div className="space-y-6">
+                            {/* Cards de Valores */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <span className="text-sm font-medium text-gray-400">Valor Inicial</span>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {formatCurrency(currentProduct.initial_value)}
+                                    </p>
+                                </div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <span className="text-sm font-medium text-gray-400">Valor Reserva</span>
+                                    <p className="text-2xl font-bold text-cyan-600 mt-1">
+                                        {formatCurrency(currentProduct.reserve_value)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Grupo */}
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <span className="text-sm font-medium text-gray-400">Grupo</span>
+                                <p className="text-xl font-semibold text-gray-900 mt-1">
+                                    {currentProduct.group}
+                                </p>
+                            </div>
+
+                            {/* Descrição */}
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <span className="text-sm font-medium text-gray-400">Descrição</span>
+                                <div className="mt-3 prose prose-sm max-w-none">
+                                    <p className="text-gray-600 whitespace-pre-wrap">
+                                        {currentProduct.description}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    ) : (
-                        <div className="md:w-[60%] w-full md:h-[100%] h-[50%] bg-[#2e3b4e] flex justify-center items-center rounded-lg shadow-md">
-                            excluindo imagem...
+
+                        {/* Nova seção de lances após as informações */}
+                        <div className="lg:col-span-2">
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-2">
+                                        <Gavel className="text-gray-400" />
+                                        <h2 className="text-lg font-semibold text-gray-900">
+                                            Histórico de Lances
+                                            <span className="ml-2 text-sm font-normal text-gray-500">
+                                                ({currentProduct.Bid?.length || 0} lances)
+                                            </span>
+                                        </h2>
+                                    </div>
+
+                                    {currentProduct.winner_id && (
+                                        <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                            Produto Vendido
+                                        </div>
+                                    )}
+                                </div>
+
+                                {getSortedBids().length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b border-gray-100">
+                                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Cliente
+                                                    </th>
+                                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Valor do Lance
+                                                    </th>
+                                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Data/Hora
+                                                    </th>
+                                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {getSortedBids().map((bid, index) => (
+                                                    <tr key={index} className={`${
+                                                        currentProduct.winner_id === bid.client_id 
+                                                            ? 'bg-green-50' 
+                                                            : 'hover:bg-gray-50'
+                                                    }`}>
+                                                        <td className="py-3 px-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                                                    <span className="text-sm font-medium text-gray-600">
+                                                                        {bid.Client?.name?.charAt(0).toUpperCase()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-gray-900">
+                                                                        {bid.Client?.name}
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-500">
+                                                                        {bid.Client?.email}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <TrendingUp className={`text-sm ${
+                                                                    index === 0 ? 'text-green-500' : 'text-gray-400'
+                                                                }`} />
+                                                                <span className="text-sm font-medium text-gray-900">
+                                                                    {formatCurrency(bid.value)}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <AccessTime className="text-gray-400 text-sm" />
+                                                                <span className="text-sm text-gray-600">
+                                                                    {formatDate(bid.created_at)}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            {currentProduct.winner_id === bid.client_id ? (
+                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                    Vencedor
+                                                                </span>
+                                                            ) : index === 0 ? (
+                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                    Maior Lance
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                    Superado
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-gray-500">
+                                        Nenhum lance registrado para este produto ainda.
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    )}
-
-                    <div className="md:w-[40%] w-full md:h-[100%] h-[50%] bg-[#2e3b4e] flex flex-col justify-start items-start p-4 rounded-lg shadow-md">
-                        <h1 className="text-zinc-200 font-bold text-[22px] p-1 rounded-md">
-                            {currentProduct.title}
-                        </h1>
-                        <div className="w-full flex justify-between items-center">
-                            <span className="text-zinc-200 font-bold text-[18px] p-1 rounded-md">
-                                {formatCurrency(currentProduct.initial_value)}
-                            </span>
-
-                            <span className="text-[#b5f8ff] font-bold text-[22px] p-1 rounded-md relative">
-                                <span className="absolute top-0 right-0 text-[10px] p-[1px] font-bold text-[#ffffff] rounded-full">R</span>
-                                {formatCurrency(currentProduct.reserve_value)}
-                            </span>
-
-                            <span className="text-zinc-200 font-bold text-[26px] p-1 rounded-md">
-                                {currentProduct.group}
-                            </span>
-                        </div>
-                        <div className="flex w-[98%] bg-zinc-300 h-[1px] my-2"></div>
-                        <div className="flex justify-center items-center w-full h-[200px] text-[16px] rounded-lg text-zinc-200">
-                            <p>
-                                {currentProduct.description}
-                            </p>
-                        </div>
-
-                        <button onClick={() => setIsEditing(true)} className="w-[97%] h-[40px] text-center bg-[#072338] text-white rounded-md">Editar Produto</button>
                     </div>
-
-                </section>
+                </div>
             </section>
 
             {isEditing && (

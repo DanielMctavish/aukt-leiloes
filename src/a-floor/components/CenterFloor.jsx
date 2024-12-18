@@ -76,53 +76,93 @@ function CenterFloor({ title, description, auction, currentProduct }) {
         );
     };
 
+    const isDatePassed = (date) => {
+        return dayjs(date).isBefore(dayjs());
+    };
+
     return (
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
-        lg:justify-center justify-start items-center rounded-[22px] bg-gradient-to-br from-gray-100 to-gray-300
-        shadow-xl relative z-[2] p-6 gap-6 overflow-hidden">
+            bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl shadow-xl shadow-[#1414143a] 
+            border-t-[2px] border-[#e3e3e3] relative z-[2] p-6 gap-6 overflow-hidden"
+        >
+            {/* Tela de Leilão Finalizado */}
             {isAuctionFinished && (
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0D1733] to-[#d7d7d7] flex flex-col items-center justify-center z-30 p-8 overflow-y-auto">
-                    <div className="max-w-6xl w-full">
-                        <h2 className="text-3xl font-bold text-white mb-4 text-center">Leilão Finalizado</h2>
-                        <p className="text-xl text-white mb-6 text-center">Obrigado pela sua participação!</p>
-                        <div className="w-16 h-1 bg-yellow-500 mx-auto mb-6"></div>
-                        <h3 className="text-2xl font-bold text-white mb-8 text-center">Próximos Leilões em Destaque</h3>
+                <div className="absolute inset-0 bg-[#d2d2d2ad] backdrop-blur-lg
+                    flex flex-col items-center z-30 overflow-y-auto"
+                >
+                    {/* Header */}
+                    <div className="w-full bg-[#012038] py-8 px-4 mb-8">
+                        <div className="max-w-6xl mx-auto">
+                            <h2 className="text-4xl font-bold text-white mb-3 text-center">
+                                Leilão Finalizado
+                            </h2>
+                            <p className="text-xl text-white/80 text-center">
+                                Obrigado pela sua participação!
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Conteúdo */}
+                    <div className="max-w-6xl w-full px-4">
+                        <div className="flex items-center gap-4 mb-8">
+                            <h3 className="text-2xl font-bold text-gray-800">
+                                Próximos Leilões em Destaque
+                            </h3>
+                            <div className="flex-1 h-[2px] bg-gradient-to-r from-gray-300 to-transparent"></div>
+                        </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                             {sortedAuctions.map(auction => (
                                 auction && (
-                                    <div key={auction.id} className="bg-white flex flex-col h-80 overflow-hidden
-                                    rounded-lg shadow-lg shadow-[#1c1c1c37] transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105">
-                                        <div className="p-4 flex-shrink-0">
-                                            <span className="text-sm text-gray-600">{auction.Advertiser.name}</span>
-                                            <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">{auction.title}</h3>
+                                    <div key={auction.id} 
+                                        className="bg-white/80 backdrop-blur-sm flex flex-col h-80 overflow-hidden
+                                        rounded-xl border border-white shadow-lg
+                                        transition-all duration-300 hover:transform hover:scale-[1.02]
+                                        hover:shadow-xl"
+                                    >
+                                        {/* Card Header */}
+                                        <div className="p-4 flex-shrink-0 border-b border-gray-200">
+                                            <span className="text-sm text-gray-500 font-medium">
+                                                {auction.Advertiser.name}
+                                            </span>
+                                            <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">
+                                                {auction.title}
+                                            </h3>
                                         </div>
 
+                                        {/* Grid de Produtos */}
                                         <div className="flex-grow p-4 grid grid-cols-2 gap-2 overflow-hidden">
-                                            {
-                                                auction.product_list && auction.product_list.slice(0, 4).map(product => (
-                                                    <div
-                                                        key={product.id}
-                                                        className="flex flex-col items-center bg-gray-100 rounded-md shadow p-2 relative overflow-hidden group aspect-square"
+                                            {auction.product_list && auction.product_list.slice(0, 4).map(product => (
+                                                <div key={product.id}
+                                                    className="aspect-square rounded-lg overflow-hidden relative group
+                                                        bg-gray-100 shadow-sm"
+                                                >
+                                                    <img
+                                                        src={product.cover_img_url}
+                                                        alt={product.title}
+                                                        className="w-full h-full object-cover transition-transform duration-300 
+                                                            group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent 
+                                                        opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                                                        flex flex-col justify-end p-2"
                                                     >
-                                                        <img
-                                                            src={product.cover_img_url}
-                                                            alt={product.title}
-                                                            className="w-full h-full object-cover rounded-md transition-all duration-300 group-hover:scale-110"
-                                                        />
-                                                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-1">
-                                                            {renderStars()}
-                                                            <p className="text-xs font-semibold text-white truncate w-full">{product.title}</p>
-                                                        </div>
+                                                        {renderStars()}
+                                                        <p className="text-xs font-semibold text-white truncate">
+                                                            {product.title}
+                                                        </p>
                                                     </div>
-                                                ))
-                                            }
+                                                </div>
+                                            ))}
                                         </div>
 
-                                        <div className="p-4 flex-shrink-0">
+                                        {/* Card Footer */}
+                                        <div className="p-4 flex-shrink-0 bg-gray-50">
                                             <button
                                                 onClick={() => navigate(`/advertiser/home/shop/${auction.id}`)}
-                                                className="w-full h-10 bg-[#0D1733] rounded-md text-white hover:bg-[#1A2547] transition-colors duration-300"
+                                                className="w-full py-2 px-4 bg-[#012038] text-white rounded-lg
+                                                    hover:bg-[#023161] transition-all duration-300 font-medium
+                                                    focus:ring-2 focus:ring-[#012038] focus:ring-offset-2"
                                             >
                                                 Ver mais
                                             </button>
@@ -135,90 +175,175 @@ function CenterFloor({ title, description, auction, currentProduct }) {
                 </div>
             )}
 
-            {/* Verifica se o leilão está catalogado antes de renderizar a tela de descanso */}
+            {/* Tela de Descanso */}
             {auction.status === "cataloged" && !isAuctionFinished && !currentProduct && (
-                <div className="w-full h-full flex lg:flex-row flex-col items-center justify-between">
-                    <div className="lg:w-1/2 w-full h-full relative overflow-hidden rounded-lg shadow-lg">
-                        <img src={auction.auct_cover_img} alt="capa do leilão" className="absolute inset-0 w-full h-full object-cover filter blur-sm opacity-50" />
-                        <img src={auction.auct_cover_img} alt="capa do leilão" className="relative z-10 w-full h-full object-contain" />
+                <div className="w-full h-full flex lg:flex-row flex-col items-center justify-between gap-6">
+                    <div className="lg:w-1/2 w-full h-full relative overflow-hidden rounded-xl">
+                        <div className="absolute inset-0">
+                            <img 
+                                src={auction.auct_cover_img} 
+                                alt="background" 
+                                className="w-full h-full object-cover filter blur-sm opacity-30"
+                            />
+                        </div>
+                        <img 
+                            src={auction.auct_cover_img} 
+                            alt="capa do leilão" 
+                            className="relative z-10 w-full h-full object-contain p-4"
+                        />
                     </div>
-                    <div className="lg:w-1/2 w-full h-full flex flex-col justify-center items-start p-8 bg-white bg-opacity-80 rounded-lg shadow-lg">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-4">{auction.title}</h1>
+                    <div className="lg:w-1/2 w-full h-full flex flex-col justify-center items-start p-8 
+                        bg-white/80 backdrop-blur-md rounded-xl border border-white">
+                        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                            {auction.title}
+                        </h1>
                         <p className="text-gray-600 mb-6 leading-relaxed">
                             {auction.descriptions_informations}
                         </p>
-                        <div className="w-full justify-center items-center flex gap-3">
-                            {auction.auct_dates &&
-                                auction.auct_dates.map((date, i) => (
-                                    <div key={i} className="flex items-center mb-2 bg-zinc-200 p-2 rounded-lg font-bold">
-                                        <CalendarTodayIcon className="mr-2" />
-                                        <span className="text-gray-600 text-[12px]">
-                                            {dayjs(date.date_auct).format('DD/MM/YYYY HH:mm')}
-                                        </span>
+                        <div className="flex flex-wrap gap-3 justify-center">
+                            {auction.auct_dates?.map((date, i) => {
+                                const isPassed = isDatePassed(date.date_auct);
+                                
+                                return (
+                                    <div 
+                                        key={i} 
+                                        className={`flex items-center px-4 py-2 rounded-lg shadow-md
+                                            transition-all duration-300 
+                                            ${isPassed 
+                                                ? 'bg-gray-300/50 text-gray-500' 
+                                                : 'bg-[#012038] text-white'
+                                            }`}
+                                    >
+                                        <CalendarTodayIcon 
+                                            className={`mr-2 ${isPassed 
+                                                ? 'text-gray-400' 
+                                                : 'text-cyan-400'
+                                            }`} 
+                                        />
+                                        <div className="flex flex-col">
+                                            <span className={`text-sm font-medium ${isPassed && 'line-through'}`}>
+                                                {dayjs(date.date_auct).format('DD/MM/YYYY HH:mm')}
+                                            </span>
+                                            {isPassed && (
+                                                <span className="text-xs text-gray-500">
+                                                    Encerrado
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                ))
-                            }
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
             )}
 
+            {/* Visualização do Produto */}
             {description && (
-                <>
-                    <div className="lg:w-[40%] w-full lg:h-[80%] flex flex-col relative justify-center items-center gap-2">
-                        <div className="relative w-full h-full">
+                <div className="flex lg:flex-row flex-col w-full h-full gap-6">
+                    {/* Lado Esquerdo - Imagens */}
+                    <div className="lg:w-1/2 w-full h-full">
+                        <div className="relative w-full h-full rounded-xl overflow-hidden shadow-lg 
+                            bg-white/10 backdrop-blur-sm border border-white/20"
+                        >
                             <img
                                 src={images[currentImageIndex]}
                                 alt={`Produto ${currentImageIndex + 1}`}
-                                className="w-full h-full object-cover cursor-pointer"
+                                className="w-full h-full object-contain p-2 cursor-pointer 
+                                    transition-transform duration-300 hover:scale-[1.02]"
                                 onClick={handleToggleFullscreen}
                             />
-                            <div className="absolute bottom-0 left-0 right-0 flex justify-center p-2 bg-black bg-opacity-50">
-                                {images.map((_, index) => (
-                                    <div
-                                        key={index}
-                                        className={`w-2 h-2 mx-1 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-gray-400'}`}
-                                    />
-                                ))}
+                            
+                            {/* Navegação de Imagens */}
+                            <div className="absolute bottom-0 left-0 right-0 p-4 
+                                bg-gradient-to-t from-black/60 to-transparent"
+                            >
+                                <div className="flex justify-center items-center gap-3">
+                                    {images.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setCurrentImageIndex(index)}
+                                            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 
+                                                ${index === currentImageIndex 
+                                                    ? 'bg-cyan-400 scale-125' 
+                                                    : 'bg-white/60 hover:bg-white/80'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
+
+                            {/* Botões de Navegação */}
+                            {images.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={handlePrevImage}
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 
+                                            bg-black/20 hover:bg-black/40 rounded-full 
+                                            transition-all duration-300 text-white"
+                                    >
+                                        <ArrowBackIosNewIcon />
+                                    </button>
+                                    <button
+                                        onClick={handleNextImage}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 
+                                            bg-black/20 hover:bg-black/40 rounded-full 
+                                            transition-all duration-300 text-white"
+                                    >
+                                        <ArrowForwardIosIcon />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    {!isFullscreen && (
-                        <div className="lg:w-[50%] w-full lg:h-[80%] min-h-[40vh] flex flex-col justify-start items-center p-6 bg-white shadow-lg rounded-lg">
-                            <h1 className="font-bold lg:text-[34px] text-[24px] text-gray-800 mb-4">{title}</h1>
-                            <section className="w-full h-full overflow-y-auto">
-                                <p className="text-gray-600 lg:text-[16px] text-[14px] leading-relaxed">
-                                    {description}
-                                </p>
-                            </section>
+                    {/* Lado Direito - Informações */}
+                    <div className="lg:w-1/2 w-full h-full flex flex-col 
+                        bg-white/90 backdrop-blur-md rounded-xl border border-white shadow-lg"
+                    >
+                        {/* Header */}
+                        <div className="p-6 border-b border-gray-200">
+                            <h1 className="font-bold text-3xl text-gray-800">
+                                {title}
+                            </h1>
                         </div>
-                    )}
-                </>
+
+                        {/* Descrição com Scroll */}
+                        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                            <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-line">
+                                {description}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             )}
 
+            {/* Modal Fullscreen */}
             {isFullscreen && (
-                <div className="fixed inset-0 z-20 bg-black bg-opacity-90 flex items-center justify-center">
+                <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center">
                     <button
                         onClick={handleToggleFullscreen}
-                        className="absolute top-4 right-4 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-700 transition-colors"
+                        className="absolute top-4 right-4 text-white bg-white/10 rounded-full p-2 
+                            hover:bg-white/20 transition-colors"
                     >
                         <CloseIcon />
                     </button>
                     <button
                         onClick={handlePrevImage}
-                        className="absolute left-4 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-700 transition-colors"
+                        className="absolute left-4 text-white bg-white/10 rounded-full p-2 
+                            hover:bg-white/20 transition-colors"
                     >
                         <ArrowBackIosNewIcon />
                     </button>
                     <img
                         src={images[currentImageIndex]}
                         alt={`Produto ${currentImageIndex + 1}`}
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full object-contain transition-transform duration-300"
                     />
                     <button
                         onClick={handleNextImage}
-                        className="absolute right-4 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-700 transition-colors"
+                        className="absolute right-4 text-white bg-white/10 rounded-full p-2 
+                            hover:bg-white/20 transition-colors"
                     >
                         <ArrowForwardIosIcon />
                     </button>

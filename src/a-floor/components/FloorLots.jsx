@@ -26,62 +26,66 @@ function FloorLots({ products, currentProduct }) {
     }, [selectedLot]);
 
     if (!Array.isArray(productLots)) {
-        return null; // ou retorne um componente de fallback
+        return null;
     }
 
     return (
-        <div className="w-full h-[20vh] 
-        flex rounded-[22px] justify-start items-center relative p-3 
-        bg-[#d2d2d2ad] 
-        backdrop-blur-lg shadow-xl shadow-[#1414143a] 
-        border-t-[2px] border-[#e3e3e3] 
-        transition-all duration-300 ease-in-out
-        overflow-x-auto">
-            <div className="flex gap-3">
-                {productLots.map((lot, index) => {
-                    const isCurrentLot = currentProduct && lot.id === currentProduct.id;
-                    const isCurrentGroup = currentProduct && lot.group === currentProduct.group;
+        <div className="w-full h-[20vh] bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl 
+            shadow-xl shadow-[#1414143a] border-t-[2px] border-[#e3e3e3] overflow-hidden"
+        >
+            {/* Título */}
+            <div className="px-4 py-2 bg-white/10 border-b border-white/20">
+                <span className="text-gray-700 text-sm font-medium">
+                    Lotes do Grupo
+                </span>
+            </div>
 
-                    return (
-                        <div
-                            key={index}
-                            className={`
-                                lot-item
-                                ${isCurrentLot
-                                    ? 'min-w-[120px] h-[120px] bg-white z-10'
-                                    : 'min-w-[100px] h-[100px]'
-                                }
-                                ${!isCurrentGroup ? 'opacity-0 w-0 min-w-0 overflow-hidden' : ''}
-                                flex-shrink-0 flex justify-center items-center relative rounded-md 
-                                shadow-lg
-                                transform transition-all duration-300 ease-in-out
-                                hover:scale-105 cursor-pointer
-                            `}
-                        >
-                            {isCurrentLot && (
-                                <span
-                                    style={{ textShadow: "1px 2px 1px #60e0ee" }}
-                                    className="absolute text-zinc-100 bg-[#13326b] p-2 font-bold rounded-lg text-[16px] bottom-1 left-1
-                                    transition-all duration-300 ease-in-out
-                                    transform hover:scale-110"
-                                >
-                                    #{lot.lote}
-                                </span>
-                            )}
+            {/* Container dos Lotes */}
+            <div className="h-[calc(100%-40px)] px-4 py-2 overflow-x-auto">
+                <div className="flex gap-3 h-full items-center">
+                    {productLots.map((lot, index) => {
+                        const isCurrentLot = currentProduct && lot.id === currentProduct.id;
+                        const isCurrentGroup = currentProduct && lot.group === currentProduct.group;
 
-                            <img
-                                src={lot.cover_img_url}
-                                alt={`Lote ${lot.lote}`}
+                        if (!isCurrentGroup) return null;
+
+                        return (
+                            <div
+                                key={index}
                                 className={`
-                                    object-cover w-full h-full rounded-md
+                                    lot-item flex-shrink-0
+                                    ${isCurrentLot 
+                                        ? 'w-[100px] h-[100px] ring-2 ring-[#13326b] ring-offset-2 ring-offset-[#d2d2d2]' 
+                                        : 'w-[80px] h-[80px] opacity-75 hover:opacity-100'
+                                    }
+                                    relative rounded-lg overflow-hidden
                                     transition-all duration-300 ease-in-out
-                                    ${isCurrentLot ? '' : 'filter grayscale'}
-                                    ${isCurrentLot ? 'hover:opacity-90' : 'hover:opacity-80 hover:filter-none'}
+                                    transform hover:scale-105 cursor-pointer
+                                    bg-white shadow-md
                                 `}
-                            />
-                        </div>
-                    )
-                })}
+                            >
+                                <img
+                                    src={lot.cover_img_url}
+                                    alt={`Lote ${lot.lote}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                
+                                {/* Número do Lote */}
+                                <div className={`
+                                    absolute inset-0 flex items-end justify-start p-1
+                                    bg-gradient-to-t from-[#13326b]/80 to-transparent
+                                    transition-opacity duration-300
+                                    ${isCurrentLot ? 'opacity-100' : 'opacity-0 hover:opacity-100'}
+                                `}>
+                                    <span className="text-white text-sm font-bold px-2 py-1 rounded-md"
+                                        style={{ textShadow: "1px 2px 1px #60e0ee" }}>
+                                        #{lot.lote}
+                                    </span>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
         </div>
     )

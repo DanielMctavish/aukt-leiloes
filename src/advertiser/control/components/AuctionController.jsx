@@ -65,80 +65,125 @@ function AuctionController() {
     const isDisabled = !generalAUK.auct || isFinished;
 
     return (
-        <div className="flex bg-white w-full h-[40%] justify-center items-center rounded-md p-[1vh] shadow-lg shadow-[#12121244]">
-            <div className="flex flex-col w-full h-full bg-white rounded-md overflow-hidden shadow-lg shadow-[#12121244]">
-                <span className="flex w-full h-[46px] bg-[#012038] text-white p-2 font-bold text-[14px]">Painel de controles</span>
-                <div className="grid grid-cols-3 gap-2 p-4">
+        <div className="flex bg-white w-full h-[40%] rounded-xl shadow-lg p-4">
+            <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
+                {/* Header */}
+                <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/10 rounded-lg">
+                            <PlayArrow sx={{ fontSize: 20 }} />
+                        </div>
+                        <span className="font-medium">Painel de Controles</span>
+                    </div>
 
-                    <button onClick={playAuction}
-                        disabled={isRunning || isDisabled} className={`w-full h-[60px] p-2 text-white rounded-md flex 
-                    justify-center items-center gap-2 ${isRunning || isDisabled ? 'bg-gray-400' : 'bg-[#139a0a] hover:bg-[#37c72d]'}`}>
-                        <PlayArrow sx={{ fontSize: "33px" }} />
-                        <span className="text-[14px]">Iniciar</span>
+                    {/* Botão Finalizar movido para o header */}
+                    {generalAUK.auct && generalAUK.status === "live" && (
+                        <button 
+                            onClick={killAuctionHandler}
+                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl 
+                                font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
+                        >
+                            Finalizar Leilão
+                        </button>
+                    )}
+                </div>
+
+                {/* Grid de Botões */}
+                <div className="grid grid-cols-3 gap-4 p-6">
+                    {/* Botão Iniciar */}
+                    <button 
+                        onClick={playAuction}
+                        disabled={isRunning || isDisabled} 
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            font-medium transition-all duration-200 ${
+                            isRunning || isDisabled 
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
+                        }`}
+                    >
+                        <PlayArrow sx={{ fontSize: 24 }} />
+                        <span>Iniciar</span>
                     </button>
 
-                    {!loadNext ? <button onClick={nextProduct}
-                        disabled={!isRunning || isDisabled}
-                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white 
-                    rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
-                        <SkipNext sx={{ fontSize: "33px" }} />
-                        <span>Próximo</span>
-                    </button> :
-                        <div className="bg-[#1e3d54] w-full h-[60px] p-2 text-white 
-                        rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">passando...</div>
-                    }
+                    {/* Botão Próximo */}
+                    {!loadNext ? (
+                        <button 
+                            onClick={nextProduct}
+                            disabled={!isRunning || isDisabled}
+                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                                font-medium transition-all duration-200 ${
+                                !isRunning || isDisabled
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                }`}
+                        >
+                            <SkipNext sx={{ fontSize: 24 }} />
+                            <span>Próximo</span>
+                        </button>
+                    ) : (
+                        <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            bg-[#1e3d54] text-white shadow-md">
+                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                            <span>Passando...</span>
+                        </div>
+                    )}
 
+                    {/* Botão Pausar/Retomar */}
                     {isPaused ? (
-                        <button onClick={resumeAuction}
+                        <button 
+                            onClick={resumeAuction}
                             disabled={isDisabled}
-                            className="bg-[#139a0a] hover:bg-[#37c72d] 
-                        w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
-                            <PlayCircleFilledWhite sx={{ fontSize: "33px" }} />
+                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                                font-medium transition-all duration-200 ${
+                                isDisabled
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
+                                }`}
+                        >
+                            <PlayCircleFilledWhite sx={{ fontSize: 24 }} />
                             <span>Retomar</span>
                         </button>
                     ) : (
-                        <button onClick={pauseAuction}
+                        <button 
+                            onClick={pauseAuction}
                             disabled={!isRunning || isDisabled}
-                            className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-2 disabled:bg-gray-400">
-                            <PauseCircleFilledOutlined sx={{ fontSize: "33px" }} />
+                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                                font-medium transition-all duration-200 ${
+                                !isRunning || isDisabled
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                }`}
+                        >
+                            <PauseCircleFilledOutlined sx={{ fontSize: 24 }} />
                             <span>Pausar</span>
                         </button>
                     )}
 
-                    <button onClick={() => addTime(5)}
-                        disabled={!isRunning || isDisabled}
-                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
-                        <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+5s</span>
-                    </button>
-
-                    <button onClick={() => addTime(15)}
-                        disabled={!isRunning || isDisabled}
-                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
-                        <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+15s</span>
-                    </button>
-
-                    <button onClick={() => addTime(30)}
-                        disabled={!isRunning || isDisabled}
-                        className="bg-[#012038] hover:bg-[#266da4] w-full h-[60px] p-2 text-white rounded-md flex justify-center items-center gap-1 disabled:bg-gray-400">
-                        <AccessTime sx={{ fontSize: "33px" }} />
-                        <span>+30s</span>
-                    </button>
-
-                    {generalAUK.auct && generalAUK.status === "live" && (
-                        <button onClick={killAuctionHandler}
-                            className="col-span-3 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2">
-                            Finalizar Leilão
+                    {/* Botões de Tempo */}
+                    {[5, 15, 30].map((time) => (
+                        <button 
+                            key={time}
+                            onClick={() => addTime(time)}
+                            disabled={!isRunning || isDisabled}
+                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                                font-medium transition-all duration-200 ${
+                                !isRunning || isDisabled
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                }`}
+                        >
+                            <AccessTime sx={{ fontSize: 24 }} />
+                            <span>+{time}s</span>
                         </button>
-                    )}
-
-                    {isFinished && (
-                        <div className="col-span-3 text-center text-green-600 font-bold mt-2">
-                            Leilão finalizado
-                        </div>
-                    )}
+                    ))}
                 </div>
+
+                {/* Mensagem de Finalizado */}
+                {isFinished && (
+                    <div className="text-center py-4 text-green-600 font-medium bg-green-50 border-t border-green-100">
+                        Leilão finalizado com sucesso
+                    </div>
+                )}
             </div>
         </div>
     )

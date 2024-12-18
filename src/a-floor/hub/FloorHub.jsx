@@ -27,9 +27,22 @@ const FloorHub = () => {
                 `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus?status=live`
             );
 
+            const getTotalBids = (auction) => {
+                return auction.product_list?.reduce((total, product) => 
+                    total + (product.Bid?.length || 0), 0) || 0;
+            };
+
+            const sortAuctions = (auctions) => {
+                return [...auctions].sort((a, b) => {
+                    const bidCountA = getTotalBids(a);
+                    const bidCountB = getTotalBids(b);
+                    return bidCountA - bidCountB;
+                });
+            };
+
             setAllAuctions({
-                auctionCataloged: catalogedResponse.data.filter(auct => auct.public === true),
-                auctionLive: liveResponse.data.filter(auct => auct.public === true),
+                auctionCataloged: sortAuctions(catalogedResponse.data.filter(auct => auct.public === true)),
+                auctionLive: sortAuctions(liveResponse.data.filter(auct => auct.public === true)),
             });
 
         } catch (error) {
@@ -64,32 +77,52 @@ const FloorHub = () => {
 
     const renderAuctionCards = (auctions, label) => {
         return auctions.map((auction, i) => {
-            const isVertical = i % 2 === 0; // Alternate between vertical and horizontal cards
+            
+            const totalLotes = auction.product_list?.length || 0;
+            const totalLances = auction.product_list?.reduce((total, product) => 
+                total + (product.Bid?.length || 0), 0);
+
             return (
                 <div
                     key={i}
                     onClick={() => navigate(`/floor/${auction.id}`)}
-                    className={`flex flex-col justify-center items-center relative bg-white rounded-[20px] gap-3 overflow-hidden
-                        p-3 cursor-pointer hover:bg-blue-100 shadow-lg ${isVertical ? 'min-h-[400px]' : 'min-h-[300px]'}
-                        ${label === 'live' ? 'border-[#6e1313] border-[4px]' : 'border-none'}
-                        `}
+                    className={`flex flex-col justify-center items-center relative bg-white 
+                        rounded-[20px] gap-3 overflow-hidden p-3 cursor-pointer hover:bg-blue-100 
+                        shadow-lg ${i % 2 === 0 ? 'min-h-[400px]' : 'min-h-[300px]'}
+                        ${label === 'live' ? 'border-[#6e1313] border-[4px]' : 'border-none'}`}
                     style={{
-                        gridColumn: isVertical ? 'span 1' : 'span 2',
-                        gridRow: isVertical ? 'span 2' : 'span 1',
+                        gridColumn: i % 2 === 0 ? 'span 1' : 'span 2',
+                        gridRow: i % 2 === 0 ? 'span 2' : 'span 1',
                     }}
                 >
-                    <span
-                        className={`absolute top-2 right-2 text-white p-1 rounded-[20px] ${label === 'live' ? 'bg-[#6e1313]' : 'bg-[#10335f]'}`}
+                    <span className={`absolute top-2 right-2 text-white p-1 rounded-[20px] 
+                        ${label === 'live' ? 'bg-[#6e1313]' : 'bg-[#10335f]'}`}
                     >
                         {label}
                     </span>
+
                     <img
                         src={auction.auct_cover_img}
                         alt=""
                         className="w-full h-full object-cover"
                     />
-                    <div>
-                        <h3>{auction.title}</h3>
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm p-3">
+                        <h3 className="text-[#012038] font-medium mb-2">{auction.title}</h3>
+                        
+                        {/* Estatísticas do Leilão */}
+                        <div className="flex justify-between items-center text-sm">
+                            <div className="flex gap-3">
+                                <span className="bg-[#012038]/10 px-2 py-1 rounded-full">
+                                    {totalLotes} lotes
+                                </span>
+                                <span className="bg-[#012038]/10 px-2 py-1 rounded-full">
+                                    {totalLances} lances
+                                </span>
+                            </div>
+                            <span className="text-xs text-gray-600">
+                                {auction.Advertiser?.name}
+                            </span>
+                        </div>
                     </div>
                 </div>
             );
@@ -107,15 +140,33 @@ const FloorHub = () => {
             <nav
                 className="flex justify-between items-center 
                 border-[1px] border-[#e9e9e9] backdrop-blur-[4px]
-                w-[96%] h-[60px] rounded-[12px] mt-[1vh] bg-[#e0e0e0a6] p-2 z-10"
+                w-[96%] h-[60px] rounded-[12px] mt-[1vh] bg-[#e0e0e0a6] px-4 z-10"
             >
-                <img
-                    src={blueLogo}
-                    alt="logo-azul-aukt"
-                    className="w-[57px] object-cover cursor-pointer"
-                    onClick={() => navigate("/")}
-                />
-                <span>{currentClient && currentClient.name}</span>
+                <div className="flex items-center gap-4">
+                    <img
+                        src={blueLogo}
+                        alt="logo-azul-aukt"
+                        className="w-[57px] object-cover cursor-pointer hover:scale-105 transition-transform"
+                        onClick={() => navigate("/")}
+                    />
+                </div>
+
+                {currentClient && (
+                    <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-lg">
+                        <div className="h-8 w-8 bg-[#012038] rounded-full flex items-center 
+                            justify-center shadow-md">
+                            <span className="text-white font-medium">
+                                {currentClient.name.charAt(0).toUpperCase()}
+                            </span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Logado como</span>
+                            <span className="text-[#012038] font-medium -mt-1">
+                                {currentClient.name}
+                            </span>
+                        </div>
+                    </div>
+                )}
             </nav>
 
             <section

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import axios from "axios"
 import { Close } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -5,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useDropzone } from "react-dropzone";
 import { uploadFinished } from "../../../features/product/UploadFinished";
 
-function AddProductMod() {
+function AddProductMod({ onClose }) {
     const [isLoading, setIsLoading] = useState(false)
     const [loadFinished, setLoadFinished] = useState(false)
     const [files, setFiles] = useState([]);
@@ -47,9 +48,8 @@ function AddProductMod() {
     useEffect(() => {}, [files, loadFinished]);
 
     const handleCloseCurrentWindow = () => {
-        const currentProductWindow = document.querySelector(".section-add-product");
-        currentProductWindow.style.display = "none";
-    };
+        onClose();
+    }
 
     const handleDeleteImageFromList = (index) => {
         setFiles(prev => prev.filter((_, i) => i !== index));
@@ -105,8 +105,7 @@ function AddProductMod() {
                 setErrMessage("")
                 setIsLoading(false)
                 setLoadFinished(false)
-                refCurrentWindow.current.style.display = 'none';
-                document.querySelector(".main-window-blur-add").style.display = 'none';
+                onClose();
                 setFiles([])
             }
 
@@ -120,79 +119,148 @@ function AddProductMod() {
 
     if (isLoading) {
         return (
-            <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] text-zinc-700 
-            justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
-                <h1>Adicionando imagens, aguarde... </h1>
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6">
+                <div className="h-64 flex flex-col items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
+                    <p className="mt-4 text-gray-600 font-medium">Adicionando imagens, aguarde...</p>
+                </div>
             </div>
         )
     }
 
     if (loadFinished) {
+        setTimeout(() => {
+            onClose();
+        }, 1500);
+
         return (
-            <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#1b9c51] text-zinc-100 
-        justify-center items-center w-[60%] h-[80vh] bg-[#086c06] rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
-                <h1 className="font-bold">Imagens Enviadas! Aguarde</h1>
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6">
+                <div className="h-64 flex flex-col items-center justify-center text-green-600">
+                    <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="mt-4 font-medium">Imagens enviadas com sucesso!</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div ref={refCurrentWindow} className="flex flex-col gap-2 window-add-product border-[1px] border-[#d2d2d2] mod-add-product 
-        justify-center items-center w-[60%] h-[80vh] bg-white rounded-md shadow-lg shadow-[#0f0f0f50] relative z-[99]">
-            <span onClick={handleCloseCurrentWindow} className="absolute top-1 right-1 text-zinc-800 cursor-pointer z-[99]">
-                <Close />
-            </span>
-
-            <div className="flex w-full h-[20vh] text-zinc-600 justify-center items-center absolute top-0">
-                <h1 className="font-bold text-[30px]">{stateSelectedProduct.product.title}</h1>
+        <div ref={refCurrentWindow} className="w-full max-w-2xl bg-white rounded-2xl shadow-xl">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-800">
+                    {stateSelectedProduct.product.title}
+                </h2>
+                <button 
+                    onClick={handleCloseCurrentWindow}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                    <Close className="text-gray-500" />
+                </button>
             </div>
 
-            {/* DRAG AND DROP AREA */}
-            <div {...getRootProps({ className: "dropzone" })}
-                ref={refLabelZoneArea}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                className="w-[80%] h-[50%] flex justify-center items-center border-[3px] border-[#13384d] hover:bg-[#13384d16] text-zinc-400 rounded-2xl border-dashed">
-                {isDragActive ? (<h2 className="text-[#29a8c4]">solte o arquivo</h2>) : (<h2>arraste e solte as fotos do produto aqui</h2>)}
-            </div>
-
-            <input {...getInputProps()} type="file" className="hidden" />
-
-            {/* ALL PHOTOS ADDED DISPLAY */}
-            <div className="w-[80%] flex justify-start items-center gap-2 z-[100]">
-                {files.map((file, index) => {
-                    if (index === 0) return (
-                        <div key={index} className="w-[100px] h-[100px] bg-white rounded-md overflow-hidden flex justify-center 
-                        relative border-[3px] border-[#811010] shadow-lg shadow-[#1515158e]">
-                            <span
-                                onClick={() => handleDeleteImageFromList(index)}
-                                className="absolute top-[1px] right-[1px] cursor-pointer">
-                                <Close sx={{ color: " #f00000fe" }} />
-                            </span>
-                            <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover" />
+            <div className="p-6">
+                {/* Área de Drop */}
+                <div 
+                    {...getRootProps({ className: "dropzone" })}
+                    ref={refLabelZoneArea}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    className="w-full aspect-video flex flex-col items-center justify-center 
+                        border-2 border-dashed border-gray-300 rounded-xl 
+                        bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                    <input {...getInputProps()} />
+                    {isDragActive ? (
+                        <div className="text-center">
+                            <div className="text-blue-500 mb-2">
+                                <svg className="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4-4m4-4h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </div>
+                            <p className="text-blue-500 text-lg font-medium">Solte as imagens aqui</p>
                         </div>
-                    )
-
-                    return (
-                        <div key={index} className="w-[80px] h-[80px] bg-white rounded-md overflow-hidden flex justify-center relative shadow-md shadow-[#1515156b]">
-                            <span
-                                onClick={() => handleDeleteImageFromList(index)}
-                                className="absolute top-[1px] right-[1px] cursor-pointer">
-                                <Close />
-                            </span>
-                            <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover w-full" />
+                    ) : (
+                        <div className="text-center">
+                            <div className="text-gray-400 mb-2">
+                                <svg className="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4-4m4-4h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </div>
+                            <p className="text-gray-500 text-lg mb-2">Arraste e solte as imagens aqui</p>
+                            <p className="text-sm text-gray-400">ou clique para selecionar</p>
                         </div>
-                    )
+                    )}
+                </div>
 
-                }
+                {/* Preview das Imagens */}
+                {files.length > 0 && (
+                    <div className="mt-6">
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">
+                            Imagens selecionadas ({files.length})
+                        </h3>
+                        <div className="flex flex-wrap gap-3">
+                            {files.map((file, index) => (
+                                <div 
+                                    key={index} 
+                                    className={`relative group ${index === 0 ? 'ring-2 ring-blue-500' : ''}`}
+                                >
+                                    <img 
+                                        src={URL.createObjectURL(file)} 
+                                        alt={file.name} 
+                                        className={`w-24 h-24 object-cover rounded-lg 
+                                            ${index === 0 ? 'border-2 border-blue-500' : 'border border-gray-200'}`}
+                                    />
+                                    <button
+                                        onClick={() => handleDeleteImageFromList(index)}
+                                        className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full 
+                                            shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <Close className="text-sm" />
+                                    </button>
+                                    {index === 0 && (
+                                        <span className="absolute -top-2 -left-2 px-2 py-1 bg-blue-500 text-white 
+                                            text-xs font-medium rounded-full">
+                                            Capa
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
+
+                {/* Mensagem de Erro */}
+                {errMessage && (
+                    <div className="mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg">
+                        {errMessage}
+                    </div>
+                )}
+
+                {/* Footer */}
+                <div className="mt-6 flex justify-end gap-3">
+                    <button
+                        onClick={handleCloseCurrentWindow}
+                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg 
+                            transition-colors"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={handleUploadProductImages}
+                        disabled={files.length === 0}
+                        className="px-4 py-2 bg-[#012038] hover:bg-[#012d52] text-white rounded-lg 
+                            transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex 
+                            items-center gap-2"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        Enviar Imagens
+                    </button>
+                </div>
             </div>
-
-            <button
-                onClick={handleUploadProductImages}
-                className="text-zinc-600 bg-zinc-200 p-3 rounded-md">confirmar</button>
-
-            <span className="text-[#e36c6c] mt-[4vh]">{errMessage}</span>
         </div>
     );
 }
