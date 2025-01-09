@@ -2,121 +2,159 @@
 import { useEffect, useState } from "react";
 import AssideClient from "../Asside/AssideClient";
 import NavClient from "../navigation/NavClient";
-import { getClientInformations } from "../functions/getClientInformations";
-import { getAuctsByBids } from "../functions/getAuctsByBids";
-import { getBidsByClient } from "../functions/getBidsByClient";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import dayjs from "dayjs";
+
+// Componente de Loading para a tabela
+const TableRowSkeleton = () => (
+    <tr className="animate-pulse">
+        <td className="p-3"><div className="h-12 w-12 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-20 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-32 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-24 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-16 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-24 bg-gray-200 rounded"></div></td>
+        <td className="p-3"><div className="h-4 w-20 bg-gray-200 rounded"></div></td>
+    </tr>
+);
 
 function ClientAucts() {
     const [currentClient, setCurrentClient] = useState({});
-    const [allBids, setAllBids] = useState([]);
-    const [allAucts, setAllAucts] = useState([]);
-    const [filteredAucts, setFilteredAucts] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const bidsPerPage = 5;
-
-    const [, setBidsWinners] = useState([]);
-    const [, setBudget] = useState(0);
-
+    const [auctions, setAuctions] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        getClientInformations(navigate, getBidsByClient, setCurrentClient, setAllBids, setBidsWinners, setBudget, currentClient);
+        const loadClientAuctions = async () => {
+            try {
+                const clientSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
+                if (!clientSession) {
+                    navigate('/client/login');
+                    return;
+                }
+
+                const clientResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${clientSession.email}`
+                );
+                setCurrentClient(clientResponse.data);
+
+                const auctionsResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?client_id=${clientResponse.data.id}`
+                );
+                setAuctions(auctionsResponse.data);
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadClientAuctions();
     }, []);
 
-    useEffect(() => {
-        getAuctsByBids(allBids, setAllAucts);
-    }, [allBids]);
-
-    useEffect(() => {
-        setFilteredAucts(allAucts.filter(auct => auct.title.toLowerCase().includes(searchTerm.toLowerCase())));
-    }, [searchTerm, allAucts]);
-
-    const handleChangeSearchTerm = (event) => {
-        setSearchTerm(event.target.value);
+    // Função para calcular o total de lances de um leilão
+    const getTotalBids = (auction) => {
+        return auction.product_list.reduce((total, product) => 
+            total + (product.Bid?.length || 0), 0
+        );
     };
 
-    // const handlePageChange = (pageNumber) => {
-    //     setCurrentPage(pageNumber);
-    // };
+    // Função para calcular o número único de participantes
+    const getUniqueParticipants = (auction) => {
+        const uniqueParticipants = new Set();
+        
+        auction.product_list.forEach(product => {
+            product.Bid?.forEach(bid => {
+                uniqueParticipants.add(bid.client_id);
+            });
+        });
 
-    const indexOfLastBid = currentPage * bidsPerPage;
-    const indexOfFirstBid = indexOfLastBid - bidsPerPage;
-    const currentBids = filteredAucts.slice(indexOfFirstBid, indexOfLastBid);
-    const totalPages = Math.ceil(filteredAucts.length / bidsPerPage);
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
+        return uniqueParticipants.size;
     };
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
-            <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
-                <AssideClient MenuSelected="menu-4" />
-                <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2 text-zinc-600">
-                    <NavClient currentClient={currentClient} />
-                    <input
-                        type="text"
-                        placeholder="Pesquisar pelo título"
-                        value={searchTerm}
-                        onChange={handleChangeSearchTerm}
-                        className="w-full p-2 mb-2 border rounded-md bg-transparent"
-                    />
-                    <div className="flex flex-col w-full h-[92vh] bg-[#ffffff] overflow-y-auto p-2 gap-1">
-                        <div className="grid grid-cols-5 gap-3 p-2 bg-gray-100 border-b-2 border-gray-300">
-                            <span className="font-bold">Capa</span>
-                            <span className="font-bold">ID</span>
-                            <span className="font-bold">Título</span>
-                            <span className="font-bold">Status</span>
-                            <span className="font-bold">Produtos Qtd</span>
+        <div className="w-full flex justify-between items-start bg-[#fff]">
+            <AssideClient MenuSelected="menu-4" />
+            
+            <section className="w-full h-[100vh] flex flex-col items-center justify-start p-2 overflow-y-auto">
+                <NavClient currentClient={currentClient} />
+
+                <div className="w-full max-w-7xl p-4">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold">Histórico de Leilões</h1>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Capa</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">ID</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Título</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Status</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Produtos</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Total Lances</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Participantes</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-600">Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {isLoading ? (
+                                        [...Array(5)].map((_, index) => (
+                                            <TableRowSkeleton key={index} />
+                                        ))
+                                    ) : (
+                                        auctions.map((auction) => (
+                                            <tr 
+                                                key={auction.id}
+                                                className="hover:bg-gray-50 transition-colors"
+                                            >
+                                                <td className="p-3">
+                                                    <img 
+                                                        src={auction.auct_cover_img} 
+                                                        alt=""
+                                                        className="w-12 h-12 rounded object-cover"
+                                                    />
+                                                </td>
+                                                <td className="p-3 text-sm font-medium text-gray-700">
+                                                    {auction.nano_id}
+                                                </td>
+                                                <td className="p-3 text-sm text-gray-600">
+                                                    {auction.title}
+                                                </td>
+                                                <td className="p-3">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                                        ${auction.status === 'finished' 
+                                                            ? 'bg-red-100 text-red-800'
+                                                            : 'bg-green-100 text-green-800'
+                                                        }`}
+                                                    >
+                                                        {auction.status === 'finished' ? 'Finalizado' : 'Em andamento'}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-sm text-gray-600">
+                                                    {auction.product_list.length}
+                                                </td>
+                                                <td className="p-3 text-sm text-gray-600">
+                                                    {getTotalBids(auction)}
+                                                </td>
+                                                <td className="p-3 text-sm text-gray-600">
+                                                    {getUniqueParticipants(auction)}
+                                                </td>
+                                                <td className="p-3 text-sm text-gray-600">
+                                                    {dayjs(auction.created_at).format('DD/MM/YYYY')}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                        {
-                            currentBids.map((auct, i) => (
-                                <div key={i} className="grid grid-cols-5 gap-3 p-2 bg-white border-b 
-                                justify-center items-center border-gray-200 hover:bg-zinc-300 cursor-pointer rounded-md transition duration-300">
-                                    <div className="flex flex-col justify-center items-start gap-1">
-                                        <img src={auct.auct_cover_img} alt="" className="w-[54px] h-[54px] object-cover" />
-                                        <span>{dayjs(auct.created_at).format('DD/MM/YYYY')}</span>
-                                    </div>
-                                    <span className="font-bold">{auct.nano_id}</span>
-                                    <span>{auct.title}</span>
-                                    <span>{auct.status}</span>
-                                    <span>{auct.product_list.length}</span>
-                                </div>
-                            ))
-                        }
                     </div>
-                    <div className="flex w-full justify-between items-center gap-2 mt-4 p-3">
-                        <button
-                            onClick={handlePreviousPage}
-                            disabled={currentPage === 1}
-                            className={`px-4 py-2 border rounded-md ${currentPage === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-white text-[#b9b9b9]'}`}
-                        >
-                            Anterior
-                        </button>
-                        <span>
-                            Página {currentPage} de {totalPages}
-                        </span>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            className={`px-4 py-2 border rounded-md ${currentPage === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-white text-[#b9b9b9]'}`}
-                        >
-                            Próxima
-                        </button>
-                    </div>
-                </section>
-            </div>
+                </div>
+            </section>
         </div>
     );
 }

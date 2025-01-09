@@ -89,10 +89,74 @@ function AuctFloor() {
         return <div>Carregando...</div>;
     }
 
+
+    const ModalTerms = () => {
+        const [isOpen, setIsOpen] = useState(true);
+
+        if (!isOpen) return null;
+
+        return (
+            <div className="fixed inset-0 bg-[#012038] bg-opacity-70 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+                <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-[#012038] px-6 py-4 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-white">
+                            Termos e Condições do Leilão
+                        </h2>
+                        <button 
+                            onClick={() => setIsOpen(false)}
+                            className="text-white hover:text-gray-200 transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 max-h-[70vh] overflow-y-auto">
+                        <div className="prose max-w-none">
+                            <div className="bg-[#F4F4F4] rounded-lg p-4 mb-6">
+                                <h3 className="text-[#012038] font-semibold mb-2">
+                                    Importante
+                                </h3>
+                                <p className="text-[#144E7B]">
+                                    Por favor, leia atentamente os termos e condições antes de participar do leilão.
+                                </p>
+                            </div>
+                            
+                            <div className="text-[#012038] whitespace-pre-wrap">
+                                {currentAuct.terms_conditions}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="border-t border-gray-200 px-6 py-4 bg-[#F4F4F4] flex justify-end">
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="px-4 py-2 bg-[#012038] text-white rounded-lg 
+                                hover:bg-[#144E7B] transition-colors duration-200 
+                                flex items-center gap-2 shadow-md"
+                        >
+                            <span>Entendi e Aceito</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#D8DEE8] text-zinc-600 relative overflow-hidden p-[2vh] gap-[2vh]">
             <img src={backgroundFloor} alt="" className="flex absolute top-0 h-full w-[100%] object-cover z-[1]" />
             <FloorNavigation auction={currentAuct} group={currentProduct ? currentProduct.group : null} />
+
+            <ModalTerms/>
+
             <div className="flex lg:flex-row flex-col w-full h-full justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
                 <section className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]">
                     <CenterFloor

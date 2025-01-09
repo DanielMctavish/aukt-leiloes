@@ -1,35 +1,51 @@
 import dayjs from "dayjs"
 
-const getSecurityTokenAccess = (navigate, register_token, setTimeTokenLeft) => {
-    const securityToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"))
-
-    if (!securityToken) {
-        navigate("/security-confirmation")
-        return
+class SecurityTokenManager {
+    constructor() {
+        this.timeLeftInterval = null;
     }
 
-    if (securityToken.token !== register_token) {
-        localStorage.removeItem("token-access-register-advertiser")
-        navigate("/security-confirmation")
-        return
-    }
+    getSecurityTokenAccess(navigate, register_token, setTimeTokenLeft) {
+        const securityToken = JSON.parse(localStorage.getItem("token-access-register-advertiser"))
 
-    const expirationDate = dayjs(securityToken.expiration).valueOf()
-    const updateInterval = 1000
+        if (!securityToken) {
+            navigate("/security-confirmation")
+            return
+        }
 
-    const timeLeftInterval = setInterval(() => {
-        const currentMoment = dayjs().valueOf()
-        const timeLeft = expirationDate - currentMoment
-
-        if (timeLeft <= 0) {
-            clearInterval(timeLeftInterval)
+        if (securityToken.token !== register_token) {
             localStorage.removeItem("token-access-register-advertiser")
             navigate("/security-confirmation")
             return
         }
 
-        setTimeTokenLeft(dayjs(timeLeft).format("mm:ss"))
-    }, updateInterval)
+        const expirationDate = dayjs(securityToken.expiration).valueOf()
+        const updateInterval = 1000
+
+        this.clearInterval();
+
+        this.timeLeftInterval = setInterval(() => {
+            const currentMoment = dayjs().valueOf()
+            const timeLeft = expirationDate - currentMoment
+
+            if (timeLeft <= 0) {
+                this.clearInterval();
+                localStorage.removeItem("token-access-register-advertiser")
+                navigate("/security-confirmation")
+                return
+            }
+
+            setTimeTokenLeft(dayjs(timeLeft).format("mm:ss"))
+        }, updateInterval)
+    }
+
+    clearInterval() {
+        if (this.timeLeftInterval) {
+            clearInterval(this.timeLeftInterval);
+            this.timeLeftInterval = null;
+        }
+    }
 }
 
-export { getSecurityTokenAccess }
+
+export const securityTokenManager = new SecurityTokenManager();

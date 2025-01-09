@@ -1,10 +1,10 @@
 import axios from "axios"
 
-const handleBidproduct = async (bidValue, 
+const handleBidproduct = async (bidValue,
     messageRef, currentProduct,
-    currentClient, currentAuct, 
-    sessionClient, setBidValue, 
-    setIsloadingBid, isAutoBidEnabled) => {
+    currentClient, currentAuct,
+    sessionClient, setBidValue,
+    setIsloadingBid, isAutoBidEnabled, isBidOnCataloge) => {
 
     if (messageRef && bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
         messageRef.current.style.display = "flex"
@@ -44,6 +44,9 @@ const handleBidproduct = async (bidValue,
             product_id: currentProduct.id,
             cover_auto: isAutoBidEnabled // Incluindo a informação de lance automático
         }, {
+            params: {
+                bidInCataloge: isBidOnCataloge ? true : false
+            },
             headers: {
                 "Authorization": `Bearer ${sessionClient.token}`
             }
@@ -57,7 +60,7 @@ const handleBidproduct = async (bidValue,
         setTimeout(() => {
             messageRef.current.style.display = "none"
         }, 6000);
-        
+
         if (setBidValue) {
             setBidValue(response.data.value)
         }
@@ -68,7 +71,7 @@ const handleBidproduct = async (bidValue,
 
     } catch (error) {
         setIsloadingBid && setIsloadingBid(false)
-        
+
         if (messageRef) {
             messageRef.current.style.display = "flex"
             messageRef.current.innerHTML = "Erro ao registrar o lance. Tente novamente."

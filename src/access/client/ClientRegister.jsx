@@ -1,6 +1,5 @@
 import axios from "axios";
 import logoAukGreen from "../../media/logos/logos-auk/aukt_greengreen.png";
-import bgRegister from "../../media/backgrounds/social_bg_wall.jpg";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ErrorModal from "../components-clients/ErrorModal";
@@ -23,7 +22,7 @@ import avatar_08 from "../../media/avatar-floor/avatar_08.png";
 
 const avatares_pessoas = [avatar_01, avatar_02, avatar_03, avatar_04, avatar_05, avatar_06, avatar_07, avatar_08];
 
-function ClientRegister() {
+export default function ClientRegister() {
     const [name, setName] = useState('');
     const [cpf, setCpf] = useState('');
     const [email, setEmail] = useState('');
@@ -196,49 +195,92 @@ function ClientRegister() {
 
     if (isCreating) {
         return (
-            <div className="text-white w-full h-[100vh] bg-[#616161] flex flex-col justify-center items-center gap-3">
-                <section className="w-[80%] h-[90vh] 
-            flex bg-[#1F8220] rounded-[4px]
-            justify-center items-center 
-            relative overflow-hidden shadow-2xl">
-                    <span>criando novo usuário!</span>
-                </section>
+            <div className="w-full h-screen bg-gradient-to-br from-[#e7e7e7] to-[#474747] 
+                flex items-center justify-center">
+                <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl 
+                    flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 
+                        rounded-full animate-spin"/>
+                    <p className="text-white text-lg">Criando sua conta...</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="text-white w-full min-h-screen bg-gradient-to-br from-green-800 to-green-900 flex flex-col 
-        justify-center items-center gap-6 relative p-8">
-            <img src={bgRegister} alt="" className="absolute w-full h-full object-cover opacity-40 filter blur-[2px]" />
+        <div className="w-full min-h-screen bg-gradient-to-br from-[#e7e7e7] to-[#474747] 
+            flex flex-col justify-center items-center gap-6 relative p-4 md:p-8">
+            
+
+            {/* Logo superior */}
+            <img 
+                src={logoAukGreen} 
+                alt="logo-aukt" 
+                onClick={() => navigate("/")} 
+                className="w-16 h-16 object-cover absolute top-4 left-6 cursor-pointer 
+                    hover:scale-105 transition-transform duration-300 z-10
+                    md:block hidden" 
+            />
 
             <motion.section 
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="md:w-[80%] w-[95%] bg-[#24755799] bg-opacity-40 backdrop-blur-md rounded-xl shadow-2xl p-8 relative overflow-hidden"
+                className="w-full max-w-4xl bg-[#ffffff74] backdrop-blur-md rounded-2xl 
+                    shadow-2xl p-6 md:p-8 relative z-10"
             >
+                {/* Cabeçalho */}
                 <div className="flex flex-col items-center mb-8">
-                    <img src={logoAukGreen} className="w-24 mb-4" alt="Logo" />
-                    <h2 className="text-3xl font-bold">{stepComponents[nextMenu].title}</h2>
+                    <img src={logoAukGreen} className="w-20 md:w-24 mb-6" alt="Logo" />
+                    <h2 className="text-2xl md:text-3xl font-bold text-white text-center">
+                        {stepComponents[nextMenu].title}
+                    </h2>
                 </div>
 
-                <div className="flex justify-center mb-8">
-                    {stepComponents.map((step, index) => (
-                        <div key={index} className={`flex flex-col items-center mx-4 ${index === nextMenu ? 'text-green-400' : 'text-gray-400'}`}>
-                            {step.icon}
-                            <div className={`h-1 w-16 mt-2 ${index === nextMenu ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                        </div>
-                    ))}
+                {/* Indicador de progresso */}
+                <div className="flex justify-center mb-8 overflow-x-auto px-4">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        {stepComponents.map((step, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className={`
+                                    flex flex-col items-center
+                                    ${index === nextMenu ? 'text-green-600' : 'text-gray-400'}
+                                `}>
+                                    <div className={`
+                                        w-10 h-10 rounded-full flex items-center justify-center
+                                        transition-all duration-300
+                                        ${index === nextMenu 
+                                            ? 'bg-green-500 text-white' 
+                                            : index < nextMenu 
+                                                ? 'bg-green-700 text-white' 
+                                                : 'bg-gray-700/50 text-gray-300'}
+                                    `}>
+                                        {step.icon}
+                                    </div>
+                                    <span className="text-xs mt-2 hidden md:block">
+                                        {step.title}
+                                    </span>
+                                </div>
+                                {index < stepComponents.length - 1 && (
+                                    <div className={`
+                                        w-12 md:w-20 h-[2px] mx-1
+                                        ${index < nextMenu ? 'bg-green-500' : 'bg-gray-600'}
+                                    `}/>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
+                {/* Conteúdo do Step */}
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={nextMenu}
-                        initial={{ opacity: 0, x: 100 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
+                        exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
+                        className="bg-[#222] backdrop-blur-md rounded-xl p-6 md:p-8"
                     >
                         {stepComponents[nextMenu].component({
                             name,
@@ -276,13 +318,18 @@ function ClientRegister() {
                     </motion.div>
                 </AnimatePresence>
 
+                {/* Link para login */}
                 <div className="flex justify-center mt-8">
-                    <button onClick={() => navigate("/client/login")} className="text-green-300 hover:text-green-100 transition-colors">
-                        Já tem uma conta? Entrar
+                    <button 
+                        onClick={() => navigate("/client/login")} 
+                        className="text-gray-600 hover:text-white transition-colors text-sm md:text-base"
+                    >
+                        Já tem uma conta? <span className="underline">Entrar</span>
                     </button>
                 </div>
             </motion.section>
 
+            {/* Modal de Erro */}
             <AnimatePresence>
                 {missingFields.length > 0 && (
                     <ErrorModal missingFields={missingFields} clearErrors={clearErrors} />
@@ -291,5 +338,3 @@ function ClientRegister() {
         </div>
     );
 }
-
-export default ClientRegister;

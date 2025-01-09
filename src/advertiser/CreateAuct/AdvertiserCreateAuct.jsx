@@ -175,6 +175,7 @@ export const AdvertiserCreateAuct = () => {
                     title: product.title,
                     description: product.description,
                     categorie: product.categorie,
+                    real_value:0,
                     initial_value: product.initial_value,
                     reserve_value: product.reserve_value,
                     width: 0,

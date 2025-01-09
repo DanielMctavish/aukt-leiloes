@@ -4,18 +4,15 @@ import axios from "axios"
 import { ArrowLeft, ArrowRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { handleBidproduct } from "../functions/handleBidproduct";
 
 function ProductInformation({ currentProduct, currentClient, currentAuct, setCurrentProduct, setBidInformations, setIsModalOn }) {
     const [currentSession, setCurrentSession] = useState();
     const [bidValue, setBidValue] = useState(0);
     const [isLoadingBid, setIsloadingBid] = useState(false);
-    const [showWarningModal, setShowWarningModal] = useState(false);
-    const [warningMessage, setWarningMessage] = useState("");
     const [isAutoBidEnabled, setIsAutoBidEnabled] = useState(false);
     const [hasAutoBid, setHasAutoBid] = useState(false);
     const navigate = useNavigate();
-    const messageRef = useRef();
+    const messageRef = useRef(null);
 
     useEffect(() => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
@@ -40,31 +37,65 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     };
 
     const handleNextProduct = async () => {
+        try {
+            // Primeiro, buscar todos os produtos do leilão
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+                params: {
+                    auct_id: currentAuct.id,
+                }
+            });
 
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
-            params: {
-                lote: currentProduct.lote + 1,
-                auct_id: currentAuct.id
+            const products = response.data.products || response.data;
+            const sortedProducts = products.sort((a, b) => a.lote - b.lote);
+            const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
+
+            if (currentIndex < sortedProducts.length - 1) {
+                const nextProduct = sortedProducts[currentIndex + 1];
+                
+                // Buscar informações atualizadas do próximo produto
+                const updatedProductResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${nextProduct.id}`
+                );
+                
+                const updatedProduct = updatedProductResponse.data;
+                setCurrentProduct(updatedProduct);
+                setBidInformations(updatedProduct.Bid || []);
+                navigate(`/advertiser/home/product/${updatedProduct.id}`);
             }
-        }).then(response => {
-            setCurrentProduct(response.data);
-            setBidInformations(response.data.Bid)
-            navigate(`/advertiser/home/product/${response.data.id}`)
-        })
-    }
+        } catch (error) {
+            console.error("Erro ao buscar próximo produto:", error);
+        }
+    };
 
     const handlePrevProduct = async () => {
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find`, {
-            params: {
-                lote: currentProduct.lote - 1,
-                auct_id: currentAuct.id
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
+                params: {
+                    auct_id: currentAuct.id,
+                }
+            });
+
+            const products = response.data.products || response.data;
+            const sortedProducts = products.sort((a, b) => a.lote - b.lote);
+            const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
+
+            if (currentIndex > 0) {
+                const prevProduct = sortedProducts[currentIndex - 1];
+                
+                // Buscar informações atualizadas do produto anterior
+                const updatedProductResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${prevProduct.id}`
+                );
+                
+                const updatedProduct = updatedProductResponse.data;
+                setCurrentProduct(updatedProduct);
+                setBidInformations(updatedProduct.Bid || []);
+                navigate(`/advertiser/home/product/${updatedProduct.id}`);
             }
-        }).then(response => {
-            setCurrentProduct(response.data);
-            setBidInformations(response.data.Bid)
-            navigate(`/advertiser/home/product/${response.data.id}`)
-        })
-    }
+        } catch (error) {
+            console.error("Erro ao buscar produto anterior:", error);
+        }
+    };
 
     const handleSetBid = async (e) => {
         const value = e.target.value;
@@ -76,55 +107,90 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
         setIsAutoBidEnabled(!isAutoBidEnabled);
     };
 
-    const handleBidConfirm = async () => {
-        const threshold = currentProduct.initial_value * 1.7;
-        if (bidValue > threshold) {
-            setWarningMessage(`Você está prestes a dar um lance de R$ ${bidValue}, que é 70% maior que o valor do produto. Tem certeza?`);
-            setShowWarningModal(true);
-            return;
+    const showMessage = (message, type = 'success') => {
+        if (messageRef.current) {
+            messageRef.current.textContent = message;
+            messageRef.current.classList.remove('hidden', 'bg-green-500', 'bg-red-500', 'bg-yellow-500');
+            messageRef.current.classList.add(
+                'transform', 'translate-y-0', 'opacity-100',
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+            );
+
+            setTimeout(() => {
+                if (messageRef.current) {
+                    messageRef.current.classList.add('opacity-0', 'translate-y-[-20px]');
+                    setTimeout(() => {
+                        messageRef.current.classList.add('hidden');
+                        messageRef.current.classList.remove('opacity-0', 'translate-y-[-20px]');
+                    }, 300);
+                }
+            }, 3000);
         }
+    };
+
+    const handleBidConfirm = async () => {
+
+        console.log("produto atual -> ", currentProduct)
 
         setIsloadingBid(true);
         try {
-            await handleBidproduct(
-                bidValue,
-                messageRef,
-                currentProduct,
-                currentClient,
-                currentAuct,
-                currentSession,
-                setBidValue,
-                setIsloadingBid,
-                isAutoBidEnabled
+            // Buscar informações mais recentes do produto antes de dar o lance
+            const updatedProductResponse = await axios.get(
+                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`
             );
+            const updatedProduct = updatedProductResponse.data;
+            
+            // Atualizar o estado com as informações mais recentes
+            setCurrentProduct(updatedProduct);
 
-            const newBid = {
-                client: currentClient,
+            const session = JSON.parse(localStorage.getItem("client-auk-session-login"));
+            if (!session?.token) {
+                throw new Error("Sessão inválida");
+            }
+
+            const bidPayload = {
                 value: bidValue,
-                cover_auto: isAutoBidEnabled
+                client_id: currentClient.id,
+                product_id: updatedProduct.id, // Usando o ID do produto atualizado
+                auct_id: currentAuct.id,
+                cover_auto: isAutoBidEnabled,
+                Client: currentClient
             };
 
-            setBidInformations(prevBids => [...prevBids, newBid]);
+            const response = await axios.post(
+                `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct?bidInCataloge=true`,
+                bidPayload,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${session.token}`
+                    }
+                }
+            );
 
-            setCurrentProduct(prevProduct => ({
-                ...prevProduct,
-                Bid: [...prevProduct.Bid, newBid],
-                initial_value: bidValue
-            }));
+            if (response.status === 200) {
+                const newBid = response.data?.body || response.data;
+                
+                if (newBid) {
+                    setBidInformations(prevBids => [newBid, ...prevBids]);
+                    setCurrentProduct(prevProduct => ({
+                        ...prevProduct,
+                        real_value: newBid.value,
+                        Bid: [newBid, ...(prevProduct.Bid || [])]
+                    }));
+                    setBidValue(0);
+                    showMessage('Lance realizado com sucesso! 🎉');
+                } else {
+                    throw new Error("Resposta inválida do servidor");
+                }
+            }
         } catch (error) {
-            // console.error("Erro ao dar lance:", error);
+            console.error("Erro ao dar lance:", error);
+            const errorMessage = error.response?.data?.body || error.message || "Erro ao realizar lance";
+            showMessage(errorMessage, 'error');
         } finally {
             setIsloadingBid(false);
         }
-    }
-
-    const handleConfirmBid = () => {
-        handleBidConfirm();
-        setShowWarningModal(false);
-    };
-
-    const handleCancelBid = () => {
-        setShowWarningModal(false);
     };
 
     const renderBiddingInterface = () => {
@@ -158,10 +224,11 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 {!hasAutoBid && (
                     <button
                         onClick={handleBidConfirm}
-                        className={`w-[150px] h-[40px] rounded-md transition-colors ${isLoadingBid
-                            ? 'bg-gray-500 cursor-not-allowed'
-                            : 'bg-[#141839] hover:bg-[#1e2456]'
-                            }`}
+                        className={`w-[150px] h-[40px] rounded-md transition-colors ${
+                            isLoadingBid
+                                ? 'bg-gray-500 cursor-not-allowed'
+                                : 'bg-[#141839] hover:bg-[#1e2456]'
+                        }`}
                         disabled={isLoadingBid}
                     >
                         {isLoadingBid ? (
@@ -179,8 +246,8 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                     className={`flex w-[260px] h-[40px] justify-center items-center gap-2 rounded-md cursor-pointer 
                     transition-all duration-300 ease-in-out
                     ${isAutoBidEnabled
-                            ? 'bg-[#13a664] hover:bg-[#0a943d]'
-                            : 'bg-[#1399CF] hover:bg-[#0d7eaa]'}
+                        ? 'bg-[#13a664] hover:bg-[#0a943d]'
+                        : 'bg-[#1399CF] hover:bg-[#0d7eaa]'}
                     ${isLoadingBid ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                     <span>
@@ -199,56 +266,99 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     };
 
     return (
-        <div className='flex flex-col flex-1 max-w-[60%] h-full justify-start items-center p-[3vh]'>
-            <span ref={messageRef} className="bg-[#fff] p-2 rounded-[6px] hidden">mensagem de lance</span>
-
-            <div className='flex flex-col w-full h-full justify-start gap-3'>
-                <div className='flex w-full justify-between items-center'>
-                    <span className='font-semibold text-[22px]'>Lote: {currentProduct.lote}</span>
-                    <div>
-                        <span onClick={handlePrevProduct} className='hover:text-[#9f9f9f]'>
-                            <ArrowLeft className='cursor-pointer' sx={{ fontSize: "43px" }} />
-                        </span>
-                        <span
-                            onClick={handleNextProduct}
-                            className='cursor-pointer animate-pulse text-[#145d79]'
-                        >
-                            <ArrowRight sx={{ fontSize: "70px" }} />
-                        </span>
-                    </div>
-                </div>
-
-                <span className='font-bold text-[36px]'>{currentProduct.title}</span>
-                <span className='font-bold text-[16px]'>{currentProduct.description}</span>
-                <span className='font-bold text-[16px]'>{currentProduct.Bid && currentProduct.Bid.length} lance(s)</span>
-                <span className='font-bold text-[16px]'>valor atual:
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(currentProduct.initial_value)}
-                </span>
-
-                {renderBiddingInterface()}
-
-                {/* Botão para Ver Catálogo Inteiro */}
-                <button
-                    onClick={() => navigate(`/advertiser/home/shop/${currentAuct.id}`)}
-                    className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        <div className='flex flex-col flex-1 max-w-[60%] h-full justify-start items-center px-[3vh]'>
+            <div 
+                ref={messageRef} 
+                className="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg hidden
+                    text-white font-medium min-w-[300px] max-w-md z-50
+                    transition-all duration-300 ease-in-out
+                    flex items-center justify-between
+                    backdrop-blur-sm bg-opacity-95"
+            >
+                <span className="flex-1 text-center">mensagem de lance</span>
+                <button 
+                    onClick={() => messageRef.current?.classList.add('hidden')}
+                    className="ml-3 text-white hover:text-gray-200 transition-colors"
                 >
-                    Ver Catálogo Inteiro
+                    ×
                 </button>
             </div>
 
-            {/* Modal de Aviso */}
-            {showWarningModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[99]">
-                    <div className="bg-white p-5 rounded shadow-lg">
-                        <h2 className="font-bold text-lg">Aviso</h2>
-                        <p>{warningMessage}</p>
-                        <div className="flex justify-end mt-4">
-                            <button onClick={handleCancelBid} className="mr-2 p-2 bg-gray-300 rounded">Cancelar</button>
-                            <button onClick={handleConfirmBid} className="p-2 bg-blue-500 text-white rounded">Confirmar</button>
-                        </div>
+            <div className='flex flex-col w-full h-full justify-start gap-4 bg-white rounded-2xl shadow-lg p-6 overflow-y-auto'>
+                <div className='flex w-full justify-between items-center border-b border-gray-100 pb-4'>
+                    <div className="flex flex-col">
+                        <span className='text-gray-500 text-sm'>Lote</span>
+                        <span className='font-semibold text-2xl text-gray-800'>{currentProduct.lote}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handlePrevProduct}
+                            className={`p-2 rounded-full hover:bg-gray-100 transition-all duration-300
+                                ${currentProduct.lote <= 1 
+                                    ? 'opacity-50 cursor-not-allowed text-gray-400' 
+                                    : 'text-gray-600 hover:text-gray-800'}`}
+                            disabled={currentProduct.lote <= 1}
+                        >
+                            <ArrowLeft sx={{ fontSize: "32px" }} />
+                        </button>
+                        <button
+                            onClick={handleNextProduct}
+                            className="p-2 rounded-full hover:bg-gray-100 transition-all duration-300
+                                text-gray-600 hover:text-gray-800"
+                        >
+                            <ArrowRight sx={{ fontSize: "32px" }} />
+                        </button>
                     </div>
                 </div>
-            )}
+
+                <div className="space-y-4">
+                    <h1 className='font-bold text-3xl text-gray-800 leading-tight'>
+                        {currentProduct.title}
+                    </h1>
+                    <p className='text-gray-600 text-lg'>
+                        {currentProduct.description}
+                    </p>
+                    <div className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-600 rounded-full">
+                        <span className='text-sm font-medium'>
+                            {currentProduct.Bid && currentProduct.Bid.length} lance(s)
+                        </span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 my-6">
+                    <div className="bg-gray-50 p-4 rounded-xl">
+                        <span className='text-gray-500 text-sm block mb-1'>Valor inicial</span>
+                        <span className='text-xl font-semibold text-gray-800'>
+                            {new Intl.NumberFormat('pt-BR', { 
+                                style: 'currency', 
+                                currency: 'BRL' 
+                            }).format(currentProduct.initial_value)}
+                        </span>
+                    </div>
+                    <div className="bg-blue-50 p-4 rounded-xl">
+                        <span className='text-blue-600 text-sm block mb-1'>Valor atual</span>
+                        <span className='text-xl font-semibold text-blue-800'>
+                            {new Intl.NumberFormat('pt-BR', { 
+                                style: 'currency', 
+                                currency: 'BRL' 
+                            }).format(currentProduct.real_value)}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="mt-4">
+                    {renderBiddingInterface()}
+                </div>
+
+                <button
+                    onClick={() => navigate(`/advertiser/home/shop/${currentAuct.id}`)}
+                    className="mt-6 w-full p-3 bg-gradient-to-r from-blue-600 to-blue-700 
+                        text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 
+                        transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                >
+                    Ver Catálogo Completo
+                </button>
+            </div>
         </div>
     )
 }

@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { handleRegisterAdvertiser } from "./functions/handleRegisterAdvertiser"
 import { handleGetAddress } from "./functions/handleGetAddress"
 import { verifyCnpj, verifyCpf } from "./functions/verifyDocuments"
-import { getSecurityTokenAccess } from "./functions/getSecurityTokenAccess"
+import { securityTokenManager } from "./functions/getSecurityTokenAccess"
 
 
 function AdvertiserRegister() {
@@ -32,14 +32,29 @@ function AdvertiserRegister() {
 
     const navigate = useNavigate()
 
-    useEffect(() => { }, [timeTokenLeft])
     useEffect(() => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
         if (currentLocalAdvertiser) {
             navigate('/advertiser/dashboard')
         }
-        getSecurityTokenAccess(navigate, register_token, setTimeTokenLeft)
+        securityTokenManager.getSecurityTokenAccess(navigate, register_token, setTimeTokenLeft)
+
+        // Limpa o intervalo quando o componente for desmontado
+        return () => {
+            securityTokenManager.clearInterval();
+        }
     }, [])
+
+    const handleRegisterWithCleanup = async (data) => {
+        try {
+            await handleRegisterAdvertiser(data);
+            // Se o registro for bem-sucedido, limpa o intervalo
+            securityTokenManager.clearInterval();
+        } catch (error) {
+            console.error('Erro no registro:', error);
+            setMessageDisplay('Erro ao realizar o registro');
+        }
+    };
 
     const dataRegister = {
         refName, refEmail, refPassword, refPasswordConfirm,
@@ -92,7 +107,7 @@ function AdvertiserRegister() {
                         <input ref={refPasswordConfirm} type="password" className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <button onClick={() => handleRegisterAdvertiser(dataRegister)} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">registrar</button>
+                    <button onClick={() => handleRegisterWithCleanup(dataRegister)} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">registrar</button>
                     <button onClick={() => {
                         navigate("/advertiser/login")
                     }}>já tem uma conta? Entrar</button>

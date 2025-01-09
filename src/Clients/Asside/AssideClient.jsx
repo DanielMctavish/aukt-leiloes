@@ -60,62 +60,83 @@ function AssideClient({ MenuSelected }) {
 
   return (
     <div className="flex">
-      {/* Mobile Toggle Button */}
+      {/* Botão Toggle Mobile */}
       <button
         onClick={toggleSidebar}
-        className="lg:hidden p-4 text-[#141414] focus:outline-none"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg 
+          bg-white/80 backdrop-blur-sm shadow-lg hover:bg-white 
+          transition-colors duration-200"
       >
-        <AppsIcon style={{ fontSize: "40px" }} />
+        <AppsIcon className="text-gray-800" style={{ fontSize: "28px" }} />
       </button>
 
-      {/* Sidebar Overlay for Mobile */}
+      {/* Overlay Mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={toggleSidebar}
-        ></div>
+        />
       )}
 
       {/* Sidebar */}
-      <nav
-        className={`fixed top-0 left-0 h-[100vh] bg-[#143514] text-white w-64 transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-30 lg:translate-x-0 lg:static lg:w-64`}
-      >
-        {/* Close Button for Mobile */}
-        <div className="flex justify-end lg:hidden p-4">
-          <button onClick={toggleSidebar} className="focus:outline-none">
-            ✕
-          </button>
-        </div>
+      <nav className={`
+        fixed top-0 left-0 h-screen w-72 
+        bg-gradient-to-b from-[#143514] to-[#1c4a1c]
+        transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        transition-transform duration-300 ease-in-out
+        z-50 lg:translate-x-0 lg:relative lg:w-72
+        flex flex-col shadow-xl
+      `}>
+        {/* Botão Fechar Mobile */}
+        <button 
+          onClick={toggleSidebar}
+          className="lg:hidden absolute top-4 right-4 text-white/80 
+            hover:text-white transition-colors"
+        >
+          ✕
+        </button>
 
         {/* Logo */}
-        <div className="flex justify-center items-center mb-8">
+        <div className="flex justify-center items-center h-24 border-b border-white/10">
           <img
             src={logo_aukt_green}
             alt="Logo-auk"
             onClick={() => navigate("/")}
-            className="w-[100px] object-cover cursor-pointer"
+            className="w-32 object-contain cursor-pointer 
+              hover:scale-105 transition-transform duration-200"
           />
         </div>
 
         {/* Menu Items */}
-        <ul className="flex flex-col space-y-2 px-4">
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              <button
-                id={item.id}
-                onClick={() => handleClick(item.route)}
-                className={`flex items-center space-x-3 p-2 rounded-md w-full hover:bg-[#1dad24] transition-colors duration-200 ${
-                  MenuSelected === item.id ? "bg-[#1dad24]" : ""
-                }`}
-              >
-                {item.icon}
-                <span className="text-sm">{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="flex-1 overflow-y-auto py-6">
+          <ul className="space-y-2 px-4">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  id={item.id}
+                  onClick={() => handleClick(item.route)}
+                  className={`
+                    w-full flex items-center gap-3 px-4 py-3 
+                    rounded-xl transition-all duration-200
+                    ${MenuSelected === item.id 
+                      ? 'bg-gradient-to-r from-green-600 to-green-500 text-white' 
+                      : 'text-gray-300 hover:bg-white/10'}
+                  `}
+                >
+                  {item.icon}
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-white/10">
+          <p className="text-xs text-center text-white/60">
+            © 2024 AUKT. Todos os direitos reservados
+          </p>
+        </div>
       </nav>
     </div>
   );
