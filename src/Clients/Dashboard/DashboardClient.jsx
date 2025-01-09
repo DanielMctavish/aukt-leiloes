@@ -32,106 +32,132 @@ function DashboardClient() {
 
     useEffect(() => { getAuctsByBids(allBids, setAllAucts); }, [currentClient, allBids])
 
-    let countAuct = 0
-    let countAuctined = 0
-
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4]">
+        <div className="w-full h-screen bg-gradient-to-br from-[#f8f8f8] to-[#e8e8e8] flex">
             <AssideClient MenuSelected="menu-1" />
-            <section className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto gap-2 text-zinc-600">
-                <NavClient currentClient={currentClient} />
-                <section className="flex flex-col justify-between w-[98%] h-[30%] bg-white rounded-md shadow-md shadow-[#17171734] p-2">
-                    <div className="flex w-full justify-start items-center gap-6">
-                        <img src="" alt="" className="object-cover w-[70px] h-[70px] bg-zinc-200 rounded-full" />
-                        <div className="flex flex-col justify-start items-start gap-1">
-                            <span className="text-[33px]">{currentClient.name}</span>
-                            <span>{currentClient.email}</span>
+            
+            <section className="flex-1 h-screen flex flex-col gap-4 p-4 overflow-y-auto">
+                <div className="z-[10]">
+                    <NavClient currentClient={currentClient} />
+                </div>
+                
+                {/* Perfil e Estatísticas */}
+                <section className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-center md:items-start mb-8">
+                        <div className="relative">
+                            <div className="w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-gray-200 to-gray-300 
+                                rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                                {currentClient.avatar_url ? (
+                                    <img src={currentClient.avatar_url} alt="Profile" 
+                                        className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-4xl text-gray-400">
+                                        {currentClient.name?.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="text-center md:text-left">
+                            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                                {currentClient.name}
+                            </h1>
+                            <p className="text-gray-600">{currentClient.email}</p>
                         </div>
                     </div>
 
-                    <div className="flex w-full h-[60%] justify-between items-center">
-                        <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-[18px] font-bold">Total de Lances</span>
-                            <span className="text-4xl font-extrabold text-cyan-700">{allBids.length}</span>
+                    {/* Cards de Estatísticas */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="text-gray-500 font-medium mb-2">Total de Lances</h3>
+                            <p className="text-3xl font-bold text-cyan-700">{allBids.length}</p>
                         </div>
 
-                        <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-[18px] font-bold">Total de arremates</span>
-                            <span className="text-4xl font-extrabold text-green-600">{bidsWinners.length}</span>
+                        <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="text-gray-500 font-medium mb-2">Total de Arremates</h3>
+                            <p className="text-3xl font-bold text-green-600">{bidsWinners.length}</p>
                         </div>
 
-                        <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-[18px] font-bold">Total de leilões participados</span>
-                            <span className="text-4xl font-extrabold text-blue-600">{allAucts.length}</span>
+                        <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="text-gray-500 font-medium mb-2">Leilões Participados</h3>
+                            <p className="text-3xl font-bold text-blue-600">{allAucts.length}</p>
                         </div>
 
-                        <div className="bg-[#E9EFFA] w-[23%] h-[80%] p-2 rounded-md flex flex-col justify-center items-center shadow-md">
-                            <span className="text-[18px] font-bold">Total de Gastos com leilões</span>
-                            <span className="text-4xl font-extrabold text-[#143d64]">
-                                {` ${parseFloat(budget).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
-                            </span>
+                        <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="text-gray-500 font-medium mb-2">Total Investido</h3>
+                            <p className="text-3xl font-bold text-[#143d64]">
+                                {parseFloat(budget).toLocaleString('pt-BR', { 
+                                    style: 'currency', 
+                                    currency: 'BRL' 
+                                })}
+                            </p>
                         </div>
-
                     </div>
                 </section>
-                <section className="flex flex-col w-[98%] h-[60%] bg-white rounded-md shadow-md shadow-[#17171734] p-2">
-                    <div className="flex flex-col justify-around items-start w-full h-[50%]">
-                        <span className="font-bold">Arremates Recentes</span>
-                        <div className="flex w-full justify-start items-center overflow-x-auto gap-3 p-3">
-                            {
-                                bidsWinners.map((bid, index) => {
-                                    countAuctined++
-                                    if (countAuctined > 6) return null
-                                    return (
-                                        <span className="flex lg:w-[140px] h-[140px] bg-[#ccffe6] overflow-hidden rounded-md justify-center items-center 
-                                        relative shadow-lg shadow-[#17171762]" key={index}>
-                                            <img src={bid.Product[0].cover_img_url} alt=""
-                                                className="w-full object-cover h-full absolute justify-center items-center" />
-                                            <span style={{ textShadow: "1px 1px 2px #1515157b" }} className="text-[#fff] z-[10]">
-                                                {bid.Product[0].title}
-                                            </span>
-                                        </span>
-                                    )
-                                })
-                            }
+
+                {/* Seção de Arremates e Participações */}
+                <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Arremates Recentes */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Arremates Recentes</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {bidsWinners.slice(0, 6).map((bid, index) => (
+                                <div key={index} 
+                                    className="aspect-square rounded-xl overflow-hidden shadow-md 
+                                        hover:shadow-xl transition-all duration-300 relative group">
+                                    <img 
+                                        src={bid.Product[0].cover_img_url} 
+                                        alt={bid.Product[0].title}
+                                        className="w-full h-full object-cover" 
+                                    />
+                                    <div className="absolute inset-0 bg-black/60 flex items-center 
+                                        justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-white text-center text-sm px-2">
+                                            {bid.Product[0].title}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="flex flex-col w-full h-[50%] relative">
-                        <span className="font-bold">Ultimas Participações</span>
-                        <div className="overflow-x-auto overflow-y-auto">
-                            <table className="table-auto w-full">
+
+                    {/* Últimas Participações */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Últimas Participações</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
                                 <thead>
-                                    <tr>
-                                        <th className="px-4 py-2">Imagem</th>
-                                        <th className="px-4 py-2">Criador</th>
-                                        <th className="px-4 py-2">Título</th>
-                                        <th className="px-4 py-2">Nano ID</th>
-                                        <th className="px-4 py-2">Categoria</th>
-                                        <th className="px-4 py-2">Criado em</th>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Leilão</th>
+                                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Criador</th>
+                                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Data</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allAucts.map((auct, index) => {
-                                        countAuct++
-                                        if (countAuct > 6) return null
-                                        return (
-                                            <tr key={index}>
-                                                <td className="border px-4 py-2">
-                                                    <img src={auct.auct_cover_img} alt={auct.title} className="w-16 h-16 object-cover" />
-                                                </td>
-                                                <td className="border px-4 py-2">{auct.Advertiser?.name}</td>
-                                                <td className="border px-4 py-2">{auct.title}</td>
-                                                <td className="border px-4 py-2">{auct.nano_id}</td>
-                                                <td className="border px-4 py-2">{auct.categorie}</td>
-                                                <td className="border px-4 py-2">{new Date(auct.created_at).toLocaleDateString()}</td>
-                                            </tr>
-                                        )
-                                    })}
+                                    {allAucts.slice(0, 6).map((auct, index) => (
+                                        <tr key={index} className="hover:bg-gray-50">
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-3">
+                                                    <img 
+                                                        src={auct.auct_cover_img} 
+                                                        alt={auct.title}
+                                                        className="w-10 h-10 rounded-lg object-cover" 
+                                                    />
+                                                    <span className="text-sm text-gray-700">{auct.title}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-gray-600">
+                                                {auct.Advertiser?.name}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-gray-600">
+                                                {new Date(auct.created_at).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
                 </section>
             </section>
         </div>

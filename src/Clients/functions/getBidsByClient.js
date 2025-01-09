@@ -34,7 +34,6 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
                 }
             });
 
-
             setAllBids(allBidsByClient)
 
             //antes de setar preciso verificar se não tem bid.id repetido...

@@ -1,37 +1,90 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/prop-types */
 import { ArrowDropDown, Logout, Person } from "@mui/icons-material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import WarningIcon from "@mui/icons-material/Warning";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
-import "../styles/AdvertiserStyle.css"
+import io from 'socket.io-client';
+import "../styles/AdvertiserStyle.css";
+import axios from "axios";
 
-function NavAdvertiser({ path }) {
+function NavAdvertiser() {
   const [AdvertiserInfor, setAdvertiserInfor] = useState({});
   const [contextMenu, setContextMenu] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const menuRef = useRef(null);
+  const notificationRef = useRef(null);
   const navigate = useNavigate();
+  const socketRef = useRef(null);
+
+  const updateNotifications = useCallback((newBid) => {
+    if (newBid?.body) {
+      const bid = newBid.body;
+      const product = bid.Product[0];
+      
+      setNotifications(prev => [{
+        id: Date.now(),
+        auctionId: bid.auct_id,
+        productTitle: product.title,
+        productImage: product.cover_img_url,
+        bidValue: new Intl.NumberFormat('pt-BR', { 
+          style: 'currency', 
+          currency: 'BRL' 
+        }).format(bid.value),
+        bidderName: bid.Client.name,
+        timestamp: new Date(),
+        read: false
+      }, ...prev]);
+    }
+  }, []);
 
   useEffect(() => {
     getAdvertiserInformations(setAdvertiserInfor);
   }, []);
 
+  // Buscar leilões do anunciante e configurar websocket
   useEffect(() => {
-    // Fechar menu ao clicar fora
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setContextMenu(false);
+    const fetchAdvertiserAuctions = async () => {
+      if (AdvertiserInfor.id) {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`, {
+              params: { creator_id: AdvertiserInfor.id }
+            }
+          );
+          console.log("Leilões do anunciante:", response.data);
+          webSocketFlow(response.data);
+        } catch (error) {
+          console.error("Erro ao buscar leilões:", error);
+        }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    fetchAdvertiserAuctions();
+    
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, [AdvertiserInfor.id]);
 
-  const handleContextMenu = () => {
-    setContextMenu(!contextMenu);
+  const webSocketFlow = (auctions) => {
+    const socket = io(import.meta.env.VITE_APP_BACKEND_WEBSOCKET);
+    socketRef.current = socket;
+
+    auctions.forEach(auction => {
+      const eventName = `${auction.id}-bid-cataloged`;
+      console.log("Escutando evento:", eventName);
+
+      socket.on(eventName, (message) => {
+        console.log(`Novo lance catalogado no leilão ${auction.id}:`, message);
+        const newBid = message.data;
+        updateNotifications(newBid, auction.title);
+      });
+    });
   };
 
   const handleLogout = () => {
@@ -41,126 +94,175 @@ function NavAdvertiser({ path }) {
     navigate('/');
   };
 
+  // Fechar dropdowns quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setContextMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+  };
+
   return (
-    <nav className={`
-        ml-0
-        nav-auk
-        lg:left-auto
-        left-[34%]
-        lg:bottom-0
-        bottom-[6%]
-        relative
-        lg:w-full
-        lg:h-[72px]
-        h-[2vh]
-        lg:bg-[#FFFFFF]
-        lg:shadow-lg
-        lg:shadow-[#1b1b1b23] 
-        flex-row
-        flex
-        lg:justify-center
-        justify-start 
-        items-center 
-        gap-2 
-        text-[12px]
-        cursor-pointer
-        ${AdvertiserInfor.police_status === 'WARNED' ? 'bg-orange-400' : ''}
-      `}
-    >
-      <section
-        className="
-            w-[98%] 
-            lg:h-[72px]
-            h-[100vh] 
-            flex 
-            flex-row 
-            lg:justify-between
-            justify-start 
-            items-center
-            lg:gap-0
-            gap-3"
-      >
-        <div className="flex justify-center items-center gap-3">
-          <span className="text-[22px] font-bold lg:flex hidden ml-[60px]">
-            Bem vindo, {AdvertiserInfor.name}!
-          </span>
-
-          <span className="text-[22px]  font-bold lg:flex hidden">
-            {AdvertiserInfor.nano_id}
-          </span>
-        </div>
-
-        <span className="flex text-[12px]">
-          {path}
-        </span>
-
-        {AdvertiserInfor.police_status === 'WARNED' && (
-          <div className="flex items-center text-red-700 font-bold">
-            <WarningIcon className="mr-2" />
-            <span>Conta sob aviso</span>
-          </div>
-        )}
-
-        <section className="flex flex-row justify-center items-center gap-6">
-          <span>
-            <NotificationsIcon />
-          </span>
-          <div className="relative" ref={menuRef}>
-            <div 
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              onClick={handleContextMenu}
-            >
-              <img
-                src={AdvertiserInfor.url_profile_cover}
-                alt="foto-perfil"
-                className="w-[50px] h-[50px] bg-zinc-300 rounded-full overflow-hidden object-cover"
-              />
-              <span className="font-semibold text-[18px] lg:flex hidden">
-                {AdvertiserInfor.name}
+    <nav className="w-full bg-white shadow-md">
+      <div className="max-w-[96%] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo/Welcome Section */}
+          <div className="flex items-center">
+            <div className="flex-shrink-0 flex items-center">
+              <span className="text-xl font-semibold text-gray-800">
+                Bem vindo, {AdvertiserInfor.name}!
               </span>
-              <ArrowDropDown className={`transition-transform duration-200 ${contextMenu ? 'rotate-180' : ''}`} />
+              <span className="ml-2 text-sm text-gray-500">
+                {AdvertiserInfor.nano_id}
+              </span>
+            </div>
+          </div>
+
+          {/* Warning Badge */}
+          {AdvertiserInfor.police_status === 'WARNED' && (
+            <div className="flex items-center">
+              <div className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center">
+                <WarningIcon className="w-5 h-5 mr-1" />
+                <span className="text-sm font-medium">Conta sob aviso</span>
+              </div>
+            </div>
+          )}
+
+          {/* Right Section */}
+          <div className="flex items-center gap-4">
+            {/* Notifications */}
+            <div className="relative" ref={notificationRef}>
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
+              >
+                <NotificationsIcon className="text-gray-600" />
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 
+                    bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown de Notificações */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg py-2 z-50 
+                  border border-gray-100 max-h-[80vh] overflow-y-auto">
+                  <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-900">Notificações</h3>
+                    {notifications.some(n => !n.read) && (
+                      <button 
+                        onClick={markAllAsRead}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        Marcar todas como lidas
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="divide-y divide-gray-100">
+                    {notifications.length > 0 ? (
+                      notifications.map(notification => (
+                        <div 
+                          key={notification.id}
+                          className={`p-4 hover:bg-gray-50 transition-colors ${
+                            !notification.read ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <img 
+                              src={notification.productImage} 
+                              alt={notification.productTitle}
+                              className="w-12 h-12 rounded-full object-cover flex-shrink-0 border border-gray-200"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start mb-1">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  Novo lance em {notification.productTitle}
+                                </p>
+                                <span className="text-xs text-gray-500 flex-shrink-0">
+                                  {new Date(notification.timestamp).toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                {notification.bidderName} deu um lance de {notification.bidValue}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-gray-500">
+                        Nenhuma notificação
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {contextMenu && (
-              <div className="absolute right-0 top-full mt-2 w-[250px] bg-white rounded-lg shadow-lg py-2 z-50">
-                <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">{AdvertiserInfor.name}</p>
-                  <p className="text-sm text-gray-500">{AdvertiserInfor.email}</p>
-                </div>
-                
-                <div className="py-1">
-                  <button 
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    onClick={() => navigate('/advertiser/profile')}
-                  >
-                    <Person className="text-gray-400" />
-                    Perfil
-                  </button>
-                  
-                  {/* <button 
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    onClick={() => navigate('/advertiser/settings')}
-                  >
-                    <Settings className="text-gray-400" />
-                    Configurações
-                  </button> */}
-                </div>
+            {/* Profile Dropdown */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setContextMenu(!contextMenu)}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-all"
+              >
+                <img
+                  src={AdvertiserInfor.url_profile_cover}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                />
+                <span className="font-medium text-gray-700">{AdvertiserInfor.name}</span>
+                <ArrowDropDown className={`transition-transform duration-200 ${contextMenu ? 'rotate-180' : ''}`} />
+              </button>
 
-                <div className="border-t border-gray-100">
-                  <button 
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    onClick={handleLogout}
-                  >
-                    <Logout className="text-red-400" />
-                    Sair
-                  </button>
+              {contextMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 z-50 
+                  border border-gray-100 transform transition-all duration-200">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{AdvertiserInfor.name}</p>
+                    <p className="text-sm text-gray-500">{AdvertiserInfor.email}</p>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      onClick={() => navigate('/advertiser/profile')}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 
+                        flex items-center gap-2 transition-colors"
+                    >
+                      <Person className="text-gray-400" />
+                      Perfil
+                    </button>
+                  </div>
+
+                  <div className="border-t border-gray-100">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 
+                        flex items-center gap-2 transition-colors"
+                    >
+                      <Logout className="text-red-400" />
+                      Sair
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </section>
-      </section>
-
+        </div>
+      </div>
     </nav>
   );
 }
