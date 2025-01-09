@@ -91,7 +91,37 @@ function AuctFloor() {
 
 
     const ModalTerms = () => {
-        const [isOpen, setIsOpen] = useState(true);
+        const [isOpen, setIsOpen] = useState(false);
+
+        useEffect(() => {
+            const checkTermsAcceptance = () => {
+                const termsData = localStorage.getItem(`terms-acceptance-${auct_id}`);
+                
+                if (!termsData) {
+                    setIsOpen(true);
+                    return;
+                }
+
+                const { timestamp } = JSON.parse(termsData);
+                const oneHour = 60 * 60 * 1000; // 1 hora em milissegundos
+                const now = new Date().getTime();
+
+                if (now - timestamp > oneHour) {
+                    setIsOpen(true);
+                }
+            };
+
+            checkTermsAcceptance();
+        }, [auct_id]);
+
+        const handleAcceptTerms = () => {
+            const termsData = {
+                timestamp: new Date().getTime(),
+                accepted: true
+            };
+            localStorage.setItem(`terms-acceptance-${auct_id}`, JSON.stringify(termsData));
+            setIsOpen(false);
+        };
 
         if (!isOpen) return null;
 
@@ -103,14 +133,6 @@ function AuctFloor() {
                         <h2 className="text-xl font-bold text-white">
                             Termos e Condições do Leilão
                         </h2>
-                        <button 
-                            onClick={() => setIsOpen(false)}
-                            className="text-white hover:text-gray-200 transition-colors"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
                     </div>
 
                     {/* Content */}
@@ -134,7 +156,7 @@ function AuctFloor() {
                     {/* Footer */}
                     <div className="border-t border-gray-200 px-6 py-4 bg-[#F4F4F4] flex justify-end">
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={handleAcceptTerms}
                             className="px-4 py-2 bg-[#012038] text-white rounded-lg 
                                 hover:bg-[#144E7B] transition-colors duration-200 
                                 flex items-center gap-2 shadow-md"
