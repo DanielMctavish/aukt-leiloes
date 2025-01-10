@@ -272,7 +272,7 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 className="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg hidden
                     text-white font-medium min-w-[300px] max-w-md z-50
                     transition-all duration-300 ease-in-out
-                    flex items-center justify-between
+                    items-center justify-between
                     backdrop-blur-sm bg-opacity-95"
             >
                 <span className="flex-1 text-center">mensagem de lance</span>

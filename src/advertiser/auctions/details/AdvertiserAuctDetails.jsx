@@ -137,13 +137,16 @@ function AdvertiserAuctDetails() {
                                         <th className="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                             Lote
                                         </th>
-                                        <th className="w-[35%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        <th className="w-[30%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                             Produto
                                         </th>
-                                        <th className="w-[20%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        <th className="w-[15%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                             Valor Inicial
                                         </th>
-                                        <th className="w-[15%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                        <th className="w-[15%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Valor Atual
+                                        </th>
+                                        <th className="w-[10%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                             Lances
                                         </th>
                                         <th className="w-[10%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
@@ -162,8 +165,6 @@ function AdvertiserAuctDetails() {
                                                 className={`hover:bg-gray-50 transition-colors relative
                                                     ${product.winner_id ? 'bg-[#30de4d30]' : ''}`}
                                             >
-
-
                                                 <td className="px-4 py-4 text-sm font-medium text-gray-900">
                                                     #{index + 1}
                                                 </td>
@@ -174,6 +175,18 @@ function AdvertiserAuctDetails() {
                                                 </td>
                                                 <td className="px-4 py-4 text-sm text-gray-700">
                                                     {formatCurrency(product.initial_value)}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-medium text-gray-900">
+                                                            {formatCurrency(product.real_value || product.initial_value)}
+                                                        </span>
+                                                        {product.real_value > product.initial_value && (
+                                                            <span className="text-xs text-green-600">
+                                                                +{formatCurrency(product.real_value - product.initial_value)}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-4 text-center">
                                                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
@@ -278,9 +291,19 @@ function AdvertiserAuctDetails() {
                                                 <h3 className="font-medium text-gray-900">
                                                     Lote #{index + 1} - {product.title}
                                                 </h3>
-                                                <p className="text-sm text-gray-500">
-                                                    {formatCurrency(product.initial_value)}
-                                                </p>
+                                                <div className="flex flex-col text-sm">
+                                                    <span className="text-gray-500">
+                                                        Inicial: {formatCurrency(product.initial_value)}
+                                                    </span>
+                                                    <span className="text-gray-900 font-medium">
+                                                        Atual: {formatCurrency(product.real_value || product.initial_value)}
+                                                    </span>
+                                                    {product.real_value > product.initial_value && (
+                                                        <span className="text-xs text-green-600">
+                                                            Valorização: +{formatCurrency(product.real_value - product.initial_value)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 

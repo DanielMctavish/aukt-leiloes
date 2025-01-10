@@ -97,7 +97,7 @@ const ProductDetailsModal = ({ products, onClose }) => {
                                     {/* Product Info */}
                                     <div className="p-4 space-y-4">
                                         {/* Values */}
-                                        <div className="flex justify-between items-center">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <span className="text-xs text-gray-500">Valor Inicial</span>
                                                 <p className="text-sm font-semibold text-gray-800">
@@ -105,9 +105,32 @@ const ProductDetailsModal = ({ products, onClose }) => {
                                                 </p>
                                             </div>
                                             <div className="text-right">
+                                                <span className="text-xs text-gray-500">Valor Final</span>
+                                                <p className="text-sm font-semibold text-gray-800">
+                                                    {formatCurrency(product.real_value)}
+                                                </p>
+                                                {product.real_value > product.initial_value && (
+                                                    <span className="text-xs text-green-600">
+                                                        +{formatCurrency(product.real_value - product.initial_value)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div>
                                                 <span className="text-xs text-gray-500">Valor Reserva</span>
                                                 <p className="text-sm font-semibold text-gray-800">
                                                     {formatCurrency(product.reserve_value)}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xs text-gray-500">Status</span>
+                                                <p className={`text-sm font-semibold ${
+                                                    product.real_value >= product.reserve_value 
+                                                        ? 'text-green-600' 
+                                                        : 'text-yellow-600'
+                                                }`}>
+                                                    {product.real_value >= product.reserve_value 
+                                                        ? 'Reserva Atingida' 
+                                                        : 'Abaixo da Reserva'}
                                                 </p>
                                             </div>
                                         </div>
@@ -123,6 +146,13 @@ const ProductDetailsModal = ({ products, onClose }) => {
                                                 <span>Data:</span>
                                                 <span className="text-gray-800">
                                                     {formatDate(product.created_at)}
+                                                </span>
+                                            </div>
+                                            <span className="text-gray-300">•</span>
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <span>Lances:</span>
+                                                <span className="text-gray-800">
+                                                    {product.Bid?.length || 0}
                                                 </span>
                                             </div>
                                         </div>

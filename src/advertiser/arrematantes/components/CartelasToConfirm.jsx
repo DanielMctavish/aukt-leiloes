@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
 import ProductDetailsModal from '../mod/ProductDetailsModal';
 
@@ -6,11 +7,9 @@ function CartelasToConfirm({
     selectedAuction, 
     avatares_pessoas, 
     handleConfirmCard,
-    selectedCartelaStatus,
     setCartelaStatus
 }) {
     const [showMod, setShowMod] = useState({});
-    const [expandedMod, setExpandedMod] = useState({});
 
     const toggleProductModal = (id) => {
         setShowMod(prev => ({
@@ -28,10 +27,9 @@ function CartelasToConfirm({
             {ClientGroupData.map(groupClient => {
                 if (groupClient.id !== selectedAuction) return null;
 
-                let totalValue = 0;
-                groupClient.products.forEach(product => {
-                    totalValue += product.initial_value;
-                });
+                const totalValue = groupClient.products.reduce((sum, product) => 
+                    sum + product.real_value, 0
+                );
 
                 return (
                     <div key={groupClient.winner_id + groupClient.auction}
@@ -74,12 +72,14 @@ function CartelasToConfirm({
                                         )}
                                     </div>
                                 </div>
-                                <span className="text-sm font-bold text-[#012038]">
-                                    {new Intl.NumberFormat('pt-BR', { 
-                                        style: 'currency', 
-                                        currency: 'BRL' 
-                                    }).format(totalValue)}
-                                </span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-sm font-bold text-[#012038]">
+                                        {new Intl.NumberFormat('pt-BR', { 
+                                            style: 'currency', 
+                                            currency: 'BRL' 
+                                        }).format(totalValue)}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
@@ -101,8 +101,7 @@ function CartelasToConfirm({
                                     onClick={() => handleConfirmCard(
                                         groupClient.advertiser_id,
                                         groupClient.products,
-                                        groupClient.winner_id,
-                                        totalValue
+                                        groupClient.winner_id
                                     )}
                                     className="w-full py-1.5 bg-[#012038] text-white text-xs 
                                         rounded-md hover:bg-[#01477f]"
