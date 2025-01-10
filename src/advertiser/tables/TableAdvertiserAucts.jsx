@@ -180,11 +180,12 @@ function TableAdvertiserAucts({ onRowClick }) {
         <div className="grid grid-cols-12 gap-4 p-4 text-sm font-semibold text-gray-600 border-b">
           <div className="col-span-1">#</div>
           <div className="col-span-2">Título</div>
-          <div className="col-span-2">ID</div>
+          <div className="col-span-1">ID</div>
           <div className="col-span-2">Email</div>
           <div className="col-span-1">Data</div>
           <div className="col-span-1">Produtos</div>
-          <div className="col-span-2">Status</div>
+          <div className="col-span-2">Valor Real</div>
+          <div className="col-span-1">Status</div>
           <div className="col-span-1">Ações</div>
         </div>
 
@@ -201,13 +202,31 @@ function TableAdvertiserAucts({ onRowClick }) {
               >
                 <div className="col-span-1 text-gray-600">{indexOfFirstItem + index + 1}</div>
                 <div className="col-span-2 truncate font-medium">{auction.title}</div>
-                <div className="col-span-2 font-mono text-gray-600">{auction.nano_id}</div>
+                <div className="col-span-1 font-mono text-gray-600">{auction.nano_id}</div>
                 <div className="col-span-2 truncate">{auction.Advertiser.email}</div>
                 <div className="col-span-1">{dayjs(auction.created_at).format("DD/MM HH:mm")}</div>
                 <div className="col-span-1 text-center">{auction.product_list.length}</div>
                 
-                {/* Status com Ícones */}
+                {/* Nova coluna de Valor Real */}
                 <div className="col-span-2">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(auction.real_value || 0)}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Inicial: {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(auction.initial_value || 0)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status com Ícones */}
+                <div className="col-span-1">
                   <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium 
                     ${getStatusColor(auction.status)}`}
                   >

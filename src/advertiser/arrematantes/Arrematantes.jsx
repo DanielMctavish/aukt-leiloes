@@ -75,20 +75,21 @@ function Arrematantes() {
             });
         });
 
-        // Verifica se a cartela já existe em cartelas
         Object.values(groupedClients).forEach(group => {
+            const groupTotal = group.products.reduce((sum, p) => sum + p.real_value, 0);
+
             const exists = cartelas?.some(cartela =>
-                cartela.amount === group.products.reduce((sum, p) => sum + p.initial_value, 0) &&
+                cartela.amount === groupTotal &&
                 cartela.client_id === group.winner_id &&
                 cartela.products.length === group.products.length
             );
+
             if (exists) {
                 delete groupedClients[`${group.id}-${group.winner_id}`];
             }
         });
 
         setClientGroupData(Object.values(groupedClients));
-
     }, [aucts, showMod, selectedAuction, cartelas]);
 
     const fetchCartelas = async (auction_id) => {
@@ -118,22 +119,21 @@ function Arrematantes() {
         fetchCartelas(auction_id);
     }
 
-    const handleConfirmCard = async (advertiser_id, products, client_id, amount) => {
-
+    const handleConfirmCard = async (advertiser_id, products, client_id) => {
         const cookieSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"))
-
         if (!cookieSession) return navigate("/")
 
         setIsCreating(true)
 
         try {
+            const totalAmount = products.reduce((sum, product) => sum + product.real_value, 0);
 
             await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/create-cartela`, {
                 advertiser_id: advertiser_id,
                 client_id: client_id,
                 auction_id: selectedAuction,
                 products: products,
-                amount: amount,
+                amount: totalAmount,
                 status: selectedCartelaStatus,
             }, {
                 headers: {
@@ -208,7 +208,7 @@ function Arrematantes() {
     return (
         <div className="w-full min-h-screen bg-[#D8DEE8] text-zinc-600">
             <div className="flex flex-col lg:flex-row min-h-screen">
-                <AssideAdvertiser MenuSelected="menu-4" />
+                <AssideAdvertiser MenuSelected="menu-5" />
                 <div className="flex-1 flex flex-col">
                     <NavAdvertiser path="Arrematantes" />
                     

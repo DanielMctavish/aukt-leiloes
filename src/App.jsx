@@ -44,6 +44,7 @@ import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
 import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
 import AdminTransactions from './admin/AdminTransactions'; // Adicione esta importação
 import SearchResults from './search/SearchResults';
+import SelectLoginType from './access/SelectLoginType';
 
 
 function App() {
@@ -116,6 +117,8 @@ function App() {
 
           {/* Adicione esta nova rota */}
           <Route Component={SearchResults} path="/search" exact />
+
+          <Route path="/select-login" element={<SelectLoginType />} />
 
         </Routes>
       </BrowserRouter>

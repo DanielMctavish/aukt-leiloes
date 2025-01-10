@@ -69,13 +69,13 @@ const Navigation = () => {
                   className="ml-3 h-8 w-8 rounded-full object-cover cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
                   alt=""
-                  onClick={() => navigate('/advertiser/login')}
+                  onClick={() => navigate('/select-login')}
                 />
               ) : (
                 <Person
                   sx={{ fontSize: "33px" }}
                   className="ml-3 h-8 w-8 p-1 rounded-full hover:bg-[#0D1733] cursor-pointer"
-                  onClick={() => navigate('/advertiser/login')}
+                  onClick={() => navigate('/select-login')}
                 />
               )}
             </div>
@@ -112,12 +112,12 @@ const Navigation = () => {
                   className="ml-3 h-8 w-8 rounded-full cursor-pointer"
                   src={currentAdvertiser.url_profile_cover}
                   alt=""
-                  onClick={() => navigate('/advertiser/login')}
+                  onClick={() => navigate('/select-login')}
                 />
               ) : (
                 <Person
                   className="ml-3 h-8 w-8 p-1 rounded-full hover:bg-[#0D1733] cursor-pointer"
-                  onClick={() => navigate('/advertiser/login')}
+                  onClick={() => navigate('/select-login')}
                 />
               )}
             </div>

@@ -54,7 +54,6 @@ function NavAdvertiser() {
               params: { creator_id: AdvertiserInfor.id }
             }
           );
-          console.log("Leilões do anunciante:", response.data);
           webSocketFlow(response.data);
         } catch (error) {
           console.error("Erro ao buscar leilões:", error);

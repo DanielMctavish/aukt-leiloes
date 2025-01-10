@@ -99,27 +99,46 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
     };
 
     return (
-        <div className="lg:w-[28%] w-[99%] lg:h-[94%] min-h-[60vh] flex flex-col justify-start items-center relative p-2 rounded-[22px] bg-[#d2d2d2ad] backdrop-blur-lg shadow-xl shadow-[#1414143a] border-[2px] border-[#e3e3e3] z-[2] gap-1 overflow-y-auto">
+        <div className="lg:w-[28%] w-[99%] lg:h-[94%] min-h-[60vh] 
+            flex flex-col justify-start items-center relative p-4 
+            rounded-[22px] bg-white/90 backdrop-blur-lg 
+            shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
+            border border-white/20 z-[2] gap-3">
+            
             {isAuctionFinished && (
-                <div className="w-full p-4 bg-red-600 rounded-lg mb-4">
-                    <h2 className="text-xl font-bold text-white mb-2">Leilão Finalizado</h2>
-                    <p className="text-lg text-white">Obrigado pela sua participação!</p>
+                <div className="w-full p-4 bg-gradient-to-r from-red-600 to-red-700 
+                    rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
+                    <h2 className="text-xl font-bold text-white mb-2">
+                        Leilão Finalizado
+                    </h2>
+                    <p className="text-lg text-white/90">
+                        Obrigado pela sua participação!
+                    </p>
                 </div>
             )}
+
             {showWinner && winner && (
-                <div className="w-full p-4 bg-[#88ca9bad] rounded-lg mb-4">
-                    <h2 className="text-xl font-bold text-white mb-2">Produto Arrematado</h2>
-                    <div className="flex items-center">
+                <div className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 
+                    rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
+                    <h2 className="text-xl font-bold text-white mb-3">
+                        Produto Arrematado
+                    </h2>
+                    <div className="flex items-center bg-white/10 p-3 rounded-lg">
                         <img
                             src={avatarIndex[winner.client_avatar]}
                             alt="Winner avatar"
-                            className="w-12 h-12 rounded-full mr-4"
+                            className="w-14 h-14 rounded-full mr-4 border-2 border-white/50 shadow-md"
                         />
-                        <p className="text-lg text-white">{winner.nickname}</p>
+                        <p className="text-lg text-white font-medium">
+                            {winner.nickname}
+                        </p>
                     </div>
                 </div>
             )}
-            <div className="w-full flex-grow overflow-y-auto">
+
+            <div className="w-full flex-grow overflow-y-auto space-y-2 
+                scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent 
+                pr-2">
                 {bidsCards.map((bid, index) => (
                     <BidCard key={bid.id || index} bid={bid} />
                 ))}
@@ -130,6 +149,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
                 duration={duration ? duration : 0}
                 auct_id={auct_id ? auct_id : ""}
                 initial_value={currentProduct.initial_value}
+                real_value={currentProduct.real_value}
                 currentProduct={currentProduct}
                 onNewBid={handleNewBid}
                 isAuctionFinished={isAuctionFinished}

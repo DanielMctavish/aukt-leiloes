@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
 import ProductDetailsModal from '../mod/ProductDetailsModal';
 
@@ -63,12 +64,22 @@ function CartelasConfirmadas({
                                     )}
                                 </div>
                             </div>
-                            <span className="text-sm font-bold text-[#012038]">
-                                {new Intl.NumberFormat('pt-BR', { 
-                                    style: 'currency', 
-                                    currency: 'BRL' 
-                                }).format(cartela.amount)}
-                            </span>
+                            <div className="flex flex-col items-end">
+                                <span className="text-sm font-bold text-[#012038]">
+                                    {new Intl.NumberFormat('pt-BR', { 
+                                        style: 'currency', 
+                                        currency: 'BRL' 
+                                    }).format(cartela.amount)}
+                                </span>
+                                {cartela.amount > cartela.products.reduce((sum, p) => sum + p.initial_value, 0) && (
+                                    <span className="text-xs text-green-600">
+                                        Valorização: +{new Intl.NumberFormat('pt-BR', { 
+                                            style: 'currency', 
+                                            currency: 'BRL' 
+                                        }).format(cartela.amount - cartela.products.reduce((sum, p) => sum + p.initial_value, 0))}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex flex-col gap-2">
