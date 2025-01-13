@@ -140,8 +140,19 @@ function ClientBids() {
                 const auctionsResponse = await axios.get(
                     `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct?client_id=${clientResponse.data.id}`
                 );
-                setAuctions(auctionsResponse.data);
-                setTotalPages(Math.ceil(auctionsResponse.data.length / auctionsPerPage));
+
+                // Filtra apenas leilões que contêm produtos com lances
+                const filteredAuctions = auctionsResponse.data.filter(auction => 
+                    auction.product_list.some(product => product.Bid?.length > 0)
+                );
+
+                // Ordena os leilões do mais recente para o mais antigo
+                const sortedAuctions = filteredAuctions.sort((a, b) => 
+                    new Date(b.created_at) - new Date(a.created_at)
+                );
+
+                setAuctions(sortedAuctions);
+                setTotalPages(Math.ceil(sortedAuctions.length / auctionsPerPage));
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
             } finally {
@@ -247,7 +258,9 @@ function ClientBids() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {auctions
                                             .find(a => a.id === expandedAuction)
-                                            ?.product_list?.map((product) => (
+                                            ?.product_list
+                                            ?.filter(product => product.Bid?.length > 0)
+                                            ?.map((product) => (
                                                 <div key={product.id} className="relative">
                                                     <div 
                                                         className={`bg-white rounded-lg shadow p-4 hover:shadow-md 

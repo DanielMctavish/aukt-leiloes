@@ -8,8 +8,8 @@ import { addResume } from "../../features/auct/ResumeAuctBalance";
 import dayjs from "dayjs";
 import PaginationAdvertiser from "./Pagination";
 import axios from "axios";
-import { 
-  CheckCircle, 
+import {
+  CheckCircle,
   LiveTv,
   Inventory2,
 } from '@mui/icons-material';
@@ -144,32 +144,54 @@ function TableAdvertiserAucts({ onRowClick }) {
   const checkDatesStatus = async (auction) => {
     // Verifica se todas as datas estão finalizadas
     const allDatesFinished = auction.auct_dates.every(date => 
-      date.group_status === "finished"
+        date.group_status === "finished"
     );
 
-    // Se todas as datas estiverem finalizadas e o status não for "finished"
-    if (allDatesFinished && auction.status !== "finished") {
-      try {
-        const currentSession = JSON.parse(localStorage.getItem('advertiser-session-aukt'));
-        
-        await axios.patch(
-          `${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${auction.id}`,
-          { status: "finished" },
-          {
-            headers: { 'Authorization': `Bearer ${currentSession.token}` }
-          }
-        );
+    // Verifica se alguma data está em "live"
+    const hasLiveDate = auction.auct_dates.some(date => 
+        date.group_status === "live"
+    );
 
-        // Atualiza o estado local
-        setAucts(prevAucts =>
-          prevAucts.map(auct =>
-            auct.id === auction.id ? { ...auct, status: "finished" } : auct
-          )
-        );
+    const changeAuctStatus = async (status) => {
+        try {
+            const currentSession = JSON.parse(localStorage.getItem('advertiser-session-aukt'));
 
-      } catch (error) {
-        console.error('Erro ao atualizar status do leilão:', error);
-      }
+            await axios.patch(
+                `${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${auction.id}`,
+                { status: status },
+                {
+                    headers: { 'Authorization': `Bearer ${currentSession.token}` }
+                }
+            );
+
+            // Atualiza o estado local
+            setAucts(prevAucts =>
+                prevAucts.map(auct =>
+                    auct.id === auction.id ? { ...auct, status: status } : auct
+                )
+            );
+
+        } catch (error) {
+            console.error('Erro ao atualizar status do leilão:', error);
+        }
+    };
+
+    // Lógica de mudança de status
+    if (allDatesFinished) {
+        // Se todas as datas estiverem finalizadas, muda para "finished"
+        if (auction.status !== "finished") {
+            await changeAuctStatus("finished");
+        }
+    } else if (hasLiveDate) {
+        // Se alguma data estiver em "live", muda para "live"
+        if (auction.status !== "live") {
+            await changeAuctStatus("live");
+        }
+    } else {
+        // Se nenhuma das condições acima for verdadeira, mantém em "cataloged"
+        if (auction.status !== "cataloged") {
+            await changeAuctStatus("cataloged");
+        }
     }
   };
 
@@ -206,7 +228,7 @@ function TableAdvertiserAucts({ onRowClick }) {
                 <div className="col-span-2 truncate">{auction.Advertiser.email}</div>
                 <div className="col-span-1">{dayjs(auction.created_at).format("DD/MM HH:mm")}</div>
                 <div className="col-span-1 text-center">{auction.product_list.length}</div>
-                
+
                 {/* Nova coluna de Valor Real */}
                 <div className="col-span-2">
                   <div className="flex flex-col">
@@ -232,11 +254,11 @@ function TableAdvertiserAucts({ onRowClick }) {
                   >
                     {getStatusIcon(auction.status)}
                     <span className="mr-2">{auction.status}</span>
-                    
+
                     {/* Indicadores de Data Compactos */}
                     <div className="flex -space-x-0.5">
                       {auction?.auct_dates.map((date, index) => (
-                        <div key={index} 
+                        <div key={index}
                           className="w-4 h-4 rounded-full flex items-center justify-center"
                           title={`Grupo ${index + 1}: ${date.group_status === "finished" ? "Finalizado" : "Pendente"}`}
                         >
