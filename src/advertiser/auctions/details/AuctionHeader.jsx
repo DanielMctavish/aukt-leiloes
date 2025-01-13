@@ -6,17 +6,20 @@ import dayjs from "dayjs";
 const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDeleting }) => {
     const getEstimatedValue = () => {
         return currentAuct.product_list?.reduce((total, product) => 
-            total + (product.initial_value || 0), 0) || 0;
+            total + (product.initial_value || 0), 0
+        ) || 0;
+    };
+
+    const getBidsValue = () => {
+        return currentAuct.product_list?.reduce((total, product) => 
+            !product.winner_id ? total + (product.real_value || 0) : total, 0
+        ) || 0;
     };
 
     const getSoldValue = () => {
-        return currentAuct.product_list?.reduce((total, product) => {
-            if (product.winner_id && product.Bid?.length > 0) {
-                const winningBid = product.Bid.find(bid => bid.client_id === product.winner_id);
-                return total + (winningBid?.value || 0);
-            }
-            return total;
-        }, 0) || 0;
+        return currentAuct.product_list?.reduce((total, product) => 
+            product.winner_id ? total + (product.real_value || 0) : total, 0
+        ) || 0;
     };
 
     const formatCurrency = (value) => {
@@ -119,7 +122,7 @@ const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDe
                 </div>
 
                 {/* Cards de Estatísticas */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mt-6">
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 
                         border border-gray-200">
                         <div className="flex items-center gap-2 mb-2">
@@ -139,6 +142,17 @@ const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDe
                         </div>
                         <span className="text-lg font-semibold text-blue-700">
                             {formatCurrency(getEstimatedValue())}
+                        </span>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 
+                        border border-orange-200">
+                        <div className="flex items-center gap-2 mb-2">
+                            <AttachMoney className="text-orange-400" />
+                            <span className="text-sm text-orange-500">Valor em Lances</span>
+                        </div>
+                        <span className="text-lg font-semibold text-orange-700">
+                            {formatCurrency(getBidsValue())}
                         </span>
                     </div>
 
