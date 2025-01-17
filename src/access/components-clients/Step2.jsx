@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable react/prop-types */
 
 function Step2({ cep, setCep, state, setState, city, setCity, street, setStreet, number, setNumber, handleGetAddress, handleNextStep, handlePreviousStep }) {
     return (

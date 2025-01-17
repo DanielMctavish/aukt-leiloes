@@ -79,7 +79,7 @@ function AdvertiserTemplate() {
                 return;
             }
 
-            const { token } = JSON.parse(advertiserSession);
+            const { token, email } = JSON.parse(advertiserSession);
             if (!token) {
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
@@ -87,12 +87,19 @@ function AdvertiserTemplate() {
             }
 
             const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-advertiser`, 
+                `${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`,
                 {
-                    params: { advertiserId: advertiser_id },
+                    params: { email: email },
                     headers: { 'Authorization': `Bearer ${token}` }
                 }
             );
+
+
+            if (response.data.id !== advertiser_id) {
+                localStorage.removeItem('advertiser-session-aukt');
+                navigate("/");
+                return;
+            }
 
             if (!response.data) {
                 localStorage.removeItem('advertiser-session-aukt');

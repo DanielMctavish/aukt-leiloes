@@ -3,7 +3,13 @@
 import { Timelapse, Edit, Delete, CalendarMonth, Person, AttachMoney } from "@mui/icons-material";
 import dayjs from "dayjs";
 
-const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDeleting }) => {
+const AuctionHeader = ({ 
+    currentAuct, 
+    editCurrentAuct, 
+    handleDeleteAuction, 
+    isDeleting,
+    deleteSuccess 
+}) => {
     const getEstimatedValue = () => {
         return currentAuct.product_list?.reduce((total, product) => 
             total + (product.initial_value || 0), 0
@@ -47,12 +53,13 @@ const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDe
                         className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white/90 hover:bg-white 
                             text-gray-700 rounded-lg backdrop-blur-sm transition-all duration-300
                             shadow-lg hover:shadow-xl"
+                        disabled={isDeleting}
                     >
                         <Edit className="text-sm" />
                         <span className="hidden md:inline text-sm font-medium">Editar</span>
                     </button>
                     
-                    {!isDeleting ? (
+                    {!isDeleting && !deleteSuccess ? (
                         <button 
                             onClick={() => handleDeleteAuction(currentAuct.id)}
                             className="flex items-center gap-2 px-3 md:px-4 py-2 bg-red-500/90 hover:bg-red-500 
@@ -63,10 +70,30 @@ const AuctionHeader = ({ currentAuct, editCurrentAuct, handleDeleteAuction, isDe
                             <span className="hidden md:inline text-sm font-medium">Excluir</span>
                         </button>
                     ) : (
-                        <span className="flex items-center gap-2 px-4 py-2 bg-gray-500/90 
-                            text-white rounded-lg backdrop-blur-sm">
-                            Deletando...
-                        </span>
+                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg backdrop-blur-sm
+                            transition-all duration-300 ${
+                                deleteSuccess 
+                                    ? 'bg-green-500 text-white' 
+                                    : 'bg-gray-500/90 text-white'
+                            }`}>
+                            {isDeleting && !deleteSuccess && (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent 
+                                        rounded-full animate-spin mr-2">
+                                    </div>
+                                    <span className="text-sm">Deletando...</span>
+                                </>
+                            )}
+                            {deleteSuccess && (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-sm">Leilão deletado com sucesso!</span>
+                                </>
+                            )}
+                        </div>
                     )}
                 </div>
 
