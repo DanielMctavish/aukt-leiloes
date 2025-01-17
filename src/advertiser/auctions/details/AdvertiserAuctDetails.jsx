@@ -22,6 +22,7 @@ function AdvertiserAuctDetails() {
     const { auct_id } = useParams(); // Get parameters from URL
     const [currentAuct, setCurrentAuct] = useState({ product_list: [] })
     const [isDeleting, setIsDeleting] = useState(false)
+    const [deleteSuccess, setDeleteSuccess] = useState(false)
     const state = useSelector(state => state)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -73,20 +74,30 @@ function AdvertiserAuctDetails() {
     }
 
     const handleDeleteAuction = async (auct_id) => {
-        setIsDeleting(true)
+        setIsDeleting(true);
+        setDeleteSuccess(false);
 
         try {
-            await axios.delete(`${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-auct?auct_id=${auct_id}`, {
-                headers: {
-                    'Authorization': `Bearer ${localAdvertiser.token}`
+            await axios.delete(
+                `${import.meta.env.VITE_APP_BACKEND_API}/auct/delete-auct?auct_id=${auct_id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localAdvertiser.token}`
+                    }
                 }
-            }).then(() => {
-                setIsDeleting(false)
-            })
+            );
+            
+            setDeleteSuccess(true);
+            // Aguarda 2 segundos antes de redirecionar
+            setTimeout(() => {
+                navigate('/advertiser/auctions');
+            }, 2000);
+            
         } catch (error) {
-            setIsDeleting(false)
+            console.error("Erro ao deletar leilão:", error.response);
+            setIsDeleting(false);
         }
-    }
+    };
 
     // Função para formatar valores monetários
     const formatCurrency = (value) => {
@@ -115,6 +126,7 @@ function AdvertiserAuctDetails() {
                         editCurrentAuct={editCurrentAuct}
                         handleDeleteAuction={handleDeleteAuction}
                         isDeleting={isDeleting}
+                        deleteSuccess={deleteSuccess}
                     />
 
                     {/* Lista de Produtos */}
