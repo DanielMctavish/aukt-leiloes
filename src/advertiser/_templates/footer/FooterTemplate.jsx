@@ -9,25 +9,30 @@ import {
     WhatsApp,
     MusicNote
 } from "@mui/icons-material";
+import { useEffect } from 'react';
 
 // Mapeamento de ícones para cada tipo de rede social
 const SOCIAL_ICONS = {
-    facebook: <Facebook />,
-    instagram: <Instagram />,
-    twitter: <Twitter />,
-    linkedin: <LinkedIn />,
-    youtube: <YouTube />,
-    tiktok: <MusicNote />,
-    whatsapp: <WhatsApp />
+    'facebook': <Facebook />,
+    'instagram': <Instagram />,
+    'twitter': <Twitter />,
+    'linkedin': <LinkedIn />,
+    'youtube': <YouTube />,
+    'tiktok': <MusicNote />,
+    'whatsapp': <WhatsApp />
 };
 
 function FooterTemplate() {
     const { footerData } = useSelector(state => state.footer);
     const { headerData } = useSelector(state => state.header);
 
+    useEffect(() => {
+        // console.log("observando o footerData",footerData)
+    }, [footerData])
+
     // Função para determinar a altura e padding baseado no tamanho selecionado
     const getFooterStyles = () => {
-        switch (footerData.size) {
+        switch (footerData.sizeType) {
             case 'SMALL':
                 return {
                     height: 'min-h-[30vh]',
@@ -63,6 +68,13 @@ function FooterTemplate() {
         return rows;
     }
 
+    // Função para pegar o ícone da rede social de forma segura
+    const getSocialIcon = (type) => {
+        if (!type) return null;
+        const normalizedType = type.toLowerCase();
+        return SOCIAL_ICONS[normalizedType] || null;
+    }
+
     return (
         <footer
             className={`w-full ${styles.height} flex flex-col justify-between transition-all`}
@@ -70,7 +82,6 @@ function FooterTemplate() {
                 backgroundColor: footerData.color,
                 fontFamily: headerData.fontStyle,
                 color: footerData.textColor,
-                opacity: footerData.elementsOpacity / 100
             }}
         >
             {/* Seções do Footer */}
@@ -106,23 +117,28 @@ function FooterTemplate() {
                     </div>
 
                     {/* Redes Sociais */}
-                    {footerData.socialMedia?.length > 0 && (
+                    {footerData.showSocialLinks && footerData.socialMedia?.length > 0 && (
                         <div
                             className="flex justify-center gap-6 mt-8 pt-8"
                             style={{ borderTop: `1px solid ${footerData.borderColor}` }}
                         >
-                            {footerData.socialMedia.map((social, index) => (
-                                <a
-                                    key={index}
-                                    href={social.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-2xl hover:opacity-80 transition-opacity"
-                                    style={{ color: footerData.textColor }}
-                                >
-                                    {SOCIAL_ICONS[social.type]}
-                                </a>
-                            ))}
+                            {footerData.socialMedia.map((social, index) => {
+                                const icon = getSocialIcon(social.type);
+                                if (!icon) return null;
+
+                                return (
+                                    <a
+                                        key={index}
+                                        href={social.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-2xl hover:opacity-80 transition-opacity"
+                                        style={{ color: footerData.textColor }}
+                                    >
+                                        {icon}
+                                    </a>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -137,7 +153,7 @@ function FooterTemplate() {
                 }}
             >
                 <div className="container mx-auto px-4 md:px-6 text-center text-sm">
-                    <p>© {new Date().getFullYear()}. Todos os direitos reservados | {footerData.companyName || 'Empresa'}.</p>
+                    <p>© {new Date().getFullYear()} {footerData.companyName}. Todos os direitos reservados | AUKT Tech.</p>
                 </div>
             </div>
         </footer>

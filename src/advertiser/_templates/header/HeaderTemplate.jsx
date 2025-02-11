@@ -3,72 +3,83 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import HeaderCarousel from './HeaderCarousel';
-import HeaderBackground from './components/HeaderBackground';
 import HeaderTexts from './components/HeaderTexts';
 import HeaderDecorative from './components/HeaderDecorative';
 import { updateHeaderText, fetchTemplate } from '../../../features/template/HeaderSlice';
 
+
+
 function HeaderTemplate() {
     const dispatch = useDispatch();
     const { headerData } = useSelector(state => state.header);
-    const [advertiser, ] = useState(null);
+    const headerRef = useRef(null);
     const [editingText, setEditingText] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [draggedText, setDraggedText] = useState(null);
-    const headerRef = useRef(null);
     const { advertiser_id } = useParams();
 
     useEffect(() => {
         if (advertiser_id) {
             dispatch(fetchTemplate(advertiser_id));
         }
-    }, [advertiser_id]);
+    }, [advertiser_id, dispatch]);
 
-    const getElementStyle = (elementId) => {
-        if (!elementId) {
-            return {
-                backgroundColor: headerData.color,
-                opacity: headerData.elementsOpacity / 100
-            };
-        }
+    // Log para debug
+    useEffect(() => {
+        // console.log('HeaderTemplate - headerData:', headerData);
+    }, [headerData]);
 
-        const element = headerData.elements?.[elementId];
-        const elementConfig = element?.[headerData.colorPalette];
-
-        if (!elementConfig) return {
-            backgroundColor: headerData.color,
-            opacity: headerData.elementsOpacity / 100
-        };
-
+    const getElementStyle = () => {
         return {
             backgroundColor: headerData.color,
-            opacity: headerData.elementsOpacity / 100
+            opacity: headerData.elementsOpacity
         };
     };
 
-    const getBackgroundImageStyle = () => {
-        if (!headerData.background?.image) return {};
+    const getBackgroundStyle = () => {
+        if (!headerData.backgroundImage) {
+            return {};
+        }
 
-        const isCompanyLogo = advertiser?.url_profile_company_logo_cover === headerData.background.image;
-
-        return {
+        const baseStyle = {
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: `url("${headerData.background.image}")`,
-            backgroundSize: isCompanyLogo ? 'contain' : 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            opacity: headerData.background.opacity / 100,
-            filter: `blur(${headerData.background.blur}px) brightness(${headerData.background.brightness}%)`,
-            zIndex: 0,
-            maxHeight: '100%',
-            height: '100%'
+            opacity: headerData.backgroundImageOpacity || 1,
+            filter: `blur(${headerData.backgroundImageBlur || 0}px) brightness(${headerData.backgroundImageBrightness || 1})`,
+            zIndex: 0
+        };
+
+        // Se for uma URL de imagem
+        if (headerData.backgroundImage.startsWith('http') || headerData.backgroundImage.startsWith('/')) {
+            return {
+                ...baseStyle,
+                backgroundImage: `url(${headerData.backgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            };
+        }
+
+        // Se for um gradiente linear
+        if (headerData.backgroundImage.startsWith('linear-gradient')) {
+            return {
+                ...baseStyle,
+                backgroundImage: headerData.backgroundImage
+            };
+        }
+
+        // Se for uma cor sólida
+        return {
+            ...baseStyle,
+            backgroundColor: headerData.backgroundImage
         };
     };
+
+    useEffect(() => {
+        console.log("Background mudou:", headerData.backgroundImage);
+    }, [headerData.backgroundImage]);
 
     const handleTextDoubleClick = (text) => {
         setEditingText(text);
@@ -91,67 +102,60 @@ function HeaderTemplate() {
         setTypingTimeout(newTimeout);
     };
 
-    const handleMouseDown = (e, text) => {
+    const handleMouseDown = (e, text, onDragEnd) => {
         if (editingText) return;
-        setIsDragging(true);
-        setDraggedText(text);
-    };
+        e.preventDefault();
+        
+        const element = e.currentTarget;
+        const parent = element.parentElement;
+        const initialX = e.clientX;
+        const initialY = e.clientY;
+        const initialLeft = parseFloat(parent.style.left) || 50;
+        const initialTop = parseFloat(parent.style.top) || 50;
 
-    const handleMouseMove = (e) => {
-        if (!isDragging || !draggedText || !headerRef.current) return;
-
-        const headerRect = headerRef.current.getBoundingClientRect();
-        const x = e.clientX - headerRect.left;
-        const y = e.clientY - headerRect.top;
-
-        const newLeft = `${(x / headerRect.width) * 100}%`;
-        const newTop = `${(y / headerRect.height) * 100}%`;
-
-        dispatch(updateHeaderText({
-            id: draggedText.id,
-            updates: {
-                position: {
-                    ...draggedText.position,
-                    left: newLeft,
-                    top: newTop
-                }
-            }
-        }));
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        setDraggedText(null);
-    };
-
-    useEffect(() => {
-        if (isDragging) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        }
-
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+        const handleDrag = (e) => {
+            const deltaX = (e.clientX - initialX) / parent.parentElement.offsetWidth * 100;
+            const deltaY = (e.clientY - initialY) / parent.parentElement.offsetHeight * 100;
+            
+            const newLeft = `${Math.min(Math.max(initialLeft + deltaX, 0), 100)}%`;
+            const newTop = `${Math.min(Math.max(initialTop + deltaY, 0), 100)}%`;
+            
+            parent.style.left = newLeft;
+            parent.style.top = newTop;
         };
-    }, [isDragging, draggedText]);
+
+        const handleDragEnd = () => {
+            document.removeEventListener('mousemove', handleDrag);
+            document.removeEventListener('mouseup', handleDragEnd);
+            
+            if (onDragEnd) {
+                onDragEnd({
+                    top: parent.style.top,
+                    left: parent.style.left
+                });
+            }
+        };
+
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', handleDragEnd);
+    };
 
     return (
         <header
             ref={headerRef}
             className={`w-full relative overflow-hidden
-                ${headerData.size === "FULL" && "min-h-[100vh]"} 
-                ${headerData.size === "MEDIUM" && "min-h-[50vh]"}
-                ${headerData.size === "SMALL" && "min-h-[25vh]"}`}
-            style={{ 
-                backgroundColor: headerData.color,
-                fontFamily: headerData.fontStyle
-            }}>
+                ${headerData.sizeType === "FULL" && "min-h-[100vh]"} 
+                ${headerData.sizeType === "MEDIUM" && "min-h-[50vh]"}
+                ${headerData.sizeType === "SMALL" && "min-h-[25vh]"}`}
+            style={{ fontFamily: headerData.fontStyle }}>
 
-            <HeaderBackground
-                backgroundImage={headerData.background.image}
-                getBackgroundImageStyle={getBackgroundImageStyle}
-            />
+            {/* Background com verificação adicional de opacidade */}
+            {headerData.backgroundImage && (
+                <div 
+                    className="absolute inset-0 w-full h-full bg-red-300 z-[99]"
+                    style={getBackgroundStyle()}
+                />
+            )}
 
             <HeaderDecorative
                 model={headerData.model}
@@ -167,7 +171,7 @@ function HeaderTemplate() {
                 handleMouseDown={handleMouseDown}
             />
 
-            {headerData.carousel.enabled && (
+            {headerData.carousel?.enabled && (
                 <HeaderCarousel
                     advertiser_id={advertiser_id}
                     config={headerData.carousel}

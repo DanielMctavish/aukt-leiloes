@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import AdvertiserTemplateControls from './AdvertiserTemplateControls';
 import HeaderTemplate from './header/HeaderTemplate';
 import FooterTemplate from './footer/FooterTemplate';
@@ -11,6 +10,7 @@ import TemplateSections from './sections/TemplateSections';
 import { fetchTemplate as fetchHeaderTemplate } from '../../features/template/HeaderSlice';
 import { fetchTemplate as fetchFooterTemplate } from '../../features/template/FooterSlice';
 import { fetchTemplate as fetchSectionsTemplate } from '../../features/template/SectionsSlice';
+import { Launch } from '@mui/icons-material';
 
 function AdvertiserTemplate() {
     const { headerData } = useSelector(state => state.header);
@@ -18,15 +18,9 @@ function AdvertiserTemplate() {
     const [fadeIn, setFadeIn] = useState(false);
     const [asideWidth, setAsideWidth] = useState(20);
     const [isResizing, setIsResizing] = useState(false);
-    const [advertiser, setAdvertiser] = useState(null);
     const asideRef = useRef(null);
     const { advertiser_id } = useParams();
-    const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        getCurrentAdvertiser();
-    }, []);
 
     useEffect(() => {
         if (!showWelcomeScreen) {
@@ -70,50 +64,6 @@ function AdvertiserTemplate() {
         }
     }, [advertiser_id, dispatch]);
 
-    const getCurrentAdvertiser = async () => {
-        try {
-            const advertiserSession = localStorage.getItem('advertiser-session-aukt');
-            if (!advertiserSession) {
-                localStorage.removeItem('advertiser-session-aukt');
-                navigate("/");
-                return;
-            }
-
-            const { token, email } = JSON.parse(advertiserSession);
-            if (!token) {
-                localStorage.removeItem('advertiser-session-aukt');
-                navigate("/");
-                return;
-            }
-
-            const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`,
-                {
-                    params: { email: email },
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }
-            );
-
-
-            if (response.data.id !== advertiser_id) {
-                localStorage.removeItem('advertiser-session-aukt');
-                navigate("/");
-                return;
-            }
-
-            if (!response.data) {
-                localStorage.removeItem('advertiser-session-aukt');
-                navigate("/");
-                return;
-            }
-
-            setAdvertiser(response.data);
-
-        } catch (error) {
-            localStorage.removeItem('advertiser-session-aukt');
-            navigate("/");
-        }
-    };
 
     const getTextColor = () => {
         return headerData.colorPalette === 'dark' ? 'text-white' : 'text-black';
@@ -125,31 +75,20 @@ function AdvertiserTemplate() {
 
     return (
         <div className={`flex w-full h-screen bg-white overflow-hidden transition-opacity duration-1000 ease-in-out ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
-            {advertiser && (
-                <div
-                    onClick={() => navigate(`/advertiser/dashboard`)}
-                    className="absolute top-4 right-[3vh] z-50 bg-white/90 cursor-pointer
-                    backdrop-blur-sm p-1 rounded-lg shadow-lg opacity-30 hover:opacity-100"
-                >
-                    <div className="flex items-center gap-4">
-                        {advertiser.url_profile_company_logo_cover ? (
-                            <img
-                                src={advertiser.url_profile_company_logo_cover}
-                                alt="Logo"
-                                className="w-[40px] h-[40px] rounded-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full bg-[#012038] text-white flex items-center justify-center text-xl font-bold">
-                                {advertiser.name[0]}
-                            </div>
-                        )}
-                        <div>
-                            <h3 className="font-bold text-[14px] text-[#012038]">{advertiser.company_name}</h3>
-                            <p className="text-[12px] text-gray-600">{advertiser.email}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
+            
+
+            <button 
+                className='absolute top-4 right-[4vh] z-[99] flex items-center gap-2 px-4 py-2
+                bg-gradient-to-r from-[#012038] to-[#01284a] text-white rounded-lg
+                shadow-lg shadow-black/20 hover:shadow-xl hover:scale-105 
+                transition-all duration-300 group'
+                onClick={() => window.open(`/advertiser/home/${advertiser_id}`, '_blank')}
+            >
+                <span className="font-medium">Visualizar Site</span>
+                <Launch className="text-white/70 group-hover:text-white 
+                group-hover:translate-x-0.5 group-hover:-translate-y-0.5 
+                transition-all duration-300" />
+            </button>
 
             <div
                 ref={asideRef}
