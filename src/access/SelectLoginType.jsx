@@ -7,10 +7,18 @@ import axios from 'axios';
 function SelectLoginType() {
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
+    const [loadedImages, setLoadedImages] = useState({});
 
     useEffect(() => {
         listProducts();
     }, []);
+
+    const handleImageLoad = (productId) => {
+        setLoadedImages(prev => ({
+            ...prev,
+            [productId]: true
+        }));
+    };
 
     const listProducts = async () => {
         try {
@@ -56,9 +64,10 @@ function SelectLoginType() {
                     return (
                         <div
                             key={product.id}
-                            className="absolute rounded-full shadow-lg overflow-hidden
-                                animate-float  transition-opacity opacity-70
-                                pointer-events-none backdrop-blur-sm"
+                            className={`absolute rounded-full shadow-lg overflow-hidden
+                                animate-float transition-opacity
+                                pointer-events-none backdrop-blur-sm
+                                ${loadedImages[product.id] ? 'opacity-70' : 'opacity-0'}`}
                             style={{
                                 width: `${size}px`,
                                 height: `${size}px`,
@@ -68,13 +77,15 @@ function SelectLoginType() {
                                 animationDuration: `${Math.random() * 2 + 12}s`,
                                 position: 'absolute',
                                 zIndex: 1,
-                                transform: `scale(${Math.random() * 0.5 + 0.8})`
+                                transform: `scale(${Math.random() * 0.5 + 0.8})`,
+                                backgroundColor: '#1dad24'
                             }}
                         >
                             <img
                                 src={product.cover_img_url}
                                 alt={product.title}
                                 className="w-full h-full object-cover"
+                                onLoad={() => handleImageLoad(product.id)}
                             />
                         </div>
                     );

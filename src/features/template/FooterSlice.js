@@ -4,15 +4,15 @@ import axios from 'axios';
 const initialState = {
     footerData: {
         id: null,
-        sections: [],
-        socialMedia: [],
-        size: 'MEDIUM',
-        color: '#2e2e2e',
-        textColor: '#FFFFFF',
-        borderColor: 'rgba(255,255,255,0.2)',
-        elementsOpacity: 100,
+        color: '#333333',
+        sizeType: 'MEDIUM',
+        companyName: '',
         showSocialLinks: true,
-        companyName: 'EMPRESA'
+        textColor: '#ffffff',
+        borderColor: 'rgba(255,255,255,0.2)',
+        elementsOpacity: 1,
+        sections: [],
+        socialMedia: []
     }
 }
 
@@ -47,31 +47,8 @@ const footerSlice = createSlice({
     name: "footer_template",
     initialState,
     reducers: {
-        addFooterSection: (state, action) => {
-            state.footerData.sections.push(action.payload);
-        },
-        removeFooterSection: (state, action) => {
-            state.footerData.sections = state.footerData.sections.filter(
-                (_, index) => index !== action.payload
-            );
-        },
-        updateFooterSection: (state, action) => {
-            const { index, section } = action.payload;
-            state.footerData.sections[index] = section;
-        },
-        addSocialMedia: (state, action) => {
-            state.footerData.socialMedia.push(action.payload);
-        },
-        removeSocialMedia: (state, action) => {
-            state.footerData.socialMedia = state.footerData.socialMedia.filter(
-                (_, index) => index !== action.payload
-            );
-        },
         setFooterSize: (state, action) => {
-            state.footerData.size = action.payload;
-        },
-        setFooterFontStyle: (state, action) => {
-            state.footerData.fontStyle = action.payload;
+            state.footerData.sizeType = action.payload;
         },
         setFooterColor: (state, action) => {
             state.footerData.color = action.payload;
@@ -79,48 +56,83 @@ const footerSlice = createSlice({
         setFooterTextColor: (state, action) => {
             state.footerData.textColor = action.payload;
         },
-        setBorderColor: (state, action) => {
+        setFooterBorderColor: (state, action) => {
             state.footerData.borderColor = action.payload;
+        },
+        setElementsOpacity: (state, action) => {
+            state.footerData.elementsOpacity = action.payload;
+        },
+        setCompanyName: (state, action) => {
+            state.footerData.companyName = action.payload;
+        },
+        setShowSocialLinks: (state, action) => {
+            state.footerData.showSocialLinks = action.payload;
+        },
+        addFooterSection: (state, action) => {
+            state.footerData.sections.push({
+                title: action.payload.title || '',
+                links: action.payload.links?.map(link => ({
+                    name: link.name || '',
+                    url: link.url || ''
+                })) || []
+            });
+        },
+        removeFooterSection: (state, action) => {
+            state.footerData.sections.splice(action.payload, 1);
+        },
+        addFooterSocialMedia: (state, action) => {
+            console.log("Payload recebido:", action.payload);
+            state.footerData.socialMedia.push({
+                type: action.payload.type || '',
+                url: action.payload.url || ''
+            });
+        },
+        updateFooterSocialMedia: (state, action) => {
+            const index = state.footerData.socialMedia.findIndex(
+                social => social.type === action.payload.type
+            );
+            if (index !== -1) {
+                state.footerData.socialMedia[index] = action.payload;
+            }
+        },
+        removeFooterSocialMedia: (state, action) => {
+            state.footerData.socialMedia.splice(action.payload, 1);
+        },
+        updateFooterData: (state, action) => {
+            state.footerData = {
+                ...state.footerData,
+                ...action.payload
+            };
         }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchTemplate.fulfilled, (state, action) => {
-            console.log("Footer Template Response:", action.payload);
             if (!action.payload) return;
 
-            const template = action.payload;
-            const footer = template.footer;
-            
+            const footer = action.payload.footer;
             state.footerData = {
                 ...initialState.footerData,
-                id: footer.id,
-                color: footer.color,
-                size: footer.sizeType,
-                companyName: footer.companyName,
-                showSocialLinks: footer.showSocialLinks,
-                textColor: footer.textColor,
-                borderColor: footer.borderColor,
-                elementsOpacity: footer.elementsOpacity * 100,
-                sections: footer.sections || [],
-                socialMedia: footer.socialMedia || []
+                ...footer,
+                elementsOpacity: footer?.elementsOpacity || 1
             };
-
-            console.log("Footer State After Update:", state.footerData);
         });
     }
 });
 
-export const { 
-    addFooterSection,
-    removeFooterSection,
-    updateFooterSection,
-    addSocialMedia,
-    removeSocialMedia,
+export const {
     setFooterSize,
-    setFooterFontStyle,
     setFooterColor,
     setFooterTextColor,
-    setBorderColor
+    setFooterBorderColor,
+    setElementsOpacity,
+    setCompanyName,
+    setShowSocialLinks,
+    addFooterSection,
+    removeFooterSection,
+    addFooterSocialMedia,
+    updateFooterSocialMedia,
+    removeFooterSocialMedia,
+    updateFooterData
 } = footerSlice.actions;
 
 export const footerReducer = footerSlice.reducer; 

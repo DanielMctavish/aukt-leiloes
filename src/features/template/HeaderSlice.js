@@ -32,7 +32,7 @@ const FONT_FAMILIES = {
 };
 
 // Definindo as paletas de cores diretamente no slice
-const PALETTES = {
+export const PALETTES = {
     clean: {
         1: '#e8f3f2',
         2: '#dffeee',
@@ -78,79 +78,34 @@ const PALETTES = {
 const initialState = {
     headerData: {
         id: null,
-        size: 'MEDIUM',
-        sizeType: 'MEDIUM',
         color: '#2e2e2e',
+        sizeType: 'MEDIUM',
         model: 'MODEL_1',
-        colorPalette: 'clean',
-        fontStyle: FONT_FAMILIES.firaSansCondensed,
-        fontFamilies: FONT_FAMILIES,
-        background: {
-            image: null,
-            opacity: 30,
-            blur: 2,
-            brightness: 100
-        },
-        elementsOpacity: 100,
+        backgroundImage: null,
+        backgroundImageOpacity: 1,
+        backgroundImageBlur: 0,
+        backgroundImageBrightness: 1,
+        elementsOpacity: 1,
         texts: [],
         carousel: {
             enabled: false,
             title: "Produtos em Destaque",
             selectedAuctId: null,
-            size: {
-                width: "600px",
-                height: "400px"
-            },
+            sizeWidth: "600px",
+            sizeHeight: "400px",
             itemsToShow: 4,
             speed: 3000,
-            position: {
-                top: '60%',
-                left: '10%'
-            },
+            positionTop: '60%',
+            positionLeft: '10%',
             showTitle: true,
             showPrice: true,
             showCarouselTitle: true,
             showNavigation: true
         },
-        palettes: PALETTES,
-        elements: {
-            element_1: { 
-                clean: { saturation: 100, lightness: 81 },
-                candy: { saturation: 70, lightness: 61 },
-                dark: { saturation: 60, lightness: 9 },
-                monochromatic: { saturation: 17, lightness: 16 }
-            },
-            element_2: { 
-                clean: { saturation: 100, lightness: 70 },
-                candy: { saturation: 100, lightness: 36 },
-                dark: { saturation: 100, lightness: 9 },
-                monochromatic: { saturation: 17, lightness: 8 }
-            },
-            element_3: { 
-                clean: { saturation: 100, lightness: 82 },
-                candy: { saturation: 70, lightness: 36 },
-                dark: { saturation: 60, lightness: 9 },
-                monochromatic: { saturation: 17, lightness: 14 }
-            },
-            element_4: { 
-                clean: { saturation: 100, lightness: 75 },
-                candy: { saturation: 70, lightness: 50 },
-                dark: { saturation: 60, lightness: 12 },
-                monochromatic: { saturation: 17, lightness: 20 }
-            },
-            element_5: { 
-                clean: { saturation: 100, lightness: 82 },
-                candy: { saturation: 70, lightness: 61 },
-                dark: { saturation: 100, lightness: 9 },
-                monochromatic: { saturation: 17, lightness: 14 }
-            },
-            element_6: { 
-                clean: { saturation: 100, lightness: 82 },
-                candy: { saturation: 70, lightness: 61 },
-                dark: { saturation: 100, lightness: 9 },
-                monochromatic: { saturation: 17, lightness: 14 }
-            }
-        }
+        colorPalette: 'clean',
+        fontStyle: FONT_FAMILIES.firaSansCondensed,
+        fontFamilies: FONT_FAMILIES,
+        palettes: PALETTES
     }
 }
 
@@ -171,6 +126,9 @@ export const fetchTemplate = createAsyncThunk(
             );
 
             const template = response.data[0];
+
+            console.log("observando template no headerSlice", template.sections);
+
             if (!template) return null;
 
             return template;
@@ -186,7 +144,6 @@ const headerSlice = createSlice({
     initialState,
     reducers: {
         setHeaderSize: (state, action) => {
-            state.headerData.size = action.payload;
             state.headerData.sizeType = action.payload;
         },
         setHeaderColor: (state, action) => {
@@ -196,28 +153,50 @@ const headerSlice = createSlice({
             // 'MODEL_1' | 'MODEL_2' | ...
             state.headerData.model = action.payload;
         },
-        setHeaderBackground: (state, action) => {
-            // { image?, opacity?, blur?, brightness? }
-            state.headerData.background = {
-                ...state.headerData.background,
-                ...action.payload
-            };
+        updateBackground: (state, action) => {
+            state.headerData.backgroundImage = action.payload.url;
+            state.headerData.backgroundImageOpacity = action.payload.opacity ? action.payload.opacity / 100 : 1;
+            state.headerData.backgroundImageBlur = action.payload.blur || 0;
+            state.headerData.backgroundImageBrightness = action.payload.brightness ? action.payload.brightness / 100 : 1;
         },
         setElementsOpacity: (state, action) => {
             state.headerData.elementsOpacity = action.payload;
         },
         // Gerenciamento de textos
         addHeaderText: (state, action) => {
-            state.headerData.texts.push(action.payload);
+            state.headerData.texts.push({
+                id: action.payload.id,
+                title: action.payload.title || '',
+                content: action.payload.content || '',
+                positionTop: action.payload.positionTop || '50%',
+                positionLeft: action.payload.positionLeft || '50%',
+                positionWidth: action.payload.positionWidth || '200px',
+                titleBackground: action.payload.titleBackground || 'transparent',
+                titleColor: action.payload.titleColor || '#ffffff',
+                contentColor: action.payload.contentColor || '#ffffff',
+                titleSize: action.payload.titleSize || '60px',
+                titleBorderRadius: action.payload.titleBorderRadius || '0px',
+                visible: action.payload.visible !== undefined ? action.payload.visible : true
+            });
         },
         updateHeaderText: (state, action) => {
-            // { id, updates }
             const { id, updates } = action.payload;
             const textIndex = state.headerData.texts.findIndex(text => text.id === id);
+            
             if (textIndex !== -1) {
                 state.headerData.texts[textIndex] = {
                     ...state.headerData.texts[textIndex],
-                    ...updates
+                    title: updates.title || state.headerData.texts[textIndex].title,
+                    content: updates.content || state.headerData.texts[textIndex].content,
+                    positionTop: updates.positionTop || state.headerData.texts[textIndex].positionTop,
+                    positionLeft: updates.positionLeft || state.headerData.texts[textIndex].positionLeft,
+                    positionWidth: updates.positionWidth || state.headerData.texts[textIndex].positionWidth,
+                    titleBackground: updates.titleBackground || state.headerData.texts[textIndex].titleBackground,
+                    titleColor: updates.titleColor || state.headerData.texts[textIndex].titleColor,
+                    contentColor: updates.contentColor || state.headerData.texts[textIndex].contentColor,
+                    titleSize: updates.titleSize || state.headerData.texts[textIndex].titleSize,
+                    titleBorderRadius: updates.titleBorderRadius || state.headerData.texts[textIndex].titleBorderRadius,
+                    visible: updates.visible !== undefined ? updates.visible : state.headerData.texts[textIndex].visible
                 };
             }
         },
@@ -253,69 +232,28 @@ const headerSlice = createSlice({
         },
         setFontStyle: (state, action) => {
             state.headerData.fontStyle = action.payload;
+        },
+        updateHeaderData: (state, action) => {
+            state.headerData = {
+                ...state.headerData,
+                ...action.payload
+            };
         }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchTemplate.fulfilled, (state, action) => {
-            if (!action.payload) return;
-
-            const template = action.payload;
-            
-            // Atualiza o estado com os dados do template
-            state.headerData = {
-                ...state.headerData,
-                id: template.id,
-                colorPalette: template.colorPalette.toLowerCase(),
-                fontStyle: template.fontStyle.toLowerCase(),
-                color: template.header.color,
-                sizeType: template.header.sizeType.toLowerCase(),
-                model: template.header.model,
-                background: {
-                    image: template.header.backgroundImage,
-                    opacity: template.header.backgroundImageOpacity * 100,
-                    blur: template.header.backgroundImageBlur,
-                    brightness: template.header.backgroundImageBrightness * 100
-                },
-                elementsOpacity: template.header.elementsOpacity * 100,
-                texts: template.header.texts.map(text => ({
-                    id: text.id,
-                    title: text.title,
-                    content: text.content,
-                    position: {
-                        top: text.positionTop,
-                        left: text.positionLeft,
-                        width: text.positionWidth
-                    },
-                    style: {
-                        titleBackground: text.titleBackground,
-                        titleColor: text.titleColor,
-                        contentColor: text.contentColor,
-                        titleSize: text.titleSize.replace('px', ''),
-                        titleBorderRadius: text.titleBorderRadius
-                    },
-                    visible: text.visible
-                })),
-                carousel: template.header.carousel ? {
-                    enabled: template.header.carousel.enabled,
-                    title: template.header.carousel.title,
-                    selectedAuctId: template.header.carousel.selectedAuctId,
-                    size: {
-                        width: template.header.carousel.sizeWidth,
-                        height: template.header.carousel.sizeHeight
-                    },
-                    itemsToShow: template.header.carousel.itemsToShow,
-                    speed: template.header.carousel.speed,
-                    position: {
-                        top: template.header.carousel.positionTop,
-                        left: template.header.carousel.positionLeft
-                    },
-                    showTitle: template.header.carousel.showTitle,
-                    showPrice: template.header.carousel.showPrice,
-                    showCarouselTitle: template.header.carousel.showCarouselTitle,
-                    showNavigation: template.header.carousel.showNavigation
-                } : state.headerData.carousel,
-                size: template.header.sizeType
-            };
+            if (action.payload) {
+                const header = action.payload.header;
+                state.headerData = {
+                    ...initialState.headerData,
+                    ...header,
+                    colorPalette: action.payload.colorPalette?.toLowerCase() || 'clean',
+                    fontStyle: action.payload.fontStyle || FONT_FAMILIES.firaSansCondensed,
+                    fontFamilies: FONT_FAMILIES,
+                    palettes: PALETTES,
+                    carousel: header?.carousel || initialState.headerData.carousel
+                };
+            }
         });
     }
 });
@@ -324,7 +262,7 @@ export const {
     setHeaderSize,
     setHeaderColor,
     setHeaderModel,
-    setHeaderBackground,
+    updateBackground,
     setElementsOpacity,
     addHeaderText,
     updateHeaderText,
@@ -333,7 +271,8 @@ export const {
     toggleCarousel,
     setHeaderData,
     setColorPalette,
-    setFontStyle
+    setFontStyle,
+    updateHeaderData
 } = headerSlice.actions;
 
 export const headerReducer = headerSlice.reducer; 

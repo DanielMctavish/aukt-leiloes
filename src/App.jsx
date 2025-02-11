@@ -30,7 +30,7 @@ import ClientArremates from "./Clients/arremates/ClientArremates";
 import ClientAucts from "./Clients/aucts/ClientAucts";
 import ClientWallet from "./Clients/wallet/ClientWallet";
 import ClientProfile from "./Clients/profile/ClientProfile";
-import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
+// import HomeAdvertiser from "./home/advertiser-home/HomeAdv";
 import ProductDetailAdv from "./home/advertiser-home/ProductDetailAdv";
 import DashboardAuctControl from "./advertiser/control/DashboardAuctControl";
 import SecurityConfirmation from "./access/security/SecurityConfirmation";
@@ -45,6 +45,7 @@ import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
 import AdminTransactions from './admin/AdminTransactions'; // Adicione esta importação
 import SearchResults from './search/SearchResults';
 import SelectLoginType from './access/SelectLoginType';
+import MainRenderAdvertiserSite from "./home/renderer/MainRenderAdvertiserSite";
 
 
 function App() {
@@ -57,7 +58,7 @@ function App() {
           <Route Component={Categorias} path="/categorias" exact />
 
           {/* Home Advertiser */}
-          <Route Component={HomeAdvertiser} path="/advertiser/home/:advertiser_id" exact />
+          <Route Component={MainRenderAdvertiserSite} path="/advertiser/home/:advertiser_id" exact />
           <Route Component={ProductDetailAdv} path="/advertiser/home/product/:product_id" exact />
           <Route Component={SubscriptionAdvertiser} path="/advertiser/form/subscription" exact />
           <Route Component={HomeAdvShop} path="/advertiser/home/shop/:auct_id" exact />
