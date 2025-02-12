@@ -30,6 +30,23 @@ function FooterTemplate() {
         // console.log("observando o footerData",footerData)
     }, [footerData])
 
+    // Função para determinar a cor do texto baseado na paleta
+    const getTextColor = () => {
+        const palette = headerData.colorPalette?.toLowerCase();
+        switch (palette) {
+            case 'clean':
+                return footerData.textColor || '#333333';
+            case 'candy':
+                return footerData.textColor || '#ffffff';
+            case 'dark':
+                return '#ffffff';
+            case 'monochromatic':
+                return '#ffffff';
+            default:
+                return footerData.textColor || '#333333';
+        }
+    };
+
     // Função para determinar a altura e padding baseado no tamanho selecionado
     const getFooterStyles = () => {
         switch (footerData.sizeType) {
@@ -75,13 +92,15 @@ function FooterTemplate() {
         return SOCIAL_ICONS[normalizedType] || null;
     }
 
+    const textColor = getTextColor();
+
     return (
         <footer
             className={`w-full ${styles.height} flex flex-col justify-between transition-all`}
             style={{
                 backgroundColor: footerData.color,
                 fontFamily: headerData.fontStyle,
-                color: footerData.textColor,
+                color: textColor,
             }}
         >
             {/* Seções do Footer */}
@@ -102,7 +121,7 @@ function FooterTemplate() {
                                                     key={linkIndex}
                                                     href={link.url}
                                                     className="hover:opacity-80 transition-opacity text-center md:text-left"
-                                                    style={{ color: footerData.textColor }}
+                                                    style={{ color: textColor }}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                 >
@@ -120,7 +139,7 @@ function FooterTemplate() {
                     {footerData.showSocialLinks && footerData.socialMedia?.length > 0 && (
                         <div
                             className="flex justify-center gap-6 mt-8 pt-8"
-                            style={{ borderTop: `1px solid ${footerData.borderColor}` }}
+                            style={{ borderTop: `1px solid ${textColor}` }}
                         >
                             {footerData.socialMedia.map((social, index) => {
                                 const icon = getSocialIcon(social.type);
@@ -133,7 +152,7 @@ function FooterTemplate() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-2xl hover:opacity-80 transition-opacity"
-                                        style={{ color: footerData.textColor }}
+                                        style={{ color: textColor }}
                                     >
                                         {icon}
                                     </a>
@@ -149,7 +168,7 @@ function FooterTemplate() {
                 className="w-full py-4"
                 style={{
                     backgroundColor: footerData.borderColor,
-                    color: footerData.textColor
+                    color: textColor
                 }}
             >
                 <div className="container mx-auto px-4 md:px-6 text-center text-sm">

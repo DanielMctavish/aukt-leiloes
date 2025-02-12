@@ -8,17 +8,19 @@ import HeaderControlsTemplate from "./TemplateControls/HeaderControlsTemplate/He
 import InitialConfigTemplate from "./TemplateControls/InitialConfigTemplate/InitialConfigTemplate";
 import SectionsControlsTemplate from "./TemplateControls/SectionsControlsTemplate/SectionsControlsTemplate";
 import { useEffect, useState } from "react";
-
+import { useDispatch } from "react-redux";
+import { updateFooterData } from "../../features/template/FooterSlice";
 
 
 function AdvertiserTemplateControls() {
     const [advertiser, setAdvertiser] = useState(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { advertiser_id } = useParams();
 
-    useEffect(()=>{
+    useEffect(() => {
         getCurrentAdvertiser();
-    },[])
+    }, [])
 
     const getCurrentAdvertiser = async () => {
         try {
@@ -28,14 +30,14 @@ function AdvertiserTemplateControls() {
                 navigate("/");
                 return;
             }
-    
+
             const { token, email } = JSON.parse(advertiserSession);
             if (!token) {
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
             }
-    
+
             const response = await axios.get(
                 `${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`,
                 {
@@ -43,22 +45,26 @@ function AdvertiserTemplateControls() {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }
             );
-    
-    
+
+            dispatch(updateFooterData({
+                companyName: response.data.company_name,
+            }));
+
+
             if (response.data.id !== advertiser_id) {
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
             }
-    
+
             if (!response.data) {
                 localStorage.removeItem('advertiser-session-aukt');
                 navigate("/");
                 return;
             }
-    
+
             setAdvertiser(response.data);
-    
+
         } catch (error) {
             localStorage.removeItem('advertiser-session-aukt');
             navigate("/");
@@ -72,19 +78,19 @@ function AdvertiserTemplateControls() {
                     <div className="w-full bg-gradient-to-br from-[#012038] to-[#01284a] text-white 
                     rounded-xl shadow-2xl shadow-black/20 p-6 mb-4">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                {/* Avatar do anunciante */}
-                                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center 
-                                justify-center text-2xl font-bold uppercase backdrop-blur-sm border-2 border-white/20">
-                                    {advertiser.name?.charAt(0)}
-                                </div>
-                                
+                            <div onClick={() => navigate("/advertiser/dashboard")}
+                                className="flex items-center gap-4 cursor-pointer">
+
+                                <img src={advertiser.url_profile_cover}
+                                    className="w-16 h-16 rounded-full bg-white/10 flex items-center object-cover 
+                                justify-center text-2xl font-bold uppercase backdrop-blur-sm border-2 border-white/20" />
+
                                 {/* Informações principais */}
                                 <div>
                                     <h1 className="text-2xl font-bold">{advertiser.name}</h1>
                                     <p className="text-white/70">{advertiser.email}</p>
                                 </div>
-                            </div>                          
+                            </div>
                         </div>
 
                         {/* Barra de progresso do template */}

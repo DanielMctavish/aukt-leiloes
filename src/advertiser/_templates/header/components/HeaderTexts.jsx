@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateHeaderText } from '../../../../features/template/HeaderSlice';
 
 function HeaderTexts({ texts, handleMouseDown }) {
     const dispatch = useDispatch();
     const [editingText, setEditingText] = useState(null);
     const [tempText, setTempText] = useState({ title: '', content: '' });
-    const { headerData } = useSelector(state => state.header);
 
     const handleTextDoubleClick = (text) => {
         setEditingText(text);
@@ -30,7 +29,12 @@ function HeaderTexts({ texts, handleMouseDown }) {
                 id: editingText.id,
                 updates: {
                     title: tempText.title,
-                    content: tempText.content
+                    content: tempText.content,
+                    titleColor: editingText.titleColor,
+                    contentColor: editingText.contentColor,
+                    titleSize: editingText.titleSize,
+                    titleBackground: editingText.titleBackground,
+                    titleBorderRadius: editingText.titleBorderRadius
                 }
             }));
             setEditingText(null);
@@ -56,22 +60,7 @@ function HeaderTexts({ texts, handleMouseDown }) {
         }));
     };
 
-    const getTextColors = (text) => {
-        if (headerData.colorPalette?.toLowerCase() === 'dark') {
-            return {
-                title: '#ffffff',
-                content: '#e2e8f0'
-            };
-        }
-        return {
-            title: text.titleColor || 'white',
-            content: text.contentColor || 'white'
-        };
-    };
-
     const renderText = (text) => {
-        const textColors = getTextColors(text);
-
         if (editingText?.id === text.id) {
             return (
                 <div className="relative bg-black/20 p-4 rounded-lg backdrop-blur-sm">
@@ -130,21 +119,27 @@ function HeaderTexts({ texts, handleMouseDown }) {
                     Duplo clique para editar
                 </div>
                 <h1
-                    className="font-bold select-none"
+                    className="font-bold select-none break-words"
                     style={{
                         fontSize: text.titleSize || '60px',
-                        color: textColors.title,
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                        color: text.titleColor || '#ffffff',
+                        backgroundColor: text.titleBackground || 'transparent',
+                        borderRadius: text.titleBorderRadius || '0px',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                        width: 'auto',
+                        maxWidth: '100%'
                     }}
                 >
                     {text.title}
                 </h1>
                 <p
-                    className="select-none mt-2"
+                    className="select-none mt-2 break-words"
                     style={{ 
-                        color: textColors.content,
+                        color: text.contentColor || '#ffffff',
                         fontSize: '16px',
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                        width: 'auto',
+                        maxWidth: '100%'
                     }}
                 >
                     {text.content}
@@ -168,8 +163,9 @@ function HeaderTexts({ texts, handleMouseDown }) {
                             top: text.positionTop || '50%',
                             left: text.positionLeft || '50%',
                             transform: 'translate(-50%, -50%)',
-                            minWidth: '200px',
-                            maxWidth: text.positionWidth || '80%'
+                            width: 'auto',
+                            maxWidth: '90vw',
+                            padding: '1rem'
                         }}
                     >
                         {renderText(text)}

@@ -20,7 +20,25 @@ const SOCIAL_ICONS = {
     'whatsapp': <WhatsApp />
 };
 
-function RenderFooterAdvertiser({ footer, fontStyle }) {
+function RenderFooterAdvertiser({ footer, fontStyle, colorPalette = 'clean' }) {
+
+    // Função para determinar a cor do texto baseado na paleta
+    const getTextColor = () => {
+        const palette = colorPalette?.toLowerCase();
+        switch (palette) {
+            case 'clean':
+                return footer.textColor || '#333333';
+            case 'candy':
+                return footer.textColor || '#ffffff';
+            case 'dark':
+                return '#ffffff';
+            case 'monochromatic':
+                return '#ffffff';
+            default:
+                return footer.textColor || '#333333';
+        }
+    };
+
     // Função para determinar a altura e padding baseado no tamanho selecionado
     const getFooterStyles = () => {
         switch (footer.sizeType) {
@@ -65,13 +83,15 @@ function RenderFooterAdvertiser({ footer, fontStyle }) {
         return `https://${url}`;
     }
 
+    const textColor = getTextColor();
+
     return (
         <footer
             className={`w-full ${styles.height} flex flex-col justify-between transition-all`}
             style={{
                 backgroundColor: footer.color,
                 fontFamily: fontStyle,
-                color: footer.textColor,
+                color: textColor,
             }}
         >
             {/* Seções do Footer */}
@@ -90,7 +110,7 @@ function RenderFooterAdvertiser({ footer, fontStyle }) {
                                             key={linkIndex}
                                             href={formatUrl(link.url)}
                                             className="hover:opacity-80 transition-opacity text-base"
-                                            style={{ color: footer.textColor }}
+                                            style={{ color: textColor }}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -106,7 +126,7 @@ function RenderFooterAdvertiser({ footer, fontStyle }) {
                     {footer.showSocialLinks && footer.socialMedia?.length > 0 && (
                         <div
                             className="flex justify-center gap-8 mt-12 pt-12"
-                            style={{ borderTop: `1px solid ${footer.borderColor}` }}
+                            style={{ borderTop: `1px solid ${textColor}` }}
                         >
                             {footer.socialMedia.map((social, index) => {
                                 const icon = getSocialIcon(social.type);
@@ -119,7 +139,7 @@ function RenderFooterAdvertiser({ footer, fontStyle }) {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-3xl hover:opacity-80 transition-all duration-300 hover:scale-110"
-                                        style={{ color: footer.textColor }}
+                                        style={{ color: textColor }}
                                     >
                                         {icon}
                                     </a>
@@ -135,11 +155,13 @@ function RenderFooterAdvertiser({ footer, fontStyle }) {
                 className="w-full py-6"
                 style={{
                     backgroundColor: footer.borderColor,
-                    color: footer.textColor
+                    color: textColor
                 }}
             >
                 <div className="w-[80%] mx-auto text-center">
-                    <p className="text-sm">© {new Date().getFullYear()} {footer.companyName}. Todos os direitos reservados | AUKT Tech.</p>
+                    <p className="text-sm">
+                        © {new Date().getFullYear()}  {footer.companyName}. Todos os direitos reservados | AUKT Tech.
+                    </p>
                 </div>
             </div>
         </footer>

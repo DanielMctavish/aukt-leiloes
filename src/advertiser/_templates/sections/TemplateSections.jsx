@@ -62,62 +62,75 @@ function TemplateSections() {
         return headerData.colorPalette === "dark" ? "#ffffff" : defaultColor;
     };
 
+    const getGridColumns = (itemsPerRow) => {
+        return `grid-cols-1 sm:grid-cols-2 ${
+            itemsPerRow >= 3 ? 'md:grid-cols-3' : ''
+        } ${
+            itemsPerRow >= 4 ? 'lg:grid-cols-4' : ''
+        } ${
+            itemsPerRow >= 5 ? 'xl:grid-cols-5' : ''
+        } ${
+            itemsPerRow >= 6 ? '2xl:grid-cols-6' : ''
+        }`;
+    };
+
     const renderGallerySection = (section) => {
         const products = advertiserAucts.find(auct => auct.id === section.config.selectedAuctId)?.product_list || [];
         
-        if (loading) {
-            return (
-                <div className="w-full flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#144366]/20 border-t-[#144366]"></div>
-                </div>
-            );
-        }
+        if (!products?.length) return null;
 
-        if (products.length === 0) {
-            return (
-                <div className="w-full text-center py-12 text-gray-500">
-                    Nenhum produto encontrado neste leilão.
-                </div>
-            );
-        }
-        
-        // Cálculo da paginação
+        // Configuração da paginação
         const totalPages = Math.ceil(products.length / itemsPerPage);
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const currentProducts = products.slice(startIndex, endIndex);
 
         return (
-            <div className="w-full min-h-[50vh] flex flex-col items-center py-8"
-                style={{ backgroundColor: section.color }}>
-                {/* Container principal com largura máxima e padding */}
-                <div className="w-full max-w-7xl px-4 md:px-8">
-                    {/* Grid de produtos */}
-                    <div className={`w-full grid gap-4 md:gap-6
-                        grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-${section.config.itemsPerRow || 5}`}>
+            <div className="h-full overflow-hidden flex flex-col justify-center py-12">
+                {/* Cabeçalho da Galeria */}
+                <div className="w-[80%] mx-auto text-center mb-12">
+                    <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#144366] to-[#1a5c8c] bg-clip-text text-transparent">
+                        Produtos em Destaque
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                        Confira nossa seleção especial de produtos. Cada item foi cuidadosamente escolhido para oferecer as melhores oportunidades.
+                    </p>
+                </div>
+
+                {/* Container da Galeria */}
+                <div className="w-[80%] mx-auto">
+                    <div className={`grid ${getGridColumns(section.config.itemsPerRow)} gap-6`}>
                         {currentProducts.map((product) => (
                             <div key={product.id} 
-                                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                                {/* Container da imagem com aspect ratio fixo */}
-                                <div className="aspect-square w-full">
+                                className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl 
+                                    transition-all duration-300 transform hover:-translate-y-1">
+                                <div className="aspect-square overflow-hidden">
                                     <img 
                                         src={product.cover_img_url} 
                                         alt={product.title}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover transform transition-transform 
+                                            duration-300 group-hover:scale-110"
                                     />
                                 </div>
-                                {/* Informações do produto */}
                                 {(section.config.showTitle || section.config.showPrice) && (
-                                    <div className="p-3">
+                                    <div className="p-6">
                                         {section.config.showTitle && (
-                                            <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1">
+                                            <h4 className="text-xl font-semibold text-[#144366] mb-3 
+                                                line-clamp-2 hover:line-clamp-none transition-all">
                                                 {product.title}
-                                            </h3>
+                                            </h4>
                                         )}
                                         {section.config.showPrice && (
-                                            <p className="text-[#036982] text-sm font-medium">
-                                                R$ {product.initial_value?.toFixed(2)}
-                                            </p>
+                                            <div className="flex justify-between items-center mt-3 pt-3 
+                                                border-t border-gray-100">
+                                                <span className="text-sm text-gray-500">Valor Inicial</span>
+                                                <p className="text-xl font-bold text-[#1a5c8c]">
+                                                    {new Intl.NumberFormat('pt-BR', {
+                                                        style: 'currency',
+                                                        currency: 'BRL'
+                                                    }).format(product.initial_value)}
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -125,17 +138,20 @@ function TemplateSections() {
                         ))}
                     </div>
 
-                    {/* Paginação centralizada */}
+                    {/* Paginação */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-4 mt-8">
+                        <div className="flex justify-center items-center gap-4 mt-12">
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className={`px-3 py-1.5 rounded-lg text-sm transition-all duration-200
+                                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
                                     ${currentPage === 1 
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                                         : 'bg-[#144366] text-white hover:bg-[#144366]/90'}`}
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
                                 Anterior
                             </button>
                             
@@ -144,7 +160,7 @@ function TemplateSections() {
                                     <button
                                         key={index}
                                         onClick={() => setCurrentPage(index + 1)}
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-all duration-200
                                             ${currentPage === index + 1
                                                 ? 'bg-[#144366] text-white'
                                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
@@ -157,12 +173,15 @@ function TemplateSections() {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className={`px-3 py-1.5 rounded-lg text-sm transition-all duration-200
+                                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
                                     ${currentPage === totalPages 
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                                         : 'bg-[#144366] text-white hover:bg-[#144366]/90'}`}
                             >
                                 Próximo
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                </svg>
                             </button>
                         </div>
                     )}

@@ -30,25 +30,30 @@ function GalleryProductsSection({advertiserAucts, setIsModalProductGallery}){
                 }
             });
             
-            // Filtra os produtos pelo leilão selecionado
             const productsFromSelectedAuct = response.data.filter(product => product.auct_id === selectedAuct);
             setSelectedAuctProducts(productsFromSelectedAuct);
 
             // Atualiza o Redux apenas após ter os produtos
             if (productsFromSelectedAuct.length > 0) {
-                const newSection = {
-                    type: "Gallery",
-                    config: {
-                        ...config,
-                        selectedAuctId: selectedAuct
-                    },
-                    color: "#ffffff",
-                    sizeType: "contained"
-                };
+                const existingGalleryIndex = sectionsData.sections.findIndex(section => 
+                    section.type === "GALLERY" && section.config.selectedAuctId === selectedAuct
+                );
 
-                dispatch(updateSectionsData({
-                    sections: [...sectionsData.sections, newSection]
-                }));
+                if (existingGalleryIndex === -1) {
+                    const newSection = {
+                        type: "GALLERY",
+                        config: {
+                            ...config,
+                            selectedAuctId: selectedAuct
+                        },
+                        color: "#ffffff",
+                        sizeType: "MEDIUM"
+                    };
+
+                    dispatch(updateSectionsData({
+                        sections: [...sectionsData.sections, newSection]
+                    }));
+                }
             }
         } catch (error) {
             console.error("Erro ao buscar produtos:", error.message);
@@ -91,16 +96,21 @@ function GalleryProductsSection({advertiserAucts, setIsModalProductGallery}){
 
         // Atualiza o Redux apenas se já tivermos produtos
         if (selectedAuctProducts.length > 0) {
-            const newSection = {
-                type: "Gallery",
-                config: newConfig,
-                color: "#ffffff",
-                sizeType: "contained"
-            };
+            const existingGalleryIndex = sectionsData.sections.findIndex(section => 
+                section.type === "GALLERY" && section.config.selectedAuctId === selectedAuct
+            );
 
-            dispatch(updateSectionsData({
-                sections: [...sectionsData.sections, newSection]
-            }));
+            if (existingGalleryIndex !== -1) {
+                const updatedSections = [...sectionsData.sections];
+                updatedSections[existingGalleryIndex] = {
+                    ...updatedSections[existingGalleryIndex],
+                    config: newConfig
+                };
+
+                dispatch(updateSectionsData({
+                    sections: updatedSections
+                }));
+            }
         }
     };
 
@@ -109,6 +119,18 @@ function GalleryProductsSection({advertiserAucts, setIsModalProductGallery}){
             style: 'currency',
             currency: 'BRL'
         }).format(value);
+    };
+
+    const getGridColumns = (itemsPerRow) => {
+        return `grid-cols-1 sm:grid-cols-2 ${
+            itemsPerRow >= 3 ? 'md:grid-cols-3' : ''
+        } ${
+            itemsPerRow >= 4 ? 'lg:grid-cols-4' : ''
+        } ${
+            itemsPerRow >= 5 ? 'xl:grid-cols-5' : ''
+        } ${
+            itemsPerRow >= 6 ? '2xl:grid-cols-6' : ''
+        }`;
     };
 
     return(
@@ -203,25 +225,31 @@ function GalleryProductsSection({advertiserAucts, setIsModalProductGallery}){
                     ) : selectedAuctProducts.length > 0 ? (
                         <div className="w-full bg-gray-50 p-6 rounded-xl">
                             <h3 className="text-lg font-semibold text-[#036982] mb-6">Prévia da Galeria</h3>
-                            <div className={`grid grid-cols-${config.itemsPerRow} gap-4`}>
+                            <div className={`grid ${getGridColumns(config.itemsPerRow)} gap-4`}>
                                 {selectedAuctProducts.map((product) => (
-                                    <div key={product.id} className="relative group bg-white rounded-lg overflow-hidden shadow-md">
-                                        <div className="aspect-square">
+                                    <div key={product.id} 
+                                        className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                                        <div className="aspect-square overflow-hidden">
                                             <img 
                                                 src={product.cover_img_url} 
                                                 alt={product.title}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                                             />
                                         </div>
                                         {(config.showTitle || config.showPrice) && (
                                             <div className="p-4">
                                                 {config.showTitle && (
-                                                    <h4 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">{product.title}</h4>
+                                                    <h4 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 hover:line-clamp-none transition-all">
+                                                        {product.title}
+                                                    </h4>
                                                 )}
                                                 {config.showPrice && (
-                                                    <p className="text-[#036982] font-medium">
-                                                        {formatCurrency(product.initial_value)}
-                                                    </p>
+                                                    <div className="flex justify-between items-center mt-2">
+                                                        <span className="text-sm text-gray-500">Valor Inicial</span>
+                                                        <p className="text-lg font-bold text-[#036982]">
+                                                            {formatCurrency(product.initial_value)}
+                                                        </p>
+                                                    </div>
                                                 )}
                                             </div>
                                         )}

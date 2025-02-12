@@ -21,6 +21,7 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
     const { headerData } = useSelector(state => state.header);
     const [advertiserData, setAdvertiserData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
 
     //params advertiserId
@@ -30,10 +31,20 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
         const fetchAdvertiserData = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-advertiser?advertiserId=${advertiser_id}`);
+                const response = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-advertiser`,
+                    {
+                        params: { advertiserId: advertiser_id },
+                        headers: {
+                            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('advertiser-session-aukt')).token}`
+                        }
+                    }
+                );
                 setAdvertiserData(response.data);
+                setError(null);
             } catch (error) {
-                console.error("Erro ao buscar dados do anunciante:", error.message);
+                console.error("Erro ao buscar dados do anunciante:", error);
+                setError("Erro ao carregar dados do anunciante");
             } finally {
                 setLoading(false);
             }
@@ -157,6 +168,74 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
         }, 400);
     };
 
+    const handleAddSection = (type) => {
+        if (!advertiserData) {
+            console.error("Dados do anunciante não disponíveis");
+            return;
+        }
+
+        // Verifica se já existe uma seção do mesmo tipo
+        const existingSection = sectionsData.sections.find(section => section.type === type);
+
+        if (existingSection && !MULTIPLE_SECTIONS_ALLOWED.includes(type)) {
+            setActiveModal(type);
+            return;
+        }
+
+        const newSection = {
+            type,
+            color: "#ffffff",
+            sizeType: "MEDIUM",
+            config: {
+                ...DEFAULT_SECTION_CONFIG[type],
+                advertiserId: advertiserData.id
+            }
+        };
+
+        dispatch(updateSectionsData({
+            sections: [...sectionsData.sections, newSection]
+        }));
+
+        setActiveModal(type);
+    };
+
+    // Constantes para configuração das seções
+    const MULTIPLE_SECTIONS_ALLOWED = ['GALLERY', 'TEXT', 'FORM'];
+    const DEFAULT_SECTION_CONFIG = {
+        GALLERY: {
+            layout: 'GRID',
+            itemsPerRow: 3,
+            showTitle: true,
+            showPrice: true
+        },
+        TEXT: {
+            content: '',
+            fontSize: '16',
+            alignment: 'LEFT',
+            textColor: '#000000'
+        },
+        FORM: {
+            buttonText: 'Enviar Mensagem',
+            whatsappNumber: '',
+            fields: [
+                { type: 'text', label: 'Nome', required: true },
+                { type: 'email', label: 'E-mail', required: true },
+                { type: 'text', label: 'Telefone', required: false },
+                { type: 'textarea', label: 'Mensagem', required: true }
+            ]
+        },
+        PRODUCT_CAROUSEL: {
+            layout: 'GRID',
+            itemsPerRow: 3,
+            showTitle: true,
+            showPrice: true,
+            autoplay: true,
+            speed: 3000
+        }
+    };
+
+    const [activeModal, setActiveModal] = useState(null);
+
     // Renderiza o modal apropriado baseado no estado
     if (isModalCarroselProducts) return <CarroselProductsSectionControls
         advertiserAucts={advertiserData.Aucts}
@@ -175,6 +254,37 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
     if (isModalText) return <TextSectionControls setIsModalText={setIsModalText} onClose={closeModalAndRetract} />;
 
     if (isModalTestimonials) return <TestimonialsSectionControls setIsModalTestimonials={setIsModalTestimonials} />;
+
+    if (loading) {
+        return (
+            <div className="w-full h-[100vh] fixed top-0 left-0 bg-[#0D2B44]/80 
+                flex justify-center items-center z-[999] backdrop-blur-[4px]">
+                <div className="bg-white p-8 rounded-xl shadow-xl flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#144366]/20 border-t-[#144366]"></div>
+                    <p className="text-gray-600">Carregando...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="w-full h-[100vh] fixed top-0 left-0 bg-[#0D2B44]/80 
+                flex justify-center items-center z-[999] backdrop-blur-[4px]">
+                <div className="bg-white p-8 rounded-xl shadow-xl flex flex-col items-center gap-4">
+                    <div className="text-red-500 text-center">
+                        <p>{error}</p>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="mt-4 px-4 py-2 bg-[#144366] text-white rounded-lg hover:bg-[#144366]/90 transition-all"
+                        >
+                            Tentar Novamente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`w-full h-[100vh] fixed top-0 left-0 
