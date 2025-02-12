@@ -409,27 +409,32 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
                             top: text.positionTop || '50%',
                             left: text.positionLeft || '50%',
                             transform: 'translate(-50%, -50%)',
-                            minWidth: '200px',
-                            maxWidth: text.positionWidth || '80%'
+                            width: 'auto',
+                            maxWidth: '90vw',
+                            padding: '1rem'
                         }}
                     >
                         <div className="cursor-default">
                             <h1
-                                className="font-bold select-none"
+                                className="font-bold select-none break-words"
                                 style={{
                                     fontSize: text.titleSize || '60px',
                                     color: text.titleColor || 'white',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                                    width: 'auto',
+                                    maxWidth: '100%'
                                 }}
                             >
                                 {text.title}
                             </h1>
                             <p
-                                className="select-none mt-2"
+                                className="select-none mt-2 break-words"
                                 style={{
                                     color: text.contentColor || 'white',
                                     fontSize: '16px',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                                    width: 'auto',
+                                    maxWidth: '100%'
                                 }}
                             >
                                 {text.content}

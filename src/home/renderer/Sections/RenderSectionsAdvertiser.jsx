@@ -4,11 +4,15 @@ import axios from 'axios';
 import { WhatsApp } from '@mui/icons-material';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
+import { useNavigate } from 'react-router-dom';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
 function RenderSectionsAdvertiser({ sections, fontStyle }) {
+    const navigate = useNavigate();
     const [advertiserAucts, setAdvertiserAucts] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchAucts = async () => {
@@ -168,7 +172,9 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
                     >
                         {products.map((product, idx) => (
                             <SwiperSlide key={idx} className="h-full">
-                                <div className="h-full bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                                <div 
+                                    onClick={() => handleProductClick(product.id)}
+                                    className="h-full bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
                                     <div className="aspect-square w-full relative group">
                                         <img
                                             src={product.cover_img_url}
@@ -234,6 +240,134 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
         </div>
     );
 
+    const handleProductClick = (productId) => {
+        navigate(`/advertiser/home/product/${productId}`);
+    };
+
+    const renderGallerySection = (section) => {
+        const products = advertiserAucts.find(auct => auct.id === section.config.selectedAuctId)?.product_list || [];
+        
+        if (!products?.length) return null;
+
+        const totalPages = Math.ceil(products.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentProducts = products.slice(startIndex, endIndex);
+
+        const getGridColumns = (itemsPerRow) => {
+            const columns = {
+                1: 'grid-cols-1',
+                2: 'grid-cols-1 sm:grid-cols-2',
+                3: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
+                4: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+                5: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'
+            };
+            return columns[itemsPerRow] || columns[3];
+        };
+
+        return (
+            <div className="h-full overflow-hidden flex flex-col justify-center py-12">
+                {/* Cabeçalho da Galeria */}
+                <div className="w-[80%] mx-auto text-center mb-12">
+                    <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#144366] to-[#1a5c8c] bg-clip-text text-transparent">
+                        Produtos em Destaque
+                    </h2>
+                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                        Confira nossa seleção especial de produtos. Cada item foi cuidadosamente escolhido para oferecer as melhores oportunidades.
+                    </p>
+                </div>
+
+                {/* Container da Galeria */}
+                <div className="w-[80%] mx-auto">
+                    <div className={`grid ${getGridColumns(section.config.itemsPerRow)} gap-6`}>
+                        {currentProducts.map((product, index) => (
+                            <div key={index} 
+                                onClick={() => handleProductClick(product.id)}
+                                className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl 
+                                    transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
+                                <div className="aspect-square overflow-hidden">
+                                    <img 
+                                        src={product.cover_img_url} 
+                                        alt={product.title} 
+                                        className="w-full h-full object-cover transform transition-transform 
+                                            duration-300 group-hover:scale-110"
+                                    />
+                                </div>
+                                <div className="p-6">
+                                    {section.config.showTitle && (
+                                        <h3 className="text-xl font-semibold text-[#144366] mb-3 
+                                            line-clamp-2 hover:line-clamp-none transition-all">
+                                            {product.title}
+                                        </h3>
+                                    )}
+                                    {section.config.showPrice && (
+                                        <div className="flex justify-between items-center mt-3 pt-3 
+                                            border-t border-gray-100">
+                                            <span className="text-sm text-gray-500">Valor Inicial</span>
+                                            <p className="text-xl font-bold text-[#1a5c8c]">
+                                                {new Intl.NumberFormat('pt-BR', {
+                                                    style: 'currency',
+                                                    currency: 'BRL'
+                                                }).format(product.initial_value)}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-4 mt-12">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
+                                    ${currentPage === 1 
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-[#144366] text-white hover:bg-[#144366]/90'}`}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                Anterior
+                            </button>
+                            
+                            <div className="flex items-center gap-2">
+                                {[...Array(totalPages)].map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-all duration-200
+                                            ${currentPage === index + 1
+                                                ? 'bg-[#144366] text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
+                                    ${currentPage === totalPages 
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-[#144366] text-white hover:bg-[#144366]/90'}`}
+                            >
+                                Próximo
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="w-full flex flex-col">
             {sections?.map((section, index) => {
@@ -257,6 +391,7 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
                             {sectionType === 'product_carousel' && renderCarouselSection(section)}
                             {sectionType === 'text' && renderTextSection(section)}
                             {sectionType === 'form' && renderFormSection(section)}
+                            {sectionType === 'gallery' && renderGallerySection(section)}
                         </div>
                     </section>
                 );
