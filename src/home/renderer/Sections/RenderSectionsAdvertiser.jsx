@@ -78,12 +78,13 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
     const getSectionHeight = (sizeType) => {
         switch (sizeType) {
             case 'SMALL':
-                return 'h-[20vh]';
-            case 'FULL':
-                return 'h-screen';
+                return 'h-[40vh]';
             case 'MEDIUM':
+                return 'h-[60vh]';
+            case 'FULL':
+                return 'h-[100vh]';
             default:
-                return 'h-[50vh]';
+                return 'h-[60vh]';
         }
     };
 
