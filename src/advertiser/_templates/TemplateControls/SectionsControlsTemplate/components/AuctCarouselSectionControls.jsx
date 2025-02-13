@@ -36,23 +36,28 @@ function AuctCarouselSectionControls({advertiserAucts, setIsModalAuctCarousel}){
         setConfig(newConfig);
 
         // Verifica se já existe um carrossel de leilões
-        const existingCarouselIndex = sectionsData.sections.findIndex(section => section.type === "AuctCarousel");
-        const newSection = {
-            type: "AuctCarousel",
-            config: newConfig,
-            color: "#ffffff",
-            sizeType: "contained"
-        };
+        const existingCarouselIndex = sectionsData.sections.findIndex(section => section.type === "AUCT_LIST");
 
         if (existingCarouselIndex !== -1) {
-            // Se já existe, atualiza ele
+            // Se já existe, atualiza apenas a configuração
             const updatedSections = [...sectionsData.sections];
-            updatedSections[existingCarouselIndex] = newSection;
+            updatedSections[existingCarouselIndex] = {
+                ...updatedSections[existingCarouselIndex],
+                config: newConfig
+            };
+            
             dispatch(updateSectionsData({
                 sections: updatedSections
             }));
         } else {
             // Se não existe, cria um novo
+            const newSection = {
+                type: "AUCT_LIST",
+                config: newConfig,
+                color: "#ffffff",
+                sizeType: "MEDIUM"
+            };
+
             dispatch(updateSectionsData({
                 sections: [...sectionsData.sections, newSection]
             }));

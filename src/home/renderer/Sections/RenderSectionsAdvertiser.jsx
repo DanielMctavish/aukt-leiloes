@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { WhatsApp } from '@mui/icons-material';
+import { WhatsApp, CalendarMonth, AccessTime, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -14,25 +15,77 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    const {advertiser_id} = useParams();
+
     useEffect(() => {
         const fetchAucts = async () => {
             try {
+                if (!sections?.length) return;
+
                 const response = await axios.get(
                     `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct`,
                     {
-                        params: { creator_id: sections[0]?.advertiserId }
+                        params: { creator_id: advertiser_id }
                     }
                 );
-                setAdvertiserAucts(response.data);
+
+                // Ordenar os leilões por data mais próxima
+                const sortedAucts = response.data.sort((a, b) => {
+                    const aNextDate = getNextDate(a.auct_dates);
+                    const bNextDate = getNextDate(b.auct_dates);
+                    
+                    if (!aNextDate || !bNextDate) return 0;
+                    return new Date(aNextDate.date_auct) - new Date(bNextDate.date_auct);
+                });
+
+                setAdvertiserAucts(sortedAucts);
             } catch (error) {
                 console.error("Erro ao buscar leilões:", error);
+                setAdvertiserAucts([]);
             }
         };
 
-        if (sections?.length > 0) {
-            fetchAucts();
-        }
+        fetchAucts();
     }, [sections]);
+
+    // Função auxiliar para pegar a próxima data
+    const getNextDate = (dates) => {
+        if (!dates || dates.length === 0) return null;
+        
+        const now = new Date();
+        const futureDates = dates.filter(d => new Date(d.date_auct) >= now);
+        
+        if (futureDates.length === 0) return dates[dates.length - 1];
+        return futureDates[0];
+    };
+
+    // Função para formatar data
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
+    // Função para formatar hora
+    const formatHour = (hour) => {
+        if (!hour) return '';
+        return hour.slice(0, 5); // Pega apenas HH:mm
+    };
+
+    // Função para determinar a altura baseada no sizeType
+    const getSectionHeight = (sizeType) => {
+        switch (sizeType) {
+            case 'SMALL':
+                return 'h-[20vh]';
+            case 'FULL':
+                return 'h-screen';
+            case 'MEDIUM':
+            default:
+                return 'h-[50vh]';
+        }
+    };
 
     const renderFormSection = (section) => {
         const handleSubmit = async (e) => {
@@ -368,6 +421,174 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
         );
     };
 
+    const renderAuctListSection = (section) => {
+        // Se itemsPerRow for 1, usar carrossel
+        if (section.config.itemsPerRow === 1) {
+            return (
+                <div className={`${getSectionHeight(section.sizeType)} w-full flex items-center justify-center`}>
+                    <div className={`${section.config.layout === "full" ? "w-full" : "w-[90%]"} h-[90%] relative group`}>
+                        <Swiper
+                            modules={[Navigation, Autoplay]}
+                            spaceBetween={30}
+                            slidesPerView={1}
+                            navigation={{
+                                nextEl: '.swiper-button-next-custom',
+                                prevEl: '.swiper-button-prev-custom',
+                            }}
+                            autoplay={{
+                                delay: 3000,
+                                disableOnInteraction: false,
+                            }}
+                            loop={true}
+                            className="w-full h-full"
+                        >
+                            {advertiserAucts.map((auct) => {
+                                const nextDate = getNextDate(auct.auct_dates);
+                                return (
+                                    <SwiperSlide key={auct.id} className="relative">
+                                        <div className="w-full h-full relative">
+                                            <img
+                                                src={auct.auct_cover_img}
+                                                alt={auct.title}
+                                                className={`w-full h-full object-cover ${section.sizeType === 'SMALL' ? 'aspect-video' : 'h-[60vh]'}`}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+                                            
+                                            <div className={`absolute bottom-0 left-0 right-0 p-8 text-white
+                                                ${section.config.layout === "full" ? "w-[80%] mx-auto" : ""}`}>
+                                                <h3 className={`font-bold mb-4 ${
+                                                    section.sizeType === 'SMALL' ? 'text-xl' :
+                                                    section.sizeType === 'FULL' ? 'text-4xl' : 'text-2xl'
+                                                }`}>
+                                                    {auct.title}
+                                                </h3>
+
+                                                {auct.descriptions_informations && (
+                                                    <p className="text-white/90 mb-6 line-clamp-3 text-lg">
+                                                        {auct.descriptions_informations}
+                                                    </p>
+                                                )}
+                                                
+                                                {nextDate && (
+                                                    <div className="flex items-center gap-6 text-white/90">
+                                                        <div className="flex items-center gap-2">
+                                                            <CalendarMonth />
+                                                            <span>{formatDate(nextDate.date_auct)}</span>
+                                                        </div>
+                                                        {nextDate.hour_auct && (
+                                                            <div className="flex items-center gap-2">
+                                                                <AccessTime />
+                                                                <span>{formatHour(nextDate.hour_auct)}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </SwiperSlide>
+                                );
+                            })}
+                        </Swiper>
+
+                        <button className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10
+                            w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm
+                            flex items-center justify-center transition-all duration-300
+                            opacity-0 group-hover:opacity-100 group-hover:-translate-x-6">
+                            <ChevronLeft className="text-white" />
+                        </button>
+
+                        <button className="swiper-button-next-custom absolute right-4 top-1/2 -translate-y-1/2 z-10
+                            w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm
+                            flex items-center justify-center transition-all duration-300
+                            opacity-0 group-hover:opacity-100 group-hover:translate-x-6">
+                            <ChevronRight className="text-white" />
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Para múltiplos itens por linha
+        return (
+            <div className={`${getSectionHeight(section.sizeType)} w-full flex items-center justify-center overflow-hidden`}>
+                <div className={`${section.config.layout === "full" ? "w-full px-8" : "w-[90%]"} h-[90%]`}>
+                    <Swiper
+                        modules={[Navigation, Autoplay]}
+                        spaceBetween={20}
+                        slidesPerView={section.config.itemsPerRow}
+                        navigation={{
+                            nextEl: '.swiper-button-next-custom',
+                            prevEl: '.swiper-button-prev-custom',
+                        }}
+                        breakpoints={{
+                            320: { slidesPerView: 1, spaceBetween: 10 },
+                            480: { slidesPerView: Math.min(2, section.config.itemsPerRow), spaceBetween: 15 },
+                            768: { slidesPerView: Math.min(3, section.config.itemsPerRow), spaceBetween: 15 },
+                            1024: { slidesPerView: Math.min(4, section.config.itemsPerRow), spaceBetween: 20 },
+                            1280: { slidesPerView: section.config.itemsPerRow, spaceBetween: 20 }
+                        }}
+                        autoplay={{
+                            delay: 3000,
+                            disableOnInteraction: false,
+                        }}
+                        loop={true}
+                        className="w-full h-full"
+                    >
+                        {advertiserAucts.map((auct) => {
+                            const nextDate = getNextDate(auct.auct_dates);
+                            return (
+                                <SwiperSlide key={auct.id} className="h-full">
+                                    <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-lg
+                                        hover:shadow-xl transition-all duration-300 group">
+                                        <div className="relative h-[60%]">
+                                            <img
+                                                src={auct.auct_cover_img}
+                                                alt={auct.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent 
+                                                opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        </div>
+
+                                        <div className="p-4 h-[40%] flex flex-col justify-between">
+                                            <div className="flex flex-col gap-2">
+                                                <h3 className="font-semibold text-gray-800 line-clamp-2 group-hover:line-clamp-none
+                                                    transition-all duration-300">
+                                                    {auct.title}
+                                                </h3>
+
+                                                { auct.descriptions_informations && (
+                                                    <p className="text-gray-600/90 text-sm line-clamp-2 group-hover:line-clamp-none">
+                                                        {auct.descriptions_informations}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {nextDate && (
+                                                <div className="flex flex-col gap-2 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2">
+                                                        <CalendarMonth className="text-[#036982]" />
+                                                        <span>{formatDate(nextDate.date_auct)}</span>
+                                                    </div>
+                                                    {nextDate.hour_auct && (
+                                                        <div className="flex items-center gap-2">
+                                                            <AccessTime className="text-[#036982]" />
+                                                            <span>{formatHour(nextDate.hour_auct)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </SwiperSlide>
+                            );
+                        })}
+                    </Swiper>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="w-full flex flex-col">
             {sections?.map((section, index) => {
@@ -380,9 +601,7 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
                         className={`w-full relative transition-all duration-1000 ease-in-out`}
                         style={{
                             backgroundColor: section.color,
-                            minHeight: section.sizeType === "SMALL" ? "25vh" :
-                                section.sizeType === "MEDIUM" ? "50vh" :
-                                    section.sizeType === "FULL" ? "100vh" : "50vh",
+                            minHeight: getSectionHeight(section.sizeType),
                             transitionDelay: `${index * 200}ms`,
                             fontFamily: fontStyle
                         }}
@@ -392,6 +611,7 @@ function RenderSectionsAdvertiser({ sections, fontStyle }) {
                             {sectionType === 'text' && renderTextSection(section)}
                             {sectionType === 'form' && renderFormSection(section)}
                             {sectionType === 'gallery' && renderGallerySection(section)}
+                            {sectionType === 'auct_list' && renderAuctListSection(section)}
                         </div>
                     </section>
                 );

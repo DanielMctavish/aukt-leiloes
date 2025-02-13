@@ -236,6 +236,20 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
 
     const [activeModal, setActiveModal] = useState(null);
 
+    const getSectionLabel = (type) => {
+        const normalizedType = type.toUpperCase();
+        const sectionTypes = {
+            'PRODUCT_CAROUSEL': 'Carrossel de Produtos',
+            'AUCT_CAROUSEL': 'Carrossel de Leilões',
+            'GALLERY': 'Galeria de Produtos',
+            'TEXT': 'Texto',
+            'FORM': 'Formulário de Contato',
+            'auct_list': 'Lista de Leilões',
+            'TESTIMONIALS': 'Depoimentos'
+        };
+        return sectionTypes[normalizedType] || type;
+    };
+
     // Renderiza o modal apropriado baseado no estado
     if (isModalCarroselProducts) return <CarroselProductsSectionControls
         advertiserAucts={advertiserData.Aucts}
@@ -354,7 +368,7 @@ function ModalSectionsConfigControls({ setIsModalSectionsOpen, setIsRetracted })
                                                 ? 'text-gray-400'
                                                 : 'text-[#5A7184] group-hover:text-[#144366]'
                                             } transition-colors duration-300`}>
-                                    {section.title}
+                                    {getSectionLabel(section.type)}
                                 </span>
                                         {isAdded && (
                                             <span className="text-sm text-gray-400">

@@ -64,8 +64,12 @@ function ButtonsDeploy() {
 
     const normalizeSectionType = (type) => {
         const validTypes = [
-            'PRODUCT_CAROUSEL', 'FORM', 'GALLERY',
-            'AUCT_LIST', 'TEXT', 'TESTIMONIALS'
+            'PRODUCT_CAROUSEL',
+            'FORM',
+            'GALLERY',
+            'TEXT',
+            'AUCT_LIST',
+            'TESTIMONIALS'
         ];
         const normalizedType = type?.toUpperCase();
         return validTypes.includes(normalizedType) ? normalizedType : 'TEXT';
