@@ -183,35 +183,53 @@ function HeaderCarousel({ config }) {
                     style={{
                         '--swiper-navigation-color': '#fff',
                         '--swiper-pagination-color': '#fff',
+                        '--swiper-navigation-size': '24px',
                         ...(config.showNavigation === false && {
                             '--swiper-navigation-size': '0',
                         })
                     }}
                 >
                     {selectedAuct.product_list.map((product, index) => (
-                        <SwiperSlide key={index} className="!h-full">
-                            <div className="w-full h-full bg-gray-800">
-                                <div className="w-full h-full">
+                        <SwiperSlide key={index} className="!h-full p-2">
+                            <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden 
+                                group relative transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
+                                <div className="w-full h-full relative">
                                     <img
                                         src={product.cover_img_url}
                                         alt={product.title}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover transition-transform duration-500 
+                                            group-hover:scale-110"
                                     />
+                                    {/* Gradiente de sobreposição */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent 
+                                        opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
+                                    
+                                    {/* Informações do produto */}
+                                    {(config.showTitle !== false || config.showPrice !== false) && (
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-4 
+                                            group-hover:translate-y-0 transition-transform duration-500">
+                                            {config.showTitle !== false && (
+                                                <h3 className="text-white text-lg font-bold mb-3 opacity-0 
+                                                    group-hover:opacity-100 transition-opacity duration-500 delay-100
+                                                    line-clamp-2 hover:line-clamp-none">
+                                                    {product.title}
+                                                </h3>
+                                            )}
+                                            {config.showPrice !== false && (
+                                                <div className="flex justify-between items-center opacity-0 
+                                                    group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                                                    <span className="text-white/80 text-sm">Valor Inicial</span>
+                                                    <p className="text-white font-bold text-lg">
+                                                        {new Intl.NumberFormat('pt-BR', {
+                                                            style: 'currency',
+                                                            currency: 'BRL'
+                                                        }).format(product.initial_value)}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                                {(config.showTitle !== false || config.showPrice !== false) && (
-                                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                                        {config.showTitle !== false && (
-                                            <h3 className="text-white text-sm font-semibold truncate mb-1">
-                                                {product.title}
-                                            </h3>
-                                        )}
-                                        {config.showPrice !== false && (
-                                            <p className="text-gray-200 text-xs">
-                                                R$ {product.initial_value?.toFixed(2)}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         </SwiperSlide>
                     ))}

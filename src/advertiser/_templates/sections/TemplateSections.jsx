@@ -323,11 +323,12 @@ function TemplateSections() {
             switch (section.sizeType) {
                 case 'SMALL':
                     return 'h-[20vh]';
+                case 'MEDIUM':
+                    return 'h-[49vh]';
                 case 'FULL':
                     return 'h-screen';
-                case 'MEDIUM':
                 default:
-                    return 'h-[50vh]';
+                    return 'h-[49vh]';
             }
         };
 
@@ -501,26 +502,46 @@ function TemplateSections() {
         
         if (!products?.length) return null;
 
+        const getSectionHeight = () => {
+            switch (section.sizeType) {
+                case 'SMALL':
+                    return 'h-[40vh]';
+                case 'MEDIUM':
+                    return 'h-[60vh]';
+                case 'FULL':
+                    return 'h-[100vh]';
+                default:
+                    return 'h-[60vh]';
+            }
+        };
+
         return (
-            <div className="h-full overflow-hidden flex flex-col justify-center">
-                {/* Cabeçalho do Carrossel */}
-                <div className="text-center mb-12 px-4">
-                    <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#144366] to-[#1a5c8c] bg-clip-text text-transparent">
+            <section id="product_carousel" 
+                className={`w-full ${getSectionHeight()} flex flex-col justify-start items-center gap-2 md:gap-4 py-2 md:py-4 transition-all duration-300 overflow-hidden relative`}
+                style={{ backgroundColor: section.color }}
+            >
+                {/* Shape Decorativo */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-1/2 -right-1/4 w-[80%] h-[150%] bg-gradient-to-br from-[#144366]/5 to-transparent rounded-full blur-3xl transform rotate-12" />
+                    <div className="absolute -bottom-1/2 -left-1/4 w-[80%] h-[150%] bg-gradient-to-tr from-[#036982]/5 to-transparent rounded-full blur-3xl transform -rotate-12" />
+                </div>
+
+                {/* Título e Descrição */}
+                <div className="w-[90%] mx-auto text-center">
+                    <h2 className={`${section.sizeType === 'SMALL' ? 'text-xl' : section.sizeType === 'FULL' ? 'text-3xl' : 'text-2xl'} 
+                        font-bold text-[#144366] mb-1 md:mb-2`}>
                         Produtos em Destaque
                     </h2>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-gray-600/90 text-xs md:text-sm lg:text-base max-w-3xl mx-auto line-clamp-2">
                         Confira nossa seleção especial de produtos. Cada item foi cuidadosamente escolhido para oferecer as melhores oportunidades.
                     </p>
                 </div>
 
                 {/* Container do Carrossel */}
-                <div className="w-[90%] mx-auto relative group">
-                    {/* Decoração de fundo */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#144366]/5 to-[#1a5c8c]/5 -m-8 rounded-3xl transform -skew-y-2"></div>
-                    
+                <div className={`${section.config.layout === "FULL" ? "w-full px-4 md:px-8" : "w-[90%]"} flex-1 relative group min-h-0`}>
                     <Swiper
                         modules={[Navigation, Autoplay]}
-                        spaceBetween={section.config.layout === "full" ? 0 : 30}
+                        spaceBetween={section.config.layout === "FULL" ? 20 : 30}
                         slidesPerView={section.config.itemsPerRow}
                         navigation={{
                             nextEl: '.swiper-button-next-custom',
@@ -531,56 +552,79 @@ function TemplateSections() {
                             disableOnInteraction: false,
                         }}
                         loop={true}
-                        className="h-full py-8"
+                        className="w-full h-full"
+                        breakpoints={{
+                            320: { slidesPerView: 1, spaceBetween: 10 },
+                            480: { slidesPerView: Math.min(2, section.config.itemsPerRow), spaceBetween: 15 },
+                            768: { slidesPerView: Math.min(3, section.config.itemsPerRow), spaceBetween: 15 },
+                            1024: { slidesPerView: Math.min(4, section.config.itemsPerRow), spaceBetween: 20 },
+                            1280: { slidesPerView: section.config.itemsPerRow, spaceBetween: 20 }
+                        }}
                     >
                         {products.map((product, idx) => (
-                            <SwiperSlide key={idx} className="h-full">
-                                <div className="h-full bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                                    <div className="aspect-square w-full relative group">
+                            <SwiperSlide key={idx} className="h-full p-1">
+                                <div className="h-full bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl 
+                                    transition-all duration-300 transform hover:-translate-y-1 flex flex-col">
+                                    <div className={`relative ${
+                                        section.sizeType === 'SMALL' ? 'h-[10vh]' : 
+                                        section.sizeType === 'FULL' ? 'h-[50vh]' : 
+                                        'h-[25vh]'} overflow-hidden`}>
                                         <img
                                             src={product.cover_img_url}
                                             alt={product.title}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                         />
-                                        {/* Overlay gradiente */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent 
+                                            opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
                                     </div>
-                                    {section.config.showTitle && (
-                                        <div className="p-6">
-                                            <h3 className="font-bold text-lg mb-2 text-[#144366] line-clamp-2">
+                                    <div className="p-2 md:p-3 flex flex-col justify-between gap-1 md:gap-2 flex-1">
+                                        {section.config.showTitle && (
+                                            <h3 className={`font-bold ${
+                                                section.sizeType === 'SMALL' ? 'text-xs line-clamp-1' : 
+                                                section.sizeType === 'FULL' ? 'text-base md:text-lg line-clamp-2' : 
+                                                'text-sm md:text-base line-clamp-2'} 
+                                                text-[#144366]`}>
                                                 {product.title}
                                             </h3>
-                                            {section.config.showPrice && (
-                                                <div className="flex items-center justify-between mt-4">
-                                                    <span className="text-sm text-gray-500">Valor Inicial</span>
-                                                    <p className="text-xl font-bold text-[#1a5c8c]">
-                                                        {new Intl.NumberFormat('pt-BR', {
-                                                            style: 'currency',
-                                                            currency: 'BRL'
-                                                        }).format(product.initial_value)}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                        )}
+                                        {section.config.showPrice && (
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <span className={`${
+                                                    section.sizeType === 'SMALL' ? 'text-[10px]' : 
+                                                    'text-xs md:text-sm'} text-gray-500`}>
+                                                    Valor Inicial
+                                                </span>
+                                                <p className={`${
+                                                    section.sizeType === 'SMALL' ? 'text-xs' : 
+                                                    section.sizeType === 'FULL' ? 'text-base md:text-lg' : 
+                                                    'text-sm md:text-base'} 
+                                                    font-bold text-[#036982]`}>
+                                                    {new Intl.NumberFormat('pt-BR', {
+                                                        style: 'currency',
+                                                        currency: 'BRL'
+                                                    }).format(product.initial_value)}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </SwiperSlide>
                         ))}
                     </Swiper>
 
                     {/* Botões de navegação customizados */}
-                    <button className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-[#144366] hover:bg-[#144366] hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 group-hover:-translate-x-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
+                    <button className="swiper-button-prev-custom absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10
+                        w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/80 hover:bg-white shadow-lg hover:shadow-xl
+                        flex items-center justify-center transition-all duration-300 group">
+                        <ChevronLeft className="text-[#144366] text-xl md:text-2xl group-hover:scale-110 transition-transform" />
                     </button>
-                    <button className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-[#144366] hover:bg-[#144366] hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 group-hover:translate-x-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                    <button className="swiper-button-next-custom absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10
+                        w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/80 hover:bg-white shadow-lg hover:shadow-xl
+                        flex items-center justify-center transition-all duration-300 group">
+                        <ChevronRight className="text-[#144366] text-xl md:text-2xl group-hover:scale-110 transition-transform" />
                     </button>
                 </div>
-            </div>
+            </section>
         );
     };
 
