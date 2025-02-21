@@ -1,11 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import { Menu, Close, Home, Info } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 function RenderNavigationAdvertiser({ sections, fontStyle, colorPalette = 'clean' }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
+
+    const navigate = useNavigate();
 
     // Definir as cores baseadas na paleta
     const PALETTES = {
@@ -225,7 +228,8 @@ function RenderNavigationAdvertiser({ sections, fontStyle, colorPalette = 'clean
                 <div className="flex items-center justify-between h-20">
                     {/* Logo ou Nome */}
                     <div className="flex-shrink-0">
-                        <h1 className={`text-2xl font-bold transition-colors duration-300 ${getTextStyle(scrolled)}`}>
+                        <h1 onClick={()=> navigate('/')} 
+                        className={`text-2xl font-bold transition-colors duration-300 cursor-pointer ${getTextStyle(scrolled)}`}>
                             AUKT
                         </h1>
                     </div>
