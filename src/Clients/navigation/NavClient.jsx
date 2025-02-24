@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { ArrowDropDown, NotificationsNone, Settings, AccountBalanceWallet, Logout } from "@mui/icons-material";
+import { ArrowDropDown, NotificationsNone, Settings, AccountBalanceWallet, Logout, Gavel } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -91,6 +91,11 @@ function NavClient({ currentClient }) {
                     {/* Botão de Notificações */}
                     <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
                         <NotificationsNone className="text-gray-600" />
+                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+
+                    <button onClick={()=>navigate("/floor/hub")} className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <Gavel className="text-gray-600" />
                         <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
 
