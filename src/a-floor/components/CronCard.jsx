@@ -17,7 +17,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
     const refBarDeadline = useRef();
     const dispatch = useDispatch();
     const [auctioneerCall, setAuctioneerCall] = useState('');
-    const [isRespawning, setIsRespawning] = useState(false);
 
     useEffect(() => {
         getClientSession();
@@ -188,25 +187,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
         setPercentual(percentage);
     };
 
-    // Função middleware para controlar o respawn dos lances
-    const handleBidWithRespawn = async () => {
-        if (isRespawning || isLoadingBid || !canBid) return;
-        
-        setIsRespawning(true);
-        
-        try {
-            await handleBidAuctionLive();
-            
-            const respawnTime = Math.floor(Math.random() * (1600 - 600 + 1) + 600);
-            
-            await new Promise(resolve => setTimeout(resolve, respawnTime));
-        } catch (error) {
-            console.error("Erro no processo de lance:", error);
-        } finally {
-            setIsRespawning(false);
-        }
-    };
-
     return (
         <div className="w-full gap-4 flex flex-col justify-start items-center">
             <div className="w-full h-[70px] flex justify-between p-4 
@@ -275,14 +255,14 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
                         R$ {getCurrentValue().toFixed(2)}
                     </div>
 
-                    {clientSession && !isLoadingBid && !isRespawning ? (
+                    {clientSession && !isLoadingBid ? (
                         <button
-                            onClick={handleBidWithRespawn}
-                            disabled={!canBid || isRespawning}
+                            onClick={handleBidAuctionLive}
+                            disabled={!canBid}
                             className={`flex-1 h-[50px] rounded-xl shadow-lg 
                                 flex justify-center items-center gap-2
                                 font-bold text-white transition-all duration-300
-                                ${(canBid && !isRespawning)
+                                ${canBid
                                     ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
                                     : 'bg-gray-400 cursor-not-allowed'}`}
                         >
@@ -294,7 +274,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
                             rounded-xl shadow-lg flex justify-center items-center gap-2
                             font-bold text-white">
                             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/>
-                            <span>{isRespawning ? 'Aguarde...' : 'Dando lance...'}</span>
+                            <span>Dando lance...</span>
                         </div>
                     )}
                 </div>
