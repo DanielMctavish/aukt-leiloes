@@ -3,7 +3,7 @@
 import axios from "axios"
 import { ArrowLeft, ArrowRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 function ProductInformation({ currentProduct, currentClient, currentAuct, setCurrentProduct, setBidInformations, setIsModalOn }) {
     const [currentSession, setCurrentSession] = useState();
@@ -17,16 +17,78 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     useEffect(() => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
         setCurrentSession(currentSession);
+
+        // Adicionar listener para o evento de login bem-sucedido
+        const handleLoginSuccess = (event) => {
+            setCurrentSession(event.detail);
+            // Atualizar a interface após login bem-sucedido
+            checkAutoBid();
+            // Mostrar mensagem de boas-vindas
+            showMessage(`Bem-vindo, ${event.detail.name}! Você está pronto para dar lances.`, 'success');
+        };
+
+        window.addEventListener('clientLoginSuccess', handleLoginSuccess);
+
+        // Limpar o listener quando o componente for desmontado
+        return () => {
+            window.removeEventListener('clientLoginSuccess', handleLoginSuccess);
+        };
     }, []);
+
+    // Efeito para atualizar o componente quando o produto mudar
+    useEffect(() => {
+        console.log("Produto mudou, atualizando interface:", currentProduct?.id);
+        
+        // Resetar o valor do lance quando o produto mudar
+        if (currentProduct) {
+            const baseValue = currentProduct.real_value || currentProduct.initial_value;
+            setBidValue(baseValue + 20);
+        }
+        
+        // Verificar se o cliente tem lance automático para este produto
+        checkAutoBid();
+    }, [currentProduct?.id]);
 
     useEffect(() => {
         checkAutoBid();
-    }, [currentProduct, currentClient]);
+        if (currentProduct) {
+            const baseValue = currentProduct.real_value || currentProduct.initial_value;
+            setBidValue(baseValue + 20);
+        }
+    }, [currentClient]);
+
+    // Escutar o evento personalizado 'productChanged'
+    useEffect(() => {
+        const handleProductChanged = (event) => {
+            console.log('Evento productChanged recebido em ProductInformation:', event.detail);
+            
+            // Resetar estados relacionados a lances
+            setIsAutoBidEnabled(false);
+            setHasAutoBid(false);
+            
+            // Verificar se o cliente tem lance automático para o novo produto
+            setTimeout(() => {
+                checkAutoBid();
+            }, 500); // Pequeno delay para garantir que currentProduct já foi atualizado
+        };
+
+        console.log('Adicionando listener para productChanged em ProductInformation');
+        window.addEventListener('productChanged', handleProductChanged);
+
+        // Limpar ao desmontar
+        return () => {
+            console.log('Removendo listener para productChanged de ProductInformation');
+            window.removeEventListener('productChanged', handleProductChanged);
+        };
+    }, []);
 
     const checkAutoBid = () => {
-        if (currentProduct && currentProduct.Bid && currentClient) {
+        // Usar currentSession se currentClient não estiver disponível
+        const clientId = currentClient?.id || currentSession?.id;
+        
+        if (currentProduct && currentProduct.Bid && clientId) {
             const autoBid = currentProduct.Bid.find(bid =>
-                bid.cover_auto === true && bid.client_id === currentClient.id
+                bid.cover_auto === true && bid.client_id === clientId
             );
             setHasAutoBid(!!autoBid);
             setIsAutoBidEnabled(!!autoBid);
@@ -108,26 +170,51 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     };
 
     const showMessage = (message, type = 'success') => {
-        if (messageRef.current) {
-            messageRef.current.textContent = message;
-            messageRef.current.classList.remove('hidden', 'bg-green-500', 'bg-red-500', 'bg-yellow-500');
-            messageRef.current.classList.add(
-                'transform', 'translate-y-0', 'opacity-100',
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-            );
+        // Verificar se o componente ainda está montado
+        if (!messageRef.current) return;
+        
+        messageRef.current.textContent = message;
+        messageRef.current.classList.remove('hidden', 'bg-green-500', 'bg-red-500', 'bg-yellow-500');
+        messageRef.current.classList.add(
+            'transform', 'translate-y-0', 'opacity-100',
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+        );
 
-            setTimeout(() => {
-                if (messageRef.current) {
-                    messageRef.current.classList.add('opacity-0', 'translate-y-[-20px]');
-                    setTimeout(() => {
+        setTimeout(() => {
+            if (messageRef.current) {
+                messageRef.current.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => {
+                    if (messageRef.current) {
                         messageRef.current.classList.add('hidden');
                         messageRef.current.classList.remove('opacity-0', 'translate-y-[-20px]');
-                    }, 300);
-                }
-            }, 3000);
-        }
+                    }
+                }, 300);
+            }
+        }, 3000);
     };
+
+    // Função para encontrar o cliente correto para um lance automático
+    const findClientForAutoBid = useCallback((autoBid, bids) => {
+        if (!autoBid || !autoBid.client_id || !bids || !Array.isArray(bids)) {
+            return null;
+        }
+        
+        // Procurar em outros lances pelo mesmo client_id
+        const clientBid = bids.find(
+            otherBid => 
+                (otherBid.client_id === autoBid.client_id || 
+                 otherBid.client?.id === autoBid.client_id) && 
+                (otherBid.client || otherBid.Client) &&
+                !otherBid.cover_auto // Preferir lances não automáticos
+        );
+        
+        if (clientBid) {
+            return clientBid.client || clientBid.Client;
+        }
+        
+        return null;
+    }, []);
 
     const handleBidConfirm = async () => {
 
@@ -172,12 +259,115 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
                 const newBid = response.data?.body || response.data;
                 
                 if (newBid) {
-                    setBidInformations(prevBids => [newBid, ...prevBids]);
+                    // Adicionar o cliente ao novo lance se não estiver presente
+                    if (!newBid.client && currentClient) {
+                        newBid.client = currentClient;
+                    }
+                    
+                    // Criar a lista atualizada de lances
+                    const updatedBids = [newBid, ...(updatedProduct.Bid || [])];
+                    console.log('Atualizando bidInformations com', updatedBids.length, 'lances');
+                    
+                    // Garantir que todos os lances tenham a informação do cliente
+                    updatedBids.forEach(bid => {
+                        if (!bid.client && currentClient) {
+                            bid.client = { ...currentClient };
+                        }
+                    });
+                    
+                    // Atualizar o estado com os lances
+                    setBidInformations(updatedBids);
+                    
+                    // Atualizar o produto atual
                     setCurrentProduct(prevProduct => ({
                         ...prevProduct,
                         real_value: newBid.value,
-                        Bid: [newBid, ...(prevProduct.Bid || [])]
+                        Bid: updatedBids
                     }));
+                    
+                    console.log('Novo lance realizado:', newBid);
+                    console.log('Lista atualizada de lances:', updatedBids);
+                    
+                    // Disparar evento personalizado para notificar sobre o novo lance
+                    try {
+                        // Criar uma cópia segura dos dados para o evento
+                        const bidCopy = JSON.parse(JSON.stringify(newBid));
+                        
+                        // Garantir que o lance tenha as informações do cliente
+                        if (!bidCopy.client && currentClient) {
+                            bidCopy.client = JSON.parse(JSON.stringify(currentClient));
+                        }
+                        
+                        // Garantir que temos uma lista válida de lances
+                        let allBidsCopy = [];
+                        
+                        // Adicionar o novo lance no início da lista
+                        allBidsCopy.push(bidCopy);
+                        
+                        // Adicionar os lances existentes, excluindo duplicatas
+                        if (updatedProduct.Bid && Array.isArray(updatedProduct.Bid)) {
+                            updatedProduct.Bid.forEach(existingBid => {
+                                // Evitar duplicatas
+                                if (existingBid.id !== bidCopy.id) {
+                                    const existingBidCopy = JSON.parse(JSON.stringify(existingBid));
+                                    
+                                    // Preservar as informações do cliente original
+                                    if (!existingBidCopy.client && existingBidCopy.Client) {
+                                        existingBidCopy.client = existingBidCopy.Client;
+                                    }
+                                    
+                                    // Para lances automáticos, garantir que o cliente seja o dono do lance automático
+                                    if (existingBidCopy.cover_auto === true && existingBidCopy.client_id) {
+                                        // Se o lance automático tem um client_id diferente do cliente atual,
+                                        // procurar o cliente correto em outros lances
+                                        if (existingBidCopy.client_id !== currentClient.id) {
+                                            const clientInfo = findClientForAutoBid(existingBidCopy, updatedProduct.Bid);
+                                            if (clientInfo) {
+                                                existingBidCopy.client = clientInfo;
+                                                console.log('Cliente encontrado para lance automático:', clientInfo);
+                                            }
+                                        }
+                                    }
+                                    
+                                    allBidsCopy.push(existingBidCopy);
+                                }
+                            });
+                        }
+                        
+                        // Ordenar os lances por data mais recente
+                        allBidsCopy.sort((a, b) => {
+                            const dateA = a.bidTime || a.created_at;
+                            const dateB = b.bidTime || b.created_at;
+                            
+                            if (!dateA && !dateB) return 0;
+                            if (!dateA) return 1;
+                            if (!dateB) return -1;
+                            
+                            return new Date(dateB) - new Date(dateA);
+                        });
+                        
+                        console.log('Preparando para disparar evento com lances:', allBidsCopy.length);
+                        
+                        // Usar setTimeout para garantir que o evento seja disparado após a atualização do estado
+                        setTimeout(() => {
+                            // Atualizar diretamente o estado do componente BidsAdvertiserHome
+                            setBidInformations(allBidsCopy);
+                            
+                            // Disparar o evento
+                            const newBidEvent = new CustomEvent('newBidPlaced', { 
+                                detail: { 
+                                    bid: bidCopy, 
+                                    allBids: allBidsCopy 
+                                } 
+                            });
+                            console.log('Disparando evento newBidPlaced');
+                            window.dispatchEvent(newBidEvent);
+                            console.log('Evento disparado com sucesso');
+                        }, 10);
+                    } catch (eventError) {
+                        console.error('Erro ao disparar evento:', eventError);
+                    }
+                    
                     setBidValue(0);
                     showMessage('Lance realizado com sucesso! 🎉');
                 } else {
@@ -266,7 +456,7 @@ function ProductInformation({ currentProduct, currentClient, currentAuct, setCur
     };
 
     return (
-        <div className='flex flex-col flex-1 max-w-[60%] h-full justify-start items-center px-[3vh]'>
+        <div className='flex flex-col flex-1 max-w-[60%] h-[700px] justify-start items-center px-[3vh]'>
             <div 
                 ref={messageRef} 
                 className="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg hidden

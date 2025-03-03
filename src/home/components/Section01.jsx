@@ -29,18 +29,31 @@ function Section01() {
   const getProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/list-by-filters`, {
-        params: {
-          take: 12,
-          bid_count_order: 'desc',
-          highlight_only: true
-        }
-      });
+      const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/get-all-auctions/2-products`);
 
-      if (response.data?.products) {
-        setCardsSelecteds(response.data.products);
-      } else if (Array.isArray(response.data)) {
-        setCardsSelecteds(response.data);
+      if (response.data?.data) {
+        // Extrair todos os produtos de todos os leilões
+        const allProducts = response.data.data.reduce((acc, auction) => {
+          if (auction.product_list && auction.product_list.length > 0) {
+            // Adiciona informações do leilão em cada produto
+            const productsWithAuctionInfo = auction.product_list.map(product => ({
+              ...product,
+              auction_title: auction.title,
+              auction_id: auction.id
+            }));
+            return [...acc, ...productsWithAuctionInfo];
+          }
+          return acc;
+        }, []);
+
+        // Embaralha a lista de produtos usando o algoritmo Fisher-Yates
+        const shuffledProducts = [...allProducts];
+        for (let i = shuffledProducts.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledProducts[i], shuffledProducts[j]] = [shuffledProducts[j], shuffledProducts[i]];
+        }
+
+        setCardsSelecteds(shuffledProducts);
       } else {
         setCardsSelecteds([]);
       }
@@ -181,6 +194,9 @@ function Section01() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
                                         opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <div className="absolute bottom-0 left-0 right-0 p-4">
+                                            <div className="text-sm text-cyan-300 mb-1">
+                                                {card?.auction_title}
+                                            </div>
                                             <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
                                                 {card?.title}
                                             </h3>

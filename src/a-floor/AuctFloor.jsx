@@ -9,6 +9,7 @@ import FloorNavigation from "./components/FloorNavigation";
 import backgroundFloor from "../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function AuctFloor() {
     const [currentAuct, setCurrentAuct] = useState(null);
@@ -96,7 +97,7 @@ function AuctFloor() {
         useEffect(() => {
             const checkTermsAcceptance = () => {
                 const termsData = localStorage.getItem(`terms-acceptance-${auct_id}`);
-                
+
                 if (!termsData) {
                     setIsOpen(true);
                     return;
@@ -146,7 +147,7 @@ function AuctFloor() {
                                     Por favor, leia atentamente os termos e condições antes de participar do leilão.
                                 </p>
                             </div>
-                            
+
                             <div className="text-[#012038] whitespace-pre-wrap">
                                 {currentAuct.terms_conditions}
                             </div>
@@ -175,12 +176,25 @@ function AuctFloor() {
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#D8DEE8] text-zinc-600 relative overflow-hidden p-[2vh] gap-[2vh]">
             <img src={backgroundFloor} alt="" className="flex absolute top-0 h-full w-[100%] object-cover z-[1]" />
-            <FloorNavigation auction={currentAuct} group={currentProduct ? currentProduct.group : null} />
+            <motion.div 
+                className="z-[999] w-full"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <FloorNavigation auction={currentAuct} group={currentProduct ? currentProduct.group : null} />
+            </motion.div>
 
-            <ModalTerms/>
+            <ModalTerms />
 
-            <div className="flex lg:flex-row flex-col w-full h-full justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
-                <section className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]">
+            <div className="flex lg:flex-row flex-col w-full 
+            lg:h-full h-[200vh] justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
+                <motion.section 
+                    className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                >
                     <CenterFloor
                         title={currentProduct ? currentProduct.title : ''}
                         cover={currentProduct ? currentProduct.cover_img_url : ''}
@@ -192,14 +206,20 @@ function AuctFloor() {
                         products={currentAuct.product_list}
                         currentProduct={currentProduct}
                     />
-                </section>
-                <FloorBids
-                    timer={socketMessage ? socketMessage.data.cronTimer : 0}
-                    duration={currentAuct.product_timer_seconds}
-                    auct_id={currentAuct.id}
-                    productId={currentProduct ? currentProduct.id : null}
-                    winner={socketWinner}
-                />
+                </motion.section>
+                <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7, delay: 0.4 }}
+                >
+                    <FloorBids
+                        timer={socketMessage ? socketMessage.data.cronTimer : 0}
+                        duration={currentAuct.product_timer_seconds}
+                        auct_id={currentAuct.id}
+                        productId={currentProduct ? currentProduct.id : null}
+                        winner={socketWinner}
+                    />
+                </motion.div>
             </div>
         </div>
     );
