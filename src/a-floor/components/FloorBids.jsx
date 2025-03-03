@@ -173,9 +173,9 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
     };
 
     return (
-        <div className="lg:w-[28%] w-[99%] lg:h-[94%] min-h-[60vh] 
+        <div className="min-w-[49vh] lg:h-[94%] min-h-[80vh] 
             flex flex-col justify-start items-center relative p-4 
-            rounded-[22px] bg-white/90 backdrop-blur-lg 
+            rounded-[22px] bg-white/10 backdrop-blur-lg 
             shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
             border border-white/20 z-[2] gap-3">
             
