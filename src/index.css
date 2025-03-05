@@ -1,7 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Reenie+Beanie&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -17,6 +18,58 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Estilos de Impressão */
+@media print {
+  html, body {
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  /* Esconder elementos desnecessários */
+  .print-hidden,
+  nav,
+  aside,
+  header,
+  footer,
+  button {
+    display: none !important;
+  }
+
+  /* Garantir que o conteúdo seja visível */
+  #receipt-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: white !important;
+  }
+
+  /* Controle de quebra de página */
+  .print-break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
 }
 
 a {
@@ -66,6 +119,12 @@ body::-webkit-scrollbar-thumb {
 
 .anton-regular-advertiser-title {
   font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.reenie-beanie-regular {
+  font-family: "Reenie Beanie", cursive;
   font-weight: 400;
   font-style: normal;
 }
