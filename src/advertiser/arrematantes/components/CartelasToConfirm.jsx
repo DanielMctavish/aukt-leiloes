@@ -111,7 +111,12 @@ function CartelasToConfirm({
                                 </select>
                                 
                                 <button 
-                                    onClick={() => handleConfirmCard(groupClient.advertiser_id, groupClient.products, groupClient.winner_id)}
+                                    onClick={() => handleConfirmCard(
+                                        groupClient.advertiser_id, 
+                                        groupClient.products, 
+                                        groupClient.winner_id,
+                                        groupClient.client_email
+                                    )}
                                     className="w-full bg-gradient-to-r from-[#012038] to-[#1a3c5a] text-white py-2 rounded-md text-sm font-medium
                                         hover:from-[#1a3c5a] hover:to-[#012038] transition-all duration-300 shadow-sm flex items-center justify-center gap-2"
                                 >
