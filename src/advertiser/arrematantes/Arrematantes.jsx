@@ -180,7 +180,7 @@ function Arrematantes() {
         fetchCartelas(auction_id);
     }
 
-    const handleConfirmCard = async (advertiser_id, products, client_id) => {
+    const handleConfirmCard = async (advertiser_id, products, client_id, client_email) => {
         const cookieSession = JSON.parse(localStorage.getItem("advertiser-session-aukt"));
 
         if (!cookieSession) return navigate("/");
@@ -199,31 +199,52 @@ function Arrematantes() {
                 status: selectedCartelaStatus
             };
 
-            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/cartela/create-cartela`, payload, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${cookieSession.token}`
+            const response = await axios.post(
+                `${import.meta.env.VITE_APP_BACKEND_API}/cartela/create-cartela`, 
+                payload, 
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${cookieSession.token}`
+                    }
                 }
-            });
+            );
 
             if (response.data) {
-                // Atualiza o estado local para refletir a mudança imediatamente
-                // 1. Adiciona a nova cartela à lista de cartelas
                 const newCartela = response.data;
+                
+                // Enviar email após criar a cartela
+                try {
+                    await axios.post(
+                        `${import.meta.env.VITE_APP_BACKEND_API}/cartela/send-email-cartela`,
+                        {
+                            cartelaId: newCartela.id,
+                            emailTo: client_email
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${cookieSession.token}`
+                            }
+                        }
+                    );
+                } catch (emailError) {
+                    console.error("Erro ao enviar email:", emailError);
+                    // Não interrompe o fluxo se o email falhar
+                }
+
+                // Atualiza o estado local
                 setCartelas(prev => prev ? [...prev, newCartela] : [newCartela]);
                 
-                // 2. Remove o cliente do grupo de clientes pendentes
                 setClientsGrouped(prev => 
                     prev.filter(group => 
                         !(group.id === selectedAuction && group.winner_id === client_id)
                     )
                 );
                 
-                // 3. Muda para a aba de cartelas confirmadas
                 setActiveTab('confirmed');
             }
 
-            // Atualiza os dados do servidor
             fetchCartelas(selectedAuction);
         } catch (error) {
             console.error("Erro ao confirmar cartela:", error);

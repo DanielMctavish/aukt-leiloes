@@ -104,6 +104,11 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
     };
 
     const getCurrentValue = () => {
+        // Se não houver valores definidos, retorna 0
+        if (!initial_value && !real_value) {
+            return 0;
+        }
+
         // Se não houver real_value, significa que é o primeiro lance
         if (!real_value) {
             return initial_value + getIncrementValue(initial_value);
@@ -246,8 +251,8 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
                 )}
             </div>
 
-            {/* Esconde os botões quando o cronômetro estiver em "VENDIDO!" */}
-            {!isAuctionFinished && deadline > 0 && (
+            {/* Esconde os botões quando o cronômetro estiver em "VENDIDO!" ou não houver valores definidos */}
+            {!isAuctionFinished && deadline > 0 && (initial_value || real_value) && (
                 <div className="w-full flex justify-between items-center gap-3">
                     <div className="flex-1 h-[50px] bg-white/95 
                         shadow-lg rounded-xl flex justify-center items-center

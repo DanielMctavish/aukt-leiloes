@@ -74,7 +74,7 @@ const avatarIndex = [
     avatar_57, avatar_58
 ];
 
-function FloorBids({ timer, duration, auct_id, productId, winner }) {
+function FloorBids({ timer, duration, auct_id, productId, winner, isMobile }) {
     const [currentProduct, setCurrentProduct] = useState({})
     const [bidsCards, setBidsCards] = useState([])
     const [showWinner, setShowWinner] = useState(false)
@@ -173,130 +173,151 @@ function FloorBids({ timer, duration, auct_id, productId, winner }) {
     };
 
     return (
-        <div className="min-w-[49vh] lg:h-[94%] min-h-[80vh] 
-            flex flex-col justify-start items-center relative p-4 
+        <div className={`
+            ${isMobile 
+                ? 'w-full flex-col-reverse' // Mobile: inverte a ordem dos elementos
+                : 'min-w-[49vh] lg:h-[94%] min-h-[80vh] flex flex-col'
+            }
+            justify-start items-center relative p-4 
             rounded-[22px] bg-white/10 backdrop-blur-lg 
             shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
-            border border-white/20 z-[2] gap-3">
-            
-            {isAuctionFinished && (
-                <div className="w-full p-4 bg-gradient-to-r from-red-600 to-red-700 
-                    rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
-                    <h2 className="text-xl font-bold text-white mb-2">
-                        Leilão Finalizado
-                    </h2>
-                    <p className="text-lg text-white/90">
-                        Obrigado pela sua participação!
-                    </p>
-                </div>
-            )}
+            border border-white/20 z-[2] gap-3
+        `}>
+            {/* Se for mobile, mostra apenas o CronCard */}
+            {isMobile ? (
+                <CronCard
+                    currentTime={timer ? timer : 0}
+                    duration={duration ? duration : 0}
+                    auct_id={auct_id ? auct_id : ""}
+                    initial_value={currentProduct.initial_value}
+                    real_value={currentProduct.real_value}
+                    currentProduct={currentProduct}
+                    onNewBid={handleNewBid}
+                    isAuctionFinished={isAuctionFinished}
+                />
+            ) : (
+                // Versão desktop mantém todo o conteúdo original
+                <>
+                    {isAuctionFinished && (
+                        <div className="w-full p-4 bg-gradient-to-r from-red-600 to-red-700 
+                            rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
+                            <h2 className="text-xl font-bold text-white mb-2">
+                                Leilão Finalizado
+                            </h2>
+                            <p className="text-lg text-white/90">
+                                Obrigado pela sua participação!
+                            </p>
+                        </div>
+                    )}
 
-            {showWinner && winner && (
-                <div className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 
-                    rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
-                    <h2 className="text-xl font-bold text-white mb-3">
-                        Produto Arrematado
-                    </h2>
-                    <div className="flex items-center bg-white/10 p-3 rounded-lg">
-                        <img
-                            src={avatarIndex[winner.client_avatar]}
-                            alt="Winner avatar"
-                            className="w-14 h-14 rounded-full mr-4 border-2 border-white/50 shadow-md"
-                        />
-                        <p className="text-lg text-white font-medium">
-                            {winner.nickname}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            <div className="w-full flex-grow overflow-y-auto space-y-2 
-                scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent 
-                pr-2">
-                {bidsCards.map((bid, index) => {
-                    const isWinner = isAuctionFinished && winner && bid.Client.id === winner.id;
-                    const isHighestBid = !isAuctionFinished && highestBid && bid.id === highestBid.id;
-                    
-                    return (
-                        <div
-                            key={index}
-                            className={`
-                                w-full flex items-center justify-between p-3 rounded-xl
-                                transition-all duration-300 relative overflow-hidden
-                                ${isWinner 
-                                    ? 'bg-gradient-to-r from-green-500 to-green-600 shadow-lg shadow-green-500/20' 
-                                    : isHighestBid
-                                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20'
-                                        : 'bg-white hover:bg-gray-50'
-                                }
-                            `}
-                        >
-                            {(isWinner || isHighestBid) && (
-                                <div className="absolute top-0 right-0 px-3 py-1 text-xs font-medium
-                                    bg-white/20 backdrop-blur-sm rounded-bl-xl text-white">
-                                    {isWinner ? 'Vencedor' : 'Maior Lance'}
-                                </div>
-                            )}
-
-                            <div className="flex items-center gap-3">
-                                <div className={`
-                                    w-12 h-12 rounded-full overflow-hidden border-2
-                                    ${isWinner 
-                                        ? 'border-white shadow-lg' 
-                                        : isHighestBid
-                                            ? 'border-white'
-                                            : 'border-gray-200'
-                                    }
-                                `}>
-                                    <img
-                                        src={avatarIndex[bid.Client.client_avatar]}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className={`
-                                        font-medium
-                                        ${isWinner || isHighestBid ? 'text-white' : 'text-gray-800'}
-                                    `}>
-                                        {bid.Client.nickname}
-                                    </span>
-                                    <span className={`
-                                        text-sm
-                                        ${isWinner || isHighestBid ? 'text-white/80' : 'text-gray-500'}
-                                    `}>
-                                        {new Date(bid.created_at).toLocaleTimeString('pt-BR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className={`
-                                text-lg font-bold
-                                ${isWinner || isHighestBid 
-                                    ? 'text-white' 
-                                    : 'text-gray-800'
-                                }
-                            `}>
-                                R$ {parseInt(bid.value).toFixed(2)}
+                    {showWinner && winner && (
+                        <div className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 
+                            rounded-xl mb-4 shadow-lg transform transition-all duration-300 hover:scale-[1.02]">
+                            <h2 className="text-xl font-bold text-white mb-3">
+                                Produto Arrematado
+                            </h2>
+                            <div className="flex items-center bg-white/10 p-3 rounded-lg">
+                                <img
+                                    src={avatarIndex[winner.client_avatar]}
+                                    alt="Winner avatar"
+                                    className="w-14 h-14 rounded-full mr-4 border-2 border-white/50 shadow-md"
+                                />
+                                <p className="text-lg text-white font-medium">
+                                    {winner.nickname}
+                                </p>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
+                    )}
 
-            <CronCard
-                currentTime={timer ? timer : 0}
-                duration={duration ? duration : 0}
-                auct_id={auct_id ? auct_id : ""}
-                initial_value={currentProduct.initial_value}
-                real_value={currentProduct.real_value}
-                currentProduct={currentProduct}
-                onNewBid={handleNewBid}
-                isAuctionFinished={isAuctionFinished}
-            />
+                    <div className="w-full flex-grow overflow-y-auto space-y-2 max-h-[60vh]
+                        scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent 
+                        pr-2">
+                        {bidsCards.map((bid, index) => {
+                            const isWinner = isAuctionFinished && winner && bid.Client.id === winner.id;
+                            const isHighestBid = !isAuctionFinished && highestBid && bid.id === highestBid.id;
+                            
+                            return (
+                                <div
+                                    key={index}
+                                    className={`
+                                        w-full flex items-center justify-between p-3 rounded-xl
+                                        transition-all duration-300 relative overflow-hidden
+                                        ${isWinner 
+                                            ? 'bg-gradient-to-r from-green-500 to-green-600 shadow-lg shadow-green-500/20' 
+                                            : isHighestBid
+                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20'
+                                                : 'bg-white hover:bg-gray-50'
+                                        }
+                                    `}
+                                >
+                                    {(isWinner || isHighestBid) && (
+                                        <div className="absolute top-0 right-0 px-3 py-1 text-xs font-medium
+                                            bg-white/20 backdrop-blur-sm rounded-bl-xl text-white">
+                                            {isWinner ? 'Vencedor' : 'Maior Lance'}
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3">
+                                        <div className={`
+                                            w-12 h-12 rounded-full overflow-hidden border-2
+                                            ${isWinner 
+                                                ? 'border-white shadow-lg' 
+                                                : isHighestBid
+                                                    ? 'border-white'
+                                                    : 'border-gray-200'
+                                            }
+                                        `}>
+                                            <img
+                                                src={avatarIndex[bid.Client.client_avatar]}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className={`
+                                                font-medium
+                                                ${isWinner || isHighestBid ? 'text-white' : 'text-gray-800'}
+                                            `}>
+                                                {bid.Client.nickname}
+                                            </span>
+                                            <span className={`
+                                                text-sm
+                                                ${isWinner || isHighestBid ? 'text-white/80' : 'text-gray-500'}
+                                            `}>
+                                                {new Date(bid.created_at).toLocaleTimeString('pt-BR', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className={`
+                                        text-lg font-bold
+                                        ${isWinner || isHighestBid 
+                                            ? 'text-white' 
+                                            : 'text-gray-800'
+                                        }
+                                    `}>
+                                        R$ {parseInt(bid.value).toFixed(2)}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <CronCard
+                        currentTime={timer ? timer : 0}
+                        duration={duration ? duration : 0}
+                        auct_id={auct_id ? auct_id : ""}
+                        initial_value={currentProduct.initial_value}
+                        real_value={currentProduct.real_value}
+                        currentProduct={currentProduct}
+                        onNewBid={handleNewBid}
+                        isAuctionFinished={isAuctionFinished}
+                    />
+                </>
+            )}
         </div>
     )
 }

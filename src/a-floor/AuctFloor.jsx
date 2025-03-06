@@ -187,8 +187,21 @@ function AuctFloor() {
 
             <ModalTerms />
 
+            {/* Versão Mobile do CronCard */}
+            <div className="lg:hidden fixed top-[80px] left-0 right-0 z-[999] px-4 py-2 bg-white/80 backdrop-blur-md shadow-lg">
+                <FloorBids
+                    timer={socketMessage ? socketMessage.data.cronTimer : 0}
+                    duration={currentAuct.product_timer_seconds}
+                    auct_id={currentAuct.id}
+                    productId={currentProduct ? currentProduct.id : null}
+                    winner={socketWinner}
+                    isMobile={true}
+                />
+            </div>
+
             <div className="flex lg:flex-row flex-col w-full 
-            lg:h-full h-[200vh] justify-between items-center gap-[2vh] z-[2] overflow-y-auto">
+                lg:h-full h-[200vh] justify-between items-center gap-[2vh] z-[2] overflow-y-auto
+                pt-[120px] lg:pt-0"> {/* Adicionado padding-top para mobile */}
                 <motion.section 
                     className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]"
                     initial={{ opacity: 0, x: -50 }}
@@ -207,7 +220,10 @@ function AuctFloor() {
                         currentProduct={currentProduct}
                     />
                 </motion.section>
+                
+                {/* Versão Desktop do FloorBids */}
                 <motion.div
+                    className="hidden lg:block"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7, delay: 0.4 }}
@@ -218,6 +234,7 @@ function AuctFloor() {
                         auct_id={currentAuct.id}
                         productId={currentProduct ? currentProduct.id : null}
                         winner={socketWinner}
+                        isMobile={false}
                     />
                 </motion.div>
             </div>

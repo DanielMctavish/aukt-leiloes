@@ -83,7 +83,8 @@ function CenterFloor({ title, description, auction, currentProduct }) {
     return (
         <section className="w-full h-[60vh] flex lg:flex-row flex-col 
             bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl shadow-xl shadow-[#1414143a] 
-            border-t-[2px] border-[#e3e3e3] relative z-[2] p-6 gap-6 overflow-hidden"
+            border-t-[2px] border-[#e3e3e3] relative z-[2] p-6 gap-6 overflow-hidden
+            mt-[80px] lg:mt-0"
         >
             {/* Tela de Leilão Finalizado */}
             {isAuctionFinished && (
