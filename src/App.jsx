@@ -47,7 +47,6 @@ import SearchResults from './search/SearchResults';
 import SelectLoginType from './access/SelectLoginType';
 import MainRenderAdvertiserSite from "./home/renderer/MainRenderAdvertiserSite";
 
-
 function App() {
   return (
     <>
@@ -118,7 +117,6 @@ function App() {
 
           {/* Adicione esta nova rota */}
           <Route Component={SearchResults} path="/search" exact />
-
           <Route path="/select-login" element={<SelectLoginType />} />
 
         </Routes>
