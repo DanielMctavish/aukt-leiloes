@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useNavigate, useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import logoAuk from '../../media/logos/logos-auk/aukt_blue.png'
+
 //avatares import
 import avatar_01 from '../../media/avatar-floor/avatar_01.png'
 import avatar_02 from '../../media/avatar-floor/avatar_02.png'
@@ -62,18 +62,15 @@ import avatar_56 from '../../media/avatar-floor/Avatar_56.png'
 import avatar_57 from '../../media/avatar-floor/Avatar_57.png'
 import avatar_58 from '../../media/avatar-floor/Avatar_58.png'
 
-
-
-
 import { getProductInformations } from './functions/getProductInformation';
 import { getClientSession } from './functions/getClientSession';
-import { Menu, Gavel, PeopleAltOutlined, Visibility } from '@mui/icons-material'
 import axios from 'axios';
 import Recomendados from './components/Recomendados';
 import ProductInformation from './components/ProductInformation';
 import CarroselHomeAdvertiserDetails from './components/CarroselHomeAdvertiserDetails';
 import LoginClientModal from './modal/LoginClientModal';
 import BidsAdvertiserHome from './components/BidsAdvertiserHome';
+import SideMenu from './components/SideMenu';
 
 function ProductDetailAdv() {
     const [modalOn, setIsModalOn] = useState(false);
@@ -89,7 +86,6 @@ function ProductDetailAdv() {
     const [bidInformations, setBidInformations] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
-    const navigate = useNavigate();
 
     const avatares_pessoas = [
         avatar_01,
@@ -157,17 +153,17 @@ function ProductDetailAdv() {
     useEffect(() => {
         // Limpar os lances ao mudar de produto
         setBidInformations([]);
-        
+
         // Carregar as informações do novo produto
         getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
         getClientSession(setSessionClient, setCurrentClient);
         checkClientSession();
-        
+
         // Disparar um evento personalizado para notificar outros componentes
-        const productChangedEvent = new CustomEvent('productChanged', { 
-            detail: { 
+        const productChangedEvent = new CustomEvent('productChanged', {
+            detail: {
                 productId: product_id
-            } 
+            }
         });
         console.log('Disparando evento productChanged:', product_id);
         window.dispatchEvent(productChangedEvent);
@@ -204,7 +200,7 @@ function ProductDetailAdv() {
                 setCurrentClient(null);
                 setSessionClient(null);
             }
-        }else{
+        } else {
             setCurrentClient(null);
             setSessionClient(null);
         }
@@ -255,109 +251,79 @@ function ProductDetailAdv() {
     }, [])
 
     return (
-        <div className="flex flex-col justify-start items-center w-full h-[122vh] bg-[#0D1733] p-[1.5vh] relative overflow-hidden">
-
+        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden">
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
+            
+            {/* Novo Menu Lateral */}
+            <SideMenu 
+                showMenu={showMenu}
+                setShowMenu={setShowMenu}
+                currentClient={currentClient}
+                currentAdvertiser={currentAdvertiser}
+                setIsModalOn={setIsModalOn}
+                avatares_pessoas={avatares_pessoas}
+            />
 
-            {/* MENU */}
-            <div onClick={() => setShowMenu(!showMenu)} className="flex w-[35px] h-[35px] 
-            rounded-[10px] bg-[#fff] 
-            cursor-pointer justify-center items-center
-            hover:bg-[#eeeeee] fixed z-[99] top-[2.5vh] left-[2.5vh] 
-            shadow-lg shadow-[#1313131e]">
-                <Menu sx={{ color: "#767676", fontSize: "1.2rem" }} />
-            </div>
+            {/* Main Body - ajustado o padding para acomodar o menu */}
+            <div className="flex flex-col justify-between 
+                items-center w-full h-full bg-gradient-to-r 
+                from-[#FEFEFE] to-[#b6c5c7] relative gap-2
+                pl-[70px]"> {/* Adicionado padding à esquerda */}
 
-            <div className='flex flex-col w-[35px] h-[80px] fixed z-[99] 
-            top-[8vh] left-[2.5vh] gap-1 overflow-hidden justify-start items-start'>
-
-                <div
-                    onClick={() => navigate(`/advertiser/home/${currentAdvertiser.id}`)}
-                    className={`
-                    flex w-[35px] h-[35px] rounded-[10px] bg-[#fff] cursor-pointer justify-center items-center
-                    hover:bg-[#eeeeee] shadow-md shadow-[#1313131e] ${!showMenu ? 'mt-[-99px]' : 'mt-0'}
-                    `}>
-                    <img src={logoAuk} alt="" className={`w-[35px]`} />
-                </div>
-
-                <div className="flex w-[35px] h-[35px] rounded-[10px] bg-[#fff] cursor-pointer justify-center items-center
-                hover:bg-[#eeeeee] shadow-md shadow-[#1313131e]">
-                    <Gavel sx={{ color: "#767676", fontSize: "1.2rem" }} />
-                </div>
-
-            </div>
-
-            {/* Login Client */}
-            <div className='flex fixed z-[99] top-[2.5vh] right-[2.5vh] gap-2 bg-white p-1.5 rounded-md cursor-pointer hover:bg-[#ededed]'>
-                {currentClient &&
-                    currentClient.name ?
-                    <div onClick={() => navigate("/client/dashboard")} className='flex gap-2 justify-start items-center'>
-                        <img src={avatares_pessoas[currentClient.client_avatar]} alt="" className='w-[30px] h-[30px] rounded-full' />
-                        <span className='font-bold text-sm'>{currentClient.name}</span>
-                    </div>
-                    :
-                    <div onClick={() => setIsModalOn(true)} className='w-full h-full p-1.5'>
-                        <PeopleAltOutlined sx={{ fontSize: "1.2rem" }} />
-                        <button className="text-sm">Entrar</button>
-                    </div>
-                }
-            </div>
-
-            {/*Main Body*/}
-            <div className="flex flex-col justify-center items-center w-full h-full bg-gradient-to-r from-[#FEFEFE] to-[#b6c5c7] relative gap-2">
-
+                {/* Cabeçalho apenas com informações do leiloeiro */}
                 {currentAuct && currentAdvertiser && (
-                    <div className='flex w-[75%] justify-between items-center gap-2'>
+                    <div className='flex w-full md:w-[90%] lg:w-[75%] justify-start items-center gap-2 px-4 md:px-0 py-4'>
                         <div className='flex justify-center items-center gap-2'>
-                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[50px] h-[50px] object-cover rounded-full' />
+                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
                             <div className='flex flex-col justify-start items-start'>
-                                <span className='font-bold text-[14px]'>{currentAdvertiser.name}</span>
-                                <span className='text-sm'>{currentAuct.title}</span>
+                                <span className='font-bold text-[12px] md:text-[14px]'>{currentAdvertiser.name}</span>
+                                <span className='text-xs md:text-sm'>{currentAuct.title}</span>
                             </div>
                         </div>
-                        <span onClick={() => setShowBids(!showBids)} className='flex justify-center gap-2 cursor-pointer text-sm'>
-                            <Visibility sx={{ fontSize: "1.1rem" }} />
-                            ver lances
-                        </span>
                     </div>
                 )}
 
-                {/* Carrosel e descrições */}
-                <section className='flex w-[80%] h-[77-px] relative justify-start items-start'>
-                    {/* CARROSEL */}
-                    <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
+                {/* Container principal com altura fixa */}
+                <div className='w-full md:w-[90%] lg:w-[80%] flex flex-col lg:flex-row justify-between items-start gap-6 px-4 md:px-0'>
+                    {/* Carrossel */}
+                    <div className='w-full lg:w-[40%] h-[calc(100vh-180px)] order-1'>
+                        <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
+                    </div>
 
-                    {/* Produto Information */}
-                    <ProductInformation
-                        currentProduct={currentProduct}
-                        currentClient={currentClient}
-                        currentAuct={currentAuct}
-                        setCurrentProduct={setCurrentProduct}
-                        setBidInformations={setBidInformations} // Passar a função para atualizar os lances
-                        setIsModalOn={setIsModalOn}
-                    />
-
-                    {/* Lances */}
-                    <BidsAdvertiserHome
-                        bidInformations={bidInformations} // Passar o estado dos lances
-                        showBids={showBids}
-                        productId={currentProduct?.id} // Passar o ID do produto
-                        auctId={currentAuct?.id} // Passar o ID do leilão
-                    />
-
-                </section>
+                    {/* Informações do produto */}
+                    <div className='w-full lg:w-[60%] h-[calc(100vh-180px)] order-2'>
+                        <ProductInformation
+                            currentProduct={currentProduct}
+                            currentClient={currentClient}
+                            currentAuct={currentAuct}
+                            setCurrentProduct={setCurrentProduct}
+                            setBidInformations={setBidInformations}
+                            setIsModalOn={setIsModalOn}
+                            showBids={showBids}
+                            setShowBids={setShowBids}
+                        >
+                            {/* Passando BidsAdvertiserHome como children */}
+                            <BidsAdvertiserHome
+                                bidInformations={bidInformations}
+                                showBids={showBids}
+                                productId={currentProduct?.id}
+                                auctId={currentAuct?.id}
+                            />
+                        </ProductInformation>
+                    </div>
+                </div>
 
                 {/* Recomendados */}
-                {isLoadingProducts ? (
-                    <div className="flex justify-center items-center w-full h-[300px]">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
-                    </div>
-                ) : anotherProducts.length > 0 ? (
-                    <Recomendados anotherProducts={anotherProducts} />
-                ) : null}
-
+                <div className='w-full md:w-[90%] lg:w-[80%] mt-8 px-4 md:px-0'>
+                    {isLoadingProducts ? (
+                        <div className="flex justify-center items-center w-full h-[200px]">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
+                        </div>
+                    ) : anotherProducts.length > 0 ? (
+                        <Recomendados anotherProducts={anotherProducts} />
+                    ) : null}
+                </div>
             </div>
-
         </div>
     );
 }

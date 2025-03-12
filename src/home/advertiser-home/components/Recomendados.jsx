@@ -37,9 +37,10 @@ function Recomendados({ anotherProducts }) {
     };
 
     return (
-        <section className={`flex flex-col w-[80%] bg-gradient-to-r from-black/20 to-black/10 backdrop-blur-sm 
+        <section className={`flex flex-col w-full bg-gradient-to-r from-[#fff] to-[#dcdcdc] backdrop-blur-sm 
             shadow-lg rounded-xl mt-6 p-5 relative border border-white/10 overflow-hidden
-            transition-all duration-700 ease-in-out ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-10'}`}>
+            transition-all duration-700 ease-in-out ${isVisible ? 'opacity-100 transform translate-y-0' : 
+            'opacity-0 transform translate-y-10'}`}>
             
             {/* Elemento de brilho decorativo */}
             <div className="absolute w-[300px] h-[300px] rounded-full bg-blue-500/10 blur-[80px] -top-[150px] -right-[150px] pointer-events-none"></div>
