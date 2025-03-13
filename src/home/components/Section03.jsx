@@ -52,7 +52,8 @@ function Section03() {
   }
 
   return (
-    <section className="w-full min-h-screen flex flex-col justify-center items-center gap-8 bg-gradient-to-b from-[#ececec] to-[#ffffff] py-12 px-4 sm:px-6 lg:px-8">
+    <section className="lg:w-[80%] w-full min-h-screen flex flex-col justify-center rounded-t-[12px]
+    items-center gap-8 bg-gradient-to-b from-[#eef0f1] to-[#ffffff36] py-12 px-4 sm:px-6 lg:px-8">
       <h2 className="text-2xl lg:text-3xl font-bold text-[#0D1733] text-center">Produtos Recentes</h2>
 
       <div className="w-full">

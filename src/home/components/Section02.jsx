@@ -47,10 +47,13 @@ function Section02() {
   }
 
   return (
-    <section className="bg-gradient-to-b from-[#ececec] to-white w-full min-h-screen flex flex-col justify-center items-center overflow-x-hidden overflow-y-hidden py-12 sm:py-20">
+    <section className="bg-transparent min-h-screen w-[80%]
+    flex flex-col justify-between items-center overflow-x-hidden 
+    overflow-y-hidden py-12 sm:py-20">
         <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-[200px] w-full max-w-[1400px]">
             {/* Seção de Vídeo e Features */}
-            <div className="w-full flex flex-col lg:flex-row items-center gap-8 lg:gap-12 mb-8 lg:mb-16">
+            <div className="w-full flex flex-col lg:flex-row items-center justify-between
+            gap-8 lg:gap-12 mb-8 lg:mb-16">
                 {/* Lado Esquerdo - Features */}
                 <div className="w-full lg:w-5/12 space-y-6 lg:space-y-8 order-2 lg:order-1">
                     <div className="flex items-start gap-4 p-4 lg:p-0 bg-white lg:bg-transparent rounded-xl lg:rounded-none shadow-sm lg:shadow-none">
