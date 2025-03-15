@@ -14,8 +14,8 @@ import img6 from "../../media/footer-imgs/car_insta_06.png";
 
 function Footer() {
   return (
-    <section className="w-full border-t-[10px] border-[#1E1E1E] bg-[#012038] overflow-hidden relative">
-      <div className="flex md:flex-row flex-col w-[80%] bg-[#0D1733] rounded-[20px] 
+    <section className="w-full flex flex-col justify-center items-center border-t-[10px] border-[#1E1E1E] bg-[#012038] overflow-hidden relative p-3">
+      <div className="flex md:flex-row flex-col w-[80%] bg-[#0D1733] rounded-[20px] shadow-2xl shadow-[#11111125]
             relative md:justify-center justify-start items-start gap-8 p-12 md:p-16">
 
         {/* Coluna 1 - Sobre a AUK */}
