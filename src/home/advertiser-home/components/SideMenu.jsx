@@ -4,20 +4,40 @@ import { useNavigate } from 'react-router-dom';
 import { Menu, Person, Logout, Gavel } from '@mui/icons-material';
 import logoAuk from '../../../media/logos/logos-auk/aukt_blue.png';
 
+// Importação dos avatares
+const importAllAvatars = () => {
+    const avatares = [];
+    for (let i = 1; i <= 58; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        const avatar = new URL(`../../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
+        avatares.push(avatar);
+    }
+    return avatares;
+};
+
+// Inicializa os avatares uma única vez fora do componente
+const avatares_pessoas = importAllAvatars();
+
 function SideMenu({ 
     currentClient, 
     currentAdvertiser, 
-    setIsModalOn,
-    avatares_pessoas 
+    setIsModalOn 
 }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [localClient, setLocalClient] = useState(currentClient);
     const navigate = useNavigate();
+   
+    // Atualiza o estado local quando currentClient mudar
+    useEffect(() => {
+        setLocalClient(currentClient);
+    }, [currentClient]);
 
     useEffect(() => {
         // Listener para evento de logout
         const handleClientLogout = () => {
             // Atualizar estados locais
             setIsOpen(false);
+            setLocalClient(null);
             
             // Disparar evento para atualizar outros componentes
             window.dispatchEvent(new CustomEvent('clientStateChanged', {
@@ -31,6 +51,7 @@ function SideMenu({
         // Listener para evento de login
         const handleClientLogin = (event) => {
             const userData = event.detail;
+            setLocalClient(userData);
             
             // Disparar evento para atualizar outros componentes
             window.dispatchEvent(new CustomEvent('clientStateChanged', {
@@ -41,12 +62,24 @@ function SideMenu({
             }));
         };
 
+        // Listener para mudanças de estado do cliente
+        const handleClientStateChanged = (event) => {
+            const { type, data } = event.detail;
+            if (type === 'login') {
+                setLocalClient(data);
+            } else if (type === 'logout') {
+                setLocalClient(null);
+            }
+        };
+
         window.addEventListener('clientLogout', handleClientLogout);
         window.addEventListener('clientLoginSuccess', handleClientLogin);
+        window.addEventListener('clientStateChanged', handleClientStateChanged);
 
         return () => {
             window.removeEventListener('clientLogout', handleClientLogout);
             window.removeEventListener('clientLoginSuccess', handleClientLogin);
+            window.removeEventListener('clientStateChanged', handleClientStateChanged);
         };
     }, []);
 
@@ -105,7 +138,7 @@ function SideMenu({
                         </button>
 
                         {/* Login/Perfil */}
-                        {currentClient?.name ? (
+                        {localClient?.name ? (
                             <>
                                 <button 
                                     onClick={() => {
@@ -115,11 +148,11 @@ function SideMenu({
                                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50"
                                 >
                                     <img 
-                                        src={avatares_pessoas[currentClient.client_avatar]} 
+                                        src={avatares_pessoas[localClient.client_avatar]} 
                                         alt="" 
                                         className="w-[25px] h-[25px] rounded-full"
                                     />
-                                    <span className="text-gray-700 truncate">{currentClient.name}</span>
+                                    <span className="text-gray-700 truncate">{localClient.name}</span>
                                 </button>
                                 <button 
                                     onClick={handleLogout}

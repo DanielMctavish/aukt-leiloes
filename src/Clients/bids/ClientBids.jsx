@@ -5,64 +5,15 @@ import AssideClient from "../Asside/AssideClient";
 import NavClient from "../navigation/NavClient";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import avatar_01 from "../../media/avatar-floor/avatar_01.png";
-import avatar_02 from "../../media/avatar-floor/avatar_02.png";
-import avatar_03 from "../../media/avatar-floor/avatar_03.png";
-import avatar_04 from "../../media/avatar-floor/avatar_04.png";
-import avatar_05 from "../../media/avatar-floor/avatar_05.png";
-import avatar_06 from "../../media/avatar-floor/avatar_06.png";
-import avatar_07 from "../../media/avatar-floor/avatar_07.png";
-import avatar_08 from "../../media/avatar-floor/avatar_08.png";
-import avatar_09 from "../../media/avatar-floor/Avatar_09.png";
-import avatar_10 from "../../media/avatar-floor/Avatar_10.png";
-import avatar_11 from "../../media/avatar-floor/Avatar_11.png";
-import avatar_12 from "../../media/avatar-floor/Avatar_12.png";
-import avatar_13 from "../../media/avatar-floor/Avatar_13.png";
-import avatar_14 from "../../media/avatar-floor/Avatar_14.png";
-import avatar_15 from "../../media/avatar-floor/Avatar_15.png";
-import avatar_16 from "../../media/avatar-floor/Avatar_16.png";
-import avatar_17 from "../../media/avatar-floor/Avatar_17.png";
-import avatar_18 from "../../media/avatar-floor/Avatar_18.png";
-import avatar_19 from "../../media/avatar-floor/Avatar_19.png";
-import avatar_20 from "../../media/avatar-floor/Avatar_20.png";
-import avatar_21 from "../../media/avatar-floor/Avatar_21.png";
-import avatar_22 from "../../media/avatar-floor/Avatar_22.png";
-import avatar_23 from "../../media/avatar-floor/Avatar_23.png";
-import avatar_24 from "../../media/avatar-floor/Avatar_24.png";
-import avatar_25 from "../../media/avatar-floor/Avatar_25.png";
-import avatar_26 from "../../media/avatar-floor/Avatar_26.png";
-import avatar_27 from "../../media/avatar-floor/Avatar_27.png";
-import avatar_28 from "../../media/avatar-floor/Avatar_28.png";
-import avatar_29 from "../../media/avatar-floor/Avatar_29.png";
-import avatar_30 from "../../media/avatar-floor/Avatar_30.png";
-import avatar_31 from "../../media/avatar-floor/Avatar_31.png";
-import avatar_32 from "../../media/avatar-floor/Avatar_32.png";
-import avatar_33 from "../../media/avatar-floor/Avatar_33.png";
-import avatar_34 from "../../media/avatar-floor/Avatar_34.png";
-import avatar_35 from "../../media/avatar-floor/Avatar_35.png";
-import avatar_36 from "../../media/avatar-floor/Avatar_36.png";
-import avatar_37 from "../../media/avatar-floor/Avatar_37.png";
-import avatar_38 from "../../media/avatar-floor/Avatar_38.png";
-import avatar_39 from "../../media/avatar-floor/Avatar_39.png";
-import avatar_40 from "../../media/avatar-floor/Avatar_40.png";
-import avatar_41 from "../../media/avatar-floor/Avatar_41.png";
-import avatar_42 from "../../media/avatar-floor/Avatar_42.png";
-import avatar_43 from "../../media/avatar-floor/Avatar_43.png";
-import avatar_44 from "../../media/avatar-floor/Avatar_44.png";
-import avatar_45 from "../../media/avatar-floor/Avatar_45.png";
-import avatar_46 from "../../media/avatar-floor/Avatar_46.png";
-import avatar_47 from "../../media/avatar-floor/Avatar_47.png";
-import avatar_48 from "../../media/avatar-floor/Avatar_48.png";
-import avatar_49 from "../../media/avatar-floor/Avatar_49.png";
-import avatar_50 from "../../media/avatar-floor/Avatar_50.png";
-import avatar_51 from "../../media/avatar-floor/Avatar_51.png";
-import avatar_52 from "../../media/avatar-floor/Avatar_52.png";
-import avatar_53 from "../../media/avatar-floor/Avatar_53.png";
-import avatar_54 from "../../media/avatar-floor/Avatar_54.png";
-import avatar_55 from "../../media/avatar-floor/Avatar_55.png";
-import avatar_56 from "../../media/avatar-floor/Avatar_56.png";
-import avatar_57 from "../../media/avatar-floor/Avatar_57.png";
-import avatar_58 from "../../media/avatar-floor/Avatar_58.png";
+const importAllAvatars = () => {
+    const avatares = [];
+    for (let i = 1; i <= 58; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
+        avatares.push(avatar);
+    }
+    return avatares;
+};
 
 // Componente de Paginação
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -76,11 +27,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 rounded ${
-                    currentPage === 1
+                className={`px-3 py-1 rounded ${currentPage === 1
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
+                    }`}
             >
                 Anterior
             </button>
@@ -89,11 +39,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 <button
                     key={page}
                     onClick={() => onPageChange(page)}
-                    className={`px-3 py-1 rounded ${
-                        currentPage === page
+                    className={`px-3 py-1 rounded ${currentPage === page
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
+                        }`}
                 >
                     {page}
                 </button>
@@ -102,11 +51,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             <button
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded ${
-                    currentPage === totalPages
+                className={`px-3 py-1 rounded ${currentPage === totalPages
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
+                    }`}
             >
                 Próximo
             </button>
@@ -116,25 +64,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // Componente para Avatar do Cliente
 const ClientAvatar = ({ avatarNumber, nickname }) => {
-    const avatars = [
-        avatar_01, avatar_02, avatar_03, avatar_04, avatar_05, avatar_06, avatar_07, avatar_08,
-        avatar_09, avatar_10, avatar_11, avatar_12, avatar_13, avatar_14, avatar_15, avatar_16,
-        avatar_17, avatar_18, avatar_19, avatar_20, avatar_21, avatar_22, avatar_23, avatar_24,
-        avatar_25, avatar_26, avatar_27, avatar_28, avatar_29, avatar_30, avatar_31, avatar_32,
-        avatar_33, avatar_34, avatar_35, avatar_36, avatar_37, avatar_38, avatar_39, avatar_40,
-        avatar_41, avatar_42, avatar_43, avatar_44, avatar_45, avatar_46, avatar_47, avatar_48,
-        avatar_49, avatar_50, avatar_51, avatar_52, avatar_53, avatar_54, avatar_55, avatar_56,
-        avatar_57, avatar_58
-    ];
-    
+    const avatars = importAllAvatars()
+
     // Garantir que o número do avatar está dentro do range válido (1-58)
     const safeAvatarIndex = ((avatarNumber || 0)) % avatars.length;
     const avatarSrc = avatars[safeAvatarIndex];
-    
+
     return (
         <div className="flex items-center gap-2">
-            <img 
-                src={avatarSrc} 
+            <img
+                src={avatarSrc}
                 alt={nickname}
                 className="w-6 h-6 rounded-full"
             />
@@ -192,12 +131,12 @@ function ClientBids() {
                 );
 
                 // Filtra apenas leilões que contêm produtos com lances
-                const filteredAuctions = auctionsResponse.data.filter(auction => 
+                const filteredAuctions = auctionsResponse.data.filter(auction =>
                     auction.product_list.some(product => product.Bid?.length > 0)
                 );
 
                 // Ordena os leilões do mais recente para o mais antigo
-                const sortedAuctions = filteredAuctions.sort((a, b) => 
+                const sortedAuctions = filteredAuctions.sort((a, b) =>
                     new Date(b.created_at) - new Date(a.created_at)
                 );
 
@@ -233,7 +172,7 @@ function ClientBids() {
     return (
         <div className="w-full flex justify-between items-start bg-[#fff]">
             <AssideClient MenuSelected="menu-2" />
-            
+
             <section className="w-full h-[100vh] flex flex-col items-center justify-start p-2 overflow-y-auto">
                 <NavClient currentClient={currentClient} />
 
@@ -250,15 +189,15 @@ function ClientBids() {
                             ))
                         ) : (
                             currentAuctions.map((auction) => (
-                                <div 
+                                <div
                                     key={auction.id}
                                     className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer 
                                         hover:shadow-lg transition-all duration-300"
                                     onClick={() => handleAuctionClick(auction)}
                                 >
                                     <div className="relative h-48">
-                                        <img 
-                                            src={auction.auct_cover_img} 
+                                        <img
+                                            src={auction.auct_cover_img}
                                             alt={auction.title}
                                             className="w-full h-full object-cover"
                                         />
@@ -275,11 +214,10 @@ function ClientBids() {
                                             <span className="text-sm text-gray-500">
                                                 {auction.product_list?.length || 0} produtos
                                             </span>
-                                            <span className={`px-2 py-1 rounded text-sm ${
-                                                auction.status === 'finished' 
+                                            <span className={`px-2 py-1 rounded text-sm ${auction.status === 'finished'
                                                     ? 'bg-red-100 text-red-800'
                                                     : 'bg-green-100 text-green-800'
-                                            }`}>
+                                                }`}>
                                                 {auction.status === 'finished' ? 'Finalizado' : 'Em andamento'}
                                             </span>
                                         </div>
@@ -297,7 +235,7 @@ function ClientBids() {
                                     <h2 className="text-xl font-semibold">
                                         {auctions.find(a => a.id === expandedAuction)?.title}
                                     </h2>
-                                    <button 
+                                    <button
                                         onClick={() => setExpandedAuction(null)}
                                         className="text-gray-400 hover:text-gray-600"
                                     >
@@ -312,17 +250,16 @@ function ClientBids() {
                                             ?.filter(product => product.Bid?.length > 0)
                                             ?.map((product) => (
                                                 <div key={product.id} className="relative">
-                                                    <div 
+                                                    <div
                                                         className={`bg-white rounded-lg shadow p-4 hover:shadow-md 
-                                                            transition-all duration-300 ${
-                                                                expandedProduct === product.id 
-                                                                    ? 'ring-2 ring-blue-500 transform scale-[1.02]' 
-                                                                    : ''
+                                                            transition-all duration-300 ${expandedProduct === product.id
+                                                                ? 'ring-2 ring-blue-500 transform scale-[1.02]'
+                                                                : ''
                                                             }`}
                                                         onClick={() => handleProductClick(product.id)}
                                                     >
-                                                        <img 
-                                                            src={product.cover_img_url} 
+                                                        <img
+                                                            src={product.cover_img_url}
                                                             alt={product.title}
                                                             className="w-full h-40 object-cover rounded mb-3"
                                                         />
@@ -335,16 +272,16 @@ function ClientBids() {
                                                         </div>
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-green-600 font-medium">
-                                                                {new Intl.NumberFormat('pt-BR', { 
-                                                                    style: 'currency', 
-                                                                    currency: 'BRL' 
+                                                                {new Intl.NumberFormat('pt-BR', {
+                                                                    style: 'currency',
+                                                                    currency: 'BRL'
                                                                 }).format(product.initial_value)}
                                                             </span>
                                                             {product.Winner && (
                                                                 <span className="text-sm bg-blue-100 text-blue-800 px-2 
                                                                     py-1 rounded">
-                                                                    {product.Winner.id === currentClient.id 
-                                                                        ? 'Você venceu!' 
+                                                                    {product.Winner.id === currentClient.id
+                                                                        ? 'Você venceu!'
                                                                         : 'Finalizado'}
                                                                 </span>
                                                             )}
@@ -353,16 +290,15 @@ function ClientBids() {
 
                                                     {/* Lista de lances do produto */}
                                                     <div className={`absolute left-0 right-0 bg-white rounded-lg shadow-lg 
-                                                        mt-2 z-10 transition-all duration-300 ease-in-out ${
-                                                            expandedProduct === product.id 
-                                                                ? 'opacity-100 transform translate-y-0' 
-                                                                : 'opacity-0 transform -translate-y-4 pointer-events-none'
+                                                        mt-2 z-10 transition-all duration-300 ease-in-out ${expandedProduct === product.id
+                                                            ? 'opacity-100 transform translate-y-0'
+                                                            : 'opacity-0 transform -translate-y-4 pointer-events-none'
                                                         }`}
                                                     >
                                                         <div className="p-4 max-h-[300px] overflow-y-auto">
                                                             <div className="flex justify-between items-center mb-3">
                                                                 <h4 className="font-semibold">Histórico de Lances</h4>
-                                                                <button 
+                                                                <button
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         setExpandedProduct(null);
@@ -374,19 +310,18 @@ function ClientBids() {
                                                             </div>
                                                             {product.Bid?.length > 0 ? (
                                                                 <div className="space-y-2">
-                                                                    {product.Bid.sort((a, b) => 
+                                                                    {product.Bid.sort((a, b) =>
                                                                         new Date(b.created_at) - new Date(a.created_at)
                                                                     ).map((bid) => (
-                                                                        <div 
+                                                                        <div
                                                                             key={bid.id}
-                                                                            className={`p-3 rounded ${
-                                                                                bid.client_id === currentClient.id
+                                                                            className={`p-3 rounded ${bid.client_id === currentClient.id
                                                                                     ? 'bg-blue-50 border border-blue-100'
                                                                                     : 'bg-gray-50'
-                                                                            }`}
+                                                                                }`}
                                                                         >
                                                                             <div className="flex justify-between items-center mb-2">
-                                                                                <ClientAvatar 
+                                                                                <ClientAvatar
                                                                                     avatarNumber={bid.Client.client_avatar || 1}
                                                                                     nickname={bid.Client.nickname || "Anônimo"}
                                                                                 />

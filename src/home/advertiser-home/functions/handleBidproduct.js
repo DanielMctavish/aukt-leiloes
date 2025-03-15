@@ -1,88 +1,109 @@
 import axios from "axios"
 
-const handleBidproduct = async (bidValue,
-    messageRef, currentProduct,
-    currentClient, currentAuct,
-    sessionClient, setBidValue,
-    setIsloadingBid, isAutoBidEnabled, isBidOnCataloge) => {
-
-    if (messageRef && bidValue <= 0 || typeof parseInt(bidValue) !== 'number' || !bidValue) {
-        messageRef.current.style.display = "flex"
-        messageRef.current.style.transition = "1s"
-        messageRef.current.innerHTML = "O valor do lance deve ser maior que 0"
-        messageRef.current.style.color = "red"
-
-        setTimeout(() => {
-            messageRef.current.style.display = "none"
-        }, 6000);
-
-        return
+const handleBidproduct = async (
+    bidValue,
+    messageRef, 
+    currentProduct,
+    currentClient, 
+    currentAuct,
+    sessionClient, 
+    setBidValue,
+    setIsloadingBid, 
+    isAutoBidEnabled, 
+    isBidOnCataloge,
+    showMessage,
+    autoBidLimit
+) => {
+    // Validações iniciais
+    if (!currentClient || !currentProduct || !sessionClient) {
+        showMessage("Dados inválidos para realizar o lance", "error");
+        return null;
     }
 
-    if (messageRef && bidValue <= currentProduct.initial_value) {
-        messageRef.current.style.display = "flex"
-        messageRef.current.style.transition = "1s"
-        messageRef.current.innerHTML = "O valor do lance deve ser maior que o valor atual"
-        messageRef.current.style.color = "#bd9202"
+    // Se for lance automático, usar o próximo valor de lance
+    const actualBidValue = isAutoBidEnabled ? 
+        (currentProduct.real_value || currentProduct.initial_value) + getIncrementValue(currentProduct.real_value || currentProduct.initial_value)
+        : bidValue;
 
-        setTimeout(() => {
-            messageRef.current.style.display = "none"
-        }, 6000);
-
-        return
+    // Validação do valor do lance
+    if (!actualBidValue || actualBidValue <= 0) {
+        showMessage("O valor do lance deve ser maior que 0", "error");
+        return null;
     }
 
-    setIsloadingBid && setIsloadingBid(true)
+    // Validação do valor mínimo
+    if (actualBidValue <= currentProduct.initial_value) {
+        showMessage("O valor do lance deve ser maior que o valor atual", "warning");
+        return null;
+    }
+
+    // Validação do limite do lance automático
+    if (isAutoBidEnabled && (!autoBidLimit || autoBidLimit <= actualBidValue)) {
+        showMessage("O valor limite do lance automático deve ser maior que o valor do lance atual", "warning");
+        return null;
+    }
+
+    if (setIsloadingBid) {
+        setIsloadingBid(true);
+    }
 
     try {
-        const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`, {
-            value: parseFloat(bidValue),
-            client_id: currentClient.id,
-            auct_id: currentAuct.id,
-            Product: currentProduct,
-            Client: currentClient,
-            product_id: currentProduct.id,
-            cover_auto: isAutoBidEnabled // Incluindo a informação de lance automático
-        }, {
-            params: {
-                bidInCataloge: isBidOnCataloge ? true : false
+        const response = await axios.post(
+            `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`,
+            {
+                value: parseFloat(actualBidValue),
+                client_id: currentClient.id,
+                auct_id: currentAuct.id,
+                Product: currentProduct,
+                Client: currentClient,
+                product_id: currentProduct.id,
+                cover_auto: isAutoBidEnabled,
+                cover_auto_limit: isAutoBidEnabled ? parseFloat(autoBidLimit) : null
             },
-            headers: {
-                "Authorization": `Bearer ${sessionClient.token}`
+            {
+                params: {
+                    bidInCataloge: Boolean(isBidOnCataloge)
+                },
+                headers: {
+                    "Authorization": `Bearer ${sessionClient.token}`
+                }
             }
-        });
+        );
 
-        if (messageRef) {
-            messageRef.current.style.display = "flex"
-            messageRef.current.innerHTML = `Parabéns! Seu lance ${isAutoBidEnabled ? 'automático ' : ''}foi registrado`
-            messageRef.current.style.color = "#105500"
-        }
-        setTimeout(() => {
-            messageRef.current.style.display = "none"
-        }, 6000);
+        console.log("observando response ao criar lance -> ", response.data);
 
-        if (setBidValue) {
-            setBidValue(response.data.value)
-        }
+        showMessage(`Parabéns! Seu lance ${isAutoBidEnabled ? 'automático ' : ''}foi registrado`, "success");
 
-        setIsloadingBid && setIsloadingBid(false)
-
-        return response.data; // Retornando os dados do lance para uso posterior, se necessário
+        return response.data;
 
     } catch (error) {
-        setIsloadingBid && setIsloadingBid(false)
-
-        if (messageRef) {
-            messageRef.current.style.display = "flex"
-            messageRef.current.innerHTML = "Erro ao registrar o lance. Tente novamente."
-            messageRef.current.style.color = "red"
+        console.error('Erro ao dar lance:', error);
+        showMessage(error.response?.data?.message || "Erro ao registrar o lance. Tente novamente.", "error");
+        throw error;
+    } finally {
+        if (setIsloadingBid) {
+            setIsloadingBid(false);
         }
-        setTimeout(() => {
-            messageRef.current.style.display = "none"
-        }, 6000);
-
-        throw error; // Lançando o erro para ser tratado no componente chamador, se necessário
     }
 }
+
+// Função para calcular o incremento de lance com base no valor atual
+const getIncrementValue = (value) => {
+    const baseValue = value || 0;
+    
+    if (baseValue <= 600) {
+        return 20;
+    } else if (baseValue <= 1200) {
+        return 24; // 20% a mais que 20
+    } else if (baseValue <= 3000) {
+        return 30; // 50% a mais que 20
+    } else if (baseValue <= 6000) {
+        return 40; // 100% a mais que 20
+    } else if (baseValue <= 12000) {
+        return 60; // 200% a mais que 20
+    } else {
+        return Math.ceil(baseValue * 0.01); // 1% do valor para valores muito altos
+    }
+};
 
 export { handleBidproduct }

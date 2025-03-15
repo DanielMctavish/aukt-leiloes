@@ -7,75 +7,17 @@ import { getClientInformations } from "../functions/getClientInformations";
 import { useNavigate } from "react-router-dom";
 
 //avatares import
-import avatar_01 from "../../media/avatar-floor/avatar_01.png";
-import avatar_02 from "../../media/avatar-floor/avatar_02.png";
-import avatar_03 from "../../media/avatar-floor/avatar_03.png";
-import avatar_04 from "../../media/avatar-floor/avatar_04.png";
-import avatar_05 from "../../media/avatar-floor/avatar_05.png";
-import avatar_06 from "../../media/avatar-floor/avatar_06.png";
-import avatar_07 from "../../media/avatar-floor/avatar_07.png";
-import avatar_08 from "../../media/avatar-floor/avatar_08.png";
-import avatar_09 from "../../media/avatar-floor/Avatar_09.png";
-import avatar_10 from "../../media/avatar-floor/Avatar_10.png";
-import avatar_11 from "../../media/avatar-floor/Avatar_11.png";
-import avatar_12 from "../../media/avatar-floor/Avatar_12.png";
-import avatar_13 from "../../media/avatar-floor/Avatar_13.png";
-import avatar_14 from "../../media/avatar-floor/Avatar_14.png";
-import avatar_15 from "../../media/avatar-floor/Avatar_15.png";
-import avatar_16 from "../../media/avatar-floor/Avatar_16.png";
-import avatar_17 from "../../media/avatar-floor/Avatar_17.png";
-import avatar_18 from "../../media/avatar-floor/Avatar_18.png";
-import avatar_19 from "../../media/avatar-floor/Avatar_19.png";
-import avatar_20 from "../../media/avatar-floor/Avatar_20.png";
-import avatar_21 from "../../media/avatar-floor/Avatar_21.png";
-import avatar_22 from "../../media/avatar-floor/Avatar_22.png";
-import avatar_23 from "../../media/avatar-floor/Avatar_23.png";
-import avatar_24 from "../../media/avatar-floor/Avatar_24.png";
-import avatar_25 from "../../media/avatar-floor/Avatar_25.png";
-import avatar_26 from "../../media/avatar-floor/Avatar_26.png";
-import avatar_27 from "../../media/avatar-floor/Avatar_27.png";
-import avatar_28 from "../../media/avatar-floor/Avatar_28.png";
-import avatar_29 from "../../media/avatar-floor/Avatar_29.png";
-import avatar_30 from "../../media/avatar-floor/Avatar_30.png";
-import avatar_31 from "../../media/avatar-floor/Avatar_31.png";
-import avatar_32 from "../../media/avatar-floor/Avatar_32.png";
-import avatar_33 from "../../media/avatar-floor/Avatar_33.png";
-import avatar_34 from "../../media/avatar-floor/Avatar_34.png";
-import avatar_35 from "../../media/avatar-floor/Avatar_35.png";
-import avatar_36 from "../../media/avatar-floor/Avatar_36.png";
-import avatar_37 from "../../media/avatar-floor/Avatar_37.png";
-import avatar_38 from "../../media/avatar-floor/Avatar_38.png";
-import avatar_39 from "../../media/avatar-floor/Avatar_39.png";
-import avatar_40 from "../../media/avatar-floor/Avatar_40.png";
-import avatar_41 from "../../media/avatar-floor/Avatar_41.png";
-import avatar_42 from "../../media/avatar-floor/Avatar_42.png";
-import avatar_43 from "../../media/avatar-floor/Avatar_43.png";
-import avatar_44 from "../../media/avatar-floor/Avatar_44.png";
-import avatar_45 from "../../media/avatar-floor/Avatar_45.png";
-import avatar_46 from "../../media/avatar-floor/Avatar_46.png";
-import avatar_47 from "../../media/avatar-floor/Avatar_47.png";
-import avatar_48 from "../../media/avatar-floor/Avatar_48.png";
-import avatar_49 from "../../media/avatar-floor/Avatar_49.png";
-import avatar_50 from "../../media/avatar-floor/Avatar_50.png";
-import avatar_51 from "../../media/avatar-floor/Avatar_51.png";
-import avatar_52 from "../../media/avatar-floor/Avatar_52.png";
-import avatar_53 from "../../media/avatar-floor/Avatar_53.png";
-import avatar_54 from "../../media/avatar-floor/Avatar_54.png";
-import avatar_55 from "../../media/avatar-floor/Avatar_55.png";
-import avatar_56 from "../../media/avatar-floor/Avatar_56.png";
-import avatar_57 from "../../media/avatar-floor/Avatar_57.png";
-import avatar_58 from "../../media/avatar-floor/Avatar_58.png";
+const importAllAvatars = () => {
+    const avatares = [];
+    for (let i = 1; i <= 58; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
+        avatares.push(avatar);
+    }
+    return avatares;
+};
 
-const avatares_pessoas = [
-    avatar_01, avatar_02, avatar_03, avatar_04, avatar_05, avatar_06, avatar_07, avatar_08,
-    avatar_09, avatar_10, avatar_11, avatar_12, avatar_13, avatar_14, avatar_15, avatar_16,
-    avatar_17, avatar_18, avatar_19, avatar_20, avatar_21, avatar_22, avatar_23, avatar_24,
-    avatar_25, avatar_26, avatar_27, avatar_28, avatar_29, avatar_30, avatar_31, avatar_32,
-    avatar_33, avatar_34, avatar_35, avatar_36, avatar_37, avatar_38, avatar_39, avatar_40,
-    avatar_41, avatar_42, avatar_43, avatar_44, avatar_45, avatar_46, avatar_47, avatar_48,
-    avatar_49, avatar_50, avatar_51, avatar_52, avatar_53, avatar_54, avatar_55, avatar_56,
-    avatar_57, avatar_58
-];
+const avatares_pessoas = importAllAvatars()
 
 function ClientProfile() {
     const [isLoading, setIsloading] = useState(false)
@@ -122,7 +64,7 @@ function ClientProfile() {
     return (
         <div className="w-full h-screen bg-gradient-to-br from-[#f8f8f8] to-[#e8e8e8] flex">
             <AssideClient MenuSelected="menu-6" />
-            
+
             <section className="flex-1 h-screen flex flex-col gap-4 p-4 overflow-y-auto">
                 <div className="z-[10]">
                     <NavClient currentClient={currentClient} />
@@ -135,7 +77,7 @@ function ClientProfile() {
                             {/* Card de Informações Pessoais */}
                             <div className="bg-[#001324] rounded-2xl shadow-lg p-6 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-bl-full" />
-                                
+
                                 <h2 className="text-2xl font-bold text-white mb-6">
                                     Informações Pessoais
                                 </h2>
@@ -178,7 +120,7 @@ function ClientProfile() {
                             {/* Card de Seleção de Avatar */}
                             <div className="bg-[#001324] rounded-2xl shadow-lg p-6 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-bl-full" />
-                                
+
                                 <h2 className="text-2xl font-bold text-white mb-6">
                                     Seu Avatar
                                 </h2>
@@ -192,8 +134,8 @@ function ClientProfile() {
                                             className={`
                                                 relative group cursor-pointer
                                                 transition-all duration-500 ease-out
-                                                ${clientAvatar === i 
-                                                    ? 'ring-4 ring-green-500 scale-110 rotate-3 z-10' 
+                                                ${clientAvatar === i
+                                                    ? 'ring-4 ring-green-500 scale-110 rotate-3 z-10'
                                                     : 'ring-2 ring-gray-700 hover:ring-green-400'
                                                 }
                                                 rounded-xl overflow-hidden
@@ -207,12 +149,12 @@ function ClientProfile() {
                                                 alt={`Avatar ${i + 1}`}
                                                 className="w-16 h-16 object-cover"
                                             />
-                                            
+
                                             <div className={`
                                                 absolute inset-0 flex items-center justify-center
                                                 transition-all duration-300
-                                                ${clientAvatar === i 
-                                                    ? 'bg-green-500/20' 
+                                                ${clientAvatar === i
+                                                    ? 'bg-green-500/20'
                                                     : 'bg-black/0 group-hover:bg-green-500/10'
                                                 }
                                             `}>
