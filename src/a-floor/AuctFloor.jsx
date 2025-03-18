@@ -17,6 +17,7 @@ function AuctFloor() {
     const [socketMessage, setSocketMessage] = useState();
     const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [connectedUsers, setConnectedUsers] = useState(0);
 
     const { auct_id } = useParams();
     const stateBid = useSelector(state => state.bidLive);
@@ -42,6 +43,16 @@ function AuctFloor() {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
         socketRef.current = socket;
         await getCurrentAuction();
+
+        // Join the auction room with the specific auction ID
+        socket.emit('join-auction-room', { auct_id });
+
+        // Listen for connected users count using the same event name
+        socket.on('auction-room-users', (data) => {
+            if (data.auct_id === auct_id) {
+                setConnectedUsers(data.count);
+            }
+        });
 
         socket.on(`${auct_id}-playing-auction`, (message) => {
             if (message.data.body.auct_id === auct_id) {
@@ -183,6 +194,28 @@ function AuctFloor() {
                 transition={{ duration: 0.5 }}
             >
                 <FloorNavigation auction={currentAuct} group={currentProduct ? currentProduct.group : null} />
+            </motion.div>
+
+            {/* Display connected users count with modern live indicator */}
+            <motion.div 
+                className="fixed top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-[1000] flex items-center gap-2"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+            >
+                {/* Pulse animation for "LIVE" indicator */}
+                <div className="relative flex items-center">
+                    <div className="absolute w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                </div>
+                <span className="text-white font-semibold text-sm">LIVE</span>
+                <div className="h-4 w-[1px] bg-gray-400/50"></div>
+                <div className="flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span className="text-white font-medium">{connectedUsers}</span>
+                </div>
             </motion.div>
 
             <ModalTerms />

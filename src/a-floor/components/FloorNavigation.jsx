@@ -128,8 +128,40 @@ function FloorNavigation({ auction, group }) {
 
     useEffect(() => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
-        setCurrentClient(currentSession)
+        
+        if (currentSession) {
+            // Verificar se a sessão ainda é válida
+            verifyClientSession(currentSession);
+        }
     }, [])
+
+    // Função para verificar a validade da sessão do cliente
+    const verifyClientSession = async (session) => {
+        try {
+            // Verificando se o token ainda é válido fazendo uma requisição ao servidor
+            const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_API}/client/verify-token`, {
+                headers: {
+                    'Authorization': `Bearer ${session.token}`
+                }
+            });
+            
+            if (response.ok) {
+                // Sessão válida, atualizar o estado
+                setCurrentClient(session);
+            } else {
+                // Sessão inválida, limpar o localStorage
+                console.log("Sessão expirada ou inválida, removendo dados...");
+                localStorage.removeItem("client-auk-session-login");
+                setCurrentClient(null);
+            }
+        } catch (error) {
+            console.error("Erro ao verificar sessão:", error);
+            
+            // Se houver erro na verificação, é mais seguro remover a sessão
+            localStorage.removeItem("client-auk-session-login");
+            setCurrentClient(null);
+        }
+    }
 
     console.log("observando floor __>> ", auction.product_list)
 

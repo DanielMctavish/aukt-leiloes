@@ -7,10 +7,12 @@ import axios from "axios";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
-function CronCard({ currentTime, duration, auct_id, initial_value, real_value, currentProduct, onNewBid, isAuctionFinished }) {
+function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
+    reserve_value, currentProduct, onNewBid, isAuctionFinished }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [canBid, setCanBid] = useState(true);
     const [clientSession, setClientSession] = useState();
+    const [showReserveMessage, setShowReserveMessage] = useState(false);
     const [deadline, setDeadline] = useState(1);
     const [percentual, setPercentual] = useState(1); // Começar em 1%
     const [isFinishedLot,] = useState(false);
@@ -21,6 +23,19 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
     useEffect(() => {
         getClientSession();
     }, []);
+
+    // Efeito para verificar se o valor de reserva foi atingido
+    useEffect(() => {
+        if (reserve_value && real_value && real_value >= reserve_value && !showReserveMessage) {
+            setShowReserveMessage(true);
+            // Esconde a mensagem após 3 segundos
+            const timer = setTimeout(() => {
+                setShowReserveMessage(false);
+            }, 3000);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [real_value, reserve_value, showReserveMessage]);
 
     useEffect(() => {
         const newDeadline = duration - currentTime;
@@ -71,18 +86,41 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
-        if (currentSession)
+        if (currentSession) {
             try {
-                await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, {
+                // Verificar se o token ainda é válido
+                const tokenResponse = await fetch(`${import.meta.env.VITE_APP_BACKEND_API}/client/verify-token`, {
                     headers: {
                         'Authorization': `Bearer ${currentSession.token}`
                     }
-                }).then((response) => {
-                    setClientSession(response.data);
                 });
+                
+                if (!tokenResponse.ok) {
+                    // Token inválido, remover sessão
+                    console.log("Sessão expirada ou inválida, removendo dados...");
+                    localStorage.removeItem("client-auk-session-login");
+                    setClientSession(null);
+                    return;
+                }
+                
+                // Token válido, buscar dados do cliente
+                const response = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSession.email}`, 
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${currentSession.token}`
+                        }
+                    }
+                );
+                
+                setClientSession(response.data);
             } catch (error) {
-                return error
+                console.error("Erro ao verificar sessão:", error);
+                // Em caso de erro, é mais seguro remover a sessão
+                localStorage.removeItem("client-auk-session-login");
+                setClientSession(null);
             }
+        }
     };
 
     const getIncrementValue = (value) => {
@@ -205,6 +243,14 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value, c
                             className="h-full absolute left-0 top-0 bg-gradient-to-r from-orange-500 to-orange-400 
                                 transition-all duration-[1.8s] opacity-90"
                         />
+
+                        {/* Mensagem de valor de reserva atingido */}
+                        {showReserveMessage && (
+                            <div className="absolute top-0 right-0 left-0 bg-green-500 text-white text-xs font-medium px-2 py-1 
+                                animate-pulse text-center z-30 rounded-t-xl">
+                                Valor de reserva atingido!
+                            </div>
+                        )}
 
                         {auctioneerCall ? (
                             // Mensagem do Leiloeiro em tela cheia

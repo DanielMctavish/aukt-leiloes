@@ -254,6 +254,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile }) {
                         auct_id={auct_id ? auct_id : ""}
                         initial_value={currentProduct.initial_value}
                         real_value={currentProduct.real_value}
+                        reserve_value = {currentProduct.reserve_value}
                         currentProduct={currentProduct}
                         onNewBid={handleNewBid}
                         isAuctionFinished={isAuctionFinished}
