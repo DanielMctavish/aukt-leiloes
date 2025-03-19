@@ -52,7 +52,7 @@ function BidsAdvertiserHome({ bidInformations, showBids, productId, auctId }) {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(()=>{
-
+        console.log("observando id do leilão", auctId)
     },[forceUpdate])
 
     // Função para ordenar os lances por data mais recente
@@ -180,6 +180,7 @@ function BidsAdvertiserHome({ bidInformations, showBids, productId, auctId }) {
         // Escutar eventos de novos lances em catálogo
         socket.on(`${auctId}-bid-cataloged`, (message) => {
             // Extrair o lance da estrutura correta
+            console.log("observando lance no catálogo", message)
             const newBid = message.data.body;
             
             // Verificar se o lance é para o produto atual

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {  useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const importAllAvatars = () => {
@@ -143,9 +143,9 @@ function ProductDetailAdv() {
     return (
         <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden">
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
-            
+
             {/* Novo Menu Lateral */}
-            <SideMenu 
+            <SideMenu
                 showMenu={showMenu}
                 setShowMenu={setShowMenu}
                 currentClient={currentClient}
