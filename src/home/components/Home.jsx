@@ -1,4 +1,4 @@
-import Navigation from "../navigation/Navigation";
+import NavigationBirthday from "../navigation/NavigationBirthday";
 //import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
 import Section01_1 from "./Section01_1";
@@ -7,6 +7,7 @@ import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
 //import Submenu from "../navigation/Submenu";
+// import Navigation from "../navigation/Navigation"; // Comentado temporariamente para tema de aniversário
 
 function Home() {
   // const hiddenNav = () => {
@@ -20,7 +21,7 @@ function Home() {
   return (
     <div
       className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
-      <Navigation />
+      <NavigationBirthday />
       {/* <Submenu /> */}
       <Section01 />
       <Section01_1 />
