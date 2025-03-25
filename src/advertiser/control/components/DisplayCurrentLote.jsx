@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import io from 'socket.io-client';
 import axios from "axios";
@@ -13,57 +13,134 @@ function DisplayCurrentLote() {
     const [currentBidValue, setCurrentBidValue] = useState(null);
     const [winner, setWinner] = useState(null);
     const [winnerBidValue, setWinnerBidValue] = useState(null);
+    const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
+    const messagesProcessedRef = useRef(new Set()); // Para evitar processamento duplicado
+    const socketRef = useRef(null);
+
     const generalAUK = useSelector(state => state.generalAUK);
     const dispatch = useDispatch();
 
+    // Função para evitar processamento duplicado de mensagens
+    const processMessageOnce = (messageKey, message, handler) => {
+        // Usar timestamp como parte da chave se disponível
+        const timestamp = message?.data?.body?.timestamp || "";
+        const fullKey = `${messageKey}-${timestamp}`;
+        
+        if (!messagesProcessedRef.current.has(fullKey)) {
+            messagesProcessedRef.current.add(fullKey);
+            // Limitar o tamanho do conjunto para evitar vazamentos de memória
+            if (messagesProcessedRef.current.size > 1000) {
+                const messagesArray = Array.from(messagesProcessedRef.current);
+                messagesProcessedRef.current = new Set(messagesArray.slice(500));
+            }
+            handler(message);
+        }
+    };
+
     useEffect(() => {
         if (generalAUK.auct && generalAUK.status === 'live') {
-            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+            // Desconectar socket anterior se existir
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+            
+            // Criar nova conexão com parâmetros identificadores
+            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
+                transports: ['websocket'],
+                upgrade: false,
+                reconnection: true, 
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                query: {
+                    instance_id: instanceId,
+                    client_type: "control_panel",
+                    auct_id: generalAUK.auct.id
+                }
+            });
+            
+            socketRef.current = socket;
+            
+            // Entrar explicitamente na sala do leilão
+            socket.emit('join-auction-room', { 
+                auct_id: generalAUK.auct.id,
+                instance_id: instanceId,
+                client_type: "control_panel"
+            });
 
             socket.on(`${generalAUK.auct.id}-playing-auction`, (message) => {
-                if (message.data.body.auct_id === generalAUK.auct.id) {
-                    dispatch(setCurrentProduct(message.data.body.product));
-                    const totalTime = generalAUK.auct.product_timer_seconds;
-                    const elapsedTime = message.data.cronTimer || 0;
-                    const remaining = Math.max(0, totalTime - elapsedTime);
-                    setRemainingTime(remaining);
-                    if(remaining === 0) {
-                        setCurrentBidValue(0);
-                    }
-                    dispatch(setCurrentTimer(remaining));
+                if (message.data && message.data.body && message.data.body.auct_id === generalAUK.auct.id) {
+                    processMessageOnce(`${generalAUK.auct.id}-playing-auction`, message, (msg) => {
+                        console.log("Mensagem playing auction recebida:", msg);
+                        
+                        if (msg.data.body.product) {
+                            dispatch(setCurrentProduct(msg.data.body.product));
+                        }
+                        
+                        const totalTime = generalAUK.auct.product_timer_seconds;
+                        const elapsedTime = msg.data.cronTimer || 0;
+                        const remaining = Math.max(0, totalTime - elapsedTime);
+                        
+                        setRemainingTime(remaining);
+                        
+                        if (remaining === 0) {
+                            setCurrentBidValue(0);
+                        }
+                        
+                        dispatch(setCurrentTimer(remaining));
+                    });
                 }
             });
 
-           
-
             socket.on(`${generalAUK.auct.id}-bid`, async (message) => {
-                try {
-                    if (message.data.body.Product && message.data.body.Product[0]) {
-                        setCurrentBidValue(message.data.body.Product[0].Bid[0].value);
-                    }
-                } catch (error) {
-                    console.error("Erro ao atualizar lance:", error);
+                if (message.data && message.data.body) {
+                    processMessageOnce(`${generalAUK.auct.id}-bid`, message, (msg) => {
+                        try {
+                            if (msg.data.body.Product && msg.data.body.Product[0]) {
+                                setCurrentBidValue(msg.data.body.Product[0].Bid[0].value);
+                            }
+                        } catch (error) {
+                            console.error("Erro ao atualizar lance:", error);
+                        }
+                    });
                 }
             });
 
             socket.on(`${generalAUK.auct.id}-winner`, (message) => {
-                getCurrentClientWinner(message.data.winner);
-                if (currentBidValue) {
-                    setWinnerBidValue(currentBidValue);
+                if (message.data && message.data.body) {
+                    processMessageOnce(`${generalAUK.auct.id}-winner`, message, (msg) => {
+                        getCurrentClientWinner(msg.data.body.winner);
+                        if (currentBidValue) {
+                            setWinnerBidValue(currentBidValue);
+                        }
+                    });
                 }
             });
 
             socket.on(`${generalAUK.auct.id}-auct-finished`, () => {
                 dispatch(setStatus('finished'));
             });
+            
+            // Adicionar manipulador de reconexão
+            socket.on('reconnect', () => {
+                console.log("Reconectado ao servidor. Rejuntando-se à sala do leilão.");
+                socket.emit('join-auction-room', { 
+                    auct_id: generalAUK.auct.id,
+                    instance_id: instanceId,
+                    client_type: "control_panel"
+                });
+            });
 
             return () => {
-                socket.disconnect();
+                if (socket) {
+                    socket.disconnect();
+                }
             };
         }
-    }, [generalAUK.auct, generalAUK.status, dispatch, currentBidValue]);
+    }, [generalAUK.auct, generalAUK.status, dispatch, instanceId]);
 
     const getCurrentClientWinner = async (client_id) => {
+        if (!client_id) return;
+        
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
             setWinner(response.data);
@@ -72,7 +149,7 @@ function DisplayCurrentLote() {
                 setWinnerBidValue(null);
             }, 3000);
         } catch (error) {
-            return error;
+            console.error("Erro ao buscar cliente vencedor:", error);
         }
     };
 

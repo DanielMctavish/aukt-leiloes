@@ -18,11 +18,13 @@ function AuctFloor() {
     const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [connectedUsers, setConnectedUsers] = useState(0);
+    const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
 
     const { auct_id } = useParams();
     const stateBid = useSelector(state => state.bidLive);
 
     const socketRef = useRef(null);
+    const messagesProcessedRef = useRef(new Set()); // Conjunto para rastrear mensagens processadas
 
     useEffect(() => {
         webSocketFlow();
@@ -39,13 +41,46 @@ function AuctFloor() {
         }
     }, [stateBid]);
 
+    // Função para evitar processamento duplicado de mensagens
+    const processMessageOnce = (messageKey, message, handler) => {
+        // Se a mensagem já tiver um timestamp, use-o como parte da chave
+        const timestamp = message?.data?.body?.timestamp || "";
+        const fullKey = `${messageKey}-${timestamp}`;
+        
+        if (!messagesProcessedRef.current.has(fullKey)) {
+            messagesProcessedRef.current.add(fullKey);
+            // Limitar o tamanho do conjunto para evitar vazamentos de memória
+            if (messagesProcessedRef.current.size > 1000) {
+                // Converter para array, remover os primeiros 500 itens, e voltar para conjunto
+                const messagesArray = Array.from(messagesProcessedRef.current);
+                messagesProcessedRef.current = new Set(messagesArray.slice(500));
+            }
+            handler(message);
+        }
+    };
+
     const webSocketFlow = async () => {
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
+            transports: ['websocket'],
+            upgrade: false, // Desativar upgrade para evitar problemas de conexão
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            query: {
+                instance_id: instanceId,
+                client_type: "floor_viewer"
+            }
+        });
+        
         socketRef.current = socket;
         await getCurrentAuction();
 
         // Join the auction room with the specific auction ID
-        socket.emit('join-auction-room', { auct_id });
+        socket.emit('join-auction-room', { 
+            auct_id,
+            instance_id: instanceId,
+            client_type: "floor_viewer"
+        });
 
         // Listen for connected users count using the same event name
         socket.on('auction-room-users', (data) => {
@@ -55,16 +90,36 @@ function AuctFloor() {
         });
 
         socket.on(`${auct_id}-playing-auction`, (message) => {
-            if (message.data.body.auct_id === auct_id) {
-                setSocketMessage(message);
-                if (!currentProduct) {
-                    setCurrentProduct(message.data.body.product);
-                }
+            // Processar mensagem apenas se for para este leilão
+            if (message.data && message.data.body && message.data.body.auct_id === auct_id) {
+                processMessageOnce(`${auct_id}-playing-auction`, message, (msg) => {
+                    console.log("Recebendo mensagem do leilão:", msg);
+                    setSocketMessage(msg);
+                    
+                    // Atualizar o produto apenas se não houver um atual ou se os IDs forem diferentes
+                    if (!currentProduct || (msg.data.body.product && currentProduct.id !== msg.data.body.product.id)) {
+                        setCurrentProduct(msg.data.body.product);
+                    }
+                });
             }
         });
 
         socket.on(`${auct_id}-winner`, (message) => {
-            getCurrentClientWinner(message.data.winner);
+            if (message.data && message.data.body) {
+                processMessageOnce(`${auct_id}-winner`, message, (msg) => {
+                    getCurrentClientWinner(msg.data.body.winner);
+                });
+            }
+        });
+        
+        // Detector de reconexão
+        socket.on('reconnect', () => {
+            console.log("Reconectado ao servidor WebSocket. Rejuntando-se à sala do leilão.");
+            socket.emit('join-auction-room', { 
+                auct_id,
+                instance_id: instanceId,
+                client_type: "floor_viewer" 
+            });
         });
     }
 
@@ -74,6 +129,7 @@ function AuctFloor() {
             setCurrentAuct(response.data);
             setIsLoading(false);
         } catch (error) {
+            console.error("Erro ao buscar leilão:", error);
             setIsLoading(false);
         }
     };
@@ -84,15 +140,18 @@ function AuctFloor() {
             const result = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`);
             setCurrentProduct(result.data);
         } catch (error) {
+            console.error("Erro ao buscar produto:", error);
             return error
         }
     }
 
     const getCurrentClientWinner = async (client_id) => {
+        if (!client_id) return;
         try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
             setSocketWinner(response.data);
         } catch (error) {
+            console.error("Erro ao buscar cliente vencedor:", error);
             return error
         }
     }

@@ -21,6 +21,8 @@ function DashboardAuctControl() {
     useEffect(() => {
         const currentSession = localStorage.getItem("advertiser-session-aukt");
 
+        console.log("observando o generalAUK -> ", generalAUK)
+
         if (!currentSession) {
             navigate("/");
             return;
