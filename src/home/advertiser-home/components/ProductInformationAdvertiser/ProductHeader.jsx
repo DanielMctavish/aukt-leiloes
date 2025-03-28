@@ -1,8 +1,16 @@
 /* eslint-disable react/prop-types */
-import { ArrowLeft, ArrowRight, Visibility } from "@mui/icons-material";
+import { ArrowLeft, ArrowRight, Visibility, ViewModule } from "@mui/icons-material";
 
 // Componente para o cabeçalho do produto com navegação e controles
 const ProductHeader = ({ props, navigate, handlePrevProduct, handleNextProduct, showMessage }) => {
+    const handleViewCatalog = () => {
+        if (props.currentAuct && props.currentAuct.id) {
+            navigate(`/advertiser/home/shop/${props.currentAuct.id}`);
+        } else {
+            showMessage("Não foi possível abrir o catálogo deste leilão.", "error");
+        }
+    };
+    
     return (
         <div className='sticky top-0 z-10 bg-white p-6 border-b border-gray-100'>
             <div className='flex justify-between items-center'>
@@ -11,18 +19,34 @@ const ProductHeader = ({ props, navigate, handlePrevProduct, handleNextProduct, 
                     <span className='font-semibold text-2xl text-gray-800'>{props.currentProduct.lote}</span>
                 </div>
 
-                {/* Botão de ver/ocultar lances */}
-                <button
-                    onClick={() => props.setShowBids(!props.showBids)}
-                    className="flex items-center gap-2 px-4 py-2 
-                        bg-gradient-to-r from-[#143247] to-blue-600 
-                        hover:from-blue-600 hover:to-blue-700
-                        text-white rounded-full shadow-md hover:shadow-lg 
-                        transition-all duration-300 text-sm font-medium"
-                >
-                    <Visibility sx={{ fontSize: 18 }} />
-                    <span>{props.showBids ? 'Ocultar Lances' : 'Ver Lances'}</span>
-                </button>
+                {/* Botões de ação */}
+                <div className="flex items-center gap-2">
+                    {/* Botão Ver Catálogo */}
+                    <button
+                        onClick={handleViewCatalog}
+                        className="flex items-center gap-2 px-4 py-2 
+                            bg-gradient-to-r from-[#012038] to-[#144870] 
+                            hover:from-[#144870] hover:to-[#144870]
+                            text-white rounded-full shadow-md hover:shadow-lg 
+                            transition-all duration-300 text-sm font-medium mr-2"
+                    >
+                        <ViewModule sx={{ fontSize: 18 }} />
+                        <span>Ver Catálogo</span>
+                    </button>
+                    
+                    {/* Botão de ver/ocultar lances */}
+                    <button
+                        onClick={() => props.setShowBids(!props.showBids)}
+                        className="flex items-center gap-2 px-4 py-2 
+                            bg-gradient-to-r from-[#143247] to-blue-600 
+                            hover:from-blue-600 hover:to-blue-700
+                            text-white rounded-full shadow-md hover:shadow-lg 
+                            transition-all duration-300 text-sm font-medium"
+                    >
+                        <Visibility sx={{ fontSize: 18 }} />
+                        <span>{props.showBids ? 'Ocultar Lances' : 'Ver Lances'}</span>
+                    </button>
+                </div>
 
                 <div className="flex items-center gap-2">
                     <button

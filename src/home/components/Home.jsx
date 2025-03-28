@@ -1,4 +1,5 @@
 import NavigationBirthday from "../navigation/NavigationBirthday";
+import Navigation from "../navigation/Navigation";
 //import tempLogo from "../medias/temp-logo.png"
 import Section01 from "./Section01";
 import Section01_1 from "./Section01_1";
@@ -6,8 +7,8 @@ import Section02 from "./Section02";
 import Section03 from "./Section03";
 import Footer from "./Footer";
 import './Home.css';
+import { useMemo } from 'react';
 //import Submenu from "../navigation/Submenu";
-// import Navigation from "../navigation/Navigation"; // Comentado temporariamente para tema de aniversário
 
 function Home() {
   // const hiddenNav = () => {
@@ -18,10 +19,25 @@ function Home() {
   //   }
   // }
 
+  // Determina qual navegação mostrar com base na data
+  const NavigationComponent = useMemo(() => {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth(); // Janeiro é 0, Março é 2
+    
+    // Dias 25, 26, 27 e 28 de março mostram NavigationBirthday
+    if (month === 2 && day >= 25 && day <= 28) {
+      return NavigationBirthday;
+    }
+    
+    // Nos outros dias, mostra Navigation padrão
+    return Navigation;
+  }, []);
+
   return (
     <div
       className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
-      <NavigationBirthday />
+      <NavigationComponent />
       {/* <Submenu /> */}
       <Section01 />
       <Section01_1 />

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { ViewModule } from '@mui/icons-material';
 
 const importAllAvatars = () => {
     const avatares = [];
@@ -39,6 +40,7 @@ function ProductDetailAdv() {
     const avatares_pessoas = importAllAvatars();
 
     const { product_id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Limpar os lances ao mudar de produto
@@ -140,6 +142,12 @@ function ProductDetailAdv() {
         })
     }, [])
 
+    const handleViewCatalog = () => {
+        if (currentAuct && currentAuct.id) {
+            navigate(`/advertiser/home/shop/${currentAuct.id}`);
+        }
+    };
+
     return (
         <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden">
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
@@ -162,7 +170,7 @@ function ProductDetailAdv() {
 
                 {/* Cabeçalho apenas com informações do leiloeiro */}
                 {currentAuct && currentAdvertiser && (
-                    <div className='flex w-full md:w-[90%] lg:w-[75%] justify-start items-center gap-2 px-4 md:px-0 py-4'>
+                    <div className='flex w-full md:w-[90%] lg:w-[75%] justify-between items-center gap-2 px-4 md:px-0 py-4'>
                         <div className='flex justify-center items-center gap-2'>
                             <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
                             <div className='flex flex-col justify-start items-start'>
@@ -170,6 +178,19 @@ function ProductDetailAdv() {
                                 <span className='text-xs md:text-sm'>{currentAuct.title}</span>
                             </div>
                         </div>
+                        
+                        {/* Botão Ver Catálogo */}
+                        <button
+                            onClick={handleViewCatalog}
+                            className="flex items-center gap-2 px-4 py-2 
+                                bg-gradient-to-r from-[#012038] to-[#144870] 
+                                hover:from-[#144870] hover:to-[#144870]
+                                text-white rounded-full shadow-md hover:shadow-lg 
+                                transition-all duration-300 text-sm font-medium"
+                        >
+                            <ViewModule sx={{ fontSize: 18 }} />
+                            <span>Ver Catálogo Completo</span>
+                        </button>
                     </div>
                 )}
 

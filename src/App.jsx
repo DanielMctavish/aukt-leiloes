@@ -42,7 +42,8 @@ import HomeAdvShop from "./home/advertiser-home/HomeAdvShop";
 import Arrematantes from "./advertiser/arrematantes/Arrematantes";
 import ClientCartelas from "./Clients/Cartelas/ClientCartelas";
 import AdvertiserTemplate from "./advertiser/_templates/AdvertiserTemplate";
-import AdminTransactions from './admin/AdminTransactions'; // Adicione esta importação
+import AdminTransactions from './admin/AdminTransactions';
+import TransactionsDashboard from './advertiser/_transactions/TransactionsDashboard';
 import SearchResults from './search/SearchResults';
 import SelectLoginType from './access/SelectLoginType';
 import MainRenderAdvertiserSite from "./home/renderer/MainRenderAdvertiserSite";
@@ -107,6 +108,7 @@ function App() {
           <Route Component={DashboardAuctControl} path="/advertiser/auctions-controls" exact />
           <Route Component={Arrematantes} path="/advertiser/arrematantes" exact />
           <Route Component={AdvertiserTemplate} path="/advertiser/templates/:advertiser_id" exact />
+          <Route Component={TransactionsDashboard} path="/advertiser/transactions" exact />
 
           {/* AUCT FLOOR */}
           <Route Component={FloorHub} path="/floor/hub" exact />

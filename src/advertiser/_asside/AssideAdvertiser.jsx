@@ -10,7 +10,8 @@ import {
   AccountBalanceWallet,
   Person,
   Logout,
-  Gamepad
+  Gamepad,
+  Receipt
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -185,6 +186,15 @@ function AssideAdvertiser(props) {
           >
             <AccountBalanceWallet />
             <span>Carteira</span>
+          </button>
+
+          <button
+            id="menu-11"
+            className="w-full flex justify-between items-center p-2 text-white border-[1px] border-[#ffffff09] hover:border-[#ffffff8a] transition-all rounded-md"
+            onClick={() => handleClick("/advertiser/transactions")}
+          >
+            <Receipt />
+            <span>Transações</span>
           </button>
 
           <button
