@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { PlayArrow, SkipNext, PauseCircleFilledOutlined, AccessTime, PlayCircleFilledWhite } from "@mui/icons-material";
+import { PlayArrow, SkipNext, PauseCircleFilledOutlined, AccessTime, PlayCircleFilledWhite, OpenInNew } from "@mui/icons-material";
 import { useEffect, useState, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -57,6 +57,14 @@ function AuctionController() {
         killAuction(generalAUK.auct, cookieSession, dispatch)();
     }, [generalAUK.auct, cookieSession, dispatch]);
 
+    // Função para abrir o pregão em uma nova janela
+    const openAuctionFloor = useCallback(() => {
+        if (generalAUK.auct && generalAUK.auct.id) {
+            const floorUrl = `/floor/${generalAUK.auct.id}`;
+            window.open(floorUrl, '_blank', 'noopener,noreferrer');
+        }
+    }, [generalAUK.auct]);
+
     useEffect(() => {
     }, [loadNext]);
     
@@ -65,7 +73,7 @@ function AuctionController() {
     const isDisabled = !generalAUK.auct || isFinished;
 
     return (
-        <div className="flex bg-white w-full h-[40%] rounded-xl shadow-lg p-4">
+        <div className="flex bg-white w-full h-[50%] rounded-xl shadow-lg p-4">
             <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
@@ -94,7 +102,7 @@ function AuctionController() {
                     <button 
                         onClick={playAuction}
                         disabled={isRunning || isDisabled} 
-                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                        className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                             font-medium transition-all duration-200 ${
                             isRunning || isDisabled 
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -110,7 +118,7 @@ function AuctionController() {
                         <button 
                             onClick={nextProduct}
                             disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                                 font-medium transition-all duration-200 ${
                                 !isRunning || isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -121,7 +129,7 @@ function AuctionController() {
                             <span>Próximo</span>
                         </button>
                     ) : (
-                        <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                        <div className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                             bg-[#1e3d54] text-white shadow-md">
                             <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                             <span>Passando...</span>
@@ -133,7 +141,7 @@ function AuctionController() {
                         <button 
                             onClick={resumeAuction}
                             disabled={isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                                 font-medium transition-all duration-200 ${
                                 isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -147,7 +155,7 @@ function AuctionController() {
                         <button 
                             onClick={pauseAuction}
                             disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                                 font-medium transition-all duration-200 ${
                                 !isRunning || isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -165,7 +173,7 @@ function AuctionController() {
                             key={time}
                             onClick={() => addTime(time)}
                             disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
                                 font-medium transition-all duration-200 ${
                                 !isRunning || isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -176,6 +184,21 @@ function AuctionController() {
                             <span>+{time}s</span>
                         </button>
                     ))}
+
+                    {/* Botão Ir para Pregão */}
+                    <button 
+                        onClick={openAuctionFloor}
+                        disabled={isDisabled}
+                        className={`col-span-3 flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
+                            font-medium transition-all duration-200 mt-2 ${
+                            isDisabled
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-[#082338] text-white hover:from-blue-700 hover:to-indigo-700 shadow-md'
+                            }`}
+                    >
+                        <OpenInNew sx={{ fontSize: 24 }} />
+                        <span>Ir para Pregão</span>
+                    </button>
                 </div>
 
                 {/* Mensagem de Finalizado */}

@@ -4,7 +4,7 @@ const importAllAvatars = () => {
     const avatares = [];
     for (let i = 1; i <= 58; i++) {
         const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
+        const avatar = new URL(`../../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
         avatares.push(avatar);
     }
     return avatares;

@@ -59,7 +59,7 @@ function DashboardAuctControl() {
                 <NavAdvertiser />
 
                 <div className="flex flex-col lg:w-[80%] w-full lg:h-[90vh] h-[200vh] shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e9] overflow-y-auto lg:mt-0 mt-[3vh] rounded-lg">
-                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[70vh] min-h-[100vh] bg-[#fff] p-1 gap-1">
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[75vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />
                             <AuctionController />

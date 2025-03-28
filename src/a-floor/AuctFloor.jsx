@@ -19,6 +19,7 @@ function AuctFloor() {
     const [isLoading, setIsLoading] = useState(true);
     const [connectedUsers, setConnectedUsers] = useState(0);
     const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
+    const [isAuctionFinished, setIsAuctionFinished] = useState(false);
 
     const { auct_id } = useParams();
     const stateBid = useSelector(state => state.bidLive);
@@ -110,6 +111,23 @@ function AuctFloor() {
                     getCurrentClientWinner(msg.data.body.winner);
                 });
             }
+        });
+        
+        // Evento de finalização do leilão
+        socket.on(`${auct_id}-auct-finished`, (message) => {
+            console.log("AuctFloor - Auction finished event received:", message);
+            
+            // Processar a mensagem de finalização usando o mesmo mecanismo de deduplicação
+            processMessageOnce(`${auct_id}-auct-finished`, message, (msg) => {
+                console.log("Leilão finalizado:", msg);
+                setIsAuctionFinished(true);
+                
+                // Opcionalmente, podemos atualizar outros estados ou fazer chamadas API aqui
+                // para refletir o estado de leilão finalizado na interface
+                
+                // Atualizar o leilão para ter as informações mais recentes
+                getCurrentAuction();
+            });
         });
         
         // Detector de reconexão
@@ -288,6 +306,7 @@ function AuctFloor() {
                     productId={currentProduct ? currentProduct.id : null}
                     winner={socketWinner}
                     isMobile={true}
+                    isAuctionFinished={isAuctionFinished}
                 />
             </div>
 
@@ -327,6 +346,7 @@ function AuctFloor() {
                         productId={currentProduct ? currentProduct.id : null}
                         winner={socketWinner}
                         isMobile={false}
+                        isAuctionFinished={isAuctionFinished}
                     />
                 </motion.div>
             </div>

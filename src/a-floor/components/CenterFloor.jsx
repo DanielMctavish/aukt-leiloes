@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function CenterFloor({ title, description, auction, currentProduct }) {
+function CenterFloor({ title, description, auction, currentProduct, isAuctionFinished: parentIsAuctionFinished }) {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
@@ -21,10 +21,18 @@ function CenterFloor({ title, description, auction, currentProduct }) {
     const images = currentProduct ? [currentProduct.cover_img_url, ...(currentProduct.group_imgs_url || [])] : [];
 
     useEffect(() => {
+        if (parentIsAuctionFinished) {
+            setIsAuctionFinished(true);
+            listAuctions();
+        }
+    }, [parentIsAuctionFinished]);
+
+    useEffect(() => {
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
 
         socket.on(`${auction.id}-auct-finished`, () => {
             setIsAuctionFinished(true);
+            listAuctions();
         });
 
         if (isAuctionFinished) {

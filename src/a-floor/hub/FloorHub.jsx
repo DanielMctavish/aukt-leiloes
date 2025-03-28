@@ -9,6 +9,7 @@ const FloorHub = () => {
     const [allAuctions, setAllAuctions] = useState({
         auctionLive: [],
         auctionCataloged: [],
+        auctionPaused: [],
     });
     const [currentClient, setCurrentClient] = useState();
     const navigate = useNavigate()
@@ -25,6 +26,9 @@ const FloorHub = () => {
             );
             const liveResponse = await axios.get(
                 `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus?status=live`
+            );
+            const pausedResponse = await axios.get(
+                `${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus?status=paused`
             );
 
             const getTotalBids = (auction) => {
@@ -43,6 +47,7 @@ const FloorHub = () => {
             setAllAuctions({
                 auctionCataloged: sortAuctions(catalogedResponse.data.filter(auct => auct.public === true)),
                 auctionLive: sortAuctions(liveResponse.data.filter(auct => auct.public === true)),
+                auctionPaused: sortAuctions(pausedResponse.data.filter(auct => auct.public === true)),
             });
 
         } catch (error) {
@@ -51,17 +56,16 @@ const FloorHub = () => {
     };
 
     const getCurrentClientSession = async () => {
-        const clientSession = JSON.parse(
-            localStorage.getItem("client-auk-session-login")
-        );
+        const clientSession = localStorage.getItem("client-auk-session-login");
 
         if (clientSession) {
             try {
+                const parsedSession = JSON.parse(clientSession);
                 const response = await axios.get(
-                    `${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${clientSession.email}`,
+                    `${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${parsedSession.email}`,
                     {
                         headers: {
-                            Authorization: `Bearer ${clientSession.token}`,
+                            Authorization: `Bearer ${parsedSession.token}`,
                         },
                     }
                 );
@@ -75,7 +79,19 @@ const FloorHub = () => {
     useEffect(() => {
     }, [allAuctions, currentClient]);
 
-    const renderAuctionCards = (auctions, label) => {
+    const getBorderStyle = (status) => {
+        if (status === 'live') return 'border-[#6e1313] border-[4px]';
+        if (status === 'paused') return 'border-orange-500 border-[4px]';
+        return 'border-none';
+    };
+
+    const getLabelColor = (status) => {
+        if (status === 'live') return 'bg-[#6e1313]';
+        if (status === 'paused') return 'bg-orange-500';
+        return 'bg-[#10335f]';
+    };
+
+    const renderAuctionCards = (auctions, status) => {
         return auctions.map((auction, i) => {
             
             const totalLotes = auction.product_list?.length || 0;
@@ -89,16 +105,16 @@ const FloorHub = () => {
                     className={`flex flex-col justify-center items-center relative bg-white 
                         rounded-[20px] gap-3 overflow-hidden p-3 cursor-pointer hover:bg-blue-100 
                         shadow-lg ${i % 2 === 0 ? 'min-h-[400px]' : 'min-h-[300px]'}
-                        ${label === 'live' ? 'border-[#6e1313] border-[4px]' : 'border-none'}`}
+                        ${getBorderStyle(status)}`}
                     style={{
                         gridColumn: i % 2 === 0 ? 'span 1' : 'span 2',
                         gridRow: i % 2 === 0 ? 'span 2' : 'span 1',
                     }}
                 >
                     <span className={`absolute top-2 right-2 text-white p-1 rounded-[20px] 
-                        ${label === 'live' ? 'bg-[#6e1313]' : 'bg-[#10335f]'}`}
+                        ${getLabelColor(status)}`}
                     >
-                        {label}
+                        {status}
                     </span>
 
                     <img
@@ -174,6 +190,7 @@ const FloorHub = () => {
                 overflow-y-auto p-1 transition-all duration-[1s] mt-[6vh]"
             >
                 {renderAuctionCards(allAuctions.auctionLive, "live")}
+                {renderAuctionCards(allAuctions.auctionPaused, "paused")}
                 {renderAuctionCards(allAuctions.auctionCataloged, "cataloged")}
             </section>
 
