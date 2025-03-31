@@ -6,6 +6,7 @@ import "./floorStyles.css";
 import DisplayClock from "./DisplayClock";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 
 const ModalAllProducts = ({ products, onClose }) => {
 
@@ -148,6 +149,10 @@ const ModalAllProducts = ({ products, onClose }) => {
 function FloorNavigation({ auction, group }) {
     const [currentClient, setCurrentClient] = useState({})
     const [modalAllProducts, setModalAllProducts] = useState(false)
+    const [showLoginModal, setShowLoginModal] = useState(false)
+    const [loginData, setLoginData] = useState({ email: '', password: '' })
+    const [loginError, setLoginError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -187,6 +192,32 @@ function FloorNavigation({ auction, group }) {
         }
     }
 
+    const handleLogin = async (e) => {
+        e.preventDefault()
+        setIsLoading(true)
+        setLoginError('')
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, loginData)
+            
+            if (response.data.token) {
+                const sessionData = {
+                    token: response.data.token,
+                    name: response.data.name,
+                    email: response.data.email
+                }
+                localStorage.setItem("client-auk-session-login", JSON.stringify(sessionData))
+                setCurrentClient(sessionData)
+                setShowLoginModal(false)
+                setLoginData({ email: '', password: '' })
+            }
+        } catch (error) {
+            setLoginError(error.response?.data?.message || 'Erro ao fazer login. Tente novamente.')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     console.log("observando floor __>> ", auction.display_message)
 
 
@@ -206,6 +237,85 @@ function FloorNavigation({ auction, group }) {
                         products={auction?.product_list}
                         onClose={() => setModalAllProducts(false)}
                     />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {showLoginModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                        onClick={() => setShowLoginModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold text-[#012038]">Login</h2>
+                                <button 
+                                    onClick={() => setShowLoginModal(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <Close />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={loginData.email}
+                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 
+                                            focus:ring-[#012038] focus:border-transparent"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Senha
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={loginData.password}
+                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 
+                                            focus:ring-[#012038] focus:border-transparent"
+                                        required
+                                    />
+                                </div>
+
+                                {loginError && (
+                                    <div className="text-red-500 text-sm">
+                                        {loginError}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className={`w-full py-2 px-4 rounded-lg text-white font-medium
+                                        transition-all duration-200 ${
+                                            isLoading 
+                                                ? 'bg-gray-400 cursor-not-allowed'
+                                                : 'bg-[#012038] hover:bg-[#023161]'
+                                        }`}
+                                >
+                                    {isLoading ? 'Entrando...' : 'Entrar'}
+                                </button>
+                            </form>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 
@@ -338,7 +448,8 @@ function FloorNavigation({ auction, group }) {
                             <motion.button 
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+                                onClick={() => currentClient ? navigate("/client/dashboard") : setShowLoginModal(true)}
+                                className="p-2 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
                             >
                                 <AccountCircle sx={{
                                     fontSize: "24px",
@@ -367,7 +478,7 @@ function FloorNavigation({ auction, group }) {
                                     <motion.span 
                                         whileHover={{ color: "#036982" }}
                                         className="cursor-pointer transition-colors"
-                                        onClick={() => navigate("/client/login")}
+                                        onClick={() => setShowLoginModal(true)}
                                     >
                                         Acessar
                                     </motion.span>

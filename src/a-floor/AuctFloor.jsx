@@ -61,15 +61,21 @@ function AuctFloor() {
     };
 
     const webSocketFlow = async () => {
+        // Desconectar socket anterior se existir
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+        }
+
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
             transports: ['websocket'],
-            upgrade: false, // Desativar upgrade para evitar problemas de conexão
+            upgrade: false,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             query: {
                 instance_id: instanceId,
-                client_type: "floor_viewer"
+                client_type: "floor_viewer",
+                auct_id: auct_id
             }
         });
         
@@ -83,10 +89,20 @@ function AuctFloor() {
             client_type: "floor_viewer"
         });
 
-        // Listen for connected users count using the same event name
+        // Listen for connected users count
         socket.on('auction-room-users', (data) => {
             if (data.auct_id === auct_id) {
-                setConnectedUsers(data.count);
+                // Atualizar o contador apenas se o número for diferente
+                if (data.count !== connectedUsers) {
+                    setConnectedUsers(data.count);
+                }
+            }
+        });
+
+        // Adicionar listener para desconexão de usuários
+        socket.on('user-disconnected', (data) => {
+            if (data.auct_id === auct_id) {
+                setConnectedUsers(prev => Math.max(0, prev - 1));
             }
         });
 
@@ -136,9 +152,16 @@ function AuctFloor() {
             socket.emit('join-auction-room', { 
                 auct_id,
                 instance_id: instanceId,
-                client_type: "floor_viewer" 
+                client_type: "floor_viewer"
             });
         });
+
+        // Cleanup function
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
     }
 
     const getCurrentAuction = async () => {

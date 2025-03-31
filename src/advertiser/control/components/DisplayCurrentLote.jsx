@@ -107,11 +107,28 @@ function DisplayCurrentLote() {
 
             socket.on(`${generalAUK.auct.id}-winner`, (message) => {
                 if (message.data && message.data.body) {
-                    processMessageOnce(`${generalAUK.auct.id}-winner`, message, (msg) => {
-                        getCurrentClientWinner(msg.data.body.winner);
-                        if (currentBidValue) {
-                            setWinnerBidValue(currentBidValue);
+                    processMessageOnce(`${generalAUK.auct.id}-winner`, message, async (msg) => {
+                        // Primeiro, buscar o produto atualizado para ter os dados mais recentes
+                        try {
+                            const response = await axios.get(
+                                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${generalAUK.currentProduct.id}`
+                            );
+                            
+                            if (response.data && response.data.Bid && response.data.Bid.length > 0) {
+                                // Pegar o último lance do produto
+                                const lastBid = response.data.Bid[0];
+                                setWinnerBidValue(lastBid.value);
+                            }
+                        } catch (error) {
+                            console.error("Erro ao buscar produto atualizado:", error);
+                            // Fallback para o valor atual se não conseguir buscar o produto
+                            if (currentBidValue) {
+                                setWinnerBidValue(currentBidValue);
+                            }
                         }
+                        
+                        // Buscar informações do vencedor
+                        getCurrentClientWinner(msg.data.body.winner);
                     });
                 }
             });
@@ -264,10 +281,13 @@ function DisplayCurrentLote() {
                                     <div>
                                         <p className="text-white/70 text-sm">Lance Vencedor</p>
                                         <p className="font-medium">
-                                            {new Intl.NumberFormat('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL'
-                                            }).format(winnerBidValue || currentBidValue)}
+                                            {winnerBidValue ? 
+                                                new Intl.NumberFormat('pt-BR', {
+                                                    style: 'currency',
+                                                    currency: 'BRL'
+                                                }).format(winnerBidValue)
+                                                : "Valor não disponível"
+                                            }
                                         </p>
                                     </div>
                                 </div>
