@@ -119,7 +119,7 @@ function AdvertiserAuctDetails() {
             <section className="w-full flex-1 flex flex-col">
                 <NavAdvertiser path={"anunciante > leilões > detalhes"} />
 
-                <div className="flex-1 p-3 md:p-6 bg-gradient-to-b from-[#091925] to-[#0d2437]">
+                <div className="flex-1 p-3 md:p-6 bg-gradient-to-b from-[#091925] to-[#0d2437] mt-[6vh]">
                     {/* Header do Leilão */}
                     <AuctionHeader
                         currentAuct={currentAuct}

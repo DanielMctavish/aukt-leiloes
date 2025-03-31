@@ -191,13 +191,13 @@ function HomeNav({ sections, header, advertiser_id, isShop, onLoginClick }) {
 
     return (
         <nav 
-            className="w-full h-[8vh] backdrop-blur-sm fixed top-0 z-[99]"
+            className="w-full h-[8vh] backdrop-blur-sm fixed top-0 left-0 z-[99]"
             style={{ 
                 backgroundColor: navColors.background,
             }}
         >
-            <div className="container mx-auto h-full px-4 lg:px-8">
-                <div className="flex items-center justify-between h-full">
+            <div className="w-full h-full px-4 lg:px-6 flex items-center">
+                <div className="flex items-center justify-between w-full">
                     {/* Logo e Nome */}
                     <div className="flex items-center gap-3">
                         <img

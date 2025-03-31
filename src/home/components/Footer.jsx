@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import aukLogo from "../../media/logos/logos-auk/aukt_blue.png"
 import React, { useState } from "react";

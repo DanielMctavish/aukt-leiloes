@@ -113,9 +113,9 @@ function NavAdvertiser() {
   };
 
   return (
-    <nav className="w-full bg-white shadow-md">
-      <div className="max-w-[96%] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav className="w-full bg-white shadow-md fixed z-[400] left-0">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        <div className="flex justify-between h-16 w-[90%]">
           {/* Logo/Welcome Section */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">

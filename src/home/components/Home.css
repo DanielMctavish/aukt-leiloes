@@ -11,31 +11,6 @@
 }
 
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 12px;
-}
-
-
-.active {
-  width: 246px;
-  height: 26px;
-  flex-shrink: 0;
-  background: rgba(41, 41, 41, 0.21);
-  border-left: 4px solid #012038;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #012038;
-  flex-shrink: 0;
-  width: 12px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background-color: #c8c8c8;
-  width: 12px;
-  height: 802px;
-}
-
 @media (max-width: 768px) {
   #ferrari {
     height: 380px; 

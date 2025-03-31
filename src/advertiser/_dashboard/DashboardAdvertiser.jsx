@@ -50,31 +50,35 @@ export const DashboardAdvertiser = () => {
     }
 
     return (
-        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white">
-            <AssideAdvertiser MenuSelected="menu-1" />
+        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white ">
+            <div className="fixed inset-0 z-[9999]">
+                <AssideAdvertiser MenuSelected="menu-1" />
+            </div>
 
-            <section className="w-full min-h-[130vh] flex flex-col justify-start items-center overflow-y-auto gap-2">
-                <NavAdvertiser />
+            <NavAdvertiser />
 
-                <section className="w-full flex p-2 gap-3 min-h-[20vh] justify-around items-center overflow-x-auto">
-                    <AuctionSelection />
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-[4vh]">
+                <section className="w-full h-auto flex flex-col justify-start items-center overflow-y-auto gap-2 relative z-[9999]">
+                    <section className="w-full flex p-2 gap-3 min-h-[20vh] justify-around items-center overflow-x-auto">
+                        <AuctionSelection />
+                    </section>
+
+                    <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-stretch gap-4 p-4">
+                        {/* Gráfico */}
+                        <div className="lg:w-1/2 w-full h-[400px]">
+                            <PanelGraph />
+                        </div>
+                        {/* Círculo de estatística */}
+                        <div className="lg:w-1/2 w-full h-[400px]">
+                            <CircleStatisticDisplay />
+                        </div>
+                    </section>
+
+                    <section className="w-full p-3">
+                        <LastAdvertisersAuctsTable />
+                    </section>
                 </section>
-
-                <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-stretch gap-4 p-4">
-                    {/* Gráfico */}
-                    <div className="lg:w-1/2 w-full h-[400px]">
-                        <PanelGraph />
-                    </div>
-                    {/* Círculo de estatística */}
-                    <div className="lg:w-1/2 w-full h-[400px]">
-                        <CircleStatisticDisplay />
-                    </div>
-                </section>
-
-                <section className="w-full p-3">
-                    <LastAdvertisersAuctsTable />
-                </section>
-            </section>
+            </div>
         </div>
     )
 }

@@ -24,21 +24,23 @@ function Home() {
     const today = new Date();
     const day = today.getDate();
     const month = today.getMonth(); // Janeiro é 0, Março é 2
-    
+
     // Dias 25, 26, 27 e 28 de março mostram NavigationBirthday
     if (month === 2 && day >= 25 && day <= 28) {
       return NavigationBirthday;
     }
-    
+
     // Nos outros dias, mostra Navigation padrão
     return Navigation;
   }, []);
 
   return (
     <div
-      className="App flex flex-col justify-start items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
+      className="App flex flex-col justify-start p-0 items-center w-full h-full bg-[#FFFFFF] 
+      overflow-x-hidden relative text-white">
+
       <NavigationComponent />
-      {/* <Submenu /> */}
+
       <Section01 />
       <Section01_1 />
       <Section02 />

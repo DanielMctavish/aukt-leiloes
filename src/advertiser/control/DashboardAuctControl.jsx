@@ -51,14 +51,16 @@ function DashboardAuctControl() {
     }, [dispatch, navigate, generalAUK.auct]);
 
     return (
-        <div className="w-full lg:h-[100vh] h-[200vh] flex-col flex justify-start items-center bg-[#F4F4F4] overflow-hidden">
+        <div className="w-full h-[100vh] flex-col flex justify-start items-center overflow-hidden ">
             <ClientDetailModal />
             <AssideAdvertiser MenuSelected="menu-4" />
 
-            <section className="w-full lg:h-[100vh] min-h-[200vh] flex flex-col justify-start items-center gap-2 relative">
+            <section className="w-full flex flex-col justify-start items-center gap-2 relative  z-10">
                 <NavAdvertiser />
-
-                <div className="flex flex-col lg:w-[80%] w-full lg:h-[90vh] h-[200vh] shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e9] overflow-y-auto lg:mt-0 mt-[3vh] rounded-lg">
+                
+                <div className="flex flex-col lg:w-[80%] w-full h-[90vh]  mt-[8vh]
+                shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e900] 
+                overflow-y-auto rounded-lg">
                     <div className="flex lg:flex-row flex-col w-full lg:min-h-[75vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />

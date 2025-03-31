@@ -42,7 +42,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-[#012038] text-white fixed w-full z-50">
+    <nav className="bg-[#012038] text-white fixed w-full z-50 left-0">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">

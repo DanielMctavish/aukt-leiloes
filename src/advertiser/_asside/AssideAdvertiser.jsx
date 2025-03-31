@@ -87,17 +87,16 @@ function AssideAdvertiser(props) {
   }, [])
 
   return (
-
     <>
       <span onClick={() => setDesktopMenuVisible(!desktopMenuVisible)}
-        className={`fixed z-[9999] bg-[#fff] hover:bg-[#e4e4e4d4] hover:w-[60px] hover:h-[60px] top-1 left-1 cursor-pointer rounded-[12px] 
+        className={`fixed z-[99999] bg-[#fff] hover:bg-[#e4e4e4d4] hover:w-[60px] hover:h-[60px] top-1 left-1 cursor-pointer rounded-[12px] 
         ${desktopMenuVisible ? 'hidden w-[60px] h-[60px]' : 'flex w-[40px] h-[40px]'} transition-all duration-[.3s]
         justify-center items-center shadow-lg shadow-[#0b0b0b18]`}>
 
         <img src={logo_aukt_blue} alt="" className="w-[30px] h-[30px] object-cover" />
 
       </span>
-      <div className={`flex h-[100vh] fixed left-0 z-[999] lg:w-auto w-[100%] 
+      <div className={`flex h-[100vh] fixed left-0 z-[99999] lg:w-auto w-[100%] 
     transition-all duration-[1s] ${desktopMenuVisible ? 'ml-0' : 'ml-[-200px]'}`}>
 
 

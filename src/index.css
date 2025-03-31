@@ -1,118 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=Reenie+Beanie&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+/* Configurações básicas sem restrições excessivas */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-/* Estilos de Impressão */
-@media print {
-  html, body {
-    height: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
-    background: white !important;
-    color: black !important;
-    font-size: 12pt;
-  }
-
-  @page {
-    size: A4;
-    margin: 20mm;
-  }
-
-  /* Esconder elementos desnecessários */
-  .print-hidden,
-  nav,
-  aside,
-  header,
-  footer,
-  button {
-    display: none !important;
-  }
-
-  /* Garantir que o conteúdo seja visível */
-  #receipt-content {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    background: white !important;
-  }
-
-  /* Controle de quebra de página */
-  .print-break-inside-avoid {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .print-break-before {
-    break-before: page;
-    page-break-before: always;
-  }
-
-  .print-break-after {
-    break-after: page;
-    page-break-after: always;
-  }
+/* Regras para impedir scroll nas páginas */
+html {
+  overflow-x: hidden;
 }
 
-a {
-  text-decoration: inherit;
-}
-
-/* Hide the default scrollbar for Firefox */
 body {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-
-.custom-scrollbar,
-body {
-  scrollbar-width: thin;
-  scrollbar-color: #012038 #f0f0f0;
-}
-
-.custom-scrollbar::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb {
-  background-color: #012038;
-  width: 6px;
-  height: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background-color: #f0f0f0;
-}
-
-.slide-item-img {
+#root {
   width: 100%;
-  min-height: 360px;
-  object-fit: cover;
-  transition: 1s;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
-.roboto-condensed-advertiser{
+/* A classe .test-mode aplicará todas as restrições rígidas
+   somente quando adicionada ao elemento root */
+.test-mode {
+  overflow: hidden !important;
+  background-color: #AF3C3C !important;
+  background-image: linear-gradient(135deg, #AF3C3C 0%, #8B1A1A 100%) !important;
+  pointer-events: auto !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.test-mode * {
+  pointer-events: auto !important;
+}
+
+/* Garantindo que o cursor: pointer funcione sempre */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Fontes personalizadas */
+.roboto-condensed-advertiser {
   font-family: "Roboto Condensed", sans-serif;
   font-optical-sizing: auto;
 }
@@ -127,6 +69,4 @@ body::-webkit-scrollbar-thumb {
   font-family: "Reenie Beanie", cursive;
   font-weight: 400;
   font-style: normal;
-}
-
-
+} 

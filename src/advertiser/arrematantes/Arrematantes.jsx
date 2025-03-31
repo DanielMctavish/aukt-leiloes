@@ -299,7 +299,7 @@ function Arrematantes() {
                 <div className="flex-1 flex flex-col">
                     <NavAdvertiser path="Arrematantes" />
                     
-                    <main className="flex-1 p-4">
+                    <main className="flex-1 p-4 pt-[9vh]">
                         <div className="container mx-auto">
                             <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">

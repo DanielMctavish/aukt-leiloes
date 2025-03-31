@@ -17,7 +17,7 @@ function AuctFloor() {
     const [socketMessage, setSocketMessage] = useState();
     const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [connectedUsers, setConnectedUsers] = useState(0);
+    const [connectedUsers, setConnectedUsers] = useState(1); // Iniciar com 1 para contar o próprio usuário
     const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
 
@@ -91,18 +91,35 @@ function AuctFloor() {
 
         // Listen for connected users count
         socket.on('auction-room-users', (data) => {
-            if (data.auct_id === auct_id) {
-                // Atualizar o contador apenas se o número for diferente
-                if (data.count !== connectedUsers) {
+            console.log("Recebendo contagem de usuários:", data);
+            if (data && data.auct_id === auct_id) {
+                // Atualizar o contador apenas se o número for diferente e maior que zero
+                if (data.count !== connectedUsers && data.count > 0) {
                     setConnectedUsers(data.count);
                 }
             }
         });
 
+        // Adicionar listener para quando o próprio socket se conectar
+        socket.on('connect', () => {
+            console.log("Socket conectado, enviando solicitação de contagem...");
+            // Solicitar contagem atual após conectar
+            socket.emit('request-user-count', { auct_id });
+        });
+
+        // Listener para resposta personalizada de contagem
+        socket.on('user-count-update', (data) => {
+            console.log("Atualização de contagem recebida:", data);
+            if (data && data.auct_id === auct_id && data.count > 0) {
+                setConnectedUsers(data.count);
+            }
+        });
+
         // Adicionar listener para desconexão de usuários
         socket.on('user-disconnected', (data) => {
-            if (data.auct_id === auct_id) {
-                setConnectedUsers(prev => Math.max(0, prev - 1));
+            console.log("Usuário desconectado:", data);
+            if (data && data.auct_id === auct_id) {
+                setConnectedUsers(prev => Math.max(1, prev - 1)); // Nunca menor que 1
             }
         });
 
@@ -154,6 +171,8 @@ function AuctFloor() {
                 instance_id: instanceId,
                 client_type: "floor_viewer"
             });
+            // Solicitar contagem atual após reconexão
+            socket.emit('request-user-count', { auct_id });
         });
 
         // Cleanup function

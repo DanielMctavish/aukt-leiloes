@@ -31,16 +31,16 @@ export const AdvertiserAuctions = () => {
     }
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative overflow-hidden">
+        <div className="w-full h-screen flex justify-center items-center bg-[#F4F4F4] relative">
             <AssideAdvertiser MenuSelected="menu-3" />
-            <section className="w-full h-[100vh] text-zinc-600 flex flex-col justify-start items-center">
+            <section className="w-full h-screen text-zinc-600 flex flex-col justify-start items-center relative z-10 overflow-y-auto">
                 <NavAdvertiser path='anunciante > leilões' />
                 {/* PESQUISAS */}
                 <div className="w-[97%] flex justify-start p-3">
                     <input type="text" placeholder="pesquisar ID" 
                     className="p-2 bg-transparent rounded-md border-[1px] border-zinc-300" />
                 </div>
-                <section className="w-full h-[100vh] flex p-2 overflow-hidden">
+                <section className="w-full flex p-2 flex-1">
                     <div className="w-full bg-[#ffffff] flex justify-start items-start relative 
                     overflow-x-auto rounded-md shadow-lg shadow-[#1313135a] p-2">
                         <TableAdvertiserAucts onRowClick={handleNavigateToDetails} />

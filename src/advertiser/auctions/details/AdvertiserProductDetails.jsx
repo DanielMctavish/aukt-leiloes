@@ -212,7 +212,7 @@ function AdvertiserProductDetails() {
 
                 {showSelectClientModal && <SelectClientModal />}
 
-                <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div className="flex-1 p-4 md:p-8 overflow-y-auto mt-[6vh]">
                     {/* Header do Produto */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
                         <div>

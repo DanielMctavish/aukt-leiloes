@@ -35,19 +35,21 @@ function DisplayInformations() {
     }
 
     return (
-        <div ref={refMain} className="w-full h-[100%] bg-white rounded-lg p-4
+        <div ref={refMain} className="w-full h-[50vh] bg-blue-500 rounded-lg p-4
             hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
-            shadow-xl shadow-[#00000020] overflow-hidden">
+            shadow-xl shadow-[#00000020] overflow-hidden flex flex-col">
+
             <h2 className="font-bold text-xl flex items-center gap-2 mb-4">
                 <Description className="text-blue-600" />
-                Descrições e Informações
+                Descrições e Informações 
             </h2>
+            
             <textarea 
                 onChange={handleDispatchInformations} 
                 ref={refInformations}
                 placeholder="Digite aqui as informações detalhadas do leilão..."
-                className="w-full h-[calc(100%-3rem)] rounded-lg p-4 
-                bg-gray-50 text-gray-800 resize-none
+                className="w-full min-h-[90%] flex-1 rounded-lg p-4 
+                bg-gray-50 text-gray-800 
                 border border-gray-200 focus:border-blue-500
                 focus:ring-2 focus:ring-blue-500 outline-none
                 transition-all duration-300 ease-in-out

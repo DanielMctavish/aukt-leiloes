@@ -207,57 +207,81 @@ export const AdvertiserCreateAuct = () => {
     }
 
     return (
-        <div className="w-full h-[100vh] flex justify-center items-center bg-[#F4F4F4] relative">
-            <AssideAdvertiser MenuSelected="menu-2" />
+        <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#F4F4F4] overflow-hidden">
+            <div className="fixed inset-0 z-[9999]">
+                <AssideAdvertiser MenuSelected="menu-2" />
+            </div>
 
-            <section ref={loadScreen} className="w-full h-[100vh] hidden flex-col justify-center items-center overflow-y-auto bg-zinc-800 gap-1 text-white">
-                <h1>criando leilão! aguarde... </h1>
-                <img ref={logoElement} src={logo} alt="logo-aukt" className="w-[100px] object-cover" />
+            <NavAdvertiser path='anunciante > criar leilão' />
 
-                <section className="w-[70%] h-[10px] relative mt-7 overflow-hidden rounded-md">
-                    <span className="w-full h-[10px] bg-white rounded-md absolute"></span>
-                    <span style={{ width: `${progressBar}%` }} className="h-[10px] bg-[#1c6891] absolute"></span>
-                </section>
-            </section>
+            <div className="w-full max-w-[1400px] mx-auto mt-[6vh] px-4 sm:px-6 lg:px-8 h-[90vh] overflow-y-auto">
+                <section ref={loadScreen} className="w-full h-full hidden flex-col justify-center items-center bg-zinc-800 gap-1 text-white">
+                    <h1>criando leilão! aguarde... </h1>
+                    <img ref={logoElement} src={logo} alt="logo-aukt" className="w-[100px] object-cover" />
 
-            <section ref={refGeneralBody} className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto text-zinc-600 gap-1 relative">
-                <NavAdvertiser path='anunciante > criar leilão' />
-
-                <span ref={refErroSpanElement}
-                    className="w-[80%] hidden justify-center items-center p-2 bg-red-600/80 z-[99] absolute top-2 rounded-md text-white">
-                    erro detectado!
-                </span>
-
-                <section className="w-full min-h-[60%] relative p-3 flex gap-2">
-                    <DisplayCreateEvent />
-                    <DisplayTableProducts />
+                    <section className="w-[70%] h-[10px] relative mt-7 overflow-hidden rounded-md">
+                        <span className="w-full h-[10px] bg-white rounded-md absolute"></span>
+                        <span style={{ width: `${progressBar}%` }} className="h-[10px] bg-[#1c6891] absolute"></span>
+                    </section>
                 </section>
 
-                <section className="w-full min-h-[40vh] p-3 flex gap-2">
-                    <DisplayProductsCsv />
-                    <DisplayInformations />
-                    <DisplayLocalHour />
-                </section>
+                <section ref={refGeneralBody} className="w-full flex flex-col justify-start items-center text-zinc-600 gap-4 relative z-[9999] py-4">
+                    <span ref={refErroSpanElement}
+                        className="w-[80%] hidden justify-center items-center p-2 bg-red-600/80 z-[99] absolute top-2 rounded-md text-white">
+                        erro detectado!
+                    </span>
 
-                <section className="w-full min-h-[40vh] p-3 flex gap-2">
-                    <DisplayTermsConditions />
-                </section>
+                    {/* Seção Principal - Evento e Tabela */}
+                    <section className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="w-full bg-white rounded-xl shadow-sm p-4">
+                            <DisplayCreateEvent />
+                        </div>
+                        <div className="w-full bg-white rounded-xl shadow-sm p-4">
+                            <DisplayTableProducts />
+                        </div>
+                    </section>
 
-                <section className="w-full min-h-[20vh] justify-between items-center gap-3 p-3 flex">
-                    <DisplayMethodsPayments />
-                    <DisplayLimitations />
-                    <DisplayDateLimite />
-                </section>
-            </section>
+                    {/* Seção de Produtos e Local/Hora */}
+                    <section className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="w-full bg-white rounded-xl shadow-sm p-4">
+                            <DisplayProductsCsv />
+                        </div>
+                        <div className="w-full bg-white rounded-xl shadow-sm p-4">
+                            <DisplayLocalHour />
+                        </div>
+                    </section>
 
-            <section className="fixed bottom-2 z-[999] flex gap-4 justify-center w-full">
+                    {/* Seção de Descrições e Informações */}
+                    <section className="w-full">
+                        <div className="w-full min-h-[48vh] bg-[#ffffff] rounded-xl shadow-sm p-4">
+                            <DisplayInformations />
+                        </div>
+                    </section>
+
+                    {/* Seção de Termos e Condições */}
+                    <section className="w-full">
+                        <div className="w-full min-h-[48vh] bg-white rounded-xl shadow-sm p-4">
+                            <DisplayTermsConditions />
+                        </div>
+                    </section>
+
+                    {/* Seção de Métodos de Pagamento */}
+                    <section className="w-full">
+                        <div className="w-full bg-white/80 backdrop-blur-sm rounded-xl shadow-sm p-4">
+                            <DisplayMethodsPayments />
+                        </div>
+                    </section>
+                </section>
+            </div>
+
+            <section className="fixed bottom-4 z-[9999] flex gap-4 justify-center w-full">
                 {!errorDetector ?
                     !isLoading ?
                         <button onClick={handleSaveAuct} 
-                            className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47]">
+                            className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-[#023161] transition-colors">
                             confirmar
                         </button> :
-                        <span>criando...</span>
+                        <span className="bg-white/90 backdrop-blur-sm px-6 py-3 rounded-md shadow-lg">criando...</span>
                     :
                     <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">
                         confirmar

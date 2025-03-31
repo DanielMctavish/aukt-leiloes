@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useDispatch, useSelector } from "react-redux";
@@ -33,9 +34,9 @@ function DisplayTermsConditions({ currentAuct }) {
     }
 
     return (
-        <div ref={refMain} className="w-full h-[100%] bg-white rounded-lg p-4
+        <div ref={refMain} className="w-full h-[50vh] bg-white rounded-lg p-4
             hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
-            shadow-xl shadow-[#00000020] overflow-hidden">
+            shadow-xl shadow-[#00000020] overflow-hidden flex flex-col">
             <h2 className="font-bold text-xl flex items-center gap-2 mb-4">
                 <Gavel className="text-blue-600" />
                 Termos e Condições
@@ -44,7 +45,7 @@ function DisplayTermsConditions({ currentAuct }) {
                 ref={refTermsConditions} 
                 onChange={handleDispatchTermsConditions}
                 placeholder="Digite aqui os termos e condições do leilão..."
-                className="w-full h-[calc(100%-3rem)] rounded-lg p-4 
+                className="w-full flex-1 rounded-lg p-4 
                 bg-gray-50 text-gray-800 resize-none
                 border border-gray-200 focus:border-blue-500
                 focus:ring-2 focus:ring-blue-500 outline-none

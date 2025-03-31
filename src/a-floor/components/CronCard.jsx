@@ -19,10 +19,21 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     const refBarDeadline = useRef();
     const dispatch = useDispatch();
     const [auctioneerCall, setAuctioneerCall] = useState('');
+    const [hasWinner, setHasWinner] = useState(false);
 
     useEffect(() => {
         getClientSession();
     }, []);
+
+    // Verificar se há vencedor
+    useEffect(() => {
+        // Se há value (valor) do produto e o leilão está finalizado, consideramos que há um vencedor
+        if ((real_value || initial_value) && isAuctionFinished) {
+            setHasWinner(true);
+        } else {
+            setHasWinner(false);
+        }
+    }, [real_value, initial_value, isAuctionFinished]);
 
     // Efeito para verificar se o valor de reserva foi atingido
     useEffect(() => {
@@ -50,37 +61,40 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
         } else if (newDeadline <= 1 && newDeadline > 0) {
             setAuctioneerCall('E...');
         } else if (newDeadline <= 0) {
-            setAuctioneerCall('VENDIDO!');
+            // Mostrar "VENDIDO!" apenas se houver um vencedor
+            if (real_value) {
+                setAuctioneerCall('VENDIDO!');
+            } else {
+                setAuctioneerCall('Tempo esgotado!');
+            }
         } else {
             setAuctioneerCall('');
         }
 
         if (newDeadline <= 10) {
-            // Suavizar a transição ao longo de 10 segundos
-            refBarDeadline.current.style.transition = "width 10s linear";
-            refBarDeadline.current.style.width = `100%`; // A barra vai de 0% até 100% em 10 segundos
-
-            // Alterar a cor da barra dinamicamente com base no tempo restante
-            const interval = setInterval(() => {
-                const updatedDeadline = duration - currentTime;
-                if (updatedDeadline <= 0) {
-                    clearInterval(interval);
-                    refBarDeadline.current.style.width = `100%`; // Finalizar a barra cheia
-                } else {
-                    // Alterar a cor da barra gradualmente
-                    const color = updatedDeadline <= 5 ? "#b70900" : "#ff9800";
-                    refBarDeadline.current.style.transition = "4s";
-                    refBarDeadline.current.style.background = color;
-                }
-            }, 1000); // A cor vai mudando a cada segundo, mas a animação da largura é contínua
-
-            return () => clearInterval(interval); // Limpar intervalo ao desmontar
+            // Atualizar a barra com estilo mais limpo e nítido
+            const barWidth = Math.max(0, Math.min(100, 100 - ((newDeadline / 10) * 100)));
+            
+            // Usar classes em vez de inline styles para uma renderização mais eficiente
+            refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
+            
+            // Aplicar classes baseadas no tempo restante
+            if (newDeadline <= 3) {
+                refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
+            } else if (newDeadline <= 6) {
+                refBarDeadline.current.classList.add('progress-orange');
+            } else {
+                refBarDeadline.current.classList.add('progress-yellow');
+            }
+            
+            // Aplicar a largura com precisão
+            refBarDeadline.current.style.width = `${barWidth}%`;
         } else {
-            refBarDeadline.current.style.transition = "none"; // Remover transição
-            refBarDeadline.current.style.width = `1%`; // Começar em 1%
-            refBarDeadline.current.style.background = "#ff9800"; // Cor inicial laranja
+            // Resetar a barra para o estado inicial
+            refBarDeadline.current.classList.remove('progress-red', 'progress-orange', 'progress-yellow', 'pulse-animation');
+            refBarDeadline.current.style.width = "0%";
         }
-    }, [currentTime, duration]);
+    }, [currentTime, duration, real_value]);
 
 
 
@@ -194,8 +208,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                 bidPayload,
                 {
                     headers: {
-                        'Authorization': `Bearer ${currentSession.token}`
-                    }
+                        'Authorization': `Bearer ${currentSession.token}`                    }
                 }
             );
 
@@ -232,6 +245,52 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
 
     return (
         <div className="w-full gap-4 flex flex-col justify-start items-center">
+            {/* Estilos para animações e barras de progresso */}
+            <style>
+                {`
+                @keyframes pulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.8; }
+                    100% { opacity: 1; }
+                }
+                
+                .pulse-animation {
+                    animation: pulse 0.7s infinite;
+                }
+                
+                /* Estilos nítidos para as barras de progresso */
+                .progress-bar {
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    transition: width 1s linear;
+                    border-top-right-radius: 5px;
+                    border-bottom-right-radius: 5px;
+                }
+                
+                .progress-green {
+                    background-color: #4CAF50;
+                    box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+                }
+                
+                .progress-yellow {
+                    background-color: #FFC107;
+                    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+                }
+                
+                .progress-orange {
+                    background-color: #FF9800;
+                    box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+                }
+                
+                .progress-red {
+                    background-color: #F44336;
+                    box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+                }
+                `}
+            </style>
+            
             <div className="w-full h-[70px] flex justify-between p-4 
                 bg-white/95 backdrop-blur-md shadow-lg rounded-xl 
                 items-center relative overflow-hidden border border-gray-100">
@@ -240,8 +299,8 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                     <>
                         <div 
                             ref={refBarDeadline} 
-                            className="h-full absolute left-0 top-0 bg-gradient-to-r from-orange-500 to-orange-400 
-                                transition-all duration-[1.8s] opacity-90"
+                            className="progress-bar"
+                            style={{ width: '0%' }}
                         />
 
                         {/* Mensagem de valor de reserva atingido */}
@@ -253,18 +312,26 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                         )}
 
                         {auctioneerCall ? (
-                            // Mensagem do Leiloeiro em tela cheia
+                            // Mensagem do Leiloeiro em tela cheia - design mais moderno
                             <div className="absolute inset-0 flex items-center justify-center z-20 
-                                bg-black/20 backdrop-blur-sm">
-                                <span className={`text-4xl font-bold tracking-wider
+                                bg-black/30 backdrop-blur-[2px]">
+                                <div className={`
                                     ${auctioneerCall === 'VENDIDO!' 
-                                        ? 'text-green-500 animate-bounce' 
-                                        : 'text-white animate-pulse'
+                                        ? 'bg-green-500/90' 
+                                        : auctioneerCall === 'Tempo esgotado!' 
+                                            ? 'bg-red-500/90'
+                                            : 'bg-blue-500/90'
                                     }
-                                    transition-all duration-300 text-center
-                                    drop-shadow-lg`}>
-                                    {auctioneerCall}
-                                </span>
+                                    px-6 py-3 rounded-lg shadow-lg transform
+                                    ${auctioneerCall === 'VENDIDO!' 
+                                        ? 'animate-bounce' 
+                                        : 'animate-pulse'
+                                    }
+                                `}>
+                                    <span className="text-3xl font-bold tracking-wider text-white drop-shadow-md">
+                                        {auctioneerCall}
+                                    </span>
+                                </div>
                             </div>
                         ) : (
                             // Conteúdo normal
@@ -291,7 +358,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                     <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 
                         flex justify-center items-center">
                         <span className="font-bold text-2xl text-white tracking-wider">
-                            {auctioneerCall || 'Lote Finalizado!'}
+                            {hasWinner ? 'VENDIDO!' : 'Lote Finalizado!'}
                         </span>
                     </div>
                 )}
