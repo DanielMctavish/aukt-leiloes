@@ -196,19 +196,18 @@ function TableAdvertiserAucts({ onRowClick }) {
   };
 
   return (
-    <section className="w-full flex flex-col justify-start items-center absolute">
+    <section className="w-full flex flex-col justify-start items-center min-h-[600px]">
       {/* Cabeçalho da Tabela */}
-      <div className="w-[98%] bg-white rounded-t-lg shadow-md">
-        <div className="grid grid-cols-12 gap-4 p-4 text-sm font-semibold text-gray-600 border-b">
+      <div className="w-full bg-white rounded-t-lg shadow-md overflow-x-auto">
+        <div className="grid grid-cols-12 gap-6 p-4 text-sm font-semibold text-gray-600 border-b min-w-[1000px]">
           <div className="col-span-1">#</div>
-          <div className="col-span-2">Título</div>
+          <div className="col-span-3">Título</div>
           <div className="col-span-1">ID</div>
-          <div className="col-span-2">Email</div>
           <div className="col-span-1">Data</div>
           <div className="col-span-1">Produtos</div>
           <div className="col-span-2">Valor Real</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-1">Ações</div>
+          <div className="col-span-1 text-center">Status</div>
+          <div className="col-span-2 text-center">Ações</div>
         </div>
 
         {/* Linhas da Tabela */}
@@ -220,12 +219,11 @@ function TableAdvertiserAucts({ onRowClick }) {
               <div
                 key={auction.id}
                 onClick={() => handleClick(auction.advertiser_id, auction.id, productsValueList[index], auction.value)}
-                className="grid grid-cols-12 gap-4 p-4 hover:bg-blue-50 cursor-pointer transition-colors items-center text-sm"
+                className="grid grid-cols-12 gap-6 p-4 hover:bg-blue-50 cursor-pointer transition-colors items-center text-sm min-w-[1000px]"
               >
                 <div className="col-span-1 text-gray-600">{indexOfFirstItem + index + 1}</div>
-                <div className="col-span-2 truncate font-medium">{auction.title}</div>
+                <div className="col-span-3 truncate font-medium">{auction.title}</div>
                 <div className="col-span-1 font-mono text-gray-600">{auction.nano_id}</div>
-                <div className="col-span-2 truncate">{auction.Advertiser.email}</div>
                 <div className="col-span-1">{dayjs(auction.created_at).format("DD/MM HH:mm")}</div>
                 <div className="col-span-1 text-center">{auction.product_list.length}</div>
 
@@ -248,24 +246,24 @@ function TableAdvertiserAucts({ onRowClick }) {
                 </div>
 
                 {/* Status com Ícones */}
-                <div className="col-span-1">
-                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium 
+                <div className="col-span-1 flex justify-center">
+                  <span className={`inline-flex items-center px-2 py-1.5 rounded-full text-xs font-medium 
                     ${getStatusColor(auction.status)}`}
                   >
                     {getStatusIcon(auction.status)}
-                    <span className="mr-2">{auction.status}</span>
+                    <span className="truncate">{auction.status}</span>
 
                     {/* Indicadores de Data Compactos */}
-                    <div className="flex -space-x-0.5">
+                    <div className="flex -space-x-0.5 ml-1">
                       {auction?.auct_dates.map((date, index) => (
                         <div key={index}
-                          className="w-4 h-4 rounded-full flex items-center justify-center"
+                          className="w-3 h-3 rounded-full flex items-center justify-center"
                           title={`Grupo ${index + 1}: ${date.group_status === "finished" ? "Finalizado" : "Pendente"}`}
                         >
                           {date.group_status === "finished" ? (
-                            <div className="w-3 h-3 rounded-full bg-green-500" />
+                            <div className="w-2 h-2 rounded-full bg-green-500" />
                           ) : (
-                            <div className="w-3 h-3 rounded-full border-[1px] border-gray-100" />
+                            <div className="w-2 h-2 rounded-full border-[1px] border-gray-100" />
                           )}
                         </div>
                       ))}
@@ -274,7 +272,7 @@ function TableAdvertiserAucts({ onRowClick }) {
                 </div>
 
                 {/* Ações */}
-                <div className="col-span-1">
+                <div className="col-span-2 flex justify-center">
                   {auction.public ? (
                     <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-md text-xs 
                       font-medium flex items-center gap-1 whitespace-nowrap">
@@ -318,7 +316,7 @@ function TableAdvertiserAucts({ onRowClick }) {
       </div>
 
       {/* Paginação */}
-      <div className="w-full flex justify-center mt-4">
+      <div className="w-full flex justify-center mt-6 mb-4">
         <PaginationAdvertiser
           currentPage={currentPage}
           totalPages={Math.ceil(auctList.length / itemsPerPage)}

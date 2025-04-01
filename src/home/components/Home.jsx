@@ -35,17 +35,16 @@ function Home() {
   }, []);
 
   return (
-    <div
-      className="App flex flex-col justify-start p-0 items-center w-full h-full bg-[#FFFFFF] 
-      overflow-x-hidden relative text-white">
-
+    <div className="App flex flex-col justify-start p-0 items-center w-full h-full bg-[#FFFFFF] overflow-x-hidden relative text-white">
       <NavigationComponent />
-
-      <Section01 />
-      <Section01_1 />
-      <Section02 />
-      <Section03 />
-      <Footer />
+      
+      <main className="w-full flex flex-col items-center">
+        <Section01 />
+        <Section01_1 />
+        <Section02 />
+        <Section03 />
+        <Footer />
+      </main>
     </div>
   );
 }

@@ -47,10 +47,8 @@ function Section02() {
   }
 
   return (
-    <section className="bg-transparent min-h-screen w-[80%]
-    flex flex-col justify-between items-center overflow-x-hidden 
-    overflow-y-hidden py-12 sm:py-20">
-        <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-[200px] w-full max-w-[1400px]">
+    <section className="bg-transparent min-h-screen w-full flex flex-col justify-between items-center overflow-x-hidden overflow-y-hidden py-12 sm:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1480px]">
             {/* Seção de Vídeo e Features */}
             <div className="w-full flex flex-col lg:flex-row items-center justify-between
             gap-8 lg:gap-12 mb-8 lg:mb-16">

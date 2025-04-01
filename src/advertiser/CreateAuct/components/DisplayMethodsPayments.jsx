@@ -39,7 +39,7 @@ function DisplayMethodsPayments() {
 
     return (
         <div ref={refMain} className="w-full sm:w-1/3 h-full bg-white rounded-lg p-6
-            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out overflow-y-auto
+            hover:scale-[1.02] transition-all duration-300 ease-in-out overflow-y-auto
             shadow-xl shadow-[#00000020] flex flex-col justify-start gap-6">
             <h2 className="font-bold text-xl flex items-center gap-2">
                 <Payments className="text-[#012038]" />

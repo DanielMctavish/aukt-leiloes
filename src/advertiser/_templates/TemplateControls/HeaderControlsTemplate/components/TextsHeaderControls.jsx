@@ -97,7 +97,7 @@ function TextsHeaderControls({ setIsModalSelector }) {
 
     return (
         <div className="fixed inset-0 bg-[#0D2B44]/80 backdrop-blur-[4px] 
-            flex items-center justify-center z-[999]">
+            flex items-center justify-center">
             <div className="w-[85%] h-[85%] bg-white rounded-2xl shadow-xl 
                 flex justify-between items-start relative p-8 overflow-hidden gap-6">
                 

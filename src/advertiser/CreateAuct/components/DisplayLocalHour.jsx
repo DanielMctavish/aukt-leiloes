@@ -71,7 +71,7 @@ function DisplayLocalHour() {
 
     return (
         <div ref={refMain} className="min-w-[30%] h-[100%] bg-white rounded-lg p-6
-            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            hover:scale-[1.02] transition-all duration-300 ease-in-out
             shadow-xl shadow-[#00000020] flex flex-col justify-start gap-6">
             <h2 className="font-bold text-xl flex items-center gap-2">
                 <Schedule className="text-[#012038]" />

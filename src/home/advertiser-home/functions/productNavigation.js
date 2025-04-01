@@ -1,9 +1,8 @@
 import axios from 'axios';
 
-export const handleNextProduct = async (currentAuct, currentProduct, setCurrentProduct, setBidInformations, navigate, showMessage) => {
-    if (!currentAuct || !currentAuct.id || !currentProduct || !currentProduct.id) {
+export const handleNextProduct = async (productId, currentAuct, setCurrentProduct, navigate) => {
+    if (!currentAuct || !currentAuct.id || !productId) {
         console.error("Dados insuficientes para navegação");
-        showMessage && showMessage("Não foi possível navegar para o próximo lote", "error");
         return;
     }
 
@@ -15,8 +14,6 @@ export const handleNextProduct = async (currentAuct, currentProduct, setCurrentP
             }
         });
 
-        console.log("response on next product", response.data)
-
         // Garantir que temos um array de produtos
         let products = [];
         if (response.data) {
@@ -26,22 +23,28 @@ export const handleNextProduct = async (currentAuct, currentProduct, setCurrentP
 
         // Filtrar produtos inválidos e ordenar por número do lote
         const sortedProducts = products
-            .filter(p => p && p.id && (typeof p.lote === 'number' || !isNaN(Number(p.lote))))
-            .map(p => ({...p, lote: Number(p.lote)})) // Converter lote para número
-            .sort((a, b) => a.lote - b.lote);
+            .filter(p => p && p.id)
+            .sort((a, b) => {
+                // Se tiverem lote, ordenar por lote
+                if (a.lote && b.lote) {
+                    const aLote = typeof a.lote === 'number' ? a.lote : Number(a.lote);
+                    const bLote = typeof b.lote === 'number' ? b.lote : Number(b.lote);
+                    return aLote - bLote;
+                }
+                // Caso contrário, ordenar por ID
+                return a.id.localeCompare(b.id);
+            });
 
         if (sortedProducts.length === 0) {
             console.error("Nenhum produto encontrado no leilão");
-            showMessage && showMessage("Não foram encontrados produtos para navegar", "error");
             return;
         }
 
         // Encontrar índice do produto atual
-        const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
+        const currentIndex = sortedProducts.findIndex(p => p.id === productId);
         
         if (currentIndex === -1) {
             console.error("Produto atual não encontrado na lista");
-            showMessage && showMessage("Produto atual não encontrado", "error");
             return;
         }
 
@@ -56,27 +59,24 @@ export const handleNextProduct = async (currentAuct, currentProduct, setCurrentP
                 );
 
                 if (updatedProductResponse.data) {
+                    // Atualizar o estado e navegar
                     setCurrentProduct(updatedProductResponse.data);
-                    setBidInformations(updatedProductResponse.data.Bid || []);
-                    navigate(`/advertiser/home/product/${updatedProductResponse.data.id}`);
+                    navigate(`/advertiser/home/product/${nextProduct.id}`);
                 }
             } catch (error) {
                 console.error("Erro ao buscar detalhes do próximo produto:", error);
-                showMessage && showMessage("Erro ao carregar próximo produto", "error");
             }
         } else {
-            showMessage && showMessage("Este é o último lote", "info");
+            console.log("Este é o último produto");
         }
     } catch (error) {
         console.error("Erro ao navegar para o próximo produto:", error);
-        showMessage && showMessage("Erro ao navegar entre produtos", "error");
     }
 };
 
-export const handlePrevProduct = async (currentAuct, currentProduct, setCurrentProduct, setBidInformations, navigate, showMessage) => {
-    if (!currentAuct || !currentAuct.id || !currentProduct || !currentProduct.id) {
+export const handlePrevProduct = async (productId, currentAuct, setCurrentProduct, navigate) => {
+    if (!currentAuct || !currentAuct.id || !productId) {
         console.error("Dados insuficientes para navegação");
-        showMessage && showMessage("Não foi possível navegar para o lote anterior", "error");
         return;
     }
 
@@ -97,22 +97,28 @@ export const handlePrevProduct = async (currentAuct, currentProduct, setCurrentP
 
         // Filtrar produtos inválidos e ordenar por número do lote
         const sortedProducts = products
-            .filter(p => p && p.id && (typeof p.lote === 'number' || !isNaN(Number(p.lote))))
-            .map(p => ({...p, lote: Number(p.lote)})) // Converter lote para número
-            .sort((a, b) => a.lote - b.lote);
+            .filter(p => p && p.id)
+            .sort((a, b) => {
+                // Se tiverem lote, ordenar por lote
+                if (a.lote && b.lote) {
+                    const aLote = typeof a.lote === 'number' ? a.lote : Number(a.lote);
+                    const bLote = typeof b.lote === 'number' ? b.lote : Number(b.lote);
+                    return aLote - bLote;
+                }
+                // Caso contrário, ordenar por ID
+                return a.id.localeCompare(b.id);
+            });
 
         if (sortedProducts.length === 0) {
             console.error("Nenhum produto encontrado no leilão");
-            showMessage && showMessage("Não foram encontrados produtos para navegar", "error");
             return;
         }
 
         // Encontrar índice do produto atual
-        const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
+        const currentIndex = sortedProducts.findIndex(p => p.id === productId);
         
         if (currentIndex === -1) {
             console.error("Produto atual não encontrado na lista");
-            showMessage && showMessage("Produto atual não encontrado", "error");
             return;
         }
 
@@ -127,19 +133,17 @@ export const handlePrevProduct = async (currentAuct, currentProduct, setCurrentP
                 );
 
                 if (updatedProductResponse.data) {
+                    // Atualizar o estado e navegar
                     setCurrentProduct(updatedProductResponse.data);
-                    setBidInformations(updatedProductResponse.data.Bid || []);
-                    navigate(`/advertiser/home/product/${updatedProductResponse.data.id}`);
+                    navigate(`/advertiser/home/product/${prevProduct.id}`);
                 }
             } catch (error) {
                 console.error("Erro ao buscar detalhes do produto anterior:", error);
-                showMessage && showMessage("Erro ao carregar produto anterior", "error");
             }
         } else {
-            showMessage && showMessage("Este é o primeiro lote", "info");
+            console.log("Este é o primeiro produto");
         }
     } catch (error) {
         console.error("Erro ao navegar para o produto anterior:", error);
-        showMessage && showMessage("Erro ao navegar entre produtos", "error");
     }
 }; 

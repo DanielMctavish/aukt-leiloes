@@ -152,7 +152,7 @@ function HeaderTemplate() {
             {/* Background com verificação adicional de opacidade */}
             {headerData.backgroundImage && (
                 <div 
-                    className="absolute inset-0 w-full h-full bg-red-300 z-[99]"
+                    className="absolute inset-0 w-full h-full bg-red-300"
                     style={getBackgroundStyle()}
                 />
             )}

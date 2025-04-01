@@ -19,7 +19,7 @@ function ClientBidDetailsController({ bid, onClose }) {
     }, [bid]);
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[99]">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <div className="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#012038] text-white p-6 relative">

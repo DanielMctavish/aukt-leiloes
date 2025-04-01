@@ -102,7 +102,7 @@ function AdvertiserLogin() {
     }
 
     const WarningModal = () => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-[9999]">
             <div className="bg-white p-8 rounded-lg max-w-2xl w-full">
                 <h2 className="text-2xl font-bold text-red-600 mb-4">Advertência</h2>
                 <p className="text-lg mb-4 text-gray-800">
@@ -183,13 +183,13 @@ function AdvertiserLogin() {
     return (
         <div className="text-white w-full h-[100vh] bg-[#F4F4F4] flex flex-col justify-center items-center gap-3 relative">
             <img src={backgroundSocial} alt="" 
-                className="absolute w-full h-full object-cover opacity-30 saturate-0" />
+                className="absolute w-full h-full object-cover opacity-30 saturate-0 pointer-events-none" />
 
             {showWarningModal && <WarningModal />}
 
             {messageDisplay && (
                 <div className={`
-                    fixed top-4 left-1/2 transform -translate-x-1/2 z-50
+                    fixed top-4 left-1/2 transform -translate-x-1/2 z-[9990]
                     px-6 py-3 rounded-lg shadow-lg
                     ${messageType === 'error' ? 'bg-red-500' : 'bg-green-500'}
                     transition-all duration-300 ease-in-out
@@ -208,16 +208,16 @@ function AdvertiserLogin() {
                 </div>
             )}
 
-            <section className="w-[80%] h-[90vh] flex bg-[#012038cd] backdrop-blur-sm rounded-[4px] relative overflow-hidden shadow-2xl">
+            <section className="w-[80%] h-[90vh] flex bg-[#012038cd] backdrop-blur-sm rounded-[4px] relative overflow-hidden shadow-2xl z-[10]">
 
-                <div className="flex flex-col w-[50%] h-[100%] bg-white text-zinc-600 justify-center items-center gap-4">
+                <div className="flex flex-col w-[50%] h-[100%] bg-white text-zinc-600 justify-center items-center gap-4 relative z-[20]">
                     <span>Bem vindo! Que bom que deu tudo certo.</span>
                     <span className="text-[33px] font-bold">Prepare-se para criar seus leilões</span>
                     <img src={auctLogo} alt="" className="w-[300px] object-cover cursor-pointer hover:brightness-[1.1]" 
-                    onClick={() => navigate("/")}/>
+                        onClick={() => navigate("/")}/>
                 </div>
 
-                <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative">
+                <div className="w-[50%] h-[100%] flex flex-col justify-center items-center gap-6 relative z-[20]">
                     <h1 className="text-left font-bold text-[33px] w-[300px]">BEM VINDO!</h1>
 
                     <div className="flex flex-col justify-start items-start">
@@ -236,15 +236,30 @@ function AdvertiserLogin() {
                             className="w-[300px] h-[41px] p-2 border-[1px] border-white bg-transparent rounded-md" />
                     </div>
 
-                    <button onClick={handeAdvertiserLogin} className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038]">entrar</button>
-                    <button onClick={() => navigate("/advertiser/register/x1x2x3x4x5")} className="w-[300px] h-[41px] p-2 bg-[#012038] rounded-md text-[#e3eff7]">registrar</button>
+                    <button 
+                        onClick={handeAdvertiserLogin} 
+                        className="w-[300px] h-[41px] p-2 bg-white rounded-md text-[#012038] hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
+                    >
+                        entrar
+                    </button>
+                    
+                    <button 
+                        onClick={() => navigate("/advertiser/register/x1x2x3x4x5")} 
+                        className="w-[300px] h-[41px] p-2 bg-[#012038] rounded-md text-[#e3eff7] hover:bg-[#013056] active:bg-[#01243e] transition-colors cursor-pointer"
+                    >
+                        registrar
+                    </button>
                 </div>
             </section>
 
-            <AdvertiserLoginFooterModal 
-                isVisible={showFooterModal} 
-                onClose={() => setShowFooterModal(false)} 
-            />
+            {showFooterModal && (
+                <div className="fixed inset-0 z-[10000] pointer-events-auto">
+                    <AdvertiserLoginFooterModal 
+                        isVisible={showFooterModal} 
+                        onClose={() => setShowFooterModal(false)} 
+                    />
+                </div>
+            )}
         </div>
     )
 }

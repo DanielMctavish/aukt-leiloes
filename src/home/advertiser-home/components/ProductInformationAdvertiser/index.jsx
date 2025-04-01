@@ -14,10 +14,11 @@ import BidsList from "./BidsList";
 
 // Funções
 import { handleNextProduct, handlePrevProduct } from '../../functions/productNavigation';
-import { handleBidproduct } from '../../functions/handleBidproduct';
 import useProductSession from "./hooks/useProductSession";
 import useBidding from "./hooks/useBidding";
 import useNotifications from "./hooks/useNotifications";
+import handleBidConfirm from "./functions/handleBidConfirm";
+import fetchAndUpdateProduct from "./functions/fetchAndUpdateProduct";
 
 function ProductInformation({ children, ...props }) {
     const navigate = useNavigate();
@@ -74,25 +75,6 @@ function ProductInformation({ children, ...props }) {
         }).format(value);
     };
 
-    // Função para buscar informações atualizadas do produto
-    const fetchUpdatedProduct = async () => {
-        try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${props.currentProduct.id}`
-            );
-            
-            if (response.data) {
-                // Atualizar o produto no estado
-                props.setCurrentProduct(response.data);
-                
-                // Atualizar o valor do lance sugerido
-                const nextBidValue = calculateNextBidValue(response.data);
-                setBidValue(nextBidValue);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar produto atualizado:', error);
-        }
-    };
 
     // Efeito para verificar se o cliente tem lance automático para este produto
     const checkAutoBid = useCallback(async () => {
@@ -120,168 +102,7 @@ function ProductInformation({ children, ...props }) {
         }
     }, [props.currentProduct?.id, props.currentClient?.id, currentSession?.id, setHasAutoBid, setIsAutoBidEnabled]);
 
-    // Função para lidar com notificações de lance superado
-    const handleOutbidNotification = useCallback((shouldShow, lastBid = null, message = null) => {
-        // Limpar qualquer timeout existente
-        if (notificationTimeoutRef.current) {
-            clearTimeout(notificationTimeoutRef.current);
-            notificationTimeoutRef.current = null;
-        }
-        
-        // Se não devemos mostrar a notificação ou já estamos mostrando para o mesmo lance, sair
-        if (!shouldShow || (lastNotifiedBidRef.current && lastBid && lastNotifiedBidRef.current === lastBid.id)) {
-            return;
-        }
-        
-        // Armazenar o ID do lance para evitar notificações duplicadas
-        if (lastBid) {
-            lastNotifiedBidRef.current = lastBid.id;
-        }
-        
-        // Atualizar o cliente do último lance
-        if (lastBid?.Client) {
-            setLastBidClient(lastBid.Client);
-        }
-        
-        // Mostrar a notificação
-        setShowOutbidNotification(true);
-        
-        // Mostrar mensagem se fornecida
-        if (message) {
-            showMessage(message, "warning");
-        }
-        
-        // Reproduzir som de alerta se disponível
-        try {
-            const audio = new Audio('/sounds/outbid.mp3');
-            audio.play();
-        } catch (error) {
-            console.log('Som de notificação não disponível');
-        }
-        
-        // Configurar o timeout para esconder a notificação
-        notificationTimeoutRef.current = setTimeout(() => {
-            setShowOutbidNotification(false);
-            notificationTimeoutRef.current = null;
-        }, 15000);
-    }, [showMessage, setShowOutbidNotification, setLastBidClient]);
-
-    // Função para buscar e atualizar o produto completo após um novo lance
-    const fetchAndUpdateProduct = async (productId) => {
-        try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${productId}`
-            );
-            
-            if (response.data) {
-                // console.log('Produto atualizado após evento de lance:', response.data);
-                
-                // Verificar se o usuário foi superado
-                const clientId = props.currentClient?.id || currentSession?.id;
-                
-                // Se temos um usuário logado, produto teve lance e o último lance não é do usuário atual
-                if (clientId && response.data.Bid && response.data.Bid.length > 0) {
-                    const lastBid = response.data.Bid[0]; // Último lance
-                    
-                    // Guardar o último cliente que deu lance
-                    setLastBidClient(lastBid.Client || null);
-                    
-                    // Verificar se o usuário tinha o último lance anteriormente
-                    const hadLastBid = props.currentProduct.Bid && 
-                                      props.currentProduct.Bid.length > 0 && 
-                                      props.currentProduct.Bid[0].client_id === clientId;
-                    
-                    // Se o usuário tinha o último lance e agora não tem mais, ele foi superado
-                    if (hadLastBid && lastBid.client_id !== clientId) {
-                        // Mostrar notificação quando o lance do usuário for superado
-                        handleOutbidNotification(true, lastBid);
-                    }
-                }
-                
-                // Atualizar o produto no estado
-                props.setCurrentProduct(response.data);
-                
-                // Atualizar o valor do lance sugerido
-                const nextBidValue = calculateNextBidValue(response.data);
-                setBidValue(nextBidValue);
-                
-                // Disparar evento personalizado para notificar outros componentes
-                const event = new CustomEvent('productUpdated', {
-                    detail: { product: response.data }
-                });
-                window.dispatchEvent(event);
-                
-                // Atualizar lista de lances se necessário
-                if (response.data.Bid) {
-                    props.setBidInformations(response.data.Bid);
-                }
-            }
-        } catch (error) {
-            console.error('Erro ao buscar produto atualizado após lance:', error);
-        }
-    };
-
-   
-
-    // Função para verificar o status do leilão quando a página carrega
-    const checkAuctionStatusOnLoad = useCallback(async () => {
-        const clientId = props.currentClient?.id || currentSession?.id;
-        
-        // Se não há usuário logado ou produto selecionado, não faz nada
-        if (!clientId || !props.currentProduct?.id) return;
-        
-        try {
-            // Buscar o produto atualizado para ter os dados mais recentes
-            const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${props.currentProduct.id}`
-            );
-            
-            if (response.data && response.data.Bid && response.data.Bid.length > 0) {
-                const latestBid = response.data.Bid[0]; // O lance mais recente
-                const myLastBid = response.data.Bid.find(bid => bid.client_id === clientId); // Meu último lance
-                
-                // Logar informações para debug
-                console.log("Status do leilão verificado:", {
-                    clientId,
-                    latestBidClientId: latestBid.client_id,
-                    amILeading: latestBid.client_id === clientId,
-                    latestBidValue: latestBid.value,
-                    hasMyBids: !!myLastBid
-                });
-                
-                // Se não tenho lance, não mostrar nada
-                if (!myLastBid) return;
-                
-                // IMPORTANTE: Se eu sou o último a dar lance, significa que estou ganhando, não mostrar notificação
-                if (latestBid.client_id === clientId) {
-                    console.log('Você está ganhando este lote!');
-                    // Esconder qualquer notificação de lance superado que possa estar aparecendo
-                    setShowOutbidNotification(false);
-                    return;
-                }
-                
-                // Se eu não sou o último a dar lance e tenho um lance, verificar a situação
-                if (latestBid.client_id !== clientId) {
-                    // Verificar se o usuário tem lance automático ativo
-                    const hasActiveBid = response.data.Bid.some(bid => 
-                        bid.client_id === clientId && bid.cover_auto === true
-                    );
-                    
-                    // Se tem lance automático mas está perdendo, é porque o valor limite foi ultrapassado
-                    if (hasActiveBid) {
-                        const message = "Seu lance automático foi superado! O limite definido foi ultrapassado.";
-                        handleOutbidNotification(true, latestBid, message);
-                    } 
-                    // Se não tem lance automático e não está liderando, mostrar que foi superado
-                    else if (myLastBid.value < latestBid.value) {
-                        handleOutbidNotification(true, latestBid);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Erro ao verificar status do leilão:', error);
-        }
-    }, [props.currentProduct?.id, props.currentClient?.id, currentSession?.id, handleOutbidNotification, setShowOutbidNotification]);
+    
 
     // Configurar WebSocket para atualizações em tempo real
     useEffect(() => {
@@ -304,7 +125,18 @@ function ProductInformation({ children, ...props }) {
                            (newBid.product_id === props.currentProduct.id))) {
                 
                 console.log('Lance corresponde ao produto atual, buscando produto atualizado');
-                fetchAndUpdateProduct(props.currentProduct.id);
+                fetchAndUpdateProduct({
+                    productId: props.currentProduct.id,
+                    props,
+                    currentSession,
+                    setLastBidClient,
+                    setBidValue,
+                    calculateNextBidValue,
+                    notificationTimeoutRef,
+                    lastNotifiedBidRef,
+                    setShowOutbidNotification,
+                    showMessage
+                });
             }
         });
         
@@ -316,23 +148,21 @@ function ProductInformation({ children, ...props }) {
             
             if (newBid && newBid.product_id === props.currentProduct.id) {
                 console.log('Lance normal corresponde ao produto atual, buscando produto atualizado');
-                fetchAndUpdateProduct(props.currentProduct.id);
+                fetchAndUpdateProduct({
+                    productId: props.currentProduct.id,
+                    props,
+                    currentSession,
+                    setLastBidClient,
+                    setBidValue,
+                    calculateNextBidValue,
+                    notificationTimeoutRef,
+                    lastNotifiedBidRef,
+                    setShowOutbidNotification,
+                    showMessage
+                });
             }
         });
         
-        // Escutar eventos de novos lances não catalogados
-        socket.on(`${props.currentAuct.id}-bid-uncataloged`, (message) => {
-            console.log('Evento de lance não catalogado recebido:', message);
-            
-            const newBid = message.data.body;
-            
-            if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === props.currentProduct.id) || 
-                           (newBid.product_id === props.currentProduct.id))) {
-                
-                console.log('Lance não catalogado corresponde ao produto atual, buscando produto atualizado');
-                fetchAndUpdateProduct(props.currentProduct.id);
-            }
-        });
         
         // Limpar ao desmontar
         return () => {
@@ -352,7 +182,6 @@ function ProductInformation({ children, ...props }) {
             setBidValue(nextBidValue);
             
             // Buscar informações atualizadas do produto
-            fetchUpdatedProduct();
         }
 
         // Verificar se o cliente tem lance automático para este produto
@@ -379,13 +208,6 @@ function ProductInformation({ children, ...props }) {
         };
     }, []);
 
-    useEffect(() => {
-        checkAutoBid();
-        if (props.currentProduct) {
-            const baseValue = props.currentProduct.real_value || props.currentProduct.initial_value;
-            setBidValue(baseValue + 20);
-        }
-    }, [props.currentClient]);
 
     // Escutar o evento personalizado 'productChanged'
     useEffect(() => {
@@ -426,7 +248,6 @@ function ProductInformation({ children, ...props }) {
                 setCurrentSession(data);
                 
                 // Recarregar dados do produto e lances
-                fetchUpdatedProduct();
                 checkAutoBid();
             }
         };
@@ -438,26 +259,7 @@ function ProductInformation({ children, ...props }) {
         };
     }, [checkAutoBid, setCurrentSession, setBidValue, setIsAutoBidEnabled, setHasAutoBid]);
 
-    // Efeito para verificar o status do leilão quando a página carrega
-    useEffect(() => {
-        checkAuctionStatusOnLoad();
-        
-    }, [checkAuctionStatusOnLoad]);
-    
-    // Adicionar listener para eventos de visibilidade da página
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                checkAuctionStatusOnLoad();
-            }
-        };
-        
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [checkAuctionStatusOnLoad]);
+
 
     // Efeito para limpar timeouts quando o componente é desmontado
     useEffect(() => {
@@ -469,57 +271,7 @@ function ProductInformation({ children, ...props }) {
         };
     }, []);
 
-    // Função para realizar um lance
-    const handleBidConfirm = async () => {
-        try {
-            const session = JSON.parse(localStorage.getItem("client-auk-session-login"));
-            if (!session?.token) {
-                showMessage("Sessão inválida. Faça login novamente.", "error");
-                return;
-            }
-
-            // Validar limite do lance automático
-            if (isAutoBidEnabled && (!autoBidLimit || autoBidLimit <= bidValue)) {
-                showMessage("O valor limite do lance automático deve ser maior que o valor do lance atual", "warning");
-                return;
-            }
-
-            setIsloadingBid(true);
-
-            const result = await handleBidproduct(
-                bidValue,
-                messageRef,
-                props.currentProduct,
-                props.currentClient,
-                props.currentAuct,
-                session,
-                setBidValue,
-                setIsloadingBid,
-                isAutoBidEnabled,
-                true, // bidInCataloge
-                showMessage,
-                autoBidLimit // Passando o limite do lance automático
-            );
-
-            if (result) {
-                // Lance bem-sucedido - buscar produto atualizado
-                await fetchUpdatedProduct();
-                
-                // Resetar o limite do lance automático se necessário
-                if (isAutoBidEnabled) {
-                    setAutoBidLimit(0);
-                }
-                
-                // Verificar o status do lance automático
-                await checkAutoBid();
-            }
-        } catch (error) {
-            console.error("Erro ao dar lance:", error);
-            showMessage("Ocorreu um erro ao processar seu lance. Tente novamente.", "error");
-        } finally {
-            setIsloadingBid(false);
-        }
-    };
+   
 
     return (
         <div className={`
@@ -537,18 +289,61 @@ function ProductInformation({ children, ...props }) {
                 props={props}
                 setIsAutoBidEnabled={setIsAutoBidEnabled}
                 setAutoBidLimit={setAutoBidLimit}
-                handleBidConfirm={handleBidConfirm}
+                handleBidConfirm={() => handleBidConfirm({
+                    bidValue,
+                    isAutoBidEnabled,
+                    autoBidLimit,
+                    setIsloadingBid,
+                    messageRef,
+                    props,
+                    setBidValue,
+                    fetchUpdatedProduct: () => fetchAndUpdateProduct({
+                        productId: props.currentProduct.id,
+                        props,
+                        currentSession,
+                        setLastBidClient,
+                        setBidValue,
+                        calculateNextBidValue,
+                        notificationTimeoutRef,
+                        lastNotifiedBidRef,
+                        setShowOutbidNotification,
+                        showMessage
+                    }),
+                    checkAutoBid,
+                    setAutoBidLimit,
+                    showMessage
+                })}
+               
             />
 
             {/* Container principal */}
             <div className='flex-1 flex flex-col bg-white rounded-2xl shadow-lg relative'>
                 {/* Cabeçalho com título e botão de ver lances */}
                 <ProductHeader 
-                    props={props}
-                    navigate={navigate}
-                    handlePrevProduct={handlePrevProduct}
-                    handleNextProduct={handleNextProduct}
-                    showMessage={showMessage}
+                    productId={props.currentProduct?.id} 
+                    auctId={props.currentAuct?.id}
+                    setShowBids={props.setShowBids}
+                    showBids={props.showBids}
+                    handlePrevProduct={() => {
+                        if (props.currentProduct?.id && props.currentAuct) {
+                            handlePrevProduct(
+                                props.currentProduct.id, 
+                                props.currentAuct, 
+                                props.setCurrentProduct, 
+                                navigate
+                            );
+                        }
+                    }}
+                    handleNextProduct={() => {
+                        if (props.currentProduct?.id && props.currentAuct) {
+                            handleNextProduct(
+                                props.currentProduct.id, 
+                                props.currentAuct, 
+                                props.setCurrentProduct, 
+                                navigate
+                            );
+                        }
+                    }}
                 />
 
                 {/* Conteúdo principal com scroll */}
@@ -572,7 +367,26 @@ function ProductInformation({ children, ...props }) {
                                     formatCurrency={formatCurrency}
                                     handleSetAutoBidLimit={handleSetAutoBidLimit}
                                     autoBidLimit={autoBidLimit}
-                                    handleBidConfirm={handleBidConfirm}
+                                    handleBidConfirm={() => handleBidConfirm({
+                                        bidValue,
+                                        isAutoBidEnabled,
+                                        autoBidLimit,
+                                        setIsloadingBid,
+                                        messageRef,
+                                        props,
+                                        setBidValue,
+                                        fetchUpdatedProduct: () => fetchAndUpdateProduct({
+                                            productId: props.currentProduct.id,
+                                            props,
+                                            currentSession,
+                                            setLastBidClient,
+                                            setBidValue,
+                                            calculateNextBidValue,
+                                        }),
+                                        checkAutoBid,
+                                        setAutoBidLimit,
+                                        showMessage
+                                    })}
                                     toggleAutoBid={toggleAutoBid}
                                     props={props}
                                 />

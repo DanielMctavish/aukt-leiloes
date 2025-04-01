@@ -120,7 +120,7 @@ function Section01() {
         
         {/* Container do conteúdo - mantém as margens */}
         <div className="relative z-10 pt-20 pb-12">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1480px]">
                 {/* Hero Section */}
                 <div className="flex flex-col items-center text-center mb-16">
                     <div className="relative mb-6">

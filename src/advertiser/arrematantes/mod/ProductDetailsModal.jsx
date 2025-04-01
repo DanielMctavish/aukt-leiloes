@@ -18,7 +18,7 @@ const ProductDetailsModal = ({ products, onClose }) => {
             <div 
                 className={`product-modal-container bg-white shadow-xl rounded-xl transition-all duration-300 
                     ${isExpanded 
-                        ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%] max-h-[85vh] overflow-y-auto p-6 z-[100]' 
+                        ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%] max-h-[85vh] overflow-y-auto p-6' 
                         : 'p-3 min-w-[320px]'
                     }`}
                 onClick={(e) => {

@@ -6,7 +6,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdvertiserInformations } from "../functions/GetAdvertiserInformations";
 import io from 'socket.io-client';
-import "../styles/AdvertiserStyle.css";
 import axios from "axios";
 
 function NavAdvertiser() {
@@ -113,7 +112,7 @@ function NavAdvertiser() {
   };
 
   return (
-    <nav className="w-full bg-white shadow-md fixed z-[400] left-0">
+    <nav className="w-full bg-white shadow-md fixed left-0 z-[500]">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-center items-center">
         <div className="flex justify-between h-16 w-[90%]">
           {/* Logo/Welcome Section */}
@@ -157,7 +156,7 @@ function NavAdvertiser() {
 
               {/* Dropdown de Notificações */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg py-2 z-50 
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg py-2  
                   border border-gray-100 max-h-[80vh] overflow-y-auto">
                   <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="font-semibold text-gray-900">Notificações</h3>
@@ -228,7 +227,7 @@ function NavAdvertiser() {
               </button>
 
               {contextMenu && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 z-50 
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 
                   border border-gray-100 transform transition-all duration-200">
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">{AdvertiserInfor.name}</p>

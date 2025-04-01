@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ViewModule } from '@mui/icons-material';
+import { Person } from '@mui/icons-material';
+import NotificationSystem from './components/ProductInformationAdvertiser/NotificationSystem';
 
 const importAllAvatars = () => {
     const avatares = [];
@@ -29,36 +30,25 @@ function ProductDetailAdv() {
     const [anotherProducts, setAnotherProducts] = useState([]);
     const [currentClient, setCurrentClient] = useState(null);
     const [, setSessionClient] = useState(null);
+    const [showOutbidNotification, setShowOutbidNotification] = useState(true);
 
     const [currentProduct, setCurrentProduct] = useState({});
     const [showMenu, setShowMenu] = useState(false);
     const [currentAuct, setCurrentAuct] = useState({});
     const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
-    const [bidInformations, setBidInformations] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
     const avatares_pessoas = importAllAvatars();
 
     const { product_id } = useParams();
-    const navigate = useNavigate();
 
     useEffect(() => {
-        // Limpar os lances ao mudar de produto
-        setBidInformations([]);
 
         // Carregar as informações do novo produto
-        getProductInformations(product_id, setBidInformations, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
+        getProductInformations(product_id, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
         getClientSession(setSessionClient, setCurrentClient);
         checkClientSession();
-
-        // Disparar um evento personalizado para notificar outros componentes
-        const productChangedEvent = new CustomEvent('productChanged', {
-            detail: {
-                productId: product_id
-            }
-        });
-        console.log('Disparando evento productChanged:', product_id);
-        window.dispatchEvent(productChangedEvent);
+      
     }, [product_id]); // Dependência apenas no product_id para garantir que seja executado quando o produto mudar
 
     // Verificar a sessão do cliente quando o modal de login é fechado
@@ -142,15 +132,18 @@ function ProductDetailAdv() {
         })
     }, [])
 
-    const handleViewCatalog = () => {
-        if (currentAuct && currentAuct.id) {
-            navigate(`/advertiser/home/shop/${currentAuct.id}`);
-        }
-    };
 
     return (
-        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden">
+        <div className="flex flex-col justify-start items-center w-full min-h-screen 
+        bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden ">
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
+
+            {/* Sistema de Notificações de vencedor */}
+            <NotificationSystem
+                showOutbidNotification={showOutbidNotification}
+                setShowOutbidNotification={setShowOutbidNotification}
+                currentProduct={currentProduct}
+            />
 
             {/* Novo Menu Lateral */}
             <SideMenu
@@ -163,76 +156,70 @@ function ProductDetailAdv() {
             />
 
             {/* Main Body - ajustado o padding para acomodar o menu */}
-            <div className="flex flex-col justify-between 
-                items-center w-full h-full bg-gradient-to-r 
-                from-[#FEFEFE] to-[#b6c5c7] relative gap-2
-                pl-[70px]"> {/* Adicionado padding à esquerda */}
+            {/* Wrapper com largura máxima e centralização */}
+            <div className="flex flex-col w-full relative bg-[#fff] p-6">
+                {/* Container com largura máxima para melhor experiência em desktop */}
+                <div className="w-full max-w-[1480px] mx-auto">
+                    {/* Cabeçalho apenas com informações do leiloeiro */}
+                    {currentAuct && currentAdvertiser && (
+                        <div className='flex w-full justify-between items-center gap-2 text-zinc-800'>
 
-                {/* Cabeçalho apenas com informações do leiloeiro */}
-                {currentAuct && currentAdvertiser && (
-                    <div className='flex w-full md:w-[90%] lg:w-[75%] justify-between items-center gap-2 px-4 md:px-0 py-4'>
-                        <div className='flex justify-center items-center gap-2'>
-                            <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
-                            <div className='flex flex-col justify-start items-start'>
-                                <span className='font-bold text-[12px] md:text-[14px]'>{currentAdvertiser.name}</span>
-                                <span className='text-xs md:text-sm'>{currentAuct.title}</span>
+                            <div className='flex justify-center items-center gap-2'>
+                                {currentAdvertiser.url_profile_cover ? (
+                                    <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
+                                ) : (
+                                    <div className='flex justify-center items-center w-[40px] h-[40px] md:w-[50px] md:h-[50px] bg-gray-200 rounded-full'>
+                                        <Person className='text-gray-600 w-6 h-6 md:w-7 md:h-7' />
+                                    </div>
+                                )}
+                                <div className='flex flex-col justify-start items-start'>
+                                    <span className='font-bold text-[12px] md:text-[14px]'>{currentAdvertiser.name}</span>
+                                    <span className='text-xs md:text-sm'>{currentAuct.title}</span>
+                                </div>
                             </div>
+
                         </div>
-                        
-                        {/* Botão Ver Catálogo */}
-                        <button
-                            onClick={handleViewCatalog}
-                            className="flex items-center gap-2 px-4 py-2 
-                                bg-gradient-to-r from-[#012038] to-[#144870] 
-                                hover:from-[#144870] hover:to-[#144870]
-                                text-white rounded-full shadow-md hover:shadow-lg 
-                                transition-all duration-300 text-sm font-medium"
-                        >
-                            <ViewModule sx={{ fontSize: 18 }} />
-                            <span>Ver Catálogo Completo</span>
-                        </button>
-                    </div>
-                )}
+                    )}
 
-                {/* Container principal com altura fixa */}
-                <div className='w-full md:w-[90%] lg:w-[80%] flex flex-col lg:flex-row justify-between items-start gap-6 px-4 md:px-0'>
-                    {/* Carrossel */}
-                    <div className='w-full lg:w-[40%] h-[calc(100vh-180px)] order-1'>
-                        <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
-                    </div>
+                    {/* Container principal com altura fixa */}
+                    <div className='w-full flex flex-col lg:flex-row justify-between items-start gap-3 p-3 rounded-md'>
+                        {/* Carrossel */}
+                        <div className='w-full lg:w-[40%] h-auto lg:h-[calc(100vh-180px)] order-1'>
+                            <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
+                        </div>
 
-                    {/* Informações do produto */}
-                    <div className='w-full lg:w-[60%] h-[calc(100vh-180px)] order-2'>
-                        <ProductInformation
-                            currentProduct={currentProduct}
-                            currentClient={currentClient}
-                            currentAuct={currentAuct}
-                            setCurrentProduct={setCurrentProduct}
-                            setBidInformations={setBidInformations}
-                            setIsModalOn={setIsModalOn}
-                            showBids={showBids}
-                            setShowBids={setShowBids}
-                        >
-                            {/* Passando BidsAdvertiserHome como children */}
-                            <BidsAdvertiserHome
-                                bidInformations={bidInformations}
+                        {/* Informações do produto */}
+                        <div className='w-full lg:w-[60%] h-auto max-h-screen overflow-auto lg:h-[calc(100vh-180px)] order-2 mt-2 lg:mt-0'>
+                            <ProductInformation
+                                currentProduct={currentProduct}
+                                currentClient={currentClient}
+                                currentAuct={currentAuct}
+                                setCurrentProduct={setCurrentProduct}
+                                setIsModalOn={setIsModalOn}
                                 showBids={showBids}
-                                productId={currentProduct?.id}
-                                auctId={currentAuct?.id}
-                            />
-                        </ProductInformation>
-                    </div>
-                </div>
-
-                {/* Recomendados */}
-                <div className='w-full md:w-[90%] lg:w-[80%] mt-8 px-4 md:px-0'>
-                    {isLoadingProducts ? (
-                        <div className="flex justify-center items-center w-full h-[200px]">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
+                                setShowBids={setShowBids}
+                            >
+                                {/* Passando BidsAdvertiserHome como children */}
+                                <BidsAdvertiserHome
+                                    showBids={showBids}
+                                    productId={currentProduct?.id}
+                                    auctId={currentAuct?.id}
+                                    setShowBids={setShowBids}
+                                />
+                            </ProductInformation>
                         </div>
-                    ) : anotherProducts.length > 0 ? (
-                        <Recomendados anotherProducts={anotherProducts} />
-                    ) : null}
+                    </div>
+
+                    {/* Recomendados */}
+                    <div className='w-full mt-4 md:mt-8 px-2 sm:px-4 md:px-0'>
+                        {isLoadingProducts ? (
+                            <div className="flex justify-center items-center w-full h-[150px] md:h-[200px]">
+                                <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-[#012038]"></div>
+                            </div>
+                        ) : anotherProducts.length > 0 ? (
+                            <Recomendados anotherProducts={anotherProducts} />
+                        ) : null}
+                    </div>
                 </div>
             </div>
         </div>

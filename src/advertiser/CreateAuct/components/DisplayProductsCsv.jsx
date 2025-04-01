@@ -115,7 +115,7 @@ function DisplayProductsCsv() {
 
     return (
         <div ref={refMain} className="w-[33%] h-[100%] bg-white rounded-lg p-4
-            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            hover:scale-[1.02] transition-all duration-300 ease-in-out
             shadow-xl shadow-[#00000020] flex flex-col justify-center items-center gap-6">
 
             <section className="flex gap-4 justify-center items-center">

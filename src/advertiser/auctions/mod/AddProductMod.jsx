@@ -146,7 +146,7 @@ function AddProductMod({ onClose }) {
     }
 
     return (
-        <div ref={refCurrentWindow} className="w-full max-w-2xl bg-white rounded-2xl shadow-xl">
+        <div ref={refCurrentWindow} className="w-full max-w-2xl bg-white rounded-2xl shadow-xl z-[500]">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">

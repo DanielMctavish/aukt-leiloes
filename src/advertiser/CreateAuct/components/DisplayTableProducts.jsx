@@ -245,7 +245,7 @@ function DisplayTableProducts() {
             ref={refTableWindow}
             className="flex flex-col bg-[#e4f4ffe8] w-full 
         h-[100%] rounded-md  shadow-md shadow-[#1b1b1b2a] 
-        relative z-[99] overflow-hidden backdrop-blur-[16px]">
+        relative overflow-hidden backdrop-blur-[16px]">
 
             <span className="flex w-[100%] h-auto  bg-zinc-600 relative">
                 <button onClick={handleMaximizeWindow} className="absolute right-2 top-1 cursor-pointer text-white">

@@ -74,7 +74,7 @@ function Section01_1() {
 
     return (
         <section className="flex flex-col w-full min-h-screen bg-gradient-to-b from-[#0D1733] to-[#ffffff] py-12 sm:py-20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1480px]">
                 {/* Cabeçalho da Seção */}
                 <motion.div 
                     className="mb-12 text-center"

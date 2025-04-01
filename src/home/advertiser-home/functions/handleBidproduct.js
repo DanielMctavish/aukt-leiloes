@@ -31,11 +31,6 @@ const handleBidproduct = async (
         return null;
     }
 
-    // Validação do valor mínimo
-    if (actualBidValue <= currentProduct.initial_value) {
-        showMessage("O valor do lance deve ser maior que o valor atual", "warning");
-        return null;
-    }
 
     // Validação do limite do lance automático
     if (isAutoBidEnabled && (!autoBidLimit || autoBidLimit <= actualBidValue)) {

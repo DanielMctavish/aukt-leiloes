@@ -11,7 +11,7 @@ function ClientDetailModal() {
     }
 
     return (
-        <div ref={mainWindoRef} className="hidden w-[80%] h-[80%] bg-white z-[99] absolute 
+        <div ref={mainWindoRef} className="hidden w-[80%] h-[80%] bg-white absolute
         shadow-lg shadow-[#11111142] rounded-md">
             <span onClick={handleCloseCurrentWindow} className="absolute text-[#2d2d2d] top-1 right-1 cursor-pointer">
                 <Close />

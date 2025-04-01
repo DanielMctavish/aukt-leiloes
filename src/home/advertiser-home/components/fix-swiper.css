@@ -1,0 +1,70 @@
+/* Custom Swiper Styles */
+.thumbs-swiper {
+  overflow: visible !important;
+  height: 80px !important;
+}
+
+.thumbs-swiper .swiper-slide {
+  width: 80px !important;
+  height: 80px !important;
+  opacity: 0.7;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.thumbs-swiper .swiper-slide-thumb-active {
+  opacity: 1;
+  border-color: #012038;
+}
+
+.product-swiper {
+  height: 100% !important;
+}
+
+/* Ensure thumbnails are clickable */
+.thumbs-swiper .swiper-slide-visible {
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 767px) {
+  .thumbs-swiper {
+    height: 60px !important;
+  }
+  
+  .thumbs-swiper .swiper-slide {
+    width: 60px !important;
+    height: 60px !important;
+    border-width: 1px;
+  }
+  
+  /* Improve bullets for mobile pagination */
+  .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0.5;
+  }
+  
+  .swiper-pagination-bullet-active {
+    background: #012038;
+    opacity: 1;
+  }
+  
+  /* Improve zoom experience */
+  .swiper-zoom-container {
+    cursor: zoom-in;
+  }
+  
+  .swiper-zoom-container.swiper-zoom-target {
+    cursor: zoom-out;
+  }
+}
+
+/* Small Mobile Screens */
+@media (max-width: 359px) {
+  .thumbs-swiper {
+    display: none !important;
+  }
+} 

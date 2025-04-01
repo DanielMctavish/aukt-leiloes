@@ -23,7 +23,7 @@ function DisplayDateLimite() {
     return (
         <div ref={refMain} className="w-[33%] h-[100%] bg-white 
         rounded-md shadow-2xl shadow-[#00000039]
-        hover:z-[77] hover:scale-[1.02] transition-[1s] 
+        hover:scale-[1.02] transition-[1s] 
         p-3 relative flex flex-col justify-around">
             <h2 className="font-bold">Data limite para inscrições</h2>
             <div className="flex w-full justify-between 

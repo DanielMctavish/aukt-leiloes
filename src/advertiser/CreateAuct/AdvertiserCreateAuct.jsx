@@ -175,7 +175,7 @@ export const AdvertiserCreateAuct = () => {
                     title: product.title,
                     description: product.description,
                     categorie: product.categorie,
-                    real_value:0,
+                    real_value: 0,
                     initial_value: product.initial_value,
                     reserve_value: product.reserve_value,
                     width: 0,
@@ -185,7 +185,7 @@ export const AdvertiserCreateAuct = () => {
                     highlight_product: true,
                     group_imgs_url: [],
                 }, configAuth).then(response => {
-    
+
                 }).catch(err => {
                     throw new Error(err.response.data)
                 })
@@ -208,13 +208,11 @@ export const AdvertiserCreateAuct = () => {
 
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#F4F4F4] overflow-hidden">
-            <div className="fixed inset-0 z-[9999]">
-                <AssideAdvertiser MenuSelected="menu-2" />
-            </div>
 
+            <AssideAdvertiser MenuSelected="menu-2" />
             <NavAdvertiser path='anunciante > criar leilão' />
 
-            <div className="w-full max-w-[1400px] mx-auto mt-[6vh] px-4 sm:px-6 lg:px-8 h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-[1400px] mx-auto mt-[6vh] z-[1] px-4 sm:px-6 lg:px-8 h-[90vh] overflow-y-auto">
                 <section ref={loadScreen} className="w-full h-full hidden flex-col justify-center items-center bg-zinc-800 gap-1 text-white">
                     <h1>criando leilão! aguarde... </h1>
                     <img ref={logoElement} src={logo} alt="logo-aukt" className="w-[100px] object-cover" />
@@ -225,9 +223,9 @@ export const AdvertiserCreateAuct = () => {
                     </section>
                 </section>
 
-                <section ref={refGeneralBody} className="w-full flex flex-col justify-start items-center text-zinc-600 gap-4 relative z-[9999] py-4">
+                <section ref={refGeneralBody} className="w-full flex flex-col justify-start items-center text-zinc-600 gap-4 relative py-4">
                     <span ref={refErroSpanElement}
-                        className="w-[80%] hidden justify-center items-center p-2 bg-red-600/80 z-[99] absolute top-2 rounded-md text-white">
+                        className="w-[80%] hidden justify-center items-center p-2 bg-red-600/80 absolute top-2 rounded-md text-white">
                         erro detectado!
                     </span>
 
@@ -274,10 +272,10 @@ export const AdvertiserCreateAuct = () => {
                 </section>
             </div>
 
-            <section className="fixed bottom-4 z-[9999] flex gap-4 justify-center w-full">
+            <section className="fixed bottom-4 flex gap-4 justify-center w-full">
                 {!errorDetector ?
                     !isLoading ?
-                        <button onClick={handleSaveAuct} 
+                        <button onClick={handleSaveAuct}
                             className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-[#023161] transition-colors">
                             confirmar
                         </button> :

@@ -10,7 +10,8 @@ function TransactionsDashboard() {
             <section className="w-full min-h-screen flex flex-col justify-start items-center gap-2 relative">
                 <NavAdvertiser />
 
-                <div className="flex flex-col lg:w-[80%] w-full h-[80vh] shadow-lg shadow-[#1919192d] bg-white rounded-lg mt-8 justify-center items-center">
+                <div className="flex flex-col lg:w-[80%] w-full h-[80vh] shadow-lg shadow-[#1919192d] 
+                bg-white rounded-lg  justify-center items-center mt-[8vh]">
                     <div className="flex flex-col items-center text-center p-8">
                         <div className="bg-blue-100 p-4 rounded-full mb-6">
                             <Settings className="text-blue-600 text-5xl" />

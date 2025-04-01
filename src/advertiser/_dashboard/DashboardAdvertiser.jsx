@@ -46,19 +46,23 @@ export const DashboardAdvertiser = () => {
     }
 
     if (isLoading) {
-        return <div>Carregando...</div>
+        return <div className="w-full h-[100vh] flex flex-col justify-center 
+        items-center overflow-y-auto bg-[#0D1733] text-white">
+            Carregando...
+        </div>
     }
 
+  
+
     return (
-        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white ">
-            <div className="fixed inset-0 z-[9999]">
-                <AssideAdvertiser MenuSelected="menu-1" />
-            </div>
+        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white">
 
             <NavAdvertiser />
+            <AssideAdvertiser MenuSelected="menu-1" />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-[4vh]">
-                <section className="w-full h-auto flex flex-col justify-start items-center overflow-y-auto gap-2 relative z-[9999]">
+
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-[4vh] z-[0]">
+                <section className="w-full h-auto flex flex-col justify-start items-center overflow-y-auto gap-2 relative">
                     <section className="w-full flex p-2 gap-3 min-h-[20vh] justify-around items-center overflow-x-auto">
                         <AuctionSelection />
                     </section>
@@ -79,6 +83,7 @@ export const DashboardAdvertiser = () => {
                     </section>
                 </section>
             </div>
+
         </div>
     )
 }

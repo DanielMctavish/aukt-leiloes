@@ -71,7 +71,7 @@ function DisplayCreateEvent() {
 
     return (
         <div ref={refMain} className="min-w-[30%] h-[100%] bg-white rounded-lg p-4
-            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            hover:scale-[1.02] transition-all duration-300 ease-in-out
             shadow-xl shadow-[#00000020] relative overflow-y-auto">
             <h2 className="font-bold text-xl flex items-center gap-2 mb-6">
                 <Title className="text-[#012038]" />

@@ -35,7 +35,7 @@ function DisplayTermsConditions({ currentAuct }) {
 
     return (
         <div ref={refMain} className="w-full h-[50vh] bg-white rounded-lg p-4
-            hover:z-[77] hover:scale-[1.02] transition-all duration-300 ease-in-out
+            hover:scale-[1.02] transition-all duration-300 ease-in-out
             shadow-xl shadow-[#00000020] overflow-hidden flex flex-col">
             <h2 className="font-bold text-xl flex items-center gap-2 mb-4">
                 <Gavel className="text-blue-600" />

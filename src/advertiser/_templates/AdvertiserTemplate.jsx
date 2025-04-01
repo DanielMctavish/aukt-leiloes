@@ -78,7 +78,7 @@ function AdvertiserTemplate() {
             
 
             <button 
-                className='absolute top-4 right-[4vh] z-[99] flex items-center gap-2 px-4 py-2
+                className='absolute top-4 right-[4vh] flex items-center gap-2 px-4 py-2
                 bg-gradient-to-r from-[#012038] to-[#01284a] text-white rounded-lg
                 shadow-lg shadow-black/20 hover:shadow-xl hover:scale-105 
                 transition-all duration-300 group'
