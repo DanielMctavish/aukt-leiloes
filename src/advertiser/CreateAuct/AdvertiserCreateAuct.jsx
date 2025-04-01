@@ -272,20 +272,21 @@ export const AdvertiserCreateAuct = () => {
                 </section>
             </div>
 
-            <section className="fixed bottom-4 flex gap-4 justify-center w-full">
-                {!errorDetector ?
-                    !isLoading ?
-                        <button onClick={handleSaveAuct}
-                            className="w-[130px] h-[50px] bg-[#012038] text-white rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-[#023161] transition-colors">
-                            confirmar
-                        </button> :
-                        <span className="bg-white/90 backdrop-blur-sm px-6 py-3 rounded-md shadow-lg">criando...</span>
-                    :
-                    <button className="w-[130px] h-[50px] bg-[#696969] text-white rounded-md cursor-not-allowed">
+            {!errorDetector ?
+                !isLoading ?
+                    <button onClick={handleSaveAuct}
+                        className="w-[130px] h-[50px] bg-[#012038] text-white 
+                        rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-[#023161] 
+                        transition-colors fixed bottom-4 right-1">
                         confirmar
-                    </button>
-                }
-            </section>
+                    </button> :
+                    <span className="bg-white/90 backdrop-blur-sm px-6 py-3 rounded-md shadow-lg">criando...</span>
+                :
+                <button className="w-[130px] h-[50px] bg-[#696969] text-white 
+                rounded-md cursor-not-allowed fixed bottom-4 right-1">
+                    confirmar
+                </button>
+            }
         </div>
     )
 }

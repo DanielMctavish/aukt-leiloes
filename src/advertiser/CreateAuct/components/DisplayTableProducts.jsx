@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { HomeMax } from "@mui/icons-material"
 import { getAllModelsCategories } from "../../../home/components/functions/getAllModelsCategories";
 import { reportError } from "../../../features/errors/ReportErrorAtCreateAuct";
+import { updateProducts } from "../../../features/product/Products";
 
 function DisplayTableProducts() {
     const stateTheme = useSelector(state => state.theme)
@@ -18,7 +19,61 @@ function DisplayTableProducts() {
     const [errors, setErros] = useState([])
     const [allcategories, setCurrentCategories] = useState({});
     const refMessage = useRef()
+    const [editingCell, setEditingCell] = useState(null);
+    const [editValue, setEditValue] = useState("");
 
+    // Iniciar edição de uma célula
+    const startEditing = (rowIndex, colIndex, value) => {
+        setEditingCell({ row: rowIndex, col: colIndex });
+        setEditValue(value);
+    };
+
+    // Salvar edição da célula
+    const saveEdit = () => {
+        if (!editingCell) return;
+
+        const { row, col } = editingCell;
+        const newProducts = { ...products };
+        
+        // Validar o valor baseado na coluna
+        let validatedValue = editValue;
+        
+        // Converter para número se for valor inicial ou de reserva
+        if (col === 3 || col === 4) {
+            validatedValue = Number(editValue);
+            if (isNaN(validatedValue)) {
+                alert("Por favor, insira um valor numérico válido.");
+                return;
+            }
+        }
+
+        // Atualizar o valor na célula
+        newProducts.values[row][col] = validatedValue;
+        
+        // Atualizar estado local
+        setProducts(newProducts);
+        
+        // Atualizar o estado global usando a action específica
+        dispatch(updateProducts(newProducts));
+        
+        // Limpar estado de edição
+        cancelEdit();
+    };
+
+    // Cancelar edição
+    const cancelEdit = () => {
+        setEditingCell(null);
+        setEditValue("");
+    };
+
+    // Lidar com teclas pressionadas durante a edição
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            saveEdit();
+        } else if (e.key === "Escape") {
+            cancelEdit();
+        }
+    };
 
     useEffect(() => {
         const cookieTheme = localStorage.getItem("dark-mode-advertiser-auct");
@@ -47,6 +102,18 @@ function DisplayTableProducts() {
     useEffect(() => {
         validateFields();
     }, [products.values]);
+
+    // Cancelar edição quando clicar fora
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (editingCell && !e.target.closest('.editing-cell')) {
+                saveEdit();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [editingCell]);
 
     //CHECK ERRORS COLUNAS...................................................................................................................
     const checkErrorsColumns = async () => {
@@ -185,24 +252,77 @@ function DisplayTableProducts() {
     };
 
     //Renderizar CAMPOS..................................................................................................................
-    const RenderFields = (field, index) => {
-        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 w-full min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between hover:bg-white cursor-pointer"
+    const RenderFields = (field, index, rowIndex) => {
+        const isEditing = editingCell?.row === rowIndex && editingCell?.col === index;
+        let tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 w-full min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between cursor-pointer"
 
-        if (index === 6) tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[100px] min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between hover:bg-white cursor-pointer"
+        if (index === 6) tailwindCode = "p-2 text-left text-[14px] font-bold bg-stone-400/10 min-w-[100px] min-h-[100px] rounded-md max-h-[100px] overflow-y-auto justify-between cursor-pointer"
 
-        if (index === 3 || index === 4) {
+        if (isEditing) {
             return (
-                <span key={index} className={tailwindCode}>
-                    R$ {field}
-                </span>
-            )
+                <div key={index} className={`${tailwindCode} p-0 bg-blue-50 editing-cell border-2 border-blue-400 shadow-lg`}>
+                    <div className="flex flex-col h-full relative">
+                        {index === 3 || index === 4 ? (
+                            <div className="relative flex items-center w-full">
+                                <span className="absolute left-2 text-blue-700 font-semibold">R$</span>
+                                <input
+                                    type="number"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    className="flex-1 py-2 pl-8 pr-2 border-none focus:outline-none bg-transparent w-full h-full text-blue-700"
+                                    autoFocus
+                                    step="0.01"
+                                />
+                            </div>
+                        ) : (
+                            <textarea
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className="flex-1 p-3 border-none focus:outline-none bg-transparent w-full h-full resize-none text-blue-700"
+                                autoFocus
+                                style={{ minHeight: "70px" }}
+                            />
+                        )}
+                        
+                        <div className="flex justify-end p-2 bg-gradient-to-r from-blue-50 to-blue-100 border-t border-blue-200">
+                            <button 
+                                onClick={saveEdit}
+                                className="p-1.5 px-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-xs"
+                                title="Salvar (Enter)"
+                            >
+                                ✓
+                            </button>
+                            <button 
+                                onClick={cancelEdit}
+                                className="p-1.5 px-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors ml-2 text-xs"
+                                title="Cancelar (Esc)"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        let content;
+        if (index === 3 || index === 4) {
+            content = `R$ ${field}`;
+        } else {
+            content = field;
         }
 
         return (
-            <span key={index} className={tailwindCode}>
-                {field}
-            </span>
-        )
+            <div 
+                key={index} 
+                className={`${tailwindCode} hover:bg-blue-50 group relative transition-all duration-200 hover:shadow-md border border-transparent hover:border-blue-200`}
+                onClick={() => startEditing(rowIndex, index, field)}
+            >
+                {content}
+            </div>
+        );
     }
 
     // Maximizar tabela
@@ -222,11 +342,13 @@ function DisplayTableProducts() {
 
             setTimeout(() => {
                 refTableWindow.current.style.transition = "1s"
+                refTableWindow.current.style.marginTop = '7vh'
                 refTableWindow.current.style.width = '100%'
-                refTableWindow.current.style.height = '100%'
+                refTableWindow.current.style.height = '90%'
             }, 300);
 
         } else {
+            refTableWindow.current.style.marginTop = '0'
             refTableWindow.current.style.transition = ".3s"
             refTableWindow.current.style.width = '60%'
             refTableWindow.current.style.height = '30%'
@@ -267,7 +389,6 @@ function DisplayTableProducts() {
                     }
                 </span>
             </span>
-
             <div className="w-full overflow-y-auto overflow-x-auto">
                 <div className="w-full h-max-[100px] flex gap-1 justify-between">
 
@@ -277,10 +398,10 @@ function DisplayTableProducts() {
 
                 <div className="w-full flex flex-col gap-1">
 
-                    {products.values.map((value, index) => (
+                    {products.values.map((value, rowIndex) => (
 
-                        <div className="w-full flex justify-between items-center gap-1" key={index}>
-                            {value.map(((field, index) => RenderFields(field, index)))}
+                        <div className="w-full flex justify-between items-center gap-1" key={rowIndex}>
+                            {value.map(((field, colIndex) => RenderFields(field, colIndex, rowIndex)))}
                         </div>
 
                     ))}

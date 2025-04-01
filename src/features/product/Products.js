@@ -18,10 +18,14 @@ const productsSlice = createSlice({
                 columns: action.payload.columns,
                 values: action.payload.values
             }
+        },
+        updateProducts: (state, action) => {
+            // Atualiza os produtos com os novos valores
+            state.products = action.payload;
         }
     }
 })
 
 
 export const productSliceReducer = productsSlice.reducer
-export const { addProducts } = productsSlice.actions
+export const { addProducts, updateProducts } = productsSlice.actions

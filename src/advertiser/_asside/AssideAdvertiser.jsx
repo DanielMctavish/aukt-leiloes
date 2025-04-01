@@ -89,7 +89,7 @@ function AssideAdvertiser(props) {
   return (
     <>
       <span onClick={() => setDesktopMenuVisible(!desktopMenuVisible)}
-        className={`absolute z-[999] bg-[#fff] hover:bg-[#e4e4e4d4] 
+        className={`fixed z-[999] bg-[#fff] hover:bg-[#e4e4e4d4] 
           hover:w-[60px] hover:h-[60px] mt-[1vh]
           top-1 left-1 cursor-pointer rounded-[12px] 
         ${desktopMenuVisible ? 'hidden w-[60px] h-[60px]' :
