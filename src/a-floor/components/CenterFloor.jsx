@@ -312,6 +312,13 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
                     >
                         {/* Header */}
                         <div className="p-3 lg:p-6 border-b border-gray-200">
+                            {currentProduct && currentProduct.lote && (
+                                <div className="flex items-center mb-2">
+                                    <span className="px-3 py-1 bg-[#012038] text-white text-sm font-bold rounded-lg">
+                                        Lote {currentProduct.lote}
+                                    </span>
+                                </div>
+                            )}
                             <h1 className="font-bold text-2xl lg:text-3xl text-gray-800">
                                 {title}
                             </h1>

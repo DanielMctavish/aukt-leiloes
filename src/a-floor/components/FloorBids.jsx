@@ -193,11 +193,20 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
             
             // 3. Evento de novo produto no leilão
             socket.on(`${auct_id}-playing-auction`, (message) => {
-                if (message.data && message.data.body && message.data.body.product && 
-                    message.data.body.product.id !== productId) {
+                console.log("Floor Bids - New product event received:", message);
+                
+                // Limpar o estado quando um novo produto é iniciado, independentemente de qual produto seja
+                if (message.data && message.data.body && message.data.body.product) {
+                    // Sempre limpar o vencedor quando um novo produto começa
                     setShowWinner(false);
                     setIsAuctionFinished(false);
-                    getCurrentProduct(message.data.body.product.id);
+                    
+                    // Se for um produto diferente do atual, atualizar o produto
+                    if (message.data.body.product.id !== productId) {
+                        setHighestBid(null);
+                        setBidsCards([]);
+                        getCurrentProduct(message.data.body.product.id);
+                    }
                 }
             });
             
@@ -206,9 +215,28 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
                 console.log("Floor Bids - Auction finished event received");
                 if (isMounted.current) {
                     setIsAuctionFinished(true);
+                    
+                    // Limpar o vencedor após um tempo para exibição
+                    setTimeout(() => {
+                        if (isMounted.current) {
+                            setShowWinner(false);
+                        }
+                    }, 5000);
                 }
             });
             
+            // 5. Evento de fim de lote/produto
+            socket.on(`${auct_id}-product-finished`, (message) => {
+                console.log("Floor Bids - Product finished event received:", message);
+                if (isMounted.current) {
+                    // Após exibir o vencedor por alguns segundos, limpar
+                    setTimeout(() => {
+                        if (isMounted.current) {
+                            setShowWinner(false);
+                        }
+                    }, 5000);
+                }
+            });
         };
         
         setupSocket();
@@ -216,6 +244,8 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         // Carregar informações iniciais
         if (productId) {
             getCurrentProduct(productId);
+            // Limpar o vencedor quando o productId mudar (novo lote)
+            setShowWinner(false);
         }
         
         return () => {
@@ -231,6 +261,12 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         };
     }, [auct_id, productId, getCurrentProduct]);
     
+    // Limpar estado quando o produto mudar através de props
+    useEffect(() => {
+        // Limpar o vencedor quando o productId mudar
+        setShowWinner(false);
+    }, [productId]);
+
     // Função específica para buscar lances do produto atual
     const fetchCurrentProductBids = async (product_id) => {
         if (!product_id || !isMounted.current) return;
