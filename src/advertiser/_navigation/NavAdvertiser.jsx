@@ -117,13 +117,14 @@ function NavAdvertiser() {
         <div className="flex justify-between h-16 w-[90%]">
           {/* Logo/Welcome Section */}
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="flex-shrink-0 flex items-center gap-2">
               <span className="text-xl font-semibold text-gray-800">
                 Bem vindo, {AdvertiserInfor.name}!
               </span>
               <span className="ml-2 text-sm text-gray-500">
                 {AdvertiserInfor.nano_id}
               </span>
+              <span>(editado)</span>
             </div>
           </div>
 
