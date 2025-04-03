@@ -68,8 +68,11 @@ function AuctFloor() {
             socketRef.current.disconnect();
         }
 
-        const getLocalStorageClient = localStorage.getItem('client-auk-session-login')
-        const currentClient = JSON.parse(getLocalStorageClient)
+        const getLocalStorageClient = localStorage.getItem('client-auk-session-login');
+        // Verifica se existe dado na localStorage e se pode ser parseado
+        const currentClient = getLocalStorageClient ? JSON.parse(getLocalStorageClient) : null;
+        // Gera um ID único para o cliente se ele não estiver logado
+        const clientId = currentClient?.id || `anonymous-${uuidv4()}`;
 
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
             transports: ['websocket'],
@@ -116,7 +119,7 @@ function AuctFloor() {
             // Join the auction room with the specific auction ID
             socket.emit('join-auction-room', {
                 auct_id,
-                instance_id: currentClient.id,
+                instance_id: clientId, // Usando o clientId que é seguro mesmo quando não há cliente logado
                 client_type: "floor_viewer",
             });
 
@@ -155,7 +158,7 @@ function AuctFloor() {
                 console.log("Reconectado ao servidor WebSocket. Rejuntando-se à sala do leilão.");
                 socket.emit('join-auction-room', {
                     auct_id,
-                    instance_id: currentClient.id,
+                    instance_id: clientId, // Usando o clientId seguro
                     client_type: "floor_viewer"
                 });
             });
@@ -320,7 +323,7 @@ function AuctFloor() {
             {/* Display connected users count with modern live indicator */}
             <AuctFloorLiveCounter 
                 socket={currentSocketInstance} 
-                currentClient={JSON.parse(localStorage.getItem('client-auk-session-login'))}
+                currentClient={JSON.parse(localStorage.getItem('client-auk-session-login')) || {}}
                 auct_id={auct_id}
             />
 

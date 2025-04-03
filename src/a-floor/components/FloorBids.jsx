@@ -135,12 +135,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         
         socketRef.current = socket;
         
-        // Entrar explicitamente na sala do leilão
-        socket.emit('join-auction-room', { 
-            auct_id: auct_id,
-            instance_id: instanceId.current,
-            client_type: "floor_bids"
-        });
+      
         
         // Evento de conexão para debug
         socket.on('connect', () => {
