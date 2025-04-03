@@ -153,7 +153,31 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
                 // Verificar se o lance é para o produto atual
                 if (newBid && (newBid.product_id === productId || 
                     (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
-                    // Buscar todos os lances atualizados do produto
+                    
+                    // Atualizar o estado dos lances diretamente, sem recarregar o produto inteiro
+                    if (newBid.Client) {
+                        // Adicionar o novo lance diretamente ao estado
+                        updateBidsCards(newBid);
+                    } else if (newBid.client_id) {
+                        // Se o lance não tiver os dados do cliente, buscar o cliente e adicionar o lance
+                        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${newBid.client_id}`)
+                            .then(response => {
+                                // Criar um objeto de lance completo com os dados do cliente
+                                const completeBid = {
+                                    ...newBid,
+                                    Client: response.data
+                                };
+                                updateBidsCards(completeBid);
+                            })
+                            .catch(error => {
+                                console.error("Erro ao buscar dados do cliente:", error);
+                                // Mesmo com erro, tentar atualizar com os dados disponíveis
+                                updateBidsCards(newBid);
+                            });
+                    }
+                    
+                    // Ainda buscar os lances atualizados do produto para garantir sincronização completa
+                    // mas sem depender dessa chamada para a atualização visual imediata
                     getCurrentProduct(productId);
                 }
             });
