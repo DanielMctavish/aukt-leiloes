@@ -218,7 +218,7 @@ function FloorNavigation({ auction, group }) {
         }
     }
 
-    console.log("observando floor __>> ", auction.display_message)
+    
 
 
     return (

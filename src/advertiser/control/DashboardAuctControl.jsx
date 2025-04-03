@@ -21,8 +21,6 @@ function DashboardAuctControl() {
     useEffect(() => {
         const currentSession = localStorage.getItem("advertiser-session-aukt");
 
-        console.log("observando o generalAUK -> ", generalAUK)
-
         if (!currentSession) {
             navigate("/");
             return;
@@ -31,10 +29,24 @@ function DashboardAuctControl() {
         const fetchLiveAuction = async () => {
             try {
                 const sessionData = JSON.parse(currentSession);
+                
+                // Primeiro, busca o ID do anunciante logado
+                const advertiserResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/advertiser/find-by-email`, {
+                    headers: { 'Authorization': `Bearer ${sessionData.token}` },
+                    params: { email: sessionData.email }
+                });
+                
+                const advertiserId = advertiserResponse.data.id;
+                
+                // Busca leilões com status "live" e filtra por creator_id (anunciante)
                 const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/list-auct-bystatus`, {
                     headers: { 'Authorization': `Bearer ${sessionData.token}` },
-                    params: { status: 'live' }
+                    params: { 
+                        status: 'live',
+                        creator_id: advertiserId
+                    }
                 });
+                
                 if (response.data && response.data.length > 0) {
                     const liveAuction = response.data[0]; // Assume que o primeiro item é o leilão ao vivo
                     dispatch(setAuct(liveAuction));
@@ -57,7 +69,7 @@ function DashboardAuctControl() {
 
             <section className="w-full flex flex-col justify-start items-center gap-2 relative  z-10">
                 <NavAdvertiser />
-                
+
                 <div className="flex flex-col lg:w-[80%] w-full h-[90vh]  mt-[8vh]
                 shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e900] 
                 overflow-y-auto rounded-lg">
@@ -70,7 +82,7 @@ function DashboardAuctControl() {
                     </div>
 
                     <div className="flex lg:flex-row flex-col w-full lg:min-h-[60vh] min-h-[100vh] p-1 gap-1">
-                        <FloorMessageSet/>
+                        <FloorMessageSet />
                         <BidsListController />
                     </div>
                 </div>

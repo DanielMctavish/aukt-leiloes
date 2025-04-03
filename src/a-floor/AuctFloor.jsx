@@ -7,9 +7,12 @@ import FloorBids from "./components/FloorBids";
 import FloorLots from "./components/FloorLots";
 import FloorNavigation from "./components/FloorNavigation";
 import backgroundFloor from "../media/backgrounds/sheldon-liu-FrQKfzoTgsw-unsplash.jpg";
+import auk_logo from "../media/logos/logos-auk/logo_model01_white.png"
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { v4 as uuidv4 } from 'uuid';
+import AuctFloorLiveCounter from "./AuctFloorLiveCounter";
 
 function AuctFloor() {
     const [currentAuct, setCurrentAuct] = useState(null);
@@ -17,9 +20,8 @@ function AuctFloor() {
     const [socketMessage, setSocketMessage] = useState();
     const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [connectedUsers, setConnectedUsers] = useState(1); // Iniciar com 1 para contar o próprio usuário
-    const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
+    const [currentSocketInstance, setCurrentSocketInstance] = useState(null);
 
     const { auct_id } = useParams();
     const stateBid = useSelector(state => state.bidLive);
@@ -47,7 +49,7 @@ function AuctFloor() {
         // Se a mensagem já tiver um timestamp, use-o como parte da chave
         const timestamp = message?.data?.body?.timestamp || "";
         const fullKey = `${messageKey}-${timestamp}`;
-        
+
         if (!messagesProcessedRef.current.has(fullKey)) {
             messagesProcessedRef.current.add(fullKey);
             // Limitar o tamanho do conjunto para evitar vazamentos de memória
@@ -66,116 +68,103 @@ function AuctFloor() {
             socketRef.current.disconnect();
         }
 
+        const getLocalStorageClient = localStorage.getItem('client-auk-session-login')
+        const currentClient = JSON.parse(getLocalStorageClient)
+
         const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
             transports: ['websocket'],
             upgrade: false,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000,
+            forceNew: true,
             query: {
-                instance_id: instanceId,
+                instance_id: uuidv4(),
                 client_type: "floor_viewer",
                 auct_id: auct_id
             }
         });
-        
+
+        setCurrentSocketInstance(socket);
         socketRef.current = socket;
-        await getCurrentAuction();
 
-        // Join the auction room with the specific auction ID
-        socket.emit('join-auction-room', { 
-            auct_id,
-            instance_id: instanceId,
-            client_type: "floor_viewer"
+        // Adicionar listener para erros de conexão
+        socket.on('connect_error', (error) => {
+            console.error('Erro na conexão WebSocket:', error);
+            setIsLoading(true);
         });
 
-        // Listen for connected users count
-        socket.on('auction-room-users', (data) => {
-            console.log("Recebendo contagem de usuários:", data);
-            if (data && data.auct_id === auct_id) {
-                // Atualizar o contador apenas se o número for diferente e maior que zero
-                if (data.count !== connectedUsers && data.count > 0) {
-                    setConnectedUsers(data.count);
-                }
-            }
-        });
-
-        // Adicionar listener para quando o próprio socket se conectar
+        // Adicionar listener para sucesso na conexão
         socket.on('connect', () => {
-            console.log("Socket conectado, enviando solicitação de contagem...");
-            // Solicitar contagem atual após conectar
-            socket.emit('request-user-count', { auct_id });
+            console.log("Socket conectado com sucesso!");
+            setIsLoading(false);
         });
 
-        // Listener para resposta personalizada de contagem
-        socket.on('user-count-update', (data) => {
-            console.log("Atualização de contagem recebida:", data);
-            if (data && data.auct_id === auct_id && data.count > 0) {
-                setConnectedUsers(data.count);
+        // Adicionar listener para desconexão
+        socket.on('disconnect', (reason) => {
+            console.log('Socket desconectado:', reason);
+            if (reason === 'io server disconnect') {
+                socket.connect();
             }
         });
 
-        // Adicionar listener para desconexão de usuários
-        socket.on('user-disconnected', (data) => {
-            console.log("Usuário desconectado:", data);
-            if (data && data.auct_id === auct_id) {
-                setConnectedUsers(prev => Math.max(1, prev - 1)); // Nunca menor que 1
-            }
-        });
+        try {
+            await getCurrentAuction();
 
-        socket.on(`${auct_id}-playing-auction`, (message) => {
-            // Processar mensagem apenas se for para este leilão
-            if (message.data && message.data.body && message.data.body.auct_id === auct_id) {
-                processMessageOnce(`${auct_id}-playing-auction`, message, (msg) => {
-                    console.log("Recebendo mensagem do leilão:", msg);
-                    setSocketMessage(msg);
-                    
-                    // Atualizar o produto apenas se não houver um atual ou se os IDs forem diferentes
-                    if (!currentProduct || (msg.data.body.product && currentProduct.id !== msg.data.body.product.id)) {
-                        setCurrentProduct(msg.data.body.product);
-                    }
-                });
-            }
-        });
-
-        socket.on(`${auct_id}-winner`, (message) => {
-            if (message.data && message.data.body) {
-                processMessageOnce(`${auct_id}-winner`, message, (msg) => {
-                    getCurrentClientWinner(msg.data.body.winner);
-                });
-            }
-        });
-        
-        // Evento de finalização do leilão
-        socket.on(`${auct_id}-auct-finished`, (message) => {
-            console.log("AuctFloor - Auction finished event received:", message);
-            
-            // Processar a mensagem de finalização usando o mesmo mecanismo de deduplicação
-            processMessageOnce(`${auct_id}-auct-finished`, message, (msg) => {
-                console.log("Leilão finalizado:", msg);
-                setIsAuctionFinished(true);
-                
-                // Opcionalmente, podemos atualizar outros estados ou fazer chamadas API aqui
-                // para refletir o estado de leilão finalizado na interface
-                
-                // Atualizar o leilão para ter as informações mais recentes
-                getCurrentAuction();
-            });
-        });
-        
-        // Detector de reconexão
-        socket.on('reconnect', () => {
-            console.log("Reconectado ao servidor WebSocket. Rejuntando-se à sala do leilão.");
-            socket.emit('join-auction-room', { 
+            // Join the auction room with the specific auction ID
+            socket.emit('join-auction-room', {
                 auct_id,
-                instance_id: instanceId,
-                client_type: "floor_viewer"
+                instance_id: currentClient.id,
+                client_type: "floor_viewer",
             });
-            // Solicitar contagem atual após reconexão
-            socket.emit('request-user-count', { auct_id });
-        });
 
-        // Cleanup function
+            socket.on(`${auct_id}-playing-auction`, (message) => {
+                if (message.data && message.data.body && message.data.body.auct_id === auct_id) {
+                    processMessageOnce(`${auct_id}-playing-auction`, message, (msg) => {
+                        console.log("Recebendo mensagem do leilão:", msg);
+                        setSocketMessage(msg);
+
+                        if (!currentProduct || (msg.data.body.product && currentProduct.id !== msg.data.body.product.id)) {
+                            setCurrentProduct(msg.data.body.product);
+                        }
+                    });
+                }
+            });
+
+            socket.on(`${auct_id}-winner`, (message) => {
+                if (message.data && message.data.body) {
+                    processMessageOnce(`${auct_id}-winner`, message, (msg) => {
+                        getCurrentClientWinner(msg.data.body.winner);
+                    });
+                }
+            });
+
+            socket.on(`${auct_id}-auct-finished`, (message) => {
+                console.log("AuctFloor - Auction finished event received:", message);
+                processMessageOnce(`${auct_id}-auct-finished`, message, (msg) => {
+                    console.log("Leilão finalizado:", msg);
+                    setIsAuctionFinished(true);
+                    getCurrentAuction();
+                });
+            });
+
+            // Detector de reconexão
+            socket.on('reconnect', () => {
+                console.log("Reconectado ao servidor WebSocket. Rejuntando-se à sala do leilão.");
+                socket.emit('join-auction-room', {
+                    auct_id,
+                    instance_id: currentClient.id,
+                    client_type: "floor_viewer"
+                });
+            });
+
+        } catch (error) {
+            console.error("Erro ao configurar WebSocket:", error);
+            setIsLoading(false);
+        }
+
         return () => {
             if (socket) {
                 socket.disconnect();
@@ -217,9 +206,22 @@ function AuctFloor() {
     }
 
     if (isLoading) {
-        return <div>Carregando...</div>;
+        return (
+            <div className="w-full h-[100vh] flex flex-col justify-center items-center">
+                <img src={auk_logo} alt="Logo Auk" className="w-[100px] h-[100px]" />
+            </div>
+        )
     }
 
+    if (!currentAuct) {
+        return (
+            <div className="w-full h-[100vh] flex flex-col justify-center items-center">
+                <img src={auk_logo} alt="Logo Auk" className="w-[100px] h-[100px] mb-4" />
+                <p className="text-lg text-[#012038]">Carregando informações do leilão...</p>
+                <p className="text-sm text-gray-500 mt-2">Se o problema persistir, verifique sua conexão ou atualize a página.</p>
+            </div>
+        )
+    }
 
     const ModalTerms = () => {
         const [isOpen, setIsOpen] = useState(false);
@@ -279,7 +281,7 @@ function AuctFloor() {
                             </div>
 
                             <div className="text-[#012038] whitespace-pre-wrap">
-                                {currentAuct.terms_conditions}
+                                {currentAuct?.terms_conditions || 'Termos e condições não disponíveis no momento.'}
                             </div>
                         </div>
                     </div>
@@ -306,36 +308,21 @@ function AuctFloor() {
     return (
         <div className="w-full h-[100vh] flex flex-col justify-start items-center bg-[#D8DEE8] text-zinc-600 relative overflow-hidden p-[2vh] gap-[2vh]">
             <img src={backgroundFloor} alt="" className="flex absolute top-0 h-full w-[100%] object-cover z-[1]" />
-            <motion.div 
+            <motion.div
                 className="z-[999] w-full"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <FloorNavigation auction={currentAuct} group={currentProduct ? currentProduct.group : null} />
+                <FloorNavigation auction={currentAuct || {}} group={currentProduct ? currentProduct.group : null} />
             </motion.div>
 
             {/* Display connected users count with modern live indicator */}
-            <motion.div 
-                className="fixed top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-[1000] flex items-center gap-2"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-            >
-                {/* Pulse animation for "LIVE" indicator */}
-                <div className="relative flex items-center">
-                    <div className="absolute w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                </div>
-                <span className="text-white font-semibold text-sm">LIVE</span>
-                <div className="h-4 w-[1px] bg-gray-400/50"></div>
-                <div className="flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span className="text-white font-medium">{connectedUsers}</span>
-                </div>
-            </motion.div>
+            <AuctFloorLiveCounter 
+                socket={currentSocketInstance} 
+                currentClient={JSON.parse(localStorage.getItem('client-auk-session-login'))}
+                auct_id={auct_id}
+            />
 
             <ModalTerms />
 
@@ -343,8 +330,8 @@ function AuctFloor() {
             <div className="lg:hidden fixed top-[80px] left-0 right-0 z-[999] px-4 py-2 bg-white/80 backdrop-blur-md shadow-lg">
                 <FloorBids
                     timer={socketMessage ? socketMessage.data.cronTimer : 0}
-                    duration={currentAuct.product_timer_seconds}
-                    auct_id={currentAuct.id}
+                    duration={currentAuct?.product_timer_seconds || 0}
+                    auct_id={currentAuct?.id}
                     productId={currentProduct ? currentProduct.id : null}
                     winner={socketWinner}
                     isMobile={true}
@@ -355,7 +342,7 @@ function AuctFloor() {
             <div className="flex lg:flex-row flex-col w-full 
                 lg:h-full h-[200vh] justify-between items-center gap-[2vh] z-[2] overflow-y-auto
                 pt-[120px] lg:pt-0"> {/* Adicionado padding-top para mobile */}
-                <motion.section 
+                <motion.section
                     className="lg:w-[70%] w-[99%] lg:h-[80vh] flex flex-col justify-between items-center relative gap-[2vh] z-[999]"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -365,15 +352,15 @@ function AuctFloor() {
                         title={currentProduct ? currentProduct.title : ''}
                         cover={currentProduct ? currentProduct.cover_img_url : ''}
                         description={currentProduct ? currentProduct.description : ''}
-                        auction={currentAuct}
+                        auction={currentAuct || {}}
                         currentProduct={currentProduct}
                     />
                     <FloorLots
-                        products={currentAuct.product_list}
+                        products={currentAuct?.product_list || []}
                         currentProduct={currentProduct}
                     />
                 </motion.section>
-                
+
                 {/* Versão Desktop do FloorBids */}
                 <motion.div
                     className="hidden lg:block"
@@ -383,8 +370,8 @@ function AuctFloor() {
                 >
                     <FloorBids
                         timer={socketMessage ? socketMessage.data.cronTimer : 0}
-                        duration={currentAuct.product_timer_seconds}
-                        auct_id={currentAuct.id}
+                        duration={currentAuct?.product_timer_seconds || 0}
+                        auct_id={currentAuct?.id}
                         productId={currentProduct ? currentProduct.id : null}
                         winner={socketWinner}
                         isMobile={false}
