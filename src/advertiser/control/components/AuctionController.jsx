@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { PlayArrow, SkipNext, PauseCircleFilledOutlined, AccessTime, PlayCircleFilledWhite, OpenInNew } from "@mui/icons-material";
+import { PlayArrow, SkipNext, PauseCircleFilledOutlined, AccessTime, PlayCircleFilledWhite, OpenInNew, HourglassEmpty } from "@mui/icons-material";
 import { useEffect, useState, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,9 @@ import {
 
 function AuctionController() {
     const [cookieSession, setCookieSession] = useState(null);
-    const [loadNext, setLoadNext] = useState(false)
+    const [loadNext, setLoadNext] = useState(false);
+    const [remainingLots, setRemainingLots] = useState(0);
+    const [estimatedTime, setEstimatedTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const generalAUK = useSelector(state => state.generalAUK);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -28,6 +30,59 @@ function AuctionController() {
         }
         setCookieSession(JSON.parse(session));
     }, [navigate]);
+
+    // Calcular o tempo estimado restante com base nos lotes e no produto atual
+    useEffect(() => {
+        if (generalAUK.auct && generalAUK.auct.product_list) {
+            // Filtrar apenas os produtos que não têm vencedor (winner_id)
+            const remainingProducts = generalAUK.auct.product_list.filter(product => !product.winner_id);
+            
+            if (generalAUK.currentProduct) {
+                // Encontrar o índice do produto atual na lista de produtos restantes
+                const currentIndex = remainingProducts.findIndex(
+                    p => p.id === generalAUK.currentProduct.id
+                );
+                
+                if (currentIndex !== -1) {
+                    // Calcular quantos produtos restam após o atual
+                    const remaining = remainingProducts.length - (currentIndex + 1);
+                    setRemainingLots(remaining);
+                    
+                    // Calcular o tempo estimado (30 segundos por lote)
+                    const totalSeconds = remaining * 30;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    
+                    setEstimatedTime({ hours, minutes, seconds });
+                } else {
+                    // Se o produto atual não estiver na lista de restantes (pode já ter um vencedor)
+                    setRemainingLots(remainingProducts.length);
+                    
+                    const totalSeconds = remainingProducts.length * 30;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    
+                    setEstimatedTime({ hours, minutes, seconds });
+                }
+            } else {
+                // Se não houver produto atual, considerar todos os produtos sem vencedor
+                setRemainingLots(remainingProducts.length);
+                
+                const totalSeconds = remainingProducts.length * 30;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                setEstimatedTime({ hours, minutes, seconds });
+            }
+        } else {
+            // Se não há leilão ou produtos, zerar os valores
+            setRemainingLots(0);
+            setEstimatedTime({ hours: 0, minutes: 0, seconds: 0 });
+        }
+    }, [generalAUK.auct, generalAUK.currentProduct]);
 
     const isRunning = generalAUK.status === 'live';
     const isPaused = generalAUK.status === 'paused';
@@ -95,6 +150,35 @@ function AuctionController() {
                         </button>
                     )}
                 </div>
+
+                {/* Tempo Estimado */}
+                {generalAUK.auct && generalAUK.status !== "finished" && (
+                    <div className="bg-gray-100 border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-gray-700">
+                            <HourglassEmpty className="text-blue-600" />
+                            <span className="font-medium">Tempo Estimado Restante:</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center">
+                                <span className="font-semibold text-[#012038]">
+                                    {remainingLots}
+                                </span>
+                                <span className="ml-1 text-gray-500">
+                                    lotes restantes
+                                </span>
+                            </div>
+                            <div className="px-3 py-1 bg-[#012038] text-white rounded-lg font-medium flex items-center">
+                                {estimatedTime.hours > 0 && (
+                                    <span>{estimatedTime.hours}h </span>
+                                )}
+                                {(estimatedTime.hours > 0 || estimatedTime.minutes > 0) && (
+                                    <span>{estimatedTime.minutes}m </span>
+                                )}
+                                <span>{estimatedTime.seconds}s</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Grid de Botões */}
                 <div className="grid grid-cols-3 gap-4 p-6">
