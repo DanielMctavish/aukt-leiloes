@@ -26,7 +26,6 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     const [highestBid, setHighestBid] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const isMounted = useRef(true);
-    const messagesProcessedRef = useRef(new Set());
     const instanceId = useRef(`floor_client_${Math.random().toString(36).substring(2, 9)}`);
 
     // Atualizar o estado local quando a prop do pai mudar
@@ -35,24 +34,6 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
             setIsAuctionFinished(true);
         }
     }, [parentIsAuctionFinished]);
-
-    // Função para evitar processamento duplicado de mensagens
-    const processMessageOnce = (messageKey, message, handler) => {
-        // Se a mensagem já tiver um timestamp, use-o como parte da chave
-        const timestamp = message?.data?.body?.timestamp || "";
-        const fullKey = `${messageKey}-${timestamp}`;
-        
-        if (!messagesProcessedRef.current.has(fullKey)) {
-            messagesProcessedRef.current.add(fullKey);
-            // Limitar o tamanho do conjunto para evitar vazamentos de memória
-            if (messagesProcessedRef.current.size > 1000) {
-                // Converter para array, remover os primeiros 500 itens, e voltar para conjunto
-                const messagesArray = Array.from(messagesProcessedRef.current);
-                messagesProcessedRef.current = new Set(messagesArray.slice(500));
-            }
-            handler(message);
-        }
-    };
 
     // Função para obter informações do produto atual
     const getCurrentProduct = useCallback(async (product_id) => {
@@ -85,7 +66,9 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         } catch (error) {
             console.error("Erro ao buscar produto:", error);
         } finally {
-            setIsLoading(false);
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
@@ -111,131 +94,129 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     }, []);
 
     // Setup do WebSocket
-    const setupWebSocket = useCallback(() => {
-        if (!auct_id || !productId || !isMounted.current) return;
+    useEffect(() => {
+        isMounted.current = true;
         
-        // Limpar conexão anterior se existir
-        if (socketRef.current) {
-            socketRef.current.disconnect();
-        }
-        
-        // Conectar ao servidor WebSocket com configurações avançadas
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
-            transports: ['websocket'],
-            upgrade: false,
-            reconnection: true, 
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
-            query: {
-                instance_id: instanceId.current,
-                client_type: "floor_bids",
-                auct_id: auct_id
-            }
-        });
-        
-        socketRef.current = socket;
-        
-      
-        
-        // Evento de conexão para debug
-        socket.on('connect', () => {
-            console.log('WebSocket connected for floor bids');
-        });
-
-        // 1. Evento principal de lance
-        socket.on(`${auct_id}-bid`, (message) => {
-            console.log("Floor Bids - Bid event received:", message);
+        const setupSocket = () => {
+            if (!auct_id || !productId) return;
             
-            processMessageOnce(`${auct_id}-bid`, message, (msg) => {
+            // Limpar conexão anterior se existir
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+            
+            // Conectar ao servidor WebSocket
+            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
+                transports: ['websocket'],
+                upgrade: false,
+                reconnection: true, 
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 20000,
+                forceNew: true,
+                query: {
+                    instance_id: instanceId.current,
+                    client_type: "floor_bids",
+                    auct_id: auct_id
+                }
+            });
+            
+            socketRef.current = socket;
+            
+            // Evento de conexão para debug
+            socket.on('connect', () => {
+                console.log('WebSocket connected for floor bids - ID:', socket.id);
+                
+                // Explicitamente entrar na sala do leilão após conexão
+                socket.emit('join-auction-room', { 
+                    auct_id: auct_id,
+                    instance_id: instanceId.current,
+                    client_type: "floor_bids"
+                });
+                
+                console.log(`Inscrito na sala de leilão: ${auct_id}`);
+            });
+            
+            // Monitorar eventos de erro
+            socket.on('connect_error', (error) => {
+                console.error('Erro na conexão WebSocket:', error);
+            });
+            
+            socket.on('error', (error) => {
+                console.error('Erro no WebSocket:', error);
+            });
+            
+            // Evento de reconexão
+            socket.on('reconnect', (attemptNumber) => {
+                console.log(`WebSocket reconectado na tentativa ${attemptNumber}`);
+                
+                // Reingressar na sala após reconexão
+                socket.emit('join-auction-room', { 
+                    auct_id: auct_id,
+                    instance_id: instanceId.current,
+                    client_type: "floor_bids"
+                });
+            });
+
+            // 1. Evento principal de lance
+            socket.on(`${auct_id}-bid`, (message) => {
+           
                 // Extrair o lance da estrutura correta
-                const newBid = msg.data.body || msg.data;
+                const newBid = message.data.body || message.data;
                 
                 // Verificar se o lance é para o produto atual
                 if (newBid && (newBid.product_id === productId || 
                     (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
                     
-                    // Atualizar o estado dos lances diretamente, sem recarregar o produto inteiro
-                    if (newBid.Client) {
-                        // Adicionar o novo lance diretamente ao estado
-                        updateBidsCards(newBid);
-                    } else if (newBid.client_id) {
-                        // Se o lance não tiver os dados do cliente, buscar o cliente e adicionar o lance
-                        axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${newBid.client_id}`)
-                            .then(response => {
-                                // Criar um objeto de lance completo com os dados do cliente
-                                const completeBid = {
-                                    ...newBid,
-                                    Client: response.data
-                                };
-                                updateBidsCards(completeBid);
-                            })
-                            .catch(error => {
-                                console.error("Erro ao buscar dados do cliente:", error);
-                                // Mesmo com erro, tentar atualizar com os dados disponíveis
-                                updateBidsCards(newBid);
-                            });
-                    }
-                    
-                    // Ainda buscar os lances atualizados do produto para garantir sincronização completa
-                    // mas sem depender dessa chamada para a atualização visual imediata
-                    getCurrentProduct(productId);
+                    // Atualizar a lista de lances
+                    fetchCurrentProductBids(productId);
+                } else {
+                    console.log("Lance recebido, mas não corresponde ao produto atual");
                 }
             });
-        });
-        
-        // 2. Evento de lance catalogado (para compatibilidade)
-        socket.on(`${auct_id}-bid-cataloged`, (message) => {
-            console.log("Floor Bids - Cataloged bid event received:", message);
             
-            processMessageOnce(`${auct_id}-bid-cataloged`, message, (msg) => {
+            // 2. Evento de lance catalogado (para compatibilidade)
+            socket.on(`${auct_id}-bid-cataloged`, (message) => {
+                
                 // Extrair o lance da estrutura correta
-                const newBid = msg.data.body;
+                const newBid = message.data.body;
                 
                 // Verificar se o lance é para o produto atual
                 if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId) || 
                     (newBid.product_id === productId))) {
-                    // Buscar todos os lances atualizados do produto
-                    getCurrentProduct(productId);
+                    
+                    console.log("Lance catalogado recebido para o produto atual:", newBid);
+                    // Atualizar a lista de lances
+                    fetchCurrentProductBids(productId);
                 }
             });
-        });
-        
-        // 3. Evento de novo produto no leilão
-        socket.on(`${auct_id}-playing-auction`, (message) => {
-            console.log("Floor Bids - New product event received:", message);
             
-            processMessageOnce(`${auct_id}-playing-auction`, message, (msg) => {
-                if (msg.data.body.product.id !== productId) {
+            // 3. Evento de novo produto no leilão
+            socket.on(`${auct_id}-playing-auction`, (message) => {
+                if (message.data && message.data.body && message.data.body.product && 
+                    message.data.body.product.id !== productId) {
                     setShowWinner(false);
                     setIsAuctionFinished(false);
-                    getCurrentProduct(msg.data.body.product.id);
+                    getCurrentProduct(message.data.body.product.id);
                 }
             });
-        });
-        
-        // 4. Evento de fim de leilão
-        socket.on(`${auct_id}-auct-finished`, () => {
-            console.log("Floor Bids - Auction finished event received");
-            if (isMounted.current) {
-                setIsAuctionFinished(true);
-            }
-        });
-        
-        // 5. Evento de reconexão
-        socket.on('reconnect', () => {
-            console.log("Floor Bids - Reconnected to server");
-            socket.emit('join-auction-room', { 
-                auct_id: auct_id,
-                instance_id: instanceId.current,
-                client_type: "floor_bids"
+            
+            // 4. Evento de fim de leilão
+            socket.on(`${auct_id}-auct-finished`, () => {
+                console.log("Floor Bids - Auction finished event received");
+                if (isMounted.current) {
+                    setIsAuctionFinished(true);
+                }
             });
-        });
+            
+        };
         
-    }, [auct_id, productId, getCurrentProduct]);
-
-    // Inicializar ao montar o componente
-    useEffect(() => {
-        isMounted.current = true;
+        setupSocket();
+        
+        // Carregar informações iniciais
+        if (productId) {
+            getCurrentProduct(productId);
+        }
         
         return () => {
             isMounted.current = false;
@@ -248,17 +229,34 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
                 clearTimeout(winnerTimeoutRef.current);
             }
         };
-    }, []);
-
-    // Atualizar quando o produto ou leilão mudarem
-    useEffect(() => {
-        if (productId) {
-            getCurrentProduct(productId);
-            setShowWinner(false);
-            setIsAuctionFinished(false);
-            setupWebSocket();
+    }, [auct_id, productId, getCurrentProduct]);
+    
+    // Função específica para buscar lances do produto atual
+    const fetchCurrentProductBids = async (product_id) => {
+        if (!product_id || !isMounted.current) return;
+        
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`
+            );
+            
+            if (response.data && response.data.Bid && isMounted.current) {
+                const sortedBids = response.data.Bid.slice(-10).reverse();
+                setBidsCards(sortedBids);
+                
+                // Encontra o maior lance entre os lances
+                if (sortedBids.length > 0) {
+                    const highest = sortedBids.reduce((max, bid) => 
+                        parseFloat(bid.value) > parseFloat(max.value) ? bid : max,
+                        sortedBids[0]
+                    );
+                    setHighestBid(highest);
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao buscar lances do produto:", error);
         }
-    }, [productId, auct_id, getCurrentProduct, setupWebSocket]);
+    };
 
     // Lidar com a exibição do vencedor
     useEffect(() => {

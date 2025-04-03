@@ -10,7 +10,6 @@ function AuctFloorLiveCounter({ socket, currentClient, auct_id }) {
     // Função para solicitar atualização da contagem
     const requestUserCount = useCallback(() => {
         if (socket && socket.connected && currentClient && auct_id) {
-            console.log("Solicitando contagem de usuários...");
             socket.emit('request-user-count', { 
                 auct_id, 
                 clientId: currentClient.id 
@@ -20,12 +19,12 @@ function AuctFloorLiveCounter({ socket, currentClient, auct_id }) {
 
     // Handler para processamento da contagem de usuários
     const handleUserCount = useCallback((response) => {
-        console.log("Resposta do websocket:", response);
         
         if (response?.data?.body?.instance_id === currentClient?.id) {
             const count = response.data.body.count;
             setConnectedUsers(count);
         }
+
     }, [currentClient]);
 
     // Configurar eventos ao montar o componente
@@ -34,7 +33,6 @@ function AuctFloorLiveCounter({ socket, currentClient, auct_id }) {
 
         // Handler para quando o socket se conecta
         const handleConnect = () => {
-            console.log("Socket conectado no contador");
             requestUserCount();
         };
 

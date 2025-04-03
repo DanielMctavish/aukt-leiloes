@@ -101,7 +101,7 @@ function AuctFloor() {
 
         // Adicionar listener para sucesso na conexão
         socket.on('connect', () => {
-            console.log("Socket conectado com sucesso!");
+            // console.log("Socket conectado com sucesso!");
             setIsLoading(false);
         });
 
@@ -126,7 +126,7 @@ function AuctFloor() {
             socket.on(`${auct_id}-playing-auction`, (message) => {
                 if (message.data && message.data.body && message.data.body.auct_id === auct_id) {
                     processMessageOnce(`${auct_id}-playing-auction`, message, (msg) => {
-                        console.log("Recebendo mensagem do leilão:", msg);
+                        // console.log("Recebendo mensagem do leilão:", msg);
                         setSocketMessage(msg);
 
                         if (!currentProduct || (msg.data.body.product && currentProduct.id !== msg.data.body.product.id)) {
@@ -145,9 +145,9 @@ function AuctFloor() {
             });
 
             socket.on(`${auct_id}-auct-finished`, (message) => {
-                console.log("AuctFloor - Auction finished event received:", message);
-                processMessageOnce(`${auct_id}-auct-finished`, message, (msg) => {
-                    console.log("Leilão finalizado:", msg);
+                // console.log("AuctFloor - Auction finished event received:", message);
+                processMessageOnce(`${auct_id}-auct-finished`, message, () => {
+                    // console.log("Leilão finalizado:", msg);
                     setIsAuctionFinished(true);
                     getCurrentAuction();
                 });

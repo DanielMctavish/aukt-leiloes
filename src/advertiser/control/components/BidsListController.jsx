@@ -29,7 +29,11 @@ function BidsListController() {
             );
             
             if (response.data && response.data.Bid && isMounted.current) {
-                setAllBids(response.data.Bid);
+                // Ordenar os lances do mais recente para o mais antigo
+                const sortedBids = [...response.data.Bid].sort((a, b) => 
+                    new Date(b.created_at) - new Date(a.created_at)
+                );
+                setAllBids(sortedBids);
             }
         } catch (error) {
             console.error("Erro ao buscar lances do produto:", error);

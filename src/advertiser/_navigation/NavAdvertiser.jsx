@@ -124,7 +124,7 @@ function NavAdvertiser() {
               <span className="ml-2 text-sm text-gray-500">
                 {AdvertiserInfor.nano_id}
               </span>
-              <span>(editado 2.0)</span>
+              <span>(editado 3.0)</span>
             </div>
           </div>
 
