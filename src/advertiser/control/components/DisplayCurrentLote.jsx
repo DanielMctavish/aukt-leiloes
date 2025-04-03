@@ -70,7 +70,6 @@ function DisplayCurrentLote() {
             socket.on(`${generalAUK.auct.id}-playing-auction`, (message) => {
                 if (message.data && message.data.body && message.data.body.auct_id === generalAUK.auct.id) {
                     processMessageOnce(`${generalAUK.auct.id}-playing-auction`, message, (msg) => {
-                        console.log("Mensagem playing auction recebida:", msg);
                         
                         if (msg.data.body.product) {
                             dispatch(setCurrentProduct(msg.data.body.product));
@@ -139,7 +138,8 @@ function DisplayCurrentLote() {
             
             // Adicionar manipulador de reconexão
             socket.on('reconnect', () => {
-                console.log("Reconectado ao servidor. Rejuntando-se à sala do leilão.");
+               
+
                 socket.emit('join-auction-room', { 
                     auct_id: generalAUK.auct.id,
                     instance_id: instanceId,

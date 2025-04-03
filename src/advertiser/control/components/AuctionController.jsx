@@ -34,43 +34,37 @@ function AuctionController() {
     // Calcular o tempo estimado restante com base nos lotes e no produto atual
     useEffect(() => {
         if (generalAUK.auct && generalAUK.auct.product_list) {
-            // Filtrar apenas os produtos que não têm vencedor (winner_id)
-            const remainingProducts = generalAUK.auct.product_list.filter(product => !product.winner_id);
+            // Filtrar produtos que não têm vencedor (winner_id)
+            const productsWithoutWinner = generalAUK.auct.product_list.filter(
+                product => !product.winner_id
+            );
             
-            if (generalAUK.currentProduct) {
-                // Encontrar o índice do produto atual na lista de produtos restantes
-                const currentIndex = remainingProducts.findIndex(
-                    p => p.id === generalAUK.currentProduct.id
+            // Ordenar produtos pelo número do lote para garantir a sequência correta
+            const sortedProducts = [...productsWithoutWinner].sort(
+                (a, b) => (a.lote || 0) - (b.lote || 0)
+            );
+            
+            if (generalAUK.currentProduct && generalAUK.currentProduct.lote) {
+                // Filtrar produtos com número de lote maior ou igual ao atual
+                // (incluindo o lote atual)
+                const remainingProducts = sortedProducts.filter(
+                    product => (product.lote || 0) >= (generalAUK.currentProduct.lote || 0)
                 );
                 
-                if (currentIndex !== -1) {
-                    // Calcular quantos produtos restam após o atual
-                    const remaining = remainingProducts.length - (currentIndex + 1);
-                    setRemainingLots(remaining);
-                    
-                    // Calcular o tempo estimado (30 segundos por lote)
-                    const totalSeconds = remaining * 30;
-                    const hours = Math.floor(totalSeconds / 3600);
-                    const minutes = Math.floor((totalSeconds % 3600) / 60);
-                    const seconds = totalSeconds % 60;
-                    
-                    setEstimatedTime({ hours, minutes, seconds });
-                } else {
-                    // Se o produto atual não estiver na lista de restantes (pode já ter um vencedor)
-                    setRemainingLots(remainingProducts.length);
-                    
-                    const totalSeconds = remainingProducts.length * 30;
-                    const hours = Math.floor(totalSeconds / 3600);
-                    const minutes = Math.floor((totalSeconds % 3600) / 60);
-                    const seconds = totalSeconds % 60;
-                    
-                    setEstimatedTime({ hours, minutes, seconds });
-                }
-            } else {
-                // Se não houver produto atual, considerar todos os produtos sem vencedor
                 setRemainingLots(remainingProducts.length);
                 
+                // Calcular o tempo estimado (30 segundos por lote)
                 const totalSeconds = remainingProducts.length * 30;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                setEstimatedTime({ hours, minutes, seconds });
+            } else {
+                // Se não houver produto atual, considerar todos os produtos sem vencedor
+                setRemainingLots(sortedProducts.length);
+                
+                const totalSeconds = sortedProducts.length * 30;
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
                 const seconds = totalSeconds % 60;
