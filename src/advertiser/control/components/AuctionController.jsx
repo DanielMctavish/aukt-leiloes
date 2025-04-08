@@ -1,7 +1,18 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { PlayArrow, SkipNext, PauseCircleFilledOutlined, AccessTime, PlayCircleFilledWhite, OpenInNew, HourglassEmpty } from "@mui/icons-material";
-import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
+import {
+    PlayArrow,
+    SkipNext,
+    PauseCircleFilledOutlined,
+    AccessTime,
+    PlayCircleFilledWhite,
+    OpenInNew,
+    HourglassEmpty,
+    Speed,
+    Check
+} from "@mui/icons-material";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,11 +24,16 @@ import {
     killAuction
 } from "../control-usecases/auctionControlUseCases";
 
+
 function AuctionController() {
     const [cookieSession, setCookieSession] = useState(null);
     const [loadNext, setLoadNext] = useState(false);
     const [remainingLots, setRemainingLots] = useState(0);
     const [estimatedTime, setEstimatedTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const [loteTimeValue, setLoteTimeValue] = useState(30); // Valor padrão inicial: 30 segundos
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const debounceTimerRef = useRef(null); // Referência para o timer de debounce
+    const successTimeoutRef = useRef(null);
     const generalAUK = useSelector(state => state.generalAUK);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -31,44 +47,54 @@ function AuctionController() {
         setCookieSession(JSON.parse(session));
     }, [navigate]);
 
+    // Atualiza o valor do input range quando o leilão muda
+    useEffect(() => {
+        if (generalAUK.auct && generalAUK.auct.product_timer_seconds) {
+            setLoteTimeValue(generalAUK.auct.product_timer_seconds);
+        }
+    }, [generalAUK.auct]);
+
     // Calcular o tempo estimado restante com base nos lotes e no produto atual
     useEffect(() => {
+
+        // console.log('generalAUK.auct --> ', generalAUK.auct);
+
         if (generalAUK.auct && generalAUK.auct.product_list) {
             // Filtrar produtos que não têm vencedor (winner_id)
             const productsWithoutWinner = generalAUK.auct.product_list.filter(
                 product => !product.winner_id
             );
-            
+
             // Ordenar produtos pelo número do lote para garantir a sequência correta
             const sortedProducts = [...productsWithoutWinner].sort(
                 (a, b) => (a.lote || 0) - (b.lote || 0)
             );
-            
+
             if (generalAUK.currentProduct && generalAUK.currentProduct.lote) {
                 // Filtrar produtos com número de lote maior ou igual ao atual
                 // (incluindo o lote atual)
                 const remainingProducts = sortedProducts.filter(
                     product => (product.lote || 0) >= (generalAUK.currentProduct.lote || 0)
                 );
-                
+
                 setRemainingLots(remainingProducts.length);
-                
-                // Calcular o tempo estimado (30 segundos por lote)
-                const totalSeconds = remainingProducts.length * 30;
+
+                // Calcular o tempo estimado usando o valor atual de tempo por lote
+                const totalSeconds = remainingProducts.length * (generalAUK.auct.product_timer_seconds || loteTimeValue);
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
                 const seconds = totalSeconds % 60;
-                
+
                 setEstimatedTime({ hours, minutes, seconds });
             } else {
                 // Se não houver produto atual, considerar todos os produtos sem vencedor
                 setRemainingLots(sortedProducts.length);
-                
-                const totalSeconds = sortedProducts.length * 30;
+
+                const totalSeconds = sortedProducts.length * (generalAUK.auct.product_timer_seconds || loteTimeValue);
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
                 const seconds = totalSeconds % 60;
-                
+
                 setEstimatedTime({ hours, minutes, seconds });
             }
         } else {
@@ -76,7 +102,7 @@ function AuctionController() {
             setRemainingLots(0);
             setEstimatedTime({ hours: 0, minutes: 0, seconds: 0 });
         }
-    }, [generalAUK.auct, generalAUK.currentProduct]);
+    }, [generalAUK.auct, generalAUK.currentProduct, loteTimeValue]);
 
     const isRunning = generalAUK.status === 'live';
     const isPaused = generalAUK.status === 'paused';
@@ -116,10 +142,69 @@ function AuctionController() {
 
     useEffect(() => {
     }, [loadNext]);
-    
+
 
     // Desabilitar botões se não houver leilão selecionado ou se o leilão estiver finalizado
     const isDisabled = !generalAUK.auct || isFinished;
+
+    // Função para atualizar o valor do range de tempo por lote com debounce
+    const handleLoteTimeChange = async (e) => {
+        const newValue = parseInt(e.target.value);
+        setLoteTimeValue(newValue); // Atualiza o UI imediatamente
+
+        // Limpa o timer anterior se houver
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+
+        // Limpa o timeout da mensagem de sucesso se existir
+        if (successTimeoutRef.current) {
+            clearTimeout(successTimeoutRef.current);
+            setShowSuccessMessage(false);
+        }
+
+        // Define um novo timer de 500ms para enviar o valor final
+        debounceTimerRef.current = setTimeout(async () => {
+            const configAuth = {
+                headers: {
+                    "Authorization": `Bearer ${cookieSession.token}`
+                }
+            }
+
+            if (generalAUK.auct && generalAUK.auct.product_timer_seconds !== newValue) {
+                try {
+                    await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${generalAUK.auct.id}`, {
+                        product_timer_seconds: newValue,
+                    }, configAuth);
+
+                    // Mostra a mensagem de sucesso
+                    setShowSuccessMessage(true);
+                    
+                    // Remove a mensagem após 2 segundos
+                    successTimeoutRef.current = setTimeout(() => {
+                        setShowSuccessMessage(false);
+                    }, 2000);
+
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            debounceTimerRef.current = null;
+        }, 500);
+    };
+
+    // Limpar os timers pendentes quando o componente for desmontado
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+            if (successTimeoutRef.current) {
+                clearTimeout(successTimeoutRef.current);
+            }
+        };
+    }, []);
 
     return (
         <div className="flex bg-white w-full h-[50%] rounded-xl shadow-lg p-4">
@@ -135,7 +220,7 @@ function AuctionController() {
 
                     {/* Botão Finalizar movido para o header */}
                     {generalAUK.auct && generalAUK.status === "live" && (
-                        <button 
+                        <button
                             onClick={killAuctionHandler}
                             className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl 
                                 font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
@@ -174,109 +259,203 @@ function AuctionController() {
                     </div>
                 )}
 
-                {/* Grid de Botões */}
-                <div className="grid grid-cols-3 gap-4 p-6">
-                    {/* Botão Iniciar */}
-                    <button 
-                        onClick={playAuction}
-                        disabled={isRunning || isDisabled} 
-                        className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                            font-medium transition-all duration-200 ${
-                            isRunning || isDisabled 
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
-                        }`}
-                    >
-                        <PlayArrow sx={{ fontSize: 24 }} />
-                        <span>Iniciar</span>
-                    </button>
-
-                    {/* Botão Próximo */}
-                    {!loadNext ? (
-                        <button 
-                            onClick={nextProduct}
-                            disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                                font-medium transition-all duration-200 ${
-                                !isRunning || isDisabled
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
-                                }`}
-                        >
-                            <SkipNext sx={{ fontSize: 24 }} />
-                            <span>Próximo</span>
-                        </button>
-                    ) : (
-                        <div className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                            bg-[#1e3d54] text-white shadow-md">
-                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                            <span>Passando...</span>
-                        </div>
-                    )}
-
-                    {/* Botão Pausar/Retomar */}
-                    {isPaused ? (
-                        <button 
-                            onClick={resumeAuction}
-                            disabled={isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                                font-medium transition-all duration-200 ${
-                                isDisabled
+                {/* Conteúdo Principal - Dividido em duas colunas */}
+                <div className="flex w-full p-6 gap-6">
+                    {/* Coluna Esquerda - 6 Botões de Controle */}
+                    <div className="w-1/2 grid grid-cols-3 gap-3">
+                        {/* Botão Iniciar */}
+                        <button
+                            onClick={playAuction}
+                            disabled={isRunning || isDisabled}
+                            title="Iniciar Leilão"
+                            className={`flex items-center justify-center p-4 rounded-xl 
+                                transition-all duration-200 ${isRunning || isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
                                 }`}
                         >
-                            <PlayCircleFilledWhite sx={{ fontSize: 24 }} />
-                            <span>Retomar</span>
+                            <PlayArrow sx={{ fontSize: 28 }} />
                         </button>
-                    ) : (
-                        <button 
-                            onClick={pauseAuction}
-                            disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                                font-medium transition-all duration-200 ${
-                                !isRunning || isDisabled
+
+                        {/* Botão Próximo */}
+                        {!loadNext ? (
+                            <button
+                                onClick={nextProduct}
+                                disabled={!isRunning || isDisabled}
+                                title="Próximo Lote"
+                                className={`flex items-center justify-center p-4 rounded-xl 
+                                    transition-all duration-200 ${!isRunning || isDisabled
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                    }`}
+                            >
+                                <SkipNext sx={{ fontSize: 28 }} />
+                            </button>
+                        ) : (
+                            <div className="flex items-center justify-center p-4 rounded-xl 
+                                bg-[#1e3d54] text-white shadow-md">
+                                <div className="animate-spin h-7 w-7 border-2 border-white border-t-transparent rounded-full" />
+                            </div>
+                        )}
+
+                        {/* Botão Pausar/Retomar */}
+                        {isPaused ? (
+                            <button
+                                onClick={resumeAuction}
+                                disabled={isDisabled}
+                                title="Retomar Leilão"
+                                className={`flex items-center justify-center p-4 rounded-xl 
+                                    transition-all duration-200 ${isDisabled
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
+                                    }`}
+                            >
+                                <PlayCircleFilledWhite sx={{ fontSize: 28 }} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={pauseAuction}
+                                disabled={!isRunning || isDisabled}
+                                title="Pausar Leilão"
+                                className={`flex items-center justify-center p-4 rounded-xl 
+                                    transition-all duration-200 ${!isRunning || isDisabled
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                    }`}
+                            >
+                                <PauseCircleFilledOutlined sx={{ fontSize: 28 }} />
+                            </button>
+                        )}
+
+                        {/* Botões de Tempo */}
+                        {[5, 15, 30].map((time) => (
+                            <button
+                                key={time}
+                                onClick={() => addTime(time)}
+                                disabled={!isRunning || isDisabled}
+                                title={`Adicionar ${time} segundos`}
+                                className={`flex items-center justify-center p-4 rounded-xl 
+                                    transition-all duration-200 ${!isRunning || isDisabled
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                    }`}
+                            >
+                                <div className="relative">
+                                    <AccessTime sx={{ fontSize: 28 }} />
+                                    <div className="absolute -top-1 -right-1 bg-white text-[#012038] rounded-full 
+                                        text-xs font-bold w-4 h-4 flex items-center justify-center">
+                                        {time}
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Coluna Direita - Botão Ir para Pregão e espaço para futuro input range */}
+                    <div className="w-1/2 flex flex-col gap-3">
+                        {/* Botão Ir para Pregão */}
+                        <button
+                            onClick={openAuctionFloor}
+                            disabled={isDisabled}
+                            title="Abrir Pregão"
+                            className={`flex items-center justify-center p-4 gap-3 rounded-xl 
+                                transition-all duration-200 ${isDisabled
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
+                                    : 'bg-[#082338] text-white hover:bg-[#0e3456] shadow-md'
                                 }`}
                         >
-                            <PauseCircleFilledOutlined sx={{ fontSize: 24 }} />
-                            <span>Pausar</span>
+                            <OpenInNew sx={{ fontSize: 28 }} />
+                            <span>ir pra pregão</span>
                         </button>
-                    )}
 
-                    {/* Botões de Tempo */}
-                    {[5, 15, 30].map((time) => (
-                        <button 
-                            key={time}
-                            onClick={() => addTime(time)}
-                            disabled={!isRunning || isDisabled}
-                            className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                                font-medium transition-all duration-200 ${
-                                !isRunning || isDisabled
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-[#012038] text-white hover:bg-[#266da4] shadow-md'
-                                }`}
-                        >
-                            <AccessTime sx={{ fontSize: 24 }} />
-                            <span>+{time}s</span>
-                        </button>
-                    ))}
+                        {/* Espaço reservado para futuro input range */}
+                        <div className="flex-1 p-3 bg-gray-50 rounded-xl border border-gray-200 flex flex-col gap-2">
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-1 text-[#012038]">
+                                    <Speed sx={{ fontSize: 18 }} className="text-blue-600" />
+                                    <span className="text-sm font-medium">Tempo por lote:</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {showSuccessMessage && (
+                                        <div className="flex items-center gap-1 text-green-600 text-[12px] text-sm animate-fade-in-out">
+                                            <Check sx={{ fontSize: 12 }} />
+                                            <span className="text-[12px]">Tempo atualizado</span>
+                                        </div>
+                                    )}
+                                    <span className="font-bold text-sm bg-[#012038] text-white px-2 py-0.5 rounded-lg">
+                                        {loteTimeValue}s
+                                    </span>
+                                </div>
+                            </div>
 
-                    {/* Botão Ir para Pregão */}
-                    <button 
-                        onClick={openAuctionFloor}
-                        disabled={isDisabled}
-                        className={`col-span-3 flex items-center justify-center gap-2 px-4 py-4 rounded-xl 
-                            font-medium transition-all duration-200 mt-2 ${
-                            isDisabled
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-[#082338] text-white hover:from-blue-700 hover:to-indigo-700 shadow-md'
-                            }`}
-                    >
-                        <OpenInNew sx={{ fontSize: 24 }} />
-                        <span>Ir para Pregão</span>
-                    </button>
+                            <style>
+                                {`
+                                @keyframes fadeInOut {
+                                    0% { opacity: 0; transform: translateY(-5px); }
+                                    10% { opacity: 1; transform: translateY(0); }
+                                    90% { opacity: 1; transform: translateY(0); }
+                                    100% { opacity: 0; transform: translateY(-5px); }
+                                }
+                                .animate-fade-in-out {
+                                    animation: fadeInOut 2s ease-in-out;
+                                }
+                                `}
+                            </style>
+
+                            <div className="flex items-center w-full">
+                                <span className="text-[10px] text-gray-500 mr-1 w-5 text-right">1s</span>
+                                <div className="relative flex-1">
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="100"
+                                        value={loteTimeValue}
+                                        onChange={handleLoteTimeChange}
+                                        disabled={isRunning}
+                                        className={`w-full h-1.5 rounded-full appearance-none cursor-pointer relative z-10
+                                            ${isRunning ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-gray-200'}
+                                            [&::-webkit-slider-thumb]:appearance-none 
+                                            [&::-webkit-slider-thumb]:h-4 
+                                            [&::-webkit-slider-thumb]:w-4 
+                                            [&::-webkit-slider-thumb]:rounded-full 
+                                            [&::-webkit-slider-thumb]:bg-[#012038] 
+                                            [&::-webkit-slider-thumb]:border-2 
+                                            [&::-webkit-slider-thumb]:border-white 
+                                            [&::-webkit-slider-thumb]:shadow-md
+                                            ${isRunning ? '[&::-webkit-slider-thumb]:opacity-60' : ''}
+                                            [&::-moz-range-thumb]:appearance-none 
+                                            [&::-moz-range-thumb]:h-4 
+                                            [&::-moz-range-thumb]:w-4 
+                                            [&::-moz-range-thumb]:rounded-full 
+                                            [&::-moz-range-thumb]:bg-[#012038] 
+                                            [&::-moz-range-thumb]:border-2 
+                                            [&::-moz-range-thumb]:border-white 
+                                            [&::-moz-range-thumb]:shadow-md
+                                            ${isRunning ? '[&::-moz-range-thumb]:opacity-60' : ''}
+                                            [&:hover]:cursor-pointer
+                                            ${isRunning ? '[&:hover]:cursor-not-allowed' : ''}`}
+                                    />
+
+                                    {/* Área aumentada para facilitar o clique */}
+                                    <div className="absolute top-[-10px] left-0 w-full h-[30px] z-0"></div>
+
+                                    {/* Marcadores simplificados - posicionados atrás do slider */}
+                                    <div className={`absolute w-full top-2 flex justify-between px-0.5 pointer-events-none z-0 
+                                        ${isRunning ? 'opacity-60' : ''}`}>
+                                        {[1, 50, 100].map((mark) => (
+                                            <div key={mark} className="flex flex-col items-center">
+                                                <div className="w-px h-1 bg-gray-400"></div>
+                                                <span className="text-[8px] text-gray-500 mt-0.5">
+                                                    {mark === 1 ? 'Rápido' : mark === 100 ? 'Lento' : ''}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <span className="text-[10px] text-gray-500 ml-1 w-5">100s</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Mensagem de Finalizado */}

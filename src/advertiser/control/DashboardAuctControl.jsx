@@ -73,6 +73,7 @@ function DashboardAuctControl() {
                 <div className="flex flex-col lg:w-[80%] w-full h-[90vh]  mt-[8vh]
                 shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e900] 
                 overflow-y-auto rounded-lg">
+
                     <div className="flex lg:flex-row flex-col w-full lg:min-h-[75vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />
@@ -81,11 +82,13 @@ function DashboardAuctControl() {
                         <DisplayCurrentLote />
                     </div>
 
-                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[60vh] min-h-[100vh] p-1 gap-1">
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[40vh] min-h-[100vh] p-1 gap-1">
                         <FloorMessageSet />
                         <BidsListController />
                     </div>
+
                 </div>
+
             </section>
         </div>
     );
