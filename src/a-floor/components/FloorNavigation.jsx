@@ -1,12 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigate } from "react-router-dom"
-import { AccountCircle, Notifications, SpaceDashboard, Inventory, Close } from "@mui/icons-material";
+import { AccountCircle, Notifications, SpaceDashboard, Inventory, Close, Logout, Dashboard } from "@mui/icons-material";
 import "./floorStyles.css";
 import DisplayClock from "./DisplayClock";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 
 const ModalAllProducts = ({ products, onClose }) => {
 
@@ -146,13 +145,11 @@ const ModalAllProducts = ({ products, onClose }) => {
     );
 };
 
-function FloorNavigation({ auction, group }) {
+function FloorNavigation({ auction, group, setShowLoginModal }) {
     const [currentClient, setCurrentClient] = useState({})
     const [modalAllProducts, setModalAllProducts] = useState(false)
-    const [showLoginModal, setShowLoginModal] = useState(false)
-    const [loginData, setLoginData] = useState({ email: '', password: '' })
-    const [loginError, setLoginError] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
+    const [showUserMenu, setShowUserMenu] = useState(false)
+    const userMenuRef = useRef(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -185,41 +182,48 @@ function FloorNavigation({ auction, group }) {
             }
         } catch (error) {
             console.error("Erro ao verificar sessão:", error);
-
-            // Se houver erro na verificação, é mais seguro remover a sessão
             localStorage.removeItem("client-auk-session-login");
             setCurrentClient(null);
         }
     }
 
-    const handleLogin = async (e) => {
-        e.preventDefault()
-        setIsLoading(true)
-        setLoginError('')
+    // Ouvir evento de login bem-sucedido
+    useEffect(() => {
+        const handleLoginSuccess = (event) => {
+            setCurrentClient(event.detail);
+            setShowLoginModal(false);
+        };
 
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, loginData)
-            
-            if (response.data.token) {
-                const sessionData = {
-                    token: response.data.token,
-                    name: response.data.name,
-                    email: response.data.email
-                }
-                localStorage.setItem("client-auk-session-login", JSON.stringify(sessionData))
-                setCurrentClient(sessionData)
-                setShowLoginModal(false)
-                setLoginData({ email: '', password: '' })
+        window.addEventListener('clientLoginSuccess', handleLoginSuccess);
+
+        return () => {
+            window.removeEventListener('clientLoginSuccess', handleLoginSuccess);
+        };
+    }, []);
+
+    // Fechar menu quando clicar fora
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setShowUserMenu(false);
             }
-        } catch (error) {
-            setLoginError(error.response?.data?.message || 'Erro ao fazer login. Tente novamente.')
-        } finally {
-            setIsLoading(false)
-        }
-    }
+        };
 
-    
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
+    const handleLogout = () => {
+        localStorage.removeItem("client-auk-session-login");
+        setCurrentClient(null);
+        setShowUserMenu(false);
+        
+        // Disparar evento de logout
+        const logoutEvent = new CustomEvent('clientLogout');
+        window.dispatchEvent(logoutEvent);
+    };
 
     return (
         <motion.div
@@ -228,8 +232,9 @@ function FloorNavigation({ auction, group }) {
             transition={{ duration: 0.5 }}
             className="w-full min-h-[60px] lg:min-h-[100px] rounded-none lg:rounded-[22px] 
                 flex flex-col lg:flex-row justify-between p-2 lg:p-3 items-center 
-                bg-white/10 lg:bg-[#d2d2d291] backdrop-blur-md shadow-sm lg:shadow-xl shadow-[#1414143a] 
-                border-b border-white/10 lg:border-b-[2px] lg:border-[#e3e3e3] z-[2] relative gap-4 lg:gap-0"
+                bg-[#012038]/90 lg:bg-[#d2d2d291] backdrop-blur-md shadow-sm lg:shadow-xl shadow-[#1414143a] 
+                border-b border-white/10 lg:border-b-[2px] lg:border-[#e3e3e3] z-[2] relative gap-4 lg:gap-0
+                fixed lg:relative top-0 left-0 right-0"
         >
             <AnimatePresence>
                 {modalAllProducts && (
@@ -237,85 +242,6 @@ function FloorNavigation({ auction, group }) {
                         products={auction?.product_list}
                         onClose={() => setModalAllProducts(false)}
                     />
-                )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-                {showLoginModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-                        onClick={() => setShowLoginModal(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-[#012038]">Login</h2>
-                                <button 
-                                    onClick={() => setShowLoginModal(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    <Close />
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleLogin} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={loginData.email}
-                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 
-                                            focus:ring-[#012038] focus:border-transparent"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Senha
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={loginData.password}
-                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 
-                                            focus:ring-[#012038] focus:border-transparent"
-                                        required
-                                    />
-                                </div>
-
-                                {loginError && (
-                                    <div className="text-red-500 text-sm">
-                                        {loginError}
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className={`w-full py-2 px-4 rounded-lg text-white font-medium
-                                        transition-all duration-200 ${
-                                            isLoading 
-                                                ? 'bg-gray-400 cursor-not-allowed'
-                                                : 'bg-[#012038] hover:bg-[#023161]'
-                                        }`}
-                                >
-                                    {isLoading ? 'Entrando...' : 'Entrar'}
-                                </button>
-                            </form>
-                        </motion.div>
-                    </motion.div>
                 )}
             </AnimatePresence>
 
@@ -330,13 +256,8 @@ function FloorNavigation({ auction, group }) {
                             sx={{
                                 fontSize: "24px",
                                 cursor: "pointer",
-                                background: 'linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
+                                color: "#fff",
                                 '@media (min-width: 1024px)': {
-                                    background: 'none',
-                                    WebkitBackgroundClip: 'unset',
-                                    WebkitTextFillColor: 'unset',
                                     color: "#082841",
                                     fontSize: "36px",
                                 }
@@ -346,7 +267,7 @@ function FloorNavigation({ auction, group }) {
 
                     {/* Etiqueta leilão - Versão Mobile */}
                     {auction && (
-                        <div className="flex lg:hidden items-center gap-2 bg-black/40 p-1.5 pr-3 rounded-lg">
+                        <div className="flex lg:hidden items-center gap-2 bg-white/10 p-1.5 pr-3 rounded-lg">
                             <img
                                 src={auction.auct_cover_img}
                                 alt=""
@@ -357,7 +278,7 @@ function FloorNavigation({ auction, group }) {
                                     {auction.title}
                                 </span>
                                 {group && (
-                                    <span className="text-white/80 text-xs bg-white/10 px-1.5 rounded">
+                                    <span className="text-white/80 text-xs bg-white/20 px-1.5 rounded">
                                         Grupo {group}
                                     </span>
                                 )}
@@ -396,12 +317,12 @@ function FloorNavigation({ auction, group }) {
                     )}
                 </div>
 
-                <div className="flex items-center justify-end gap-6 lg:gap-8">
+                <div className="flex items-center justify-end gap-4 lg:gap-8">
                     <div className="hidden lg:block">
                         <DisplayClock message={auction.display_message} />
                     </div>
 
-                    <div className="flex gap-4 lg:gap-8 items-center">
+                    <div className="flex gap-3 lg:gap-8 items-center">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -410,13 +331,8 @@ function FloorNavigation({ auction, group }) {
                         >
                             <Inventory sx={{
                                 fontSize: "24px",
-                                background: 'linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
+                                color: "#fff",
                                 '@media (min-width: 1024px)': {
-                                    background: 'none',
-                                    WebkitBackgroundClip: 'unset',
-                                    WebkitTextFillColor: 'unset',
                                     color: "#012038",
                                     fontSize: "28px"
                                 }
@@ -431,59 +347,97 @@ function FloorNavigation({ auction, group }) {
                         >
                             <Notifications sx={{
                                 fontSize: "24px",
-                                background: 'linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
+                                color: "#fff",
                                 '@media (min-width: 1024px)': {
-                                    background: 'none',
-                                    WebkitBackgroundClip: 'unset',
-                                    WebkitTextFillColor: 'unset',
                                     color: "#012038",
                                     fontSize: "28px"
                                 }
                             }} />
                         </motion.button>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative" ref={userMenuRef}>
                             <motion.button 
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => currentClient ? navigate("/client/dashboard") : setShowLoginModal(true)}
+                                onClick={() => {
+                                    if (currentClient && Object.keys(currentClient).length > 0) {
+                                        setShowUserMenu(!showUserMenu);
+                                    } else {
+                                        setShowLoginModal(true);
+                                    }
+                                }}
                                 className="p-2 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
                             >
                                 <AccountCircle sx={{
                                     fontSize: "24px",
-                                    background: 'linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    color: "#fff",
                                     '@media (min-width: 1024px)': {
-                                        background: 'none',
-                                        WebkitBackgroundClip: 'unset',
-                                        WebkitTextFillColor: 'unset',
                                         color: "#012038",
                                         fontSize: "28px"
                                     }
                                 }} />
                             </motion.button>
                             <span className="hidden lg:block text-[#012038] font-medium">
-                                {currentClient ? (
+                                {currentClient && Object.keys(currentClient).length > 0 ? (
                                     <motion.span 
                                         whileHover={{ color: "#036982" }}
                                         className="cursor-pointer transition-colors"
-                                        onClick={() => navigate("/client/dashboard")}
+                                        onClick={() => setShowUserMenu(!showUserMenu)}
                                     >
                                         {currentClient.name}
                                     </motion.span>
                                 ) : (
                                     <motion.span 
                                         whileHover={{ color: "#036982" }}
-                                        className="cursor-pointer transition-colors"
+                                        className="cursor-pointer transition-colors text-white lg:text-[#012038]"
                                         onClick={() => setShowLoginModal(true)}
                                     >
                                         Acessar
                                     </motion.span>
                                 )}
                             </span>
+
+                            {/* Menu de Contexto do Usuário */}
+                            <AnimatePresence>
+                                {showUserMenu && currentClient && Object.keys(currentClient).length > 0 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl 
+                                            border border-gray-100 overflow-hidden z-50"
+                                    >
+                                        <div className="p-3 bg-gradient-to-r from-[#012038] to-[#023161] text-white">
+                                            <p className="text-sm font-medium truncate">{currentClient.name}</p>
+                                            <p className="text-xs text-white/70 truncate">{currentClient.email}</p>
+                                        </div>
+                                        
+                                        <div className="p-1">
+                                            <motion.button
+                                                whileHover={{ backgroundColor: "#f3f4f6" }}
+                                                onClick={() => {
+                                                    navigate("/client/dashboard");
+                                                    setShowUserMenu(false);
+                                                }}
+                                                className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 rounded-lg text-sm"
+                                            >
+                                                <Dashboard fontSize="small" />
+                                                <span>Meu Pregão</span>
+                                            </motion.button>
+
+                                            <motion.button
+                                                whileHover={{ backgroundColor: "#fee2e2" }}
+                                                onClick={handleLogout}
+                                                className="w-full flex items-center gap-2 px-3 py-2 text-red-600 rounded-lg text-sm"
+                                            >
+                                                <Logout fontSize="small" />
+                                                <span>Sair</span>
+                                            </motion.button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </div>
                 </div>

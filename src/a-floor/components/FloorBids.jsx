@@ -35,6 +35,22 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         }
     }, [parentIsAuctionFinished]);
 
+    // Ouvir evento de login bem-sucedido
+    useEffect(() => {
+        const handleLoginSuccess = () => {
+            // Recarregar os dados do produto atual
+            if (productId) {
+                getCurrentProduct(productId);
+            }
+        };
+
+        window.addEventListener('clientLoginSuccess', handleLoginSuccess);
+
+        return () => {
+            window.removeEventListener('clientLoginSuccess', handleLoginSuccess);
+        };
+    }, [productId]);
+
     // Função para obter informações do produto atual
     const getCurrentProduct = useCallback(async (product_id) => {
         if (!product_id || !isMounted.current) return;
@@ -318,26 +334,97 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     return (
         <div className={`
             ${isMobile 
-                ? 'w-full flex-col-reverse' // Mobile: inverte a ordem dos elementos
-                : 'min-w-[49vh] lg:h-[94%] min-h-[80vh] flex flex-col'
+                ? 'w-full h-full flex flex-col bg-[#012038]/90' // Mobile: layout vertical com fundo escuro
+                : 'min-w-[45vh] lg:h-[94%] min-h-[80vh] flex flex-col lg:mr-4' // Adicionado margin-right na versão desktop
             }
-            justify-start items-center relative p-4 
-            rounded-[22px] bg-white/10 backdrop-blur-lg 
+            justify-start items-center relative p-3 lg:p-4 
+            rounded-2xl backdrop-blur-lg 
             shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
             border border-white/20 z-[2] gap-3
         `}>
-            {/* Se for mobile, mostra apenas o CronCard */}
+            {/* Se for mobile, mostra CronCard no topo e lista de lances embaixo */}
             {isMobile ? (
-                <CronCard
-                    currentTime={timer ? timer : 0}
-                    duration={duration ? duration : 0}
-                    auct_id={auct_id ? auct_id : ""}
-                    initial_value={currentProduct.initial_value}
-                    real_value={currentProduct.real_value}
-                    currentProduct={currentProduct}
-                    onNewBid={handleNewBid}
-                    isAuctionFinished={isAuctionFinished}
-                />
+                <>
+                    <div className="w-full">
+                        <CronCard
+                            currentTime={timer ? timer : 0}
+                            duration={duration ? duration : 0}
+                            auct_id={auct_id ? auct_id : ""}
+                            initial_value={currentProduct.initial_value}
+                            real_value={currentProduct.real_value}
+                            currentProduct={currentProduct}
+                            onNewBid={handleNewBid}
+                            isAuctionFinished={isAuctionFinished}
+                        />
+                    </div>
+
+                    <div className="w-full flex-1 overflow-y-auto space-y-2 
+                        scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                        {isLoading ? (
+                            <div className="flex justify-center items-center h-32">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                            </div>
+                        ) : bidsCards.length > 0 ? (
+                            bidsCards.map((bid, index) => {
+                                const isWinner = isAuctionFinished && winner && bid.Client.id === winner.id;
+                                const isHighestBid = !isAuctionFinished && highestBid && bid.id === highestBid.id;
+                                
+                                return (
+                                    <div
+                                        key={bid.id || index}
+                                        className={`
+                                            w-full flex items-center justify-between p-2 rounded-xl text-sm
+                                            transition-all duration-300 relative overflow-hidden
+                                            ${isWinner 
+                                                ? 'bg-gradient-to-r from-green-500 to-green-600 shadow-lg shadow-green-500/20' 
+                                                : isHighestBid
+                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20'
+                                                    : 'bg-white/10 hover:bg-white/20'
+                                            }
+                                        `}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className={`
+                                                w-8 h-8 rounded-full overflow-hidden border-2
+                                                ${isWinner 
+                                                    ? 'border-white shadow-lg' 
+                                                    : isHighestBid
+                                                        ? 'border-white'
+                                                        : 'border-white/50'
+                                                }
+                                            `}>
+                                                <img
+                                                    src={avatarIndex[bid.Client.client_avatar]}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-white">
+                                                    {bid.Client.nickname}
+                                                </span>
+                                                <span className="text-xs text-white/70">
+                                                    {new Date(bid.created_at).toLocaleTimeString('pt-BR', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-base font-bold text-white">
+                                            R$ {parseInt(bid.value).toFixed(2)}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-32 text-white/70">
+                                <p>Nenhum lance registrado ainda</p>
+                            </div>
+                        )}
+                    </div>
+                </>
             ) : (
                 // Versão desktop mantém todo o conteúdo original
                 <>

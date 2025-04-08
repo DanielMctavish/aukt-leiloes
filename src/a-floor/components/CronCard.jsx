@@ -8,7 +8,7 @@ import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 
 function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
-    reserve_value, currentProduct, onNewBid, isAuctionFinished }) {
+    reserve_value, currentProduct, onNewBid, isAuctionFinished, isMobile }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [canBid, setCanBid] = useState(true);
     const [clientSession, setClientSession] = useState();
@@ -23,6 +23,25 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
 
     useEffect(() => {
         getClientSession();
+    }, []);
+
+    // Ouvir evento de login bem-sucedido
+    useEffect(() => {
+        const handleLoginSuccess = (event) => {
+            setClientSession(event.detail);
+        };
+
+        const handleLogout = () => {
+            setClientSession(null);
+        };
+
+        window.addEventListener('clientLoginSuccess', handleLoginSuccess);
+        window.addEventListener('clientLogout', handleLogout);
+
+        return () => {
+            window.removeEventListener('clientLoginSuccess', handleLoginSuccess);
+            window.removeEventListener('clientLogout', handleLogout);
+        };
     }, []);
 
     // Verificar se há vencedor
@@ -95,8 +114,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
             refBarDeadline.current.style.width = "0%";
         }
     }, [currentTime, duration, real_value]);
-
-
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
@@ -244,7 +261,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     };
 
     return (
-        <div className="w-full gap-4 flex flex-col justify-start items-center">
+        <div className={`w-full gap-2 lg:gap-4 flex flex-col justify-start items-center ${isMobile ? '-mx-2' : ''}`}>
             {/* Estilos para animações e barras de progresso */}
             <style>
                 {`
@@ -265,8 +282,6 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                     left: 0;
                     top: 0;
                     transition: width 1s linear;
-                    border-top-right-radius: 5px;
-                    border-bottom-right-radius: 5px;
                 }
                 
                 .progress-green {
@@ -291,9 +306,10 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                 `}
             </style>
             
-            <div className="w-full h-[70px] flex justify-between p-4 
-                bg-white/95 backdrop-blur-md shadow-lg rounded-xl 
-                items-center relative overflow-hidden border border-gray-100">
+            <div className={`w-full ${isMobile ? 'h-[45px]' : 'h-[70px]'} flex justify-between ${isMobile ? 'px-3 py-1' : 'p-4'} 
+                ${isMobile ? 'bg-white/10' : 'bg-white/95'} backdrop-blur-md 
+                ${isMobile ? '' : 'shadow-lg rounded-xl border border-gray-100'}
+                items-center relative overflow-hidden`}>
                 
                 {!isFinishedLot && !isAuctionFinished ? (
                     <>
@@ -306,7 +322,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                         {/* Mensagem de valor de reserva atingido */}
                         {showReserveMessage && (
                             <div className="absolute top-0 right-0 left-0 bg-green-500 text-white text-xs font-medium px-2 py-1 
-                                animate-pulse text-center z-30 rounded-t-xl">
+                                animate-pulse text-center z-30">
                                 Valor de reserva atingido!
                             </div>
                         )}
@@ -322,13 +338,13 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                                             ? 'bg-red-500/90'
                                             : 'bg-blue-500/90'
                                     }
-                                    px-6 py-3 rounded-lg shadow-lg transform
+                                    px-4 lg:px-6 py-2 lg:py-3 rounded-none lg:rounded-lg shadow-lg transform
                                     ${auctioneerCall === 'VENDIDO!' 
                                         ? 'animate-bounce' 
                                         : 'animate-pulse'
                                     }
                                 `}>
-                                    <span className="text-3xl font-bold tracking-wider text-white drop-shadow-md">
+                                    <span className={`${isMobile ? 'text-lg' : 'text-3xl'} font-bold tracking-wider text-white drop-shadow-md`}>
                                         {auctioneerCall}
                                     </span>
                                 </div>
@@ -336,17 +352,17 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                         ) : (
                             // Conteúdo normal
                             <>
-                                <div className="flex items-center gap-4 z-10">
+                                <div className="flex items-center gap-3 lg:gap-4 z-10">
                                     <FilledCircle percentage={percentual} />
-                                    <span className="text-xl font-bold text-gray-800">
+                                    <span className={`${isMobile ? 'text-base' : 'text-xl'} font-bold ${isMobile ? 'text-white' : 'text-gray-800'}`}>
                                         R$ {(real_value || initial_value)?.toFixed(2)}
                                     </span>
                                 </div>
 
                                 <div className="flex items-center z-10">
-                                    <span className={`text-2xl font-bold 
-                                        ${deadline <= 3 ? 'text-red-600 scale-110' : 'text-gray-800'} 
-                                        bg-white/80 px-4 py-2 rounded-lg shadow-sm
+                                    <span className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold 
+                                        ${deadline <= 3 ? 'text-red-400 scale-110' : isMobile ? 'text-white' : 'text-gray-800'} 
+                                        ${isMobile ? '' : 'bg-white/80 px-4 py-2 rounded-lg shadow-sm'}
                                         transition-all duration-300`}>
                                         {deadline}s
                                     </span>
@@ -357,7 +373,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 
                         flex justify-center items-center">
-                        <span className="font-bold text-2xl text-white tracking-wider">
+                        <span className={`font-bold ${isMobile ? 'text-lg' : 'text-2xl'} text-white tracking-wider`}>
                             {hasWinner ? 'VENDIDO!' : 'Lote Finalizado!'}
                         </span>
                     </div>
@@ -366,10 +382,12 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
 
             {/* Esconde os botões quando o cronômetro estiver em "VENDIDO!" ou não houver valores definidos */}
             {!isAuctionFinished && deadline > 0 && (initial_value || real_value) && (
-                <div className="w-full flex justify-between items-center gap-3">
-                    <div className="flex-1 h-[50px] bg-white/95 
-                        shadow-lg rounded-xl flex justify-center items-center
-                        font-medium text-gray-700 border border-gray-100">
+                <div className="w-full flex justify-between items-center gap-2">
+                    <div className={`flex-1 ${isMobile ? 'h-[35px] text-sm' : 'h-[50px]'} 
+                        ${isMobile ? 'bg-white/10' : 'bg-white/95'}
+                        ${isMobile ? '' : 'shadow-lg rounded-xl border border-gray-100'}
+                        flex justify-center items-center
+                        ${isMobile ? 'text-white' : 'text-gray-700'}`}>
                         R$ {getCurrentValue().toFixed(2)}
                     </div>
 
@@ -377,21 +395,22 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                         <button
                             onClick={handleBidAuctionLive}
                             disabled={!canBid}
-                            className={`flex-1 h-[50px] rounded-xl shadow-lg 
+                            className={`flex-1 ${isMobile ? 'h-[35px] text-sm' : 'h-[50px]'} 
+                                ${isMobile ? '' : 'rounded-xl shadow-lg'}
                                 flex justify-center items-center gap-2
                                 font-bold text-white transition-all duration-300
                                 ${canBid
                                     ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
                                     : 'bg-gray-400 cursor-not-allowed'}`}
                         >
-                            <Paid />
+                            <Paid sx={{ fontSize: isMobile ? 16 : 24 }} />
                             <span>+ R$ {getIncrementValue(getCurrentValue())},00</span>
                         </button>
                     ) : clientSession && (
-                        <div className="flex-1 h-[50px] bg-gradient-to-r from-green-500 to-green-600 
-                            rounded-xl shadow-lg flex justify-center items-center gap-2
-                            font-bold text-white">
-                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/>
+                        <div className={`flex-1 ${isMobile ? 'h-[35px] text-sm' : 'h-[50px]'} bg-gradient-to-r from-green-500 to-green-600 
+                            ${isMobile ? '' : 'rounded-xl shadow-lg'} flex justify-center items-center gap-2
+                            font-bold text-white`}>
+                            <div className="animate-spin rounded-full h-3 w-3 lg:h-5 lg:w-5 border-2 border-white border-t-transparent"/>
                             <span>Dando lance...</span>
                         </div>
                     )}

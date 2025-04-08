@@ -89,10 +89,9 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
     };
 
     return (
-        <section className="w-full h-[60vh] flex lg:flex-row flex-col 
+        <section className="w-full lg:h-[60vh] flex lg:flex-row flex-col 
             bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl shadow-xl shadow-[#1414143a] 
-            border-t-[2px] border-[#e3e3e3] relative z-[2] p-6 gap-6 overflow-hidden
-            mt-[80px] lg:mt-0"
+            border-t-[2px] border-[#e3e3e3] relative z-[2] p-4 lg:p-6 gap-6"
         >
             {/* Tela de Leilão Finalizado */}
             {isAuctionFinished && (
@@ -251,7 +250,7 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
             {description && (
                 <div className="flex lg:flex-row flex-col w-full h-full gap-3 lg:gap-6">
                     {/* Lado Esquerdo - Imagens */}
-                    <div className="lg:w-1/2 w-full h-[40vh] lg:h-full">
+                    <div className="lg:w-1/2 w-full h-[50vh] lg:h-full">
                         <div className="relative w-full h-full rounded-xl overflow-hidden shadow-lg 
                             bg-white/10 backdrop-blur-sm border border-white/20"
                         >

@@ -65,7 +65,8 @@ function AuctFloorLiveCounter({ socket, currentClient, auct_id }) {
         <AnimatePresence>
             {isVisible && (
                 <motion.div
-                    className="fixed top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-[1000] flex items-center gap-2"
+                    className="fixed top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-[1000] 
+                        flex items-center gap-2 hidden lg:flex"
                     initial={{ opacity: 0, scale: 0.8, y: -20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: -20 }}
@@ -103,7 +104,8 @@ function AuctFloorLiveCounter({ socket, currentClient, auct_id }) {
             {/* Botão para mostrar o contador quando estiver escondido */}
             {!isVisible && (
                 <motion.button
-                    className="fixed top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg z-[1000]"
+                    className="fixed top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg z-[1000] 
+                        hidden lg:block"
                     onClick={toggleVisibility}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
