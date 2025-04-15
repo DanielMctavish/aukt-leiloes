@@ -7,7 +7,6 @@ import io from "socket.io-client";
 
 // Componentes
 import BidInterface from "./BidInterface";
-import NotificationSystem from "./NotificationSystem";
 import ProductHeader from "./ProductHeader";
 import ProductContent from "./ProductContent";
 import BidsList from "./BidsList";
@@ -31,11 +30,11 @@ function ProductInformation({ children, ...props }) {
     const { 
         bidValue, setBidValue, isLoadingBid, setIsloadingBid,
         isAutoBidEnabled, setIsAutoBidEnabled, hasAutoBid, setHasAutoBid,
-        autoBidLimit, setAutoBidLimit, calculateNextBidValue, getIncrementValue,
+        autoBidLimit, setAutoBidLimit, calculateNextBidValue,
         handleSetBid, handleSetAutoBidLimit, toggleAutoBid, disableAutoBid
     } = useBidding(props, currentSession);
     
-    const { showOutbidNotification, setShowOutbidNotification, lastBidClient, setLastBidClient } = useNotifications();
+    const { setShowOutbidNotification, setLastBidClient } = useNotifications();
     
     // Refs para os timeouts e úteis para evitar atualizações duplicadas
     const notificationTimeoutRef = useRef(null);
@@ -185,14 +184,32 @@ function ProductInformation({ children, ...props }) {
         checkAutoBid();
     }, [props.currentProduct?.id, calculateNextBidValue, checkAutoBid]);
 
+    // Inicializar a sessão do cliente
     useEffect(() => {
-        const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
-        setCurrentSession(currentSession);
+        try {
+            const clientSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
+            if (clientSession && clientSession.token) {
+                console.log("Sessão do cliente encontrada no localStorage:", clientSession.email);
+                setCurrentSession(clientSession);
+                
+                // Verificar se o cliente tem lance automático para este produto
+                if (props.currentProduct?.id) {
+                    checkAutoBid();
+                }
+            } else {
+                console.log("Nenhuma sessão de cliente encontrada no localStorage");
+                setCurrentSession(null);
+            }
+        } catch (error) {
+            console.error("Erro ao carregar a sessão do cliente:", error);
+            setCurrentSession(null);
+        }
 
-        console.log("observando todos os lances", props.currentProduct.Bid)
+        console.log("Observando todos os lances", props.currentProduct.Bid);
 
         // Adicionar listener para o evento de login bem-sucedido
         const handleLoginSuccess = (event) => {
+            console.log("Evento de login bem-sucedido detectado:", event.detail);
             setCurrentSession(event.detail);
             checkAutoBid();
             showMessage(`Bem-vindo, ${event.detail.name}! Você está pronto para dar lances.`, 'success');
@@ -224,8 +241,9 @@ function ProductInformation({ children, ...props }) {
         return () => {
             window.removeEventListener('productChanged', handleProductChanged);
         };
-    }, [checkAutoBid, setIsAutoBidEnabled, setHasAutoBid]);
+    }, [checkAutoBid]);
 
+    // Escutar eventos de mudança de estado do cliente (login/logout)
     useEffect(() => {
         const handleClientStateChanged = (event) => {
             const { type, data } = event.detail;
@@ -253,7 +271,7 @@ function ProductInformation({ children, ...props }) {
         return () => {
             window.removeEventListener('clientStateChanged', handleClientStateChanged);
         };
-    }, [checkAutoBid, setCurrentSession, setBidValue, setIsAutoBidEnabled, setHasAutoBid]);
+    }, [checkAutoBid]);
 
     // Efeito para limpar timeouts quando o componente é desmontado
     useEffect(() => {
@@ -289,11 +307,16 @@ function ProductInformation({ children, ...props }) {
                 <div className="w-full mt-2 md:mt-4">
                     <div className="w-full max-w-full">
                         <BidInterface
-                            bidValue={bidValue}
+                            currentSession={currentSession}
+                            hasAutoBid={hasAutoBid}
+                            isAutoBidEnabled={isAutoBidEnabled}
+                            disableAutoBid={() => disableAutoBid(showMessage)}
                             isLoadingBid={isLoadingBid}
-                            currentProduct={props.currentProduct}
-                            currentClient={props.currentClient}
+                            bidValue={bidValue}
+                            formatCurrency={formatCurrency}
                             handleSetBid={handleSetBid}
+                            handleSetAutoBidLimit={handleSetAutoBidLimit}
+                            autoBidLimit={autoBidLimit}
                             handleBidConfirm={() => handleBidConfirm({
                                 bidValue,
                                 productId: props.currentProduct?.id,

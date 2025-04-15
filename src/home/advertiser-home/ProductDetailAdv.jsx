@@ -155,8 +155,9 @@ function ProductDetailAdv() {
                 <div className="w-full max-w-[1480px] mx-auto">
                     {/* Cabeçalho com informações do leiloeiro */}
                     {currentAuct && currentAdvertiser && (
-                        <div className='flex w-full justify-between items-center gap-2 text-zinc-800 mb-3'>
-                            <div className='flex justify-center items-center gap-2'>
+                        <div className='flex w-full justify-end items-center gap-2 text-zinc-800 mb-3'>
+                            {/* Informações do anunciante à direita */}
+                            <div className='flex justify-end items-center gap-2'>
                                 {currentAdvertiser.url_profile_cover ? (
                                     <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
                                 ) : (

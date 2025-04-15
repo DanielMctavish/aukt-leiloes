@@ -1,9 +1,32 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect } from "react";
+
 // Componente com a interface de lances
 const BidInterface = ({ 
     currentSession, hasAutoBid, isAutoBidEnabled, disableAutoBid, isLoadingBid,
     handleSetBid, bidValue, formatCurrency, handleSetAutoBidLimit, autoBidLimit,
     handleBidConfirm, toggleAutoBid, props
 }) => {
+
+    useEffect(() => {
+        console.log("observando currentSession --> ", currentSession)
+    }, [currentSession])
+
+    // Verificar login do cliente via localStorage como fallback
+    const clientIsLoggedIn = () => {
+        try {
+            // Se temos currentSession, usá-lo primeiro
+            if (currentSession) return true;
+            
+            // Fallback para verificar diretamente o localStorage
+            const storedSession = localStorage.getItem("client-auk-session-login");
+            return !!storedSession && !!JSON.parse(storedSession)?.token;
+        } catch (error) {
+            console.error("Erro ao verificar sessão do cliente:", error);
+            return false;
+        }
+    };
+
     // Renderizar interfaces diferentes dependendo do estado do produto e do usuário
     const renderBiddingInterface = () => {
         if (props.currentProduct.Winner) {
@@ -21,7 +44,10 @@ const BidInterface = ({
             );
         }
 
-        return currentSession ? (
+        // Verificar o login do cliente com o método aprimorado
+        const isLoggedIn = clientIsLoggedIn();
+
+        return isLoggedIn ? (
             <div className='flex flex-col gap-3'>
                 {/* Indicador de lance automático ativo */}
                 {hasAutoBid && (
@@ -52,7 +78,7 @@ const BidInterface = ({
                 )}
 
                 {/* Interface de lance */}
-                <div className='flex gap-2 text-white font-bold'>
+                <div className='flex flex-col sm:flex-row gap-2 text-white font-bold'>
                     {!hasAutoBid && (
                         <>
                             {!isAutoBidEnabled ? (
@@ -60,7 +86,7 @@ const BidInterface = ({
                                     onChange={handleSetBid}
                                     type="text"
                                     value={formatCurrency(bidValue)}
-                                    className="w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2"
+                                    className="w-full sm:w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2"
                                     disabled={isLoadingBid}
                                     placeholder="Valor do lance"
                                 />
@@ -69,14 +95,14 @@ const BidInterface = ({
                                     onChange={handleSetAutoBidLimit}
                                     type="text"
                                     value={formatCurrency(autoBidLimit)}
-                                    className="w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2"
+                                    className="w-full sm:w-[150px] h-[40px] bg-white rounded-[6px] text-[#1f1f1f] p-2"
                                     disabled={isLoadingBid}
                                     placeholder="Valor limite"
                                 />
                             )}
                             <button
                                 onClick={handleBidConfirm}
-                                className={`w-[150px] h-[40px] rounded-md transition-colors ${isLoadingBid
+                                className={`w-full sm:w-[150px] h-[40px] rounded-md transition-colors ${isLoadingBid
                                     ? 'bg-gray-500 cursor-not-allowed'
                                     : 'bg-[#141839] hover:bg-[#1e2456]'
                                     }`}
@@ -96,7 +122,7 @@ const BidInterface = ({
                     {!hasAutoBid && (
                         <div
                             onClick={!isLoadingBid ? toggleAutoBid : undefined}
-                            className={`flex w-[260px] h-[40px] justify-center items-center gap-2 rounded-md cursor-pointer 
+                            className={`flex w-full sm:w-[260px] h-[40px] justify-center items-center gap-2 rounded-md cursor-pointer 
                             transition-all duration-300 ease-in-out
                             ${isAutoBidEnabled 
                                     ? 'bg-[#13a664] hover:bg-[#0a943d]'
@@ -123,7 +149,7 @@ const BidInterface = ({
         ) : (
             <button
                 onClick={() => props.setIsModalOn(true)}
-                className="bg-[#9f9f9f] p-2 rounded-[6px] text-white hover:bg-[#8a8a8a] transition-colors"
+                className="w-full sm:w-auto bg-[#9f9f9f] p-2 rounded-[6px] text-white hover:bg-[#8a8a8a] transition-colors"
             >
                 Faça login para dar lances
             </button>
