@@ -1,77 +1,69 @@
+/* eslint-disable no-unreachable */
 import { handleBidproduct } from '../../../functions/handleBidproduct.js';
 
 // Função para realizar um lance
 const handleBidConfirm = async ({
     bidValue,
-    isAutoBidEnabled,
-    autoBidLimit,
+    productId,
+    clientId,
+    auctId,
+    isLoadingBid,
     setIsloadingBid,
-    messageRef,
-    props,
-    setBidValue,
-    fetchUpdatedProduct,
-    checkAutoBid,
+    currentSession,
+    setIsModalOn,
+    onBidSuccess,
     setAutoBidLimit,
-    showMessage
+    showMessage,
+    isAutoBid = false // Novo parâmetro para indicar se é lance automático
 }) => {
     try {
-        const session = JSON.parse(localStorage.getItem("client-auk-session-login"));
-        if (!session?.token) {
-            showMessage("Sessão inválida. Faça login novamente.", "error");
+
+        console.log("observando bidValue --> ", bidValue)
+        // Verificar sessão
+        if (!currentSession?.token) {
+            setIsModalOn(true); // Abrir modal de login
             return;
         }
 
-        // Validar limite do lance automático
-        if (isAutoBidEnabled && (!autoBidLimit || autoBidLimit <= bidValue)) {
-            showMessage("O valor limite do lance automático deve ser maior que o valor do lance atual", "warning");
+        // Validar se já está carregando
+        if (isLoadingBid) {
             return;
-        }
-
-        // Validar valor do lance apenas se houver lances anteriores
-        if (props.currentProduct.Bid && props.currentProduct.Bid.length > 0) {
-
-            console.log("condição atingida? ", props.currentProduct.Bid.length)
-
-            const currentValue = props.currentProduct.Bid[0].value;
-
-            if (currentValue >= props.currentProduct.initial_value) {
-                showMessage("O valor do lance deve ser maior que o valor atual", "warning");
-            }
-
         }
 
         setIsloadingBid(true);
 
+        // Se for lance automático, o valor do lance é fornecido em bidValue (que neste caso é o valor limite)
+        // O lance automático inicial é controlado pelo backend com base no valor atual do produto
         const result = await handleBidproduct(
-            bidValue,
-            messageRef,
-            props.currentProduct,
-            props.currentClient,
-            props.currentAuct,
-            session,
-            setBidValue,
+            bidValue, // Este valor é o limite no caso de lance automático ou o valor do lance normal
+            null, // messageRef não é mais necessário, usando showMessage
+            { id: productId }, // currentProduct
+            { id: clientId }, // currentClient
+            { id: auctId }, // currentAuct
+            currentSession,
+            () => {}, // setBidValue não é mais necessário aqui
             setIsloadingBid,
-            isAutoBidEnabled,
+            isAutoBid, // Indica se é lance automático
             true, // bidInCataloge
             showMessage,
-            autoBidLimit // Passando o limite do lance automático
+            bidValue // Sempre passa o bidValue como limite
         );
 
         if (result) {
-            // Lance bem-sucedido - buscar produto atualizado
-            await fetchUpdatedProduct();
-
-            // Resetar o limite do lance automático se necessário
-            if (isAutoBidEnabled) {
+            // Lance bem-sucedido
+            if (isAutoBid) {
                 setAutoBidLimit(0);
             }
-
-            // Verificar o status do lance automático
-            await checkAutoBid();
+            
+            // Chamar callback de sucesso
+            onBidSuccess();
+            
+            // Mostrar mensagem de sucesso
+            showMessage(`Parabéns! Seu lance ${isAutoBid ? 'automático ' : ''}foi registrado`, "success");
         }
     } catch (error) {
         console.error("Erro ao dar lance:", error);
-        showMessage("Ocorreu um erro ao processar seu lance. Tente novamente.", "error");
+        showMessage(error.response?.data?.message || "Ocorreu um erro ao processar seu lance. Tente novamente.", "error");
     } finally {
         setIsloadingBid(false);
     }

@@ -20,17 +20,24 @@ const handleBidproduct = async (
         return null;
     }
 
-    // Se for lance automático, usar o próximo valor de lance
+    // Obter o valor atual do produto
+    const currentValue = currentProduct.real_value || currentProduct.initial_value;
+    const increment = getIncrementValue(currentValue);
+    
+    // Se for lance automático, o primeiro lance será o valor atual + incremento
+    // Se for lance manual, será o valor informado pelo usuário (bidValue)
     const actualBidValue = isAutoBidEnabled ? 
-        (currentProduct.real_value || currentProduct.initial_value) + getIncrementValue(currentProduct.real_value || currentProduct.initial_value)
-        : bidValue;
+        currentValue + increment  // Valor do lance para lance automático
+        : bidValue;               // Valor do lance para lance manual
 
     // Validação do valor do lance
-    if (!actualBidValue || actualBidValue <= 0) {
-        showMessage("O valor do lance deve ser maior que 0", "error");
+    if (actualBidValue <= currentValue) {
+        showMessage(`O valor do lance deve ser maior que ${currentValue}`, "error");
+        if (setIsloadingBid) {
+            setIsloadingBid(false);
+        }
         return null;
     }
-
 
     // Validação do limite do lance automático
     if (isAutoBidEnabled && (!autoBidLimit || autoBidLimit <= actualBidValue)) {
@@ -43,6 +50,8 @@ const handleBidproduct = async (
     }
 
     try {
+        // Para lance automático, enviamos o actualBidValue como valor do lance e autoBidLimit como limite
+        // Para lance normal, enviamos apenas o bidValue
         const response = await axios.post(
             `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct`,
             {

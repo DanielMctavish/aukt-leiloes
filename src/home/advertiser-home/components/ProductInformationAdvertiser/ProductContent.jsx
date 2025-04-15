@@ -1,7 +1,27 @@
 /* eslint-disable react/prop-types */
+import formatCurrency from "../../../../utils/formatCurrency";
+
+// Função para calcular o incremento com base no valor atual
+const getIncrementValue = (value) => {
+    const baseValue = value || 0;
+    
+    if (baseValue <= 600) {
+        return 20;
+    } else if (baseValue <= 1200) {
+        return 24; // 20% a mais que 20
+    } else if (baseValue <= 3000) {
+        return 30; // 50% a mais que 20
+    } else if (baseValue <= 6000) {
+        return 40; // 100% a mais que 20
+    } else if (baseValue <= 12000) {
+        return 60; // 200% a mais que 20
+    } else {
+        return Math.ceil(baseValue * 0.01); // 1% do valor para valores muito altos
+    }
+};
 
 // Componente que mostra o conteúdo principal do produto
-const ProductContent = ({ currentProduct, formatCurrency }) => {
+const ProductContent = ({ currentProduct }) => {
     // Verificar se o produto tem as propriedades necessárias
     if (!currentProduct || typeof currentProduct !== 'object') {
         return (
@@ -15,6 +35,10 @@ const ProductContent = ({ currentProduct, formatCurrency }) => {
     const bidCount = currentProduct.Bid && Array.isArray(currentProduct.Bid) 
         ? currentProduct.Bid.length 
         : 0;
+    
+    // Calcular o incremento correto baseado no valor atual do produto
+    const currentValue = currentProduct.real_value || currentProduct.initial_value;
+    const incrementValue = getIncrementValue(currentValue);
 
     return (
         <div className='w-full overflow-x-hidden space-y-3 md:space-y-6 px-1 sm:px-2 md:px-4'>
@@ -28,7 +52,7 @@ const ProductContent = ({ currentProduct, formatCurrency }) => {
                             Lote {currentProduct.lote || '-'}
                         </span>
                     </div>
-                    <h1 className='font-bold text-lg sm:text-xl md:text-2xl text-gray-800 leading-tight w-full break-words'>
+                    <h1 className='font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-800 leading-tight w-full break-words mb-2 sm:mb-3'>
                         {currentProduct.title || 'Sem título'}
                     </h1>
                 </div>
@@ -86,9 +110,15 @@ const ProductContent = ({ currentProduct, formatCurrency }) => {
             {/* Informações adicionais - agora visível em todos os dispositivos mas mais compacto em mobile */}
             <div className="bg-gray-50 p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-sm w-full">
                 <div className="flex justify-between items-center border-b border-gray-200 pb-1.5 sm:pb-2">
-                    <span className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-500">Incremento:</span>
+                    <span className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-500">Próximo incremento:</span>
                     <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 truncate ml-2 max-w-[50%]">
-                        {formatCurrency(currentProduct.bid_increment || 0)}
+                        {formatCurrency(incrementValue)}
+                    </span>
+                </div>
+                <div className="flex justify-between items-center pt-1.5 sm:pt-2 border-b border-gray-200 pb-1.5 sm:pb-2">
+                    <span className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-500">Próximo lance mínimo:</span>
+                    <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 truncate ml-2 max-w-[50%]">
+                        {formatCurrency(currentValue + incrementValue)}
                     </span>
                 </div>
                 {currentProduct.commission_percentage && (
@@ -99,12 +129,7 @@ const ProductContent = ({ currentProduct, formatCurrency }) => {
                         </span>
                     </div>
                 )}
-                <div className="flex justify-between items-center pt-1.5 sm:pt-2">
-                    <span className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-500">Local:</span>
-                    <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 text-right truncate ml-2 max-w-[50%]">
-                        {currentProduct.location_withdrawal || "Não informado"}
-                    </span>
-                </div>
+               
             </div>
         </div>
     );

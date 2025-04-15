@@ -17,7 +17,6 @@ import SideMenu from './components/SideMenu';
 
 function ProductDetailAdv() {
     const [modalOn, setIsModalOn] = useState(false);
-    const [showBids, setShowBids] = useState(false);
     const [anotherProducts, setAnotherProducts] = useState([]);
     const [currentClient, setCurrentClient] = useState(null);
     const [, setSessionClient] = useState(null);
@@ -116,7 +115,6 @@ function ProductDetailAdv() {
         const handleEscKey = (event) => {
             if (event.key === 'Escape') {
                 setIsModalOn(false);
-                setShowBids(false);
             }
         };
         
@@ -188,15 +186,11 @@ function ProductDetailAdv() {
                                 currentAuct={currentAuct}
                                 setCurrentProduct={setCurrentProduct}
                                 setIsModalOn={setIsModalOn}
-                                showBids={showBids}
-                                setShowBids={setShowBids}
                             >
                                 {/* Passando BidsAdvertiserHome como children */}
                                 <BidsAdvertiserHome
-                                    showBids={showBids}
                                     productId={currentProduct?.id}
                                     auctId={currentAuct?.id}
-                                    setShowBids={setShowBids}
                                 />
                             </ProductInformation>
                         </div>

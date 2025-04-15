@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 
@@ -12,17 +11,15 @@ import ProductContent from "./ProductContent";
 import BidsList from "./BidsList";
 
 // Funções
-import { handleNextProduct, handlePrevProduct } from '../../functions/productNavigation';
 import useProductSession from "./hooks/useProductSession";
 import useBidding from "./hooks/useBidding";
 import useNotifications from "./hooks/useNotifications";
-import handleBidConfirm from "./functions/handleBidConfirm";
 import fetchAndUpdateProduct from "./functions/fetchAndUpdateProduct";
 
 function ProductInformation({ children, ...props }) {
-    const navigate = useNavigate();
     const messageRef = useRef(null);
     const socketRef = useRef(null);
+    const [showBids, setShowBids] = useState(false);
     
     // Hooks personalizados
     const { currentSession, setCurrentSession } = useProductSession();
@@ -41,7 +38,7 @@ function ProductInformation({ children, ...props }) {
     const lastNotifiedBidRef = useRef(null);
 
     // Função para mostrar mensagens ao usuário
-    const showMessage = (message, type = 'success') => {
+    const showMessage = useCallback((message, type = 'success') => {
         // Verificar se o componente ainda está montado
         if (!messageRef.current) return;
 
@@ -64,15 +61,7 @@ function ProductInformation({ children, ...props }) {
                 }, 300);
             }
         }, 3000);
-    };
-
-    // Função para formatar valores monetários
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(value);
-    };
+    }, []);
 
     // Efeito para verificar se o cliente tem lance automático para este produto
     const checkAutoBid = useCallback(async () => {
@@ -96,9 +85,27 @@ function ProductInformation({ children, ...props }) {
                 setIsAutoBidEnabled(!!autoBid);
             }
         } catch (error) {
-            console.error('Erro ao verificar status de lance automático:', error);
+            // Erro ao verificar status de lance automático
         }
     }, [props.currentProduct?.id, props.currentClient?.id, currentSession?.id, setHasAutoBid, setIsAutoBidEnabled]);
+
+    // Callback para sucesso do lance - Mover para depois da declaração de checkAutoBid
+    const handleBidSuccess = useCallback(() => {
+        fetchAndUpdateProduct({
+            productId: props.currentProduct.id,
+            props,
+            currentSession,
+            setLastBidClient,
+            setBidValue,
+            calculateNextBidValue,
+            notificationTimeoutRef,
+            lastNotifiedBidRef,
+            setShowOutbidNotification,
+            showMessage
+        });
+        checkAutoBid();
+        setAutoBidLimit(0);
+    }, [props.currentProduct?.id, currentSession, setLastBidClient, setBidValue, calculateNextBidValue, checkAutoBid, setAutoBidLimit, showMessage]);
 
     // Configurar WebSocket para atualizações em tempo real
     useEffect(() => {
@@ -110,17 +117,11 @@ function ProductInformation({ children, ...props }) {
         
         // Escutar eventos de novos lances em catálogo
         socket.on(`${props.currentAuct.id}-bid-cataloged`, (message) => {
-            console.log('Evento de lance em catálogo recebido:', message);
-            
             const newBid = message.data.body;
-            console.log('Valor do novo lance:', newBid?.value);
-            console.log('Produto atual:', props.currentProduct.id);
-            console.log('Produto do lance:', newBid?.product_id);
             
             if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === props.currentProduct.id) || 
                            (newBid.product_id === props.currentProduct.id))) {
                 
-                console.log('Lance corresponde ao produto atual, buscando produto atualizado');
                 fetchAndUpdateProduct({
                     productId: props.currentProduct.id,
                     props,
@@ -138,12 +139,9 @@ function ProductInformation({ children, ...props }) {
         
         // Também escutar o evento normal de lance
         socket.on(`${props.currentAuct.id}-bid`, (message) => {
-            console.log('Evento de lance normal recebido:', message);
-            
             const newBid = message.data.body || message.data;
             
             if (newBid && newBid.product_id === props.currentProduct.id) {
-                console.log('Lance normal corresponde ao produto atual, buscando produto atualizado');
                 fetchAndUpdateProduct({
                     productId: props.currentProduct.id,
                     props,
@@ -170,8 +168,6 @@ function ProductInformation({ children, ...props }) {
 
     // Efeito para atualizar o componente quando o produto mudar
     useEffect(() => {
-        console.log("Produto mudou, atualizando interface:", props.currentProduct?.id);
-
         if (props.currentProduct) {
             // Calcular o próximo valor de lance
             const nextBidValue = calculateNextBidValue(props.currentProduct);
@@ -189,7 +185,6 @@ function ProductInformation({ children, ...props }) {
         try {
             const clientSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
             if (clientSession && clientSession.token) {
-                console.log("Sessão do cliente encontrada no localStorage:", clientSession.email);
                 setCurrentSession(clientSession);
                 
                 // Verificar se o cliente tem lance automático para este produto
@@ -197,19 +192,15 @@ function ProductInformation({ children, ...props }) {
                     checkAutoBid();
                 }
             } else {
-                console.log("Nenhuma sessão de cliente encontrada no localStorage");
                 setCurrentSession(null);
             }
         } catch (error) {
-            console.error("Erro ao carregar a sessão do cliente:", error);
+            // Erro ao carregar a sessão do cliente
             setCurrentSession(null);
         }
 
-        console.log("Observando todos os lances", props.currentProduct.Bid);
-
         // Adicionar listener para o evento de login bem-sucedido
         const handleLoginSuccess = (event) => {
-            console.log("Evento de login bem-sucedido detectado:", event.detail);
             setCurrentSession(event.detail);
             checkAutoBid();
             showMessage(`Bem-vindo, ${event.detail.name}! Você está pronto para dar lances.`, 'success');
@@ -289,10 +280,10 @@ function ProductInformation({ children, ...props }) {
             <ProductHeader
                 productId={props.currentProduct?.id}
                 auctId={props.currentAuct?.id}
-                setShowBids={props.setShowBids}
-                showBids={props.showBids}
-                handlePrevProduct={() => handlePrevProduct(props.currentProduct, props.currentAuct, navigate)}
-                handleNextProduct={() => handleNextProduct(props.currentProduct, props.currentAuct, navigate)}
+                setShowBids={setShowBids}
+                showBids={showBids}
+                currentProduct={props.currentProduct}
+                currentAuct={props.currentAuct}
             />
 
             {/* Corpo principal - agora com limitador de largura e scroll horizontal oculto */}
@@ -300,54 +291,45 @@ function ProductInformation({ children, ...props }) {
                 {/* Conteúdo do produto */}
                 <ProductContent 
                     currentProduct={props.currentProduct} 
-                    formatCurrency={formatCurrency}
                 />
                 
                 {/* Interface de lances */}
                 <div className="w-full mt-2 md:mt-4">
                     <div className="w-full max-w-full">
                         <BidInterface
-                            currentSession={currentSession}
-                            hasAutoBid={hasAutoBid}
-                            isAutoBidEnabled={isAutoBidEnabled}
-                            disableAutoBid={() => disableAutoBid(showMessage)}
-                            isLoadingBid={isLoadingBid}
-                            bidValue={bidValue}
-                            formatCurrency={formatCurrency}
-                            handleSetBid={handleSetBid}
-                            handleSetAutoBidLimit={handleSetAutoBidLimit}
-                            autoBidLimit={autoBidLimit}
-                            handleBidConfirm={() => handleBidConfirm({
+                            biddingState={{
                                 bidValue,
-                                productId: props.currentProduct?.id,
-                                clientId: props.currentClient?.id,
                                 isLoadingBid,
+                                isAutoBidEnabled,
+                                hasAutoBid,
+                                autoBidLimit,
+                            }}
+                            biddingActions={{
                                 setIsloadingBid,
-                                currentSession,
-                                navigate,
-                                setIsModalOn: props.setIsModalOn,
-                                fetchProduct: () => fetchAndUpdateProduct({
-                                    productId: props.currentProduct.id,
-                                    props,
-                                    currentSession,
-                                    setLastBidClient,
-                                    setBidValue,
-                                    calculateNextBidValue,
-                                }),
-                                checkAutoBid,
+                                handleSetBid,
+                                handleSetAutoBidLimit,
+                                toggleAutoBid,
+                                disableAutoBid: () => disableAutoBid(showMessage),
                                 setAutoBidLimit,
-                                showMessage
-                            })}
-                            toggleAutoBid={toggleAutoBid}
-                            props={props}
+                            }}
+                            currentSession={currentSession}
+                            productInfo={{ 
+                                id: props.currentProduct?.id,
+                                Winner: props.currentProduct?.Winner,
+                                auct_id: props.currentAuct?.id
+                            }}
+                            clientInfo={{ id: props.currentClient?.id }}
+                            setIsModalOn={props.setIsModalOn}
+                            showMessage={showMessage}
+                            onBidSuccess={handleBidSuccess}
                         />
                     </div>
                 </div>
             </div>
 
             {/* Container dos lances */}
-            <BidsList showBids={props.showBids}>
-                {children}
+            <BidsList showBids={showBids}>
+                {React.cloneElement(children, { showBids, setShowBids })}
             </BidsList>
             
             {/* Mensagem de feedback */}

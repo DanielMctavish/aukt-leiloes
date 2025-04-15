@@ -1,8 +1,12 @@
 /* eslint-disable react/prop-types */
 import { ArrowLeft, ArrowRight, Visibility, ViewModule } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { handleNextProduct, handlePrevProduct } from '../../functions/productNavigation';
 
 // Componente para o cabeçalho do produto com navegação e controles
-const ProductHeader = ({ productId, auctId, setShowBids, showBids, handlePrevProduct, handleNextProduct }) => {
+const ProductHeader = ({ productId, auctId, setShowBids, showBids, currentProduct, currentAuct }) => {
+    const navigate = useNavigate();
+
     const handleViewCatalog = () => {
         if (auctId) {
             // Utilizando window.location para navegação simples
@@ -26,49 +30,51 @@ const ProductHeader = ({ productId, auctId, setShowBids, showBids, handlePrevPro
                 {/* Container com botões na versão mobile */}
                 <div className="flex justify-between items-center w-full sm:w-auto">
                     {/* Botões de ação: catálogo e lances */}
-                    <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-3">
                         {/* Botão Ver Catálogo - Em mobile só mostra ícone */}
                         <button
                             onClick={handleViewCatalog}
-                            className="flex items-center justify-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 
-                                bg-gradient-to-r from-[#012038] to-[#144870] 
-                                hover:from-[#144870] hover:to-[#144870]
-                                text-white rounded-full shadow-sm hover:shadow-md 
-                                transition-all duration-200 text-xs sm:text-sm font-medium"
+                            className="flex items-center justify-center gap-1 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 
+                                bg-[#1399CF] hover:bg-[#0d7eaa] active:bg-[#0d7eaa]
+                                text-white rounded-[8px] sm:rounded-md shadow-sm
+                                transition-colors text-xs sm:text-sm font-medium"
                         >
-                            <ViewModule sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                            <ViewModule className="w-4 h-4 sm:w-5 sm:h-5" />
                             <span className="hidden sm:inline">Ver Catálogo</span>
                         </button>
                         
                         {/* Botão de ver/ocultar lances - Em mobile só mostra ícone */}
                         <button
                             onClick={() => setShowBids(!showBids)}
-                            className="flex items-center justify-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2
-                                bg-gradient-to-r from-[#143247] to-blue-600 
-                                hover:from-blue-600 hover:to-blue-700
-                                text-white rounded-full shadow-sm hover:shadow-md 
-                                transition-all duration-200 text-xs sm:text-sm font-medium"
+                            className={`flex items-center justify-center gap-1 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2
+                                text-white rounded-[8px] sm:rounded-md shadow-sm 
+                                transition-colors text-xs sm:text-sm font-medium
+                                ${showBids 
+                                    ? 'bg-[#141839] hover:bg-[#1e2456] active:bg-[#1e2456]' 
+                                    : 'bg-[#141839] hover:bg-[#1e2456] active:bg-[#1e2456]'}`}
                         >
-                            <Visibility sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                            <Visibility className="w-4 h-4 sm:w-5 sm:h-5" />
                             <span className="hidden sm:inline">{showBids ? 'Ocultar Lances' : 'Ver Lances'}</span>
                         </button>
                     </div>
 
                     {/* Botões de navegação */}
-                    <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2 ml-1 sm:ml-3">
                         <button
-                            onClick={handlePrevProduct}
-                            className="p-1 sm:p-2 rounded-full hover:bg-gray-100 transition-all duration-200
-                                text-gray-600 hover:text-gray-800"
+                            onClick={() => handlePrevProduct(currentProduct, currentAuct, navigate)}
+                            className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition-colors
+                                text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-300"
+                            aria-label="Produto anterior"
                         >
-                            <ArrowLeft sx={{ fontSize: { xs: 24, sm: 28, md: 32 } }} />
+                            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                         <button
-                            onClick={handleNextProduct}
-                            className="p-1 sm:p-2 rounded-full hover:bg-gray-100 transition-all duration-200
-                                text-gray-600 hover:text-gray-800"
+                            onClick={() => handleNextProduct(currentProduct, currentAuct, navigate)}
+                            className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition-colors
+                                text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-300"
+                            aria-label="Próximo produto"
                         >
-                            <ArrowRight sx={{ fontSize: { xs: 24, sm: 28, md: 32 } }} />
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     </div>
                 </div>

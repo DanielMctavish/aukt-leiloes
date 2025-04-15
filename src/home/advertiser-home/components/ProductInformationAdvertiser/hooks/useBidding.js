@@ -43,12 +43,28 @@ const useBidding = (props, currentSession) => {
     }, []);
 
     const handleSetBid = (e) => {
-        const value = e.target.value.replace(/\D/g, '') / 100; // Remove não-dígitos e converte para decimal
+        // Remove caracteres não numéricos, mantendo apenas números
+        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+        
+        // Converte para número considerando os centavos
+        const value = numericValue ? parseFloat(numericValue) / 100 : 0;
+        
+        console.log('handleSetBid - valor digitado:', e.target.value);
+        console.log('handleSetBid - valor processado:', value);
+        
         setBidValue(value);
     };
 
     const handleSetAutoBidLimit = (e) => {
-        const value = e.target.value.replace(/\D/g, '') / 100; // Remove não-dígitos e converte para decimal
+        // Remove caracteres não numéricos, mantendo apenas números
+        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+        
+        // Converte para número considerando os centavos
+        const value = numericValue ? parseFloat(numericValue) / 100 : 0;
+        
+        console.log('handleSetAutoBidLimit - valor digitado:', e.target.value);
+        console.log('handleSetAutoBidLimit - valor processado:', value);
+        
         setAutoBidLimit(value);
     };
 
@@ -95,12 +111,16 @@ const useBidding = (props, currentSession) => {
     const toggleAutoBid = () => {
         if (isLoadingBid) return;
         
-        if (isAutoBidEnabled || hasAutoBid) {
-            // O disableAutoBid real precisa de showMessage que não está disponível aqui
-            // Esta função será substituída pela versão completa no componente principal
-        } else {
-            setIsAutoBidEnabled(true);
+        const newState = !isAutoBidEnabled;
+        console.log('toggleAutoBid - mudando estado:', newState);
+        
+        // Se estiver ativando o lance automático, usa o valor do lance normal como valor inicial
+        if (newState) {
+            console.log('toggleAutoBid - copiando valor do lance:', bidValue);
+            setAutoBidLimit(bidValue);
         }
+        
+        setIsAutoBidEnabled(newState);
     };
 
     return {
