@@ -16,14 +16,23 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     const [deadline, setDeadline] = useState(1);
     const [percentual, setPercentual] = useState(1); // Começar em 1%
     const [isFinishedLot,] = useState(false);
+    const [updatedProductState, setUpdatedProductState] = useState(null);
     const refBarDeadline = useRef();
     const dispatch = useDispatch();
     const [auctioneerCall, setAuctioneerCall] = useState('');
     const [hasWinner, setHasWinner] = useState(false);
 
+    // Usar o produto atualizado se disponível, ou o produto original como fallback
+    const productToUse = updatedProductState || currentProduct;
+
     useEffect(() => {
         getClientSession();
     }, []);
+
+    // Resetar o produto atualizado quando o produto atual mudar
+    useEffect(() => {
+        setUpdatedProductState(null);
+    }, [currentProduct.id]);
 
     // Ouvir evento de login bem-sucedido
     useEffect(() => {
@@ -180,15 +189,40 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
 
         // Se não houver real_value, significa que é o primeiro lance
         if (!real_value) {
-            return initial_value + getIncrementValue(initial_value);
+            return initial_value;
         }
 
         // Verifica se o valor atual é igual ao real_value
         const currentValue = real_value;
-        const nextValue = currentValue + getIncrementValue(currentValue);
+        // Só incrementa se houver lances anteriores
+        const hasBids = productToUse.Bid?.length > 0;
+        const increment = hasBids ? getIncrementValue(currentValue) : 0;
+        const nextValue = currentValue + increment;
 
-        // Se o valor atual for igual ao real_value, incrementa
+        // Se o valor atual for igual ao real_value, retorna o próximo valor calculado
         return currentValue === real_value ? nextValue : currentValue;
+    };
+
+    // Função para obter o incremento com base no valor e verificar se já existem lances
+    const getDisplayIncrement = (value) => {
+        // Verificar se já há lances antes de calcular o incremento
+        if (!productToUse.Bid?.length) {
+            return 0;
+        }
+        return getIncrementValue(value);
+    };
+
+    // Função para buscar dados atualizados do produto
+    const fetchUpdatedProduct = async () => {
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao buscar dados atualizados do produto:", error);
+            return null;
+        }
     };
 
     const handleBidAuctionLive = async () => {
@@ -197,10 +231,11 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
         setIsloadingBid(true);
 
         try {
-            const updatedProductResponse = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`
-            );
-            const updatedProduct = updatedProductResponse.data;
+            // Obter dados atualizados do produto antes de dar o lance
+            const updatedProduct = await fetchUpdatedProduct();
+            if (!updatedProduct) {
+                throw new Error("Não foi possível obter dados atualizados do produto");
+            }
 
             const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
             if (!currentSession?.token) {
@@ -208,7 +243,9 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
             }
 
             const currentValue = updatedProduct.real_value || updatedProduct.initial_value;
-            const increment = getIncrementValue(currentValue);
+            // Usar hasBids para determinar se já existem lances
+            const hasBids = updatedProduct.Bid?.length > 0;
+            const increment = hasBids ? getIncrementValue(currentValue) : 0;
             const bidValue = currentValue + increment;
 
             const bidPayload = {
@@ -233,6 +270,15 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                 const newBid = response.data?.body || response.data;
                 
                 if (newBid) {
+                    // Buscar dados atualizados novamente após o lance bem-sucedido
+                    const refreshedProduct = await fetchUpdatedProduct();
+                    
+                    // Atualizar o estado com os novos dados do produto
+                    if (refreshedProduct) {
+                        setUpdatedProductState(refreshedProduct);
+                        console.log("Produto atualizado após lance:", refreshedProduct);
+                    }
+                    
                     dispatch(addBidLive({
                         value: bidValue,
                         product_id: currentProduct.id
@@ -259,6 +305,14 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
         const percentage = (newDeadline / duration) * 100;
         setPercentual(percentage);
     };
+
+    // Debug
+    useEffect(() => {
+        if (updatedProductState) {
+            console.log("Estado atualizado do produto:", updatedProductState);
+            console.log("Número de lances:", updatedProductState.Bid?.length);
+        }
+    }, [updatedProductState]);
 
     return (
         <div className={`w-full gap-2 lg:gap-4 flex flex-col justify-start items-center ${isMobile ? '-mx-2' : ''}`}>
@@ -355,7 +409,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                                 <div className="flex items-center gap-3 lg:gap-4 z-10">
                                     <FilledCircle percentage={percentual} />
                                     <span className={`${isMobile ? 'text-base' : 'text-xl'} font-bold ${isMobile ? 'text-white' : 'text-gray-800'}`}>
-                                        R$ {(real_value || initial_value)?.toFixed(2)}
+                                        R$ {(productToUse.Bid?.length > 0 ? productToUse.real_value : productToUse.initial_value)?.toFixed(2)}
                                     </span>
                                 </div>
 
@@ -381,14 +435,14 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
             </div>
 
             {/* Esconde os botões quando o cronômetro estiver em "VENDIDO!" ou não houver valores definidos */}
-            {!isAuctionFinished && deadline > 0 && (initial_value || real_value) && (
+            {!isAuctionFinished && deadline > 0 && (productToUse.initial_value || productToUse.real_value) && (
                 <div className="w-full flex justify-between items-center gap-2">
                     <div className={`flex-1 ${isMobile ? 'h-[35px] text-sm' : 'h-[50px]'} 
                         ${isMobile ? 'bg-white/10' : 'bg-white/95'}
                         ${isMobile ? '' : 'shadow-lg rounded-xl border border-gray-100'}
                         flex justify-center items-center
                         ${isMobile ? 'text-white' : 'text-gray-700'}`}>
-                        R$ {getCurrentValue().toFixed(2)}
+                        R$ {(productToUse.Bid?.length > 0 ? productToUse.real_value : productToUse.initial_value)?.toFixed(2)}
                     </div>
 
                     {clientSession && !isLoadingBid ? (
@@ -404,7 +458,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
                                     : 'bg-gray-400 cursor-not-allowed'}`}
                         >
                             <Paid sx={{ fontSize: isMobile ? 16 : 24 }} />
-                            <span>+ R$ {getIncrementValue(getCurrentValue())},00</span>
+                            <span>+ R$ {getDisplayIncrement(getCurrentValue())},00</span>
                         </button>
                     ) : clientSession && (
                         <div className={`flex-1 ${isMobile ? 'h-[35px] text-sm' : 'h-[50px]'} bg-gradient-to-r from-green-500 to-green-600 

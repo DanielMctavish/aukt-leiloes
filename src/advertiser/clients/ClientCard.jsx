@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { Email, Phone, WhatsApp, LocationOn } from "@mui/icons-material";
+import Tooltip from "@mui/material/Tooltip";
 
 function ClientCard({ client }) {
     const [address, setAddress] = useState({});
@@ -19,7 +20,8 @@ function ClientCard({ client }) {
     const handleWhatsAppClick = () => {
         if (address.phone) {
             const phoneNumber = address.phone.replace(/\D/g, '');
-            window.open(`https://wa.me/55${phoneNumber}`, '_blank');
+            const message = encodeURIComponent(`Olá ${client.name}, tudo bem? Vi seu cadastro no Aukt Leilões e gostaria de conversar com você.`);
+            window.open(`https://wa.me/55${phoneNumber}?text=${message}`, '_blank');
         }
     };
 
@@ -60,18 +62,25 @@ function ClientCard({ client }) {
 
             {/* Actions */}
             <div className="p-4 bg-gray-50">
-                <button
-                    onClick={handleWhatsAppClick}
-                    disabled={!address.phone}
-                    className={`w-full py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium
-                        ${address.phone 
-                            ? 'bg-green-500 text-white hover:bg-green-600' 
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        } transition-colors`}
+                <Tooltip 
+                    title={!address.phone ? "Este cliente não possui telefone cadastrado" : ""}
+                    placement="top"
                 >
-                    <WhatsApp />
-                    Contatar via WhatsApp
-                </button>
+                    <div className="w-full"> {/* Wrapper div para o Tooltip funcionar com botão desabilitado */}
+                        <button
+                            onClick={handleWhatsAppClick}
+                            disabled={!address.phone}
+                            className={`w-full py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium
+                                ${address.phone 
+                                    ? 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700' 
+                                    : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                } transition-all duration-200`}
+                        >
+                            <WhatsApp />
+                            {address.phone ? 'Contatar via WhatsApp' : 'Telefone não disponível'}
+                        </button>
+                    </div>
+                </Tooltip>
             </div>
         </div>
     );

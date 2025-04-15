@@ -6,17 +6,7 @@ import { useEffect, useState } from "react";
 import AssideAdvertiser from "../_asside/AssideAdvertiser";
 import NavAdvertiser from "../_navigation/NavAdvertiser";
 import getAuctionsList from "../functions/GetAuctionsList";
-
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
-
+import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls";
 
 import LoadingModal from "./mod/LoadingModal";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +28,8 @@ function Arrematantes() {
     const [selectedCartela, setSelectedCartela] = useState(null);
     const navigate = useNavigate()
 
-    const avatares_pessoas = importAllAvatars()
+    // Convertendo o objeto de URLs em um array
+    const avatares_pessoas = Object.values(avatarClientsUrls);
 
     useEffect(() => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt');

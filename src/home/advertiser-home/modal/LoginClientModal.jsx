@@ -10,6 +10,7 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
     const [messageDisplay, setMessageDisplay] = useState("")
     const [messageType, setMessageType] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [passwordAttempts, setPasswordAttempts] = useState(0)
 
     const handleLoginClient = async () => {
         if (!email) {
@@ -33,6 +34,7 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
 
             setMessageDisplay("Login realizado com sucesso!")
             setMessageType("success")
+            setPasswordAttempts(0)
 
             const userData = {
                 token: response.data.token,
@@ -53,14 +55,19 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
                 setIsModalOn(false)
             }, 800)
         } catch (error) {
-          
             if (error.response?.status === 401 || error.response?.status === 403) {
-                setMessageDisplay("Email ou senha incorretos. Por favor, verifique suas credenciais.")
-                setMessageType("error")
+                const newAttempts = passwordAttempts + 1;
+                setPasswordAttempts(newAttempts);
+                
+                if (newAttempts >= 3) {
+                    setMessageDisplay("Muitas tentativas malsucedidas. Por favor, tente novamente mais tarde.")
+                } else {
+                    setMessageDisplay(`Email ou senha incorretos. Você tem mais ${3 - newAttempts} tentativa(s).`)
+                }
             } else {
                 setMessageDisplay("Não foi possível conectar ao servidor. Por favor, tente novamente mais tarde.")
-                setMessageType("error")
             }
+            setMessageType("error")
         } finally {
             setIsLoading(false)
         }
@@ -73,6 +80,7 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
             setMessageType("")
             setEmail("")
             setPassword("")
+            setPasswordAttempts(0)
         }
     }, [modalOn])
 
@@ -83,26 +91,23 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-[9999] p-4 rounded-lg overflow-hidden"
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
                 >
                     {/* Elemento de brilho decorativo */}
-                    <div className="absolute w-[500px] h-[500px] rounded-full bg-[#92ffb8]/20 blur-[120px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                    <div className="absolute w-[500px] h-[500px] rounded-full bg-[#247557]/20 blur-[120px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
                     
                     <motion.div 
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20 }}
                         transition={{ type: "spring", damping: 25 }}
-                        className={`
-                            w-[90%] max-w-[1000px] h-[90vh] max-h-[600px] 
-                            bg-gradient-to-r from-[#92ffb8]/90 to-[#003026]/90 
-                            shadow-xl shadow-[#0f0f0f39]
-                            relative overflow-hidden
-                            border border-white/20 backdrop-filter backdrop-blur-md
-                            before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent rounded-lg
-                            after:content-[''] after:absolute after:w-[200%] after:h-[200%] after:top-[-50%] after:left-[-50%] after:bg-[radial-gradient(circle,_rgba(255,255,255,0.1)_0%,_transparent_60%)] after:rotate-12 after:pointer-events-none
-                        `}
+                        className="w-[90%] max-w-[1000px] bg-gradient-to-br from-zinc-900/95 to-zinc-800/90 
+                            rounded-2xl shadow-2xl relative overflow-hidden border border-white/10"
                     >
+                        {/* Padrão visual de fundo */}
+                        <div className="absolute inset-0 opacity-10 bg-[url('https://img.freepik.com/free-vector/abstract-geometric-pattern-background_1319-242.jpg')] bg-cover bg-center mix-blend-overlay"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+
                         <AnimatePresence>
                             {messageDisplay && (
                                 <motion.div 
@@ -110,125 +115,194 @@ function LoginClientModal({ setIsModalOn, modalOn }) {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
                                     className={`
-                                        absolute top-4 left-1/2 transform -translate-x-1/2
-                                        px-6 py-3  shadow-lg
-                                        ${messageType === 'error' ? 'bg-red-500' : 'bg-green-500'}
-                                        flex items-center gap-2 z-50 min-w-[300px] justify-center
+                                        absolute top-4 left-1/2 transform -translate-x-1/2 z-50
+                                        px-6 py-3 rounded-lg shadow-lg backdrop-blur-md
+                                        ${messageType === 'error' 
+                                            ? 'bg-red-500/90 border border-red-400/20' 
+                                            : 'bg-green-500/90 border border-green-400/20'}
+                                        flex items-center gap-2 min-w-[300px] justify-center
                                     `}
                                 >
-                                    {messageType === 'error' ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    )}
                                     <span className="text-white font-medium">{messageDisplay}</span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
                         <button 
-                            className='absolute top-4 right-4 text-white hover:text-gray-300 transition-all hover:rotate-90 z-50'
+                            className='absolute top-4 right-4 text-gray-400 hover:text-white transition-all hover:rotate-90 z-50'
                             onClick={() => setIsModalOn(false)}
                         >
                             <Close fontSize="large" />
                         </button>
 
-                        <div className="flex w-full h-full bg-[#17171776] backdrop-blur-sm  overflow-hidden">
-                            <section className="flex flex-col justify-center items-center w-full md:w-1/2 h-full text-white p-8 space-y-6 bg-black/10 backdrop-filter backdrop-blur-sm border-r border-white/10">
+                        <div className="flex flex-col md:flex-row w-full">
+                            <div className="w-full md:w-1/2 p-8 space-y-6 relative z-10">
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 }}
                                     className="text-center mb-4"
                                 >
-                                    <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-[#92ffb8] bg-clip-text text-transparent">Bem vindo de volta</h2>
-                                    <p className="text-lg text-gray-200">Por favor insira os detalhes da sua conta</p>
+                                    <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-green-300 bg-clip-text text-transparent">
+                                        Bem vindo de volta
+                                    </h2>
+                                    <p className="text-gray-400">Por favor insira os detalhes da sua conta</p>
                                 </motion.div>
 
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="relative w-full max-w-[350px]"
+                                    className="space-y-4"
                                 >
-                                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                        <Email />
+                                    <div className="relative">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Email
+                                        </label>
+                                        <div className="relative">
+                                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                                <Email />
+                                            </div>
+                                            <input 
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                value={email}
+                                                type="email"
+                                                className="w-full h-12 pl-10 pr-4 bg-white/10 border border-white/20 
+                                                    rounded-lg text-white placeholder-gray-400
+                                                    focus:outline-none focus:ring-2 focus:ring-green-500 
+                                                    focus:border-transparent transition-all duration-300"
+                                                placeholder="seu@email.com"
+                                                onKeyDown={(e) => { e.key === 'Enter' && handleLoginClient() }}
+                                            />
+                                        </div>
                                     </div>
-                                    <input 
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        value={email}
-                                        type="email"
-                                        className='bg-[#070707]/80 w-full h-12 rounded-full pl-12 pr-4 text-lg border-2 border-transparent focus:border-[#92ffb8]/70 outline-none transition-all backdrop-filter backdrop-blur-sm shadow-inner'
-                                        placeholder='Seu email'
-                                        onKeyDown={(e) => { e.key === 'Enter' && handleLoginClient() }}
-                                    />
-                                </motion.div>
 
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="relative w-full max-w-[350px]"
-                                >
-                                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                        <Lock />
+                                    <div className="relative">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Senha
+                                        </label>
+                                        <div className="relative">
+                                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                                <Lock />
+                                            </div>
+                                            <input 
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                value={password}
+                                                type="password"
+                                                className="w-full h-12 pl-10 pr-4 bg-white/10 border border-white/20 
+                                                    rounded-lg text-white placeholder-gray-400
+                                                    focus:outline-none focus:ring-2 focus:ring-green-500 
+                                                    focus:border-transparent transition-all duration-300"
+                                                placeholder="••••••••"
+                                                onKeyDown={(e) => { e.key === 'Enter' && handleLoginClient() }}
+                                            />
+                                        </div>
                                     </div>
-                                    <input 
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        value={password}
-                                        type="password" 
-                                        placeholder='Sua senha...'
-                                        className='bg-[#070707]/80 w-full h-12 rounded-full pl-12 pr-4 text-lg border-2 border-transparent focus:border-[#92ffb8]/70 outline-none transition-all backdrop-filter backdrop-blur-sm shadow-inner'
-                                        onKeyDown={(e) => { e.key === 'Enter' && handleLoginClient() }}
-                                    />
+
+                                    {/* Indicador de tentativas */}
+                                    {passwordAttempts > 0 && (
+                                        <div className="flex items-center justify-between mt-1">
+                                            <span className="text-xs text-gray-400">Tentativas restantes:</span>
+                                            <div className="flex space-x-1">
+                                                {Array.from({ length: 3 }).map((_, index) => (
+                                                    <div 
+                                                        key={index}
+                                                        className={`w-6 h-1.5 rounded-sm ${
+                                                            index < 3 - passwordAttempts 
+                                                                ? 'bg-green-500' 
+                                                                : 'bg-gray-500'
+                                                        }`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <motion.button 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        onClick={handleLoginClient}
+                                        disabled={isLoading || passwordAttempts >= 3}
+                                        className={`
+                                            w-full h-12 rounded-lg font-medium text-white text-lg
+                                            ${isLoading 
+                                                ? 'bg-green-600/80 cursor-not-allowed' 
+                                                : passwordAttempts >= 3
+                                                    ? 'bg-gray-600 cursor-not-allowed'
+                                                    : 'bg-green-600 hover:bg-green-700 active:bg-green-800'}
+                                            transition-all duration-300
+                                            flex items-center justify-center gap-2
+                                            relative overflow-hidden group
+                                            shadow-lg shadow-green-900/20
+                                        `}
+                                    >
+                                        <span className="relative z-10 flex items-center gap-2">
+                                            {isLoading ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-white/30 
+                                                        border-t-white rounded-full animate-spin" />
+                                                    <span>Entrando...</span>
+                                                </>
+                                            ) : passwordAttempts >= 3 ? (
+                                                'Tente mais tarde'
+                                            ) : (
+                                                'Entrar'
+                                            )}
+                                        </span>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-green-400/40 to-emerald-600/40 
+                                            transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
+                                        </div>
+                                    </motion.button>
+
+                                    {/* Botões de registro e recuperação de senha */}
+                                    <div className="flex flex-col items-center gap-3 pt-4">
+                                        <button 
+                                            onClick={() => {
+                                                setIsModalOn(false);
+                                                window.location.href = "/client/register";
+                                            }}
+                                            className="text-gray-300 hover:text-white transition-colors
+                                                text-sm md:text-base relative group"
+                                        >
+                                            Não tem uma conta? <span className="underline relative">
+                                                Registre-se
+                                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-500 group-hover:w-full transition-all duration-300"></span>
+                                            </span>
+                                        </button>
+                                        
+                                        <button 
+                                            onClick={() => {
+                                                setIsModalOn(false);
+                                                window.location.href = "/client/forgot-password";
+                                            }}
+                                            className="text-gray-400 hover:text-white text-xs md:text-sm 
+                                                transition-colors"
+                                        >
+                                            Esqueceu sua senha?
+                                        </button>
+                                    </div>
                                 </motion.div>
+                            </div>
 
-                                <motion.button 
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    whileHover={{ scale: 1.03 }}
-                                    whileTap={{ scale: 0.97 }}
-                                    className='relative bg-gradient-to-r from-[#308D83]/90 to-[#1a4d46]/90 w-full max-w-[350px] h-12 rounded-full font-bold text-lg
-                                    shadow-lg shadow-[#00000040] overflow-hidden group border border-white/20 backdrop-filter backdrop-blur-sm'
-                                    onClick={handleLoginClient}
-                                    disabled={isLoading}
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        {isLoading ? (
-                                            <>
-                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Processando...
-                                            </>
-                                        ) : "Entrar"}
-                                    </span>
-                                    <div className="absolute inset-0 bg-[#92ffb8] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left opacity-20"></div>
-                                </motion.button>
-                            </section>
-
-                            <section className="hidden md:flex w-1/2 h-full justify-center items-center bg-gradient-to-b from-[#000000]/80 to-[#24625B]/80 p-8 relative overflow-hidden backdrop-filter backdrop-blur-sm">
-                                <div className="absolute inset-0 bg-[url('/auction-bg.jpg')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+                            {/* Seção direita com imagem de fundo e mensagem */}
+                            <div className="hidden md:flex w-1/2 h-[600px] justify-center items-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[url('/auction-bg.jpg')] bg-cover bg-center opacity-20"></div>
+                                <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80"></div>
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
-                                    className="text-center relative z-10"
+                                    className="text-center relative z-10 p-8"
                                 >
                                     <h3 className="font-bold text-white text-3xl leading-tight mb-4">
                                         A experiência de leilão que você sempre quis.
                                     </h3>
-                                    <p className="text-gray-200 text-lg max-w-[350px] mx-auto">
+                                    <p className="text-gray-300 text-lg max-w-[350px] mx-auto">
                                         Participe dos melhores leilões com total segurança e transparência.
                                     </p>
                                 </motion.div>
-                            </section>
+                            </div>
                         </div>
                     </motion.div>
                 </motion.div>

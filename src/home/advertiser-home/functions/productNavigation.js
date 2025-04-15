@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const handleNextProduct = async (productId, currentAuct, setCurrentProduct, navigate) => {
-    if (!currentAuct || !currentAuct.id || !productId) {
+export const handleNextProduct = async (currentProduct, currentAuct, navigate) => {
+    if (!currentAuct || !currentAuct.id || !currentProduct || !currentProduct.id) {
         console.error("Dados insuficientes para navegação");
         return;
     }
@@ -14,11 +14,13 @@ export const handleNextProduct = async (productId, currentAuct, setCurrentProduc
             }
         });
 
+        console.log("navegação next -> ", response.data);
+
         // Garantir que temos um array de produtos
         let products = [];
         if (response.data) {
-            products = Array.isArray(response.data) ? response.data : 
-                     (response.data.products || []);
+            products = Array.isArray(response.data.products) ? response.data.products : 
+                      Array.isArray(response.data) ? response.data : [];
         }
 
         // Filtrar produtos inválidos e ordenar por número do lote
@@ -41,10 +43,16 @@ export const handleNextProduct = async (productId, currentAuct, setCurrentProduc
         }
 
         // Encontrar índice do produto atual
-        const currentIndex = sortedProducts.findIndex(p => p.id === productId);
+        const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
         
         if (currentIndex === -1) {
             console.error("Produto atual não encontrado na lista");
+            
+            // Tentar navegar para o primeiro produto da lista como fallback
+            const firstProduct = sortedProducts[0];
+            if (firstProduct && firstProduct.id) {
+                navigate(`/advertiser/home/product/${firstProduct.id}`);
+            }
             return;
         }
 
@@ -52,19 +60,8 @@ export const handleNextProduct = async (productId, currentAuct, setCurrentProduc
         if (currentIndex < sortedProducts.length - 1) {
             const nextProduct = sortedProducts[currentIndex + 1];
 
-            try {
-                // Buscar informações detalhadas do próximo produto
-                const updatedProductResponse = await axios.get(
-                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${nextProduct.id}`
-                );
-
-                if (updatedProductResponse.data) {
-                    // Atualizar o estado e navegar
-                    setCurrentProduct(updatedProductResponse.data);
-                    navigate(`/advertiser/home/product/${nextProduct.id}`);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar detalhes do próximo produto:", error);
+            if (nextProduct && nextProduct.id) {
+                navigate(`/advertiser/home/product/${nextProduct.id}`);
             }
         } else {
             console.log("Este é o último produto");
@@ -74,8 +71,8 @@ export const handleNextProduct = async (productId, currentAuct, setCurrentProduc
     }
 };
 
-export const handlePrevProduct = async (productId, currentAuct, setCurrentProduct, navigate) => {
-    if (!currentAuct || !currentAuct.id || !productId) {
+export const handlePrevProduct = async (currentProduct, currentAuct, navigate) => {
+    if (!currentAuct || !currentAuct.id || !currentProduct || !currentProduct.id) {
         console.error("Dados insuficientes para navegação");
         return;
     }
@@ -91,8 +88,8 @@ export const handlePrevProduct = async (productId, currentAuct, setCurrentProduc
         // Garantir que temos um array de produtos
         let products = [];
         if (response.data) {
-            products = Array.isArray(response.data) ? response.data : 
-                     (response.data.products || []);
+            products = Array.isArray(response.data.products) ? response.data.products : 
+                      Array.isArray(response.data) ? response.data : [];
         }
 
         // Filtrar produtos inválidos e ordenar por número do lote
@@ -115,10 +112,16 @@ export const handlePrevProduct = async (productId, currentAuct, setCurrentProduc
         }
 
         // Encontrar índice do produto atual
-        const currentIndex = sortedProducts.findIndex(p => p.id === productId);
+        const currentIndex = sortedProducts.findIndex(p => p.id === currentProduct.id);
         
         if (currentIndex === -1) {
             console.error("Produto atual não encontrado na lista");
+            
+            // Tentar navegar para o primeiro produto da lista como fallback
+            const firstProduct = sortedProducts[0];
+            if (firstProduct && firstProduct.id) {
+                navigate(`/advertiser/home/product/${firstProduct.id}`);
+            }
             return;
         }
 
@@ -126,19 +129,8 @@ export const handlePrevProduct = async (productId, currentAuct, setCurrentProduc
         if (currentIndex > 0) {
             const prevProduct = sortedProducts[currentIndex - 1];
 
-            try {
-                // Buscar informações detalhadas do produto anterior
-                const updatedProductResponse = await axios.get(
-                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${prevProduct.id}`
-                );
-
-                if (updatedProductResponse.data) {
-                    // Atualizar o estado e navegar
-                    setCurrentProduct(updatedProductResponse.data);
-                    navigate(`/advertiser/home/product/${prevProduct.id}`);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar detalhes do produto anterior:", error);
+            if (prevProduct && prevProduct.id) {
+                navigate(`/advertiser/home/product/${prevProduct.id}`);
             }
         } else {
             console.log("Este é o primeiro produto");

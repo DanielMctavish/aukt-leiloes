@@ -2,14 +2,20 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { Star } from "@mui/icons-material";
 import io from 'socket.io-client';
 import dayjs from 'dayjs';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+// Importação do Swiper
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Zoom } from 'swiper/modules';
+// Estilos do Swiper
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/zoom';
 
 function CenterFloor({ title, description, auction, currentProduct, isAuctionFinished: parentIsAuctionFinished }) {
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -18,7 +24,14 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
     const [sortedAuctions, setSortedAuctions] = useState([]);
     const navigate = useNavigate();
 
-    const images = currentProduct ? [currentProduct.cover_img_url, ...(currentProduct.group_imgs_url || [])] : [];
+    // Garantir que imagens é sempre um array válido
+    const images = currentProduct ? 
+        [currentProduct.cover_img_url, ...(currentProduct.group_imgs_url?.filter(img => img) || [])]
+            .filter(img => img) // Filtrar valores nulos ou undefined
+        : [];
+    
+    // Verificar se há imagens suficientes para navegação
+    const hasMultipleImages = images.length > 1;
 
     useEffect(() => {
         if (parentIsAuctionFinished) {
@@ -46,14 +59,6 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
 
     const handleToggleFullscreen = () => {
         setIsFullscreen(!isFullscreen);
-    };
-
-    const handlePrevImage = () => {
-        setCurrentImageIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : images.length - 1));
-    };
-
-    const handleNextImage = () => {
-        setCurrentImageIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
     };
 
     const listAuctions = async () => {
@@ -247,61 +252,43 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
             )}
 
             {/* Visualização do Produto */}
-            {description && (
+            {description && images.length > 0 && (
                 <div className="flex lg:flex-row flex-col w-full h-full gap-3 lg:gap-6">
                     {/* Lado Esquerdo - Imagens */}
                     <div className="lg:w-1/2 w-full h-[50vh] lg:h-full">
                         <div className="relative w-full h-full rounded-xl overflow-hidden shadow-lg 
                             bg-white/10 backdrop-blur-sm border border-white/20"
                         >
-                            <img
-                                src={images[currentImageIndex]}
-                                alt={`Produto ${currentImageIndex + 1}`}
-                                className="w-full h-full object-contain p-2 cursor-pointer 
-                                    transition-transform duration-300 hover:scale-[1.02]"
-                                onClick={handleToggleFullscreen}
-                            />
-                            
-                            {/* Navegação de Imagens */}
-                            <div className="absolute bottom-0 left-0 right-0 p-2 lg:p-4 
-                                bg-gradient-to-t from-black/60 to-transparent"
+                            <Swiper
+                                modules={hasMultipleImages ? [Navigation, Pagination, Zoom] : [Navigation, Pagination, Zoom]}
+                                spaceBetween={0}
+                                slidesPerView={1}
+                                navigation={hasMultipleImages}
+                                pagination={hasMultipleImages ? { clickable: true } : false}
+                                zoom={{ maxRatio: 3 }}
+                                className="w-full h-full"
+                                onSwiper={(swiper) => {
+                                    if (currentImageIndex > 0 && currentImageIndex < images.length) {
+                                        swiper.slideTo(currentImageIndex);
+                                    }
+                                }}
+                                onSlideChange={(swiper) => {
+                                    setCurrentImageIndex(swiper.activeIndex);
+                                }}
                             >
-                                <div className="flex justify-center items-center gap-2 lg:gap-3">
-                                    {images.map((_, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setCurrentImageIndex(index)}
-                                            className={`w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full transition-all duration-300 
-                                                ${index === currentImageIndex 
-                                                    ? 'bg-cyan-400 scale-125' 
-                                                    : 'bg-white/60 hover:bg-white/80'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Botões de Navegação */}
-                            {images.length > 1 && (
-                                <>
-                                    <button
-                                        onClick={handlePrevImage}
-                                        className="absolute left-2 top-1/2 -translate-y-1/2 p-1 lg:p-2 
-                                            bg-black/20 hover:bg-black/40 rounded-full 
-                                            transition-all duration-300 text-white"
-                                    >
-                                        <ArrowBackIosNewIcon sx={{ fontSize: { xs: '18px', lg: '24px' } }} />
-                                    </button>
-                                    <button
-                                        onClick={handleNextImage}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 lg:p-2 
-                                            bg-black/20 hover:bg-black/40 rounded-full 
-                                            transition-all duration-300 text-white"
-                                    >
-                                        <ArrowForwardIosIcon sx={{ fontSize: { xs: '18px', lg: '24px' } }} />
-                                    </button>
-                                </>
-                            )}
+                                {images.map((image, index) => (
+                                    <SwiperSlide key={index}>
+                                        <div className="swiper-zoom-container w-full h-full flex items-center justify-center p-4">
+                                            <img
+                                                src={image}
+                                                alt={`Produto ${index + 1}`}
+                                                className="max-w-full max-h-full object-contain cursor-pointer"
+                                                onClick={handleToggleFullscreen}
+                                            />
+                                        </div>
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
                         </div>
                     </div>
 
@@ -334,34 +321,38 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
             )}
 
             {/* Modal Fullscreen */}
-            {isFullscreen && (
+            {isFullscreen && images.length > 0 && (
                 <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center">
                     <button
                         onClick={handleToggleFullscreen}
                         className="absolute top-4 right-4 text-white bg-white/10 rounded-full p-1 lg:p-2 
-                            hover:bg-white/20 transition-colors"
+                            hover:bg-white/20 transition-colors z-10"
                     >
                         <CloseIcon sx={{ fontSize: { xs: '20px', lg: '24px' } }} />
                     </button>
-                    <button
-                        onClick={handlePrevImage}
-                        className="absolute left-4 text-white bg-white/10 rounded-full p-1 lg:p-2 
-                            hover:bg-white/20 transition-colors"
+                    
+                    <Swiper
+                        modules={[Navigation, Pagination, Zoom]}
+                        spaceBetween={0}
+                        slidesPerView={1}
+                        navigation={hasMultipleImages}
+                        pagination={hasMultipleImages ? { clickable: true } : false}
+                        zoom={{ maxRatio: 5 }}
+                        initialSlide={Math.min(currentImageIndex, images.length - 1)}
+                        className="w-full h-full"
                     >
-                        <ArrowBackIosNewIcon sx={{ fontSize: { xs: '20px', lg: '24px' } }} />
-                    </button>
-                    <img
-                        src={images[currentImageIndex]}
-                        alt={`Produto ${currentImageIndex + 1}`}
-                        className="max-w-full max-h-[85vh] lg:max-h-full object-contain transition-transform duration-300"
-                    />
-                    <button
-                        onClick={handleNextImage}
-                        className="absolute right-4 text-white bg-white/10 rounded-full p-1 lg:p-2 
-                            hover:bg-white/20 transition-colors"
-                    >
-                        <ArrowForwardIosIcon sx={{ fontSize: { xs: '20px', lg: '24px' } }} />
-                    </button>
+                        {images.map((image, index) => (
+                            <SwiperSlide key={index}>
+                                <div className="swiper-zoom-container w-full h-full flex items-center justify-center">
+                                    <img
+                                        src={image}
+                                        alt={`Produto ${index + 1}`}
+                                        className="max-w-full max-h-[90vh] object-contain"
+                                    />
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
             )}
         </section>

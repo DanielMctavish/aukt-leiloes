@@ -69,22 +69,21 @@ function CarroselHomeAdvertiserDetails({ currentProduct }) {
 
     if (!currentProduct) {
         return (
-            <div className="flex justify-center items-center w-full h-[50vh] md:h-[calc(100vh-180px)]">
+            <div className="flex justify-center items-center w-full h-[30vh] md:h-[50vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#012038]"></div>
             </div>
         );
     }
 
     return (
-        <div className='flex flex-col w-full h-auto md:h-[calc(100vh-180px)] max-w-[600px] mx-auto overflow-hidden'>
-            {/* Container principal do carrossel */}
-            <div className="relative flex-1 mb-3 md:mb-4 aspect-square md:aspect-auto">
+        <div className='flex flex-col w-full mx-auto overflow-hidden'>
+            {/* Container principal do carrossel - ajustada altura máxima */}
+            <div className="relative mb-3 md:mb-4">
                 {renderCarimbo()}
                 <Swiper
                     style={{
                         '--swiper-navigation-color': '#fff',
                         '--swiper-pagination-color': '#fff',
-                        height: '100%'
                     }}
                     spaceBetween={10}
                     navigation={!isMobile}
@@ -92,24 +91,26 @@ function CarroselHomeAdvertiserDetails({ currentProduct }) {
                     zoom={isMobile}
                     thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                     modules={[FreeMode, Navigation, Thumbs, Pagination, Zoom]}
-                    className="rounded-lg product-swiper aspect-square md:aspect-auto"
+                    className="rounded-lg product-swiper"
                 >
                     <SwiperSlide>
-                        <div className='flex w-full h-full justify-center items-center bg-zinc-100 rounded-lg swiper-zoom-container'>
+                        <div className='flex w-full justify-center items-center bg-zinc-100 rounded-lg swiper-zoom-container
+                                       h-[30vh] sm:h-[40vh] md:h-[45vh] lg:h-[50vh] max-h-[500px]'>
                             <img 
                                 src={currentProduct?.cover_img_url} 
                                 alt="foto-produto-leilão"
-                                className='w-full h-full object-contain rounded-lg' 
+                                className='max-w-full max-h-full object-contain rounded-lg p-2' 
                             />
                         </div>
                     </SwiperSlide>
                     {groupImages.map((img, i) => (
                         <SwiperSlide key={`main-slide-${i}`}>
-                            <div className='flex w-full h-full justify-center items-center bg-zinc-100 rounded-lg swiper-zoom-container'>
+                            <div className='flex w-full justify-center items-center bg-zinc-100 rounded-lg swiper-zoom-container
+                                          h-[30vh] sm:h-[40vh] md:h-[45vh] lg:h-[50vh] max-h-[500px]'>
                                 <img 
                                     src={img} 
                                     alt={`foto-produto-leilão-${i + 1}`}
-                                    className='w-full h-full object-contain rounded-lg' 
+                                    className='max-w-full max-h-full object-contain rounded-lg p-2' 
                                 />
                             </div>
                         </SwiperSlide>
@@ -167,7 +168,6 @@ function CarroselHomeAdvertiserDetails({ currentProduct }) {
                     )}
                 </Swiper>
             </div>
-            
          
         </div>
     );

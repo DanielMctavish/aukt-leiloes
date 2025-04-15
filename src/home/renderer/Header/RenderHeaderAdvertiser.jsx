@@ -10,6 +10,18 @@ import 'swiper/css/navigation';
 function RenderHeaderAdvertiser({ header, fontStyle }) {
     const headerRef = useRef(null);
     const [carouselProducts, setCarouselProducts] = useState([]);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         if (header?.carousel?.selectedAuctId) {
@@ -395,57 +407,6 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
         return RenderModel ? <RenderModel /> : null;
     };
 
-    // Renderiza os textos do header
-    const RenderTexts = () => {
-        if (!header.texts) return null;
-
-        return (
-            <section className='absolute inset-0 z-20'>
-                {header.texts.map((text, index) => (
-                    <div
-                        key={index}
-                        className='text-white absolute'
-                        style={{
-                            top: text.positionTop || '50%',
-                            left: text.positionLeft || '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 'auto',
-                            maxWidth: '90vw',
-                            padding: '1rem'
-                        }}
-                    >
-                        <div className="cursor-default">
-                            <h1
-                                className="font-bold select-none break-words"
-                                style={{
-                                    fontSize: text.titleSize || '60px',
-                                    color: text.titleColor || 'white',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                                    width: 'auto',
-                                    maxWidth: '100%'
-                                }}
-                            >
-                                {text.title}
-                            </h1>
-                            <p
-                                className="select-none mt-2 break-words"
-                                style={{
-                                    color: text.contentColor || 'white',
-                                    fontSize: '16px',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                                    width: 'auto',
-                                    maxWidth: '100%'
-                                }}
-                            >
-                                {text.content}
-                            </p>
-                        </div>
-                    </div>
-                ))}
-            </section>
-        );
-    };
-
     // Renderiza o carrossel
     const RenderCarousel = () => {
         if (!header.carousel?.enabled || !carouselProducts?.length) return null;
@@ -479,26 +440,48 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
                 <div className="w-full h-full">
                     <Swiper
                         modules={[FreeMode, Navigation, Autoplay]}
-                        spaceBetween={header.carousel.spaceBetween}
-                        slidesPerView={Math.min(header.carousel.itemsToShow || 3, carouselProducts.length)}
-                        navigation={header.carousel.showNavigation !== false}
+                        spaceBetween={10}
+                        slidesPerView={windowWidth <= 640 ? 1 : Math.min(header.carousel.itemsToShow || 3, carouselProducts.length)}
+                        navigation={windowWidth > 640 && header.carousel.showNavigation !== false}
                         autoplay={{
                             delay: header.carousel.speed || 3000,
                             disableOnInteraction: false,
+                        }}
+                        breakpoints={{
+                            320: {
+                                slidesPerView: 1,
+                                spaceBetween: 8
+                            },
+                            480: {
+                                slidesPerView: 1,
+                                spaceBetween: 10
+                            },
+                            640: {
+                                slidesPerView: 2,
+                                spaceBetween: 15
+                            },
+                            768: {
+                                slidesPerView: Math.min(3, header.carousel.itemsToShow || 3),
+                                spaceBetween: 20
+                            },
+                            1024: {
+                                slidesPerView: Math.min(header.carousel.itemsToShow || 3, carouselProducts.length),
+                                spaceBetween: 20
+                            }
                         }}
                         className="w-full h-full"
                         style={{
                             '--swiper-navigation-color': '#fff',
                             '--swiper-pagination-color': '#fff',
-                            '--swiper-navigation-size': '24px',
+                            '--swiper-navigation-size': windowWidth <= 768 ? '20px' : '24px',
                             ...(header.carousel.showNavigation === false && {
                                 '--swiper-navigation-size': '0',
                             })
                         }}
                     >
                         {carouselProducts.map((product, index) => (
-                            <SwiperSlide key={index} className="!h-full p-2">
-                                <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden 
+                            <SwiperSlide key={index} className="!h-full p-1 sm:p-2">
+                                <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl overflow-hidden 
                                     group relative transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
                                     <div className="w-full h-full relative">
                                         <img
@@ -506,6 +489,7 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
                                             alt={product.title}
                                             className="w-full h-full object-cover transition-transform duration-500 
                                                 group-hover:scale-110"
+                                            loading="lazy"
                                         />
                                         {/* Gradiente de sobreposição */}
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent 
@@ -513,10 +497,10 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
                                         
                                         {/* Informações do produto */}
                                         {(header.carousel.showTitle !== false || header.carousel.showPrice !== false) && (
-                                            <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-4 
+                                            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 transform translate-y-4 
                                                 group-hover:translate-y-0 transition-transform duration-500">
                                                 {header.carousel.showTitle !== false && (
-                                                    <h3 className="text-white text-lg font-bold mb-3 opacity-0 
+                                                    <h3 className="text-white text-sm sm:text-lg font-bold mb-2 sm:mb-3 opacity-0 
                                                         group-hover:opacity-100 transition-opacity duration-500 delay-100
                                                         line-clamp-2 hover:line-clamp-none">
                                                         {product.title}
@@ -525,8 +509,8 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
                                                 {header.carousel.showPrice !== false && (
                                                     <div className="flex justify-between items-center opacity-0 
                                                         group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                                                        <span className="text-white/80 text-sm">Valor Inicial</span>
-                                                        <p className="text-white font-bold text-lg">
+                                                        <span className="text-white/80 text-xs sm:text-sm">Valor Inicial</span>
+                                                        <p className="text-white font-bold text-sm sm:text-lg">
                                                             {new Intl.NumberFormat('pt-BR', {
                                                                 style: 'currency',
                                                                 currency: 'BRL'
@@ -568,8 +552,7 @@ function RenderHeaderAdvertiser({ header, fontStyle }) {
             </div>
 
             {/* Container centralizado para textos e carrossel */}
-            <section className='flex justify-center items-center absolute inset-0 z-20 w-[80%] mx-auto'>
-                <RenderTexts />
+            <section className='flex justify-center items-center absolute inset-0 z-20 w-[90%] sm:w-[80%] mx-auto'>
                 <RenderCarousel />
             </section>
         </header>

@@ -46,44 +46,61 @@ export const DashboardAdvertiser = () => {
     }
 
     if (isLoading) {
-        return <div className="w-full h-[100vh] flex flex-col justify-center 
-        items-center overflow-y-auto bg-[#0D1733] text-white">
-            Carregando...
-        </div>
+        return (
+            <div className="w-full h-[100vh] flex flex-col justify-center 
+                items-center overflow-y-auto bg-[#0D1733] text-white">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                <span className="mt-4">Carregando...</span>
+            </div>
+        )
     }
 
-  
-
     return (
-        <div className="w-full h-[100vh] flex flex-col justify-start items-center overflow-y-auto bg-white">
-
+        <div className="w-full min-h-screen flex flex-col bg-white">
             <NavAdvertiser />
             <AssideAdvertiser MenuSelected="menu-1" />
 
+            {/* Main Content */}
+            <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 
+                pt-20 sm:pt-24 pb-8 z-[0]">
+                
+                {/* Auction Selection Section */}
+                <section className="w-full mb-6">
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 
+                        overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        <div className="min-w-max p-4">
+                            <AuctionSelection />
+                        </div>
+                    </div>
+                </section>
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-[4vh] z-[0]">
-                <section className="w-full h-auto flex flex-col justify-start items-center overflow-y-auto gap-2 relative">
-                    <section className="w-full flex p-2 gap-3 min-h-[20vh] justify-around items-center overflow-x-auto">
-                        <AuctionSelection />
-                    </section>
-
-                    <section className="w-full h-auto flex flex-col lg:flex-row justify-center items-stretch gap-4 p-4">
-                        {/* Gráfico */}
-                        <div className="lg:w-1/2 w-full h-[400px]">
+                {/* Charts Section */}
+                <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    {/* Graph Panel */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Gráfico de Desempenho</h2>
+                        <div className="h-[300px] sm:h-[400px]">
                             <PanelGraph />
                         </div>
-                        {/* Círculo de estatística */}
-                        <div className="lg:w-1/2 w-full h-[400px]">
+                    </div>
+
+                    {/* Statistics Circle */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Estatísticas</h2>
+                        <div className="h-[300px] sm:h-[400px]">
                             <CircleStatisticDisplay />
                         </div>
-                    </section>
-
-                    <section className="w-full p-3">
-                        <LastAdvertisersAuctsTable />
-                    </section>
+                    </div>
                 </section>
-            </div>
 
+                {/* Table Section */}
+                <section className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4">Últimos Leilões</h2>
+                    <div className="overflow-x-auto">
+                        <LastAdvertisersAuctsTable />
+                    </div>
+                </section>
+            </main>
         </div>
     )
 }

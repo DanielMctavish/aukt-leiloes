@@ -49,6 +49,9 @@ import SearchResults from './search/SearchResults';
 import SelectLoginType from './access/SelectLoginType';
 import MainRenderAdvertiserSite from "./home/renderer/MainRenderAdvertiserSite";
 import PropTypes from 'prop-types';
+import About from './home/components/About';
+import Agenda from './home/components/Agenda';
+import Help from './home/components/Help';
 
 // Componente wrapper para adicionar z-index alto
 const AppWrapper = ({ children }) => (
@@ -103,6 +106,9 @@ function App() {
             {/* Home AUK */}
             <Route Component={Home} path="/" exact />
             <Route Component={Categorias} path="/categorias" exact />
+            <Route Component={About} path="/sobre" exact />
+            <Route Component={Agenda} path="/agenda" exact />
+            <Route Component={Help} path="/ajuda" exact />
 
             {/* Home Advertiser */}
             <Route Component={MainRenderAdvertiserSite} path="/advertiser/home/:advertiser_id" exact />

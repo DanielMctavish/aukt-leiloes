@@ -3,16 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Person } from '@mui/icons-material';
 import NotificationSystem from './components/ProductInformationAdvertiser/NotificationSystem';
-
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
+import avatarClientsUrls from '../../media/avatar-floor/AvatarclientsUrls';
 
 import { getProductInformations } from './functions/getProductInformation';
 import { getClientSession } from './functions/getClientSession';
@@ -38,17 +29,16 @@ function ProductDetailAdv() {
     const [currentAdvertiser, setCurrentAdvertiser] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
-    const avatares_pessoas = importAllAvatars();
+    // Convertendo o objeto de URLs em um array
+    const avatares_pessoas = Object.values(avatarClientsUrls);
 
     const { product_id } = useParams();
 
     useEffect(() => {
-
         // Carregar as informações do novo produto
         getProductInformations(product_id, setCurrentProduct, setCurrentAuct, setCurrentAdvertiser);
         getClientSession(setSessionClient, setCurrentClient);
         checkClientSession();
-      
     }, [product_id]); // Dependência apenas no product_id para garantir que seja executado quando o produto mudar
 
     // Verificar a sessão do cliente quando o modal de login é fechado
@@ -69,7 +59,6 @@ function ProductDetailAdv() {
                         Authorization: `Bearer ${sessionData.token}`
                     }
                 });
-
 
                 if (!response.data) {
                     localStorage.removeItem("client-auk-session-login");
@@ -124,18 +113,23 @@ function ProductDetailAdv() {
     }
 
     useEffect(() => {
-        document.addEventListener('keydown', (event) => {
+        const handleEscKey = (event) => {
             if (event.key === 'Escape') {
-                setIsModalOn(false)
-                setShowBids(false)
+                setIsModalOn(false);
+                setShowBids(false);
             }
-        })
-    }, [])
-
+        };
+        
+        document.addEventListener('keydown', handleEscKey);
+        
+        // Cleanup para remover o event listener
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, []);
 
     return (
-        <div className="flex flex-col justify-start items-center w-full min-h-screen 
-        bg-[#0D1733] p-[1.5vh] relative overflow-x-hidden ">
+        <div className="flex flex-col justify-start items-center w-full bg-[#0D1733] relative">
             <LoginClientModal setIsModalOn={setIsModalOn} modalOn={modalOn} />
 
             {/* Sistema de Notificações de vencedor */}
@@ -155,15 +149,13 @@ function ProductDetailAdv() {
                 avatares_pessoas={avatares_pessoas}
             />
 
-            {/* Main Body - ajustado o padding para acomodar o menu */}
-            {/* Wrapper com largura máxima e centralização */}
-            <div className="flex flex-col w-full relative bg-[#fff] p-6">
-                {/* Container com largura máxima para melhor experiência em desktop */}
+            {/* Main Body */}
+            <div className="flex flex-col w-full bg-[#fff] p-3 sm:p-4 md:p-6">
+                {/* Container com largura máxima */}
                 <div className="w-full max-w-[1480px] mx-auto">
-                    {/* Cabeçalho apenas com informações do leiloeiro */}
+                    {/* Cabeçalho com informações do leiloeiro */}
                     {currentAuct && currentAdvertiser && (
-                        <div className='flex w-full justify-between items-center gap-2 text-zinc-800'>
-
+                        <div className='flex w-full justify-between items-center gap-2 text-zinc-800 mb-3'>
                             <div className='flex justify-center items-center gap-2'>
                                 {currentAdvertiser.url_profile_cover ? (
                                     <img src={currentAdvertiser.url_profile_cover} alt="" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-cover rounded-full' />
@@ -177,19 +169,18 @@ function ProductDetailAdv() {
                                     <span className='text-xs md:text-sm'>{currentAuct.title}</span>
                                 </div>
                             </div>
-
                         </div>
                     )}
 
-                    {/* Container principal com altura fixa */}
-                    <div className='w-full flex flex-col lg:flex-row justify-between items-start gap-3 p-3 rounded-md'>
+                    {/* Container principal - removida altura fixa para mobile */}
+                    <div className='w-full flex flex-col lg:flex-row justify-between items-start gap-4 p-0 sm:p-2 rounded-md'>
                         {/* Carrossel */}
-                        <div className='w-full lg:w-[40%] h-auto lg:h-[calc(100vh-180px)] order-1'>
+                        <div className='w-full lg:w-[40%] order-1'>
                             <CarroselHomeAdvertiserDetails currentProduct={currentProduct} />
                         </div>
 
-                        {/* Informações do produto */}
-                        <div className='w-full lg:w-[60%] h-auto max-h-screen overflow-auto lg:h-[calc(100vh-180px)] order-2 mt-2 lg:mt-0'>
+                        {/* Informações do produto - removido max-height e overflow no mobile */}
+                        <div className='w-full lg:w-[58%] lg:h-[calc(100vh-180px)] lg:overflow-auto order-2 mt-3 lg:mt-0 max-w-full overflow-hidden'>
                             <ProductInformation
                                 currentProduct={currentProduct}
                                 currentClient={currentClient}
@@ -211,10 +202,10 @@ function ProductDetailAdv() {
                     </div>
 
                     {/* Recomendados */}
-                    <div className='w-full mt-4 md:mt-8 px-2 sm:px-4 md:px-0'>
+                    <div className='w-full mt-6 px-0 sm:px-2'>
                         {isLoadingProducts ? (
-                            <div className="flex justify-center items-center w-full h-[150px] md:h-[200px]">
-                                <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-[#012038]"></div>
+                            <div className="flex justify-center items-center w-full h-[120px] md:h-[200px]">
+                                <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-b-2 border-[#012038]"></div>
                             </div>
                         ) : anotherProducts.length > 0 ? (
                             <Recomendados anotherProducts={anotherProducts} />

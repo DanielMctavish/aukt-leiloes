@@ -1,16 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
+import avatarClientsUrls from "../../../media/avatar-floor/AvatarclientsUrls";
 
-const avatarIndex = importAllAvatars()
+// Convertendo o objeto de URLs em um array
+const avatarIndex = Object.values(avatarClientsUrls);
 
 function BidDetailController({ bid }) {
     const [address, setAddress] = useState({});

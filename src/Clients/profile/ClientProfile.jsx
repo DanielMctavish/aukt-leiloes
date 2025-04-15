@@ -1,23 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import AssideClient from "../Asside/AssideClient";
 import NavClient from "../navigation/NavClient";
 import { getClientInformations } from "../functions/getClientInformations";
-import { useNavigate } from "react-router-dom";
+import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls";
 
-//avatares import
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
+// Componentes
+import TabNavigation from "./components/TabNavigation";
+import PersonalInfoTab from "./tabs/PersonalInfoTab";
+import AvatarTab from "./tabs/AvatarTab";
+import SecurityTab from "./tabs/SecurityTab";
+import EmailTab from "./tabs/EmailTab";
 
-const avatares_pessoas = importAllAvatars()
+// Estilos
+import "./styles.css";
+
+// Convertendo o objeto de URLs em um array
+const avatares_pessoas = Object.values(avatarClientsUrls);
 
 function ClientProfile() {
     const [isLoading, setIsloading] = useState(false)
@@ -25,6 +26,17 @@ function ClientProfile() {
     const [nickname, setNickname] = useState("")
     const [clientAvatar, setClientAvatar] = useState(0)
     const [currentClient, setCurrentClient] = useState({})
+    const [activeTab, setActiveTab] = useState('info')
+    
+    // Estado para gerenciar as etapas de mudança de senha
+    const [passwordChangeStep, setPasswordChangeStep] = useState('current') // 'current', 'new', 'success'
+    const [currentPassword, setCurrentPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [passwordError, setPasswordError] = useState('')
+    const [passwordAttempts, setPasswordAttempts] = useState(0) // Contador de tentativas de senha
+    const [isAuthenticating, setIsAuthenticating] = useState(false) // Estado para controlar autenticação em andamento
+    
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -39,7 +51,7 @@ function ClientProfile() {
         }
     }, [currentClient])
 
-    const handleEditAccount = async () => {
+    const handleEditAccount = useCallback(async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"))
         setIsloading(true)
         try {
@@ -51,144 +63,231 @@ function ClientProfile() {
                 headers: {
                     Authorization: `Bearer ${currentSession.token}`
                 }
-            }).then(() => {
-                setIsloading(false)
-                navigate("/client/dashboard")
             })
+            setIsloading(false)
+            navigate("/client/dashboard")
         } catch (error) {
             setIsloading(false)
         }
+    }, [currentClient, name, nickname, clientAvatar, navigate]);
 
-    }
+    const handleSelectAvatar = useCallback((index) => setClientAvatar(index), []);
+    
+    // Manipuladores para mudança de senha
+    const handleCurrentPasswordChange = useCallback((e) => setCurrentPassword(e.target.value), []);
+    const handleNewPasswordChange = useCallback((e) => setNewPassword(e.target.value), []);
+    const handleConfirmPasswordChange = useCallback((e) => setConfirmPassword(e.target.value), []);
+    
+    const verifyCurrentPassword = useCallback(async () => {
+        setPasswordError('');
+        setIsAuthenticating(true);
+        
+        if (!currentPassword) {
+            setPasswordError('Por favor, digite sua senha atual');
+            setIsAuthenticating(false);
+            return;
+        }
+        
+        try {
+            // Usar a rota de login para verificar a senha
+            await axios.post(`${import.meta.env.VITE_APP_BACKEND_API}/client/login`, {
+                email: currentClient.email,
+                password: currentPassword
+            });
+            
+            // Se chegou aqui, a senha está correta
+            setPasswordAttempts(0); // Reseta contador de tentativas
+            setPasswordChangeStep('new');
+            
+        } catch (error) {
+            // Incrementa o contador de tentativas
+            const newAttempts = passwordAttempts + 1;
+            setPasswordAttempts(newAttempts);
+            
+            // Se atingiu 3 tentativas, desloga o usuário
+            if (newAttempts >= 3) {
+                setPasswordError('Excedido o número máximo de tentativas. Por segurança, você será desconectado.');
+                
+                // Espera 1.5 segundos antes de deslogar para que o usuário possa ler a mensagem
+                setTimeout(() => {
+                    localStorage.removeItem("client-auk-session-login");
+                    navigate("/");
+                }, 1500);
+            } else {
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    if (newAttempts === 2) {
+                        setPasswordError(`Cuidado! Esta é sua última tentativa antes de bloquearmos seu acesso.`);
+                    } else {
+                        setPasswordError(`Senha incorreta. Você tem mais ${3 - newAttempts} tentativa(s).`);
+                    }
+                } else {
+                    setPasswordError('Erro ao verificar senha. Tente novamente mais tarde.');
+                }
+            }
+        } finally {
+            setIsAuthenticating(false);
+        }
+    }, [currentPassword, passwordAttempts, currentClient.email, navigate]);
+    
+    const handlePasswordSave = useCallback(async () => {
+        setPasswordError('');
+        
+        // Validações
+        if (newPassword.length < 6) {
+            setPasswordError('Nova senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            setPasswordError('As senhas não coincidem');
+            return;
+        }
+        
+        setIsloading(true);
+        
+        try {
+            const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
+            
+            // Usar a mesma rota de atualização do cliente para alterar a senha
+            await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/client/update-client?client_id=${currentClient.id}`, {
+                password: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${currentSession.token}`
+                }
+            });
+            
+            // Sucesso na atualização
+            setPasswordChangeStep('success');
+            
+            // Resetar os campos após 3 segundos e voltar para a primeira etapa
+            setTimeout(() => {
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setPasswordChangeStep('current');
+            }, 3000);
+            
+        } catch (error) {
+            if (error.response?.data?.message) {
+                setPasswordError(error.response.data.message);
+            } else {
+                setPasswordError('Erro ao atualizar senha. Tente novamente mais tarde.');
+            }
+        } finally {
+            setIsloading(false);
+        }
+    }, [newPassword, confirmPassword, currentClient.id]);
+    
+    const resetPasswordFlow = useCallback(() => {
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordError('');
+        setPasswordAttempts(0); // Reseta contador de tentativas
+        setPasswordChangeStep('current');
+    }, []);
+    
+    const handleTabChange = useCallback((tab) => {
+        setActiveTab(tab);
+        
+        // Resetar o fluxo de senha ao mudar de aba
+        if (tab !== 'password') {
+            resetPasswordFlow();
+        }
+    }, [resetPasswordFlow]);
 
     return (
-        <div className="w-full h-screen bg-gradient-to-br from-[#f8f8f8] to-[#e8e8e8] flex">
+        <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col lg:flex-row">
             <AssideClient MenuSelected="menu-6" />
 
-            <section className="flex-1 h-screen flex flex-col gap-4 p-4 overflow-y-auto">
+            <section className="flex-1 flex flex-col gap-3 p-3 sm:p-5 overflow-y-auto">
                 <div className="z-[10]">
                     <NavClient currentClient={currentClient} />
                 </div>
 
                 {!isLoading ? (
-                    <>
-                        {/* Cards de Edição */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Card de Informações Pessoais */}
-                            <div className="bg-[#001324] rounded-2xl shadow-lg p-6 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-bl-full" />
-
-                                <h2 className="text-2xl font-bold text-white mb-6">
-                                    Informações Pessoais
-                                </h2>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-300 mb-1 block">
-                                            Nome Completo
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-700 
-                                                bg-[#001324] text-white
-                                                focus:ring-2 focus:ring-green-500 focus:border-transparent
-                                                transition-all duration-300"
-                                            placeholder="Seu nome completo"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-300 mb-1 block">
-                                            Apelido no Pregão
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={nickname}
-                                            onChange={(e) => setNickname(e.target.value)}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-700 
-                                                bg-[#001324] text-white
-                                                focus:ring-2 focus:ring-green-500 focus:border-transparent
-                                                transition-all duration-300"
-                                            placeholder="Seu apelido"
-                                        />
-                                    </div>
+                    <div className="max-w-6xl mx-auto w-full">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                            <div className="p-4 sm:p-6 flex items-center gap-4 border-b border-gray-100">
+                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-green-100 shadow-sm">
+                                    <img 
+                                        src={avatares_pessoas[clientAvatar] || avatares_pessoas[0]} 
+                                        alt="Perfil" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+                                        {currentClient.name || "Perfil do Cliente"}
+                                    </h1>
+                                    <p className="text-gray-500">
+                                        {currentClient.email || "carregando..."}
+                                    </p>
                                 </div>
                             </div>
-
-                            {/* Card de Seleção de Avatar */}
-                            <div className="bg-[#001324] rounded-2xl shadow-lg p-6 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-bl-full" />
-
-                                <h2 className="text-2xl font-bold text-white mb-6">
-                                    Seu Avatar
-                                </h2>
-
-                                <div className="flex flex-wrap gap-4 max-h-[400px] overflow-y-auto p-4
-                                    scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                                    {avatares_pessoas.map((avatar, i) => (
-                                        <div
-                                            key={i}
-                                            onClick={() => setClientAvatar(i)}
-                                            className={`
-                                                relative group cursor-pointer
-                                                transition-all duration-500 ease-out
-                                                ${clientAvatar === i
-                                                    ? 'ring-4 ring-green-500 scale-110 rotate-3 z-10'
-                                                    : 'ring-2 ring-gray-700 hover:ring-green-400'
-                                                }
-                                                rounded-xl overflow-hidden
-                                                hover:shadow-xl hover:shadow-green-500/20
-                                                hover:scale-110 hover:rotate-3
-                                                active:scale-95 active:rotate-0
-                                            `}
-                                        >
-                                            <img
-                                                src={avatar}
-                                                alt={`Avatar ${i + 1}`}
-                                                className="w-16 h-16 object-cover"
-                                            />
-
-                                            <div className={`
-                                                absolute inset-0 flex items-center justify-center
-                                                transition-all duration-300
-                                                ${clientAvatar === i
-                                                    ? 'bg-green-500/20'
-                                                    : 'bg-black/0 group-hover:bg-green-500/10'
-                                                }
-                                            `}>
-                                                {clientAvatar === i && (
-                                                    <div className="bg-green-500 text-white p-1.5 rounded-full">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                            
+                            {/* Navegação por abas */}
+                            <TabNavigation 
+                                activeTab={activeTab} 
+                                handleTabChange={handleTabChange} 
+                            />
+                            
+                            {/* Conteúdo das abas */}
+                            <div className="p-4 sm:p-6">
+                                {/* Aba de Informações Pessoais */}
+                                {activeTab === 'info' && (
+                                    <PersonalInfoTab 
+                                        name={name}
+                                        setName={setName}
+                                        nickname={nickname}
+                                        setNickname={setNickname}
+                                        handleEditAccount={handleEditAccount}
+                                        isLoading={isLoading}
+                                    />
+                                )}
+                                
+                                {/* Aba de Avatar */}
+                                {activeTab === 'avatar' && (
+                                    <AvatarTab 
+                                        avatares={avatares_pessoas}
+                                        clientAvatar={clientAvatar}
+                                        handleSelectAvatar={handleSelectAvatar}
+                                        handleEditAccount={handleEditAccount}
+                                        isLoading={isLoading}
+                                    />
+                                )}
+                                
+                                {/* Aba de Segurança */}
+                                {activeTab === 'password' && (
+                                    <SecurityTab 
+                                        passwordChangeStep={passwordChangeStep}
+                                        currentPassword={currentPassword}
+                                        newPassword={newPassword}
+                                        confirmPassword={confirmPassword}
+                                        passwordError={passwordError}
+                                        passwordAttempts={passwordAttempts}
+                                        handleCurrentPasswordChange={handleCurrentPasswordChange}
+                                        handleNewPasswordChange={handleNewPasswordChange}
+                                        handleConfirmPasswordChange={handleConfirmPasswordChange}
+                                        verifyCurrentPassword={verifyCurrentPassword}
+                                        handlePasswordSave={handlePasswordSave}
+                                        resetPasswordFlow={resetPasswordFlow}
+                                        isLoading={isLoading}
+                                        isAuthenticating={isAuthenticating}
+                                    />
+                                )}
+                                
+                                {/* Aba de Email */}
+                                {activeTab === 'email' && (
+                                    <EmailTab currentEmail={currentClient.email || ''} />
+                                )}
                             </div>
                         </div>
-
-                        {/* Botão de Salvar */}
-                        <button
-                            onClick={handleEditAccount}
-                            className="mt-6 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 
-                                text-white rounded-xl shadow-lg shadow-green-500/20
-                                hover:shadow-xl hover:shadow-green-500/30 hover:scale-105
-                                active:scale-95 transition-all duration-300
-                                disabled:opacity-50 disabled:cursor-not-allowed
-                                w-full max-w-md mx-auto"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Salvando..." : "Salvar Alterações"}
-                        </button>
-                    </>
+                    </div>
                 ) : (
                     <div className="flex items-center justify-center flex-1">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent" />
+                        <div className="animate-spin rounded-full h-10 w-10 border-3 border-green-500 border-t-transparent" />
                     </div>
                 )}
             </section>

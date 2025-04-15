@@ -23,11 +23,22 @@ function HomeAdvertiser() {
     const { advertiser_id } = useParams();
     const navigate = useNavigate();
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
-        getSiteTemplate()
-        getAucts()
-    }, [])
+        getSiteTemplate();
+        getAucts();
+
+        // Adicionar listener para redimensionamento da janela
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         const gallerySection = sections?.find(section =>
@@ -139,7 +150,7 @@ function HomeAdvertiser() {
     };
 
     const renderTextSection = (section) => (
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full h-full flex justify-center items-center py-8 sm:py-12">
             <div className="container mx-auto px-4 lg:px-8">
                 <div className="max-w-4xl mx-auto"
                     style={{
@@ -159,39 +170,50 @@ function HomeAdvertiser() {
     const renderGallerySection = (section) => {
         if (!selectedAuct?.product_list?.length) return null;
 
+        // Determinar o número de colunas com base na largura da tela
+        // Use 2 colunas para dispositivos móveis (estilo Shein)
+        const itemsPerRow = windowWidth <= 639 ? 2 : 
+                         windowWidth <= 830 ? 2 : 
+                         section.config.itemsPerRow || 3;
+
         return (
-            <div className="h-full overflow-y-auto">
-                <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
-                    <div className={`grid gap-4 p-4`}
+            <div className="h-full overflow-y-auto py-4 sm:py-6">
+                <div className="container mx-auto px-2 sm:px-4 lg:px-6 max-w-7xl">
+                    <div className={` gap-2 sm:gap-4 grid-cols-5`}
                         style={{
-                            gridTemplateColumns: `repeat(${window.innerWidth <= 830 ? 1 : section.config.itemsPerRow}, 1fr)`
+                            gridTemplateColumns: `repeat(${itemsPerRow}, 1fr)`
                         }}>
                         {selectedAuct.product_list.map((product, idx) => (
                             <div 
                                 key={idx} 
-                                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer 
-                                    transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                                className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer 
+                                    transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
                                 onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
                             >
                                 <div className="relative">
-                                    <img
-                                        src={product.cover_img_url}
-                                        alt={product.title}
-                                        className="w-full h-48 object-cover"
-                                    />
+                                    <div className="aspect-square w-full">
+                                        <img
+                                            src={product.cover_img_url}
+                                            alt={product.title}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </div>
                                     {/* Overlay hover */}
                                     <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 
                                         transition-opacity flex items-center justify-center">
-                                        <span className="text-white bg-black/50 px-4 py-2 rounded-full text-sm">
+                                        <span className="text-white bg-black/50 px-3 py-1.5 rounded-full text-xs sm:text-sm">
                                             Ver detalhes
                                         </span>
                                     </div>
                                 </div>
                                 {section.config.showTitle && (
-                                    <div className="p-4">
-                                        <h3 className="font-bold">{product.title}</h3>
+                                    <div className="p-2 sm:p-3">
+                                        <h3 className="font-bold text-sm sm:text-base truncate">{product.title}</h3>
                                         {section.config.showPrice && (
-                                            <p className="text-gray-600">R$ {product.initial_value?.toFixed(2)}</p>
+                                            <p className="text-gray-600 text-sm font-semibold">
+                                                R$ {product.initial_value?.toFixed(2)}
+                                            </p>
                                         )}
                                     </div>
                                 )}
@@ -222,20 +244,20 @@ function HomeAdvertiser() {
         };
 
         return (
-            <div className="h-auto flex items-center justify-center py-24 ">
+            <div className="h-auto flex items-center justify-center py-12 sm:py-16">
                 <div className="container mx-auto px-4 lg:px-8">
-                    <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-xl">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 md:p-8 shadow-xl">
+                        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                             {section.config.fields?.map((field, idx) => (
                                 <div key={idx}>
-                                    <label className="block text-sm font-medium mb-2">
+                                    <label className="block text-sm font-medium mb-1 sm:mb-2">
                                         {field.label} {field.required && <span className="text-red-500">*</span>}
                                     </label>
                                     {field.type === 'textarea' ? (
                                         <textarea
                                             name={field.label.toLowerCase().replace(/\s+/g, '-')}
                                             required={field.required}
-                                            className="w-full p-3 border rounded-lg bg-white/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full p-2 sm:p-3 border rounded-lg bg-white/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                             rows={4}
                                         />
                                     ) : (
@@ -243,17 +265,17 @@ function HomeAdvertiser() {
                                             type={field.type}
                                             name={field.label.toLowerCase().replace(/\s+/g, '-')}
                                             required={field.required}
-                                            className="w-full p-3 border rounded-lg bg-white/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full p-2 sm:p-3 border rounded-lg bg-white/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                         />
                                     )}
                                 </div>
                             ))}
                             <button
                                 type="submit"
-                                className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 
-                                 w-full justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 
+                                 w-full justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all text-sm sm:text-base"
                             >
-                                <WhatsApp />
+                                <WhatsApp fontSize={windowWidth < 640 ? "small" : "medium"} />
                                 {section.config.buttonText || 'Enviar Mensagem'}
                             </button>
                         </form>
@@ -274,37 +296,49 @@ function HomeAdvertiser() {
             });
         };
 
+        // Determinar o número de colunas com base na largura da tela
+        const itemsPerRow = windowWidth <= 639 ? 2 : 
+                         windowWidth <= 830 ? 2 : 
+                         section.config.itemsPerRow || 3;
+
         return (
-            <div className="h-full overflow-y-auto">
-                <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
-                    <div className={`grid gap-6 p-4`}
+            <div className="h-full overflow-y-auto py-4 sm:py-6">
+                <div className="container mx-auto px-2 sm:px-4 lg:px-6 max-w-7xl">
+                    <div className={`grid gap-2 sm:gap-4 md:gap-6`}
                         style={{
-                            gridTemplateColumns: `repeat(${window.innerWidth <= 830 ? 1 : section.config.itemsPerRow}, 1fr)`
+                            gridTemplateColumns: `repeat(${itemsPerRow}, 1fr)`
                         }}>
                         {aucts.map((auct, idx) => (
-                            <div key={idx} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                                <img
-                                    src={auct.cover_img_url || auct.product_list?.[0]?.cover_img_url}
-                                    alt={auct.title}
-                                    className="w-full h-48 object-cover"
-                                />
-                                <div className="p-4">
-                                    <h3 className="font-bold text-lg mb-2">{auct.title}</h3>
+                            <div 
+                                key={idx} 
+                                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                                onClick={() => navigate(`/advertiser/home/shop/${auct.id}`)}
+                            >
+                                <div className="aspect-video">
+                                    <img
+                                        src={auct.cover_img_url || auct.product_list?.[0]?.cover_img_url}
+                                        alt={auct.title}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <div className="p-2 sm:p-3">
+                                    <h3 className="font-bold text-sm sm:text-base mb-1 truncate">{auct.title}</h3>
 
                                     {section.config.showProductCount && (
-                                        <p className="text-gray-600 text-sm mb-2">
+                                        <p className="text-gray-600 text-xs sm:text-sm mb-1">
                                             {auct.product_list?.length || 0} produtos
                                         </p>
                                     )}
 
                                     {section.config.showStartDate && (
-                                        <p className="text-gray-600 text-sm">
+                                        <p className="text-gray-600 text-xs sm:text-sm">
                                             Início: {formatDate(auct.start_date)}
                                         </p>
                                     )}
 
                                     {section.config.showEndDate && (
-                                        <p className="text-gray-600 text-sm">
+                                        <p className="text-gray-600 text-xs sm:text-sm">
                                             Término: {formatDate(auct.end_date)}
                                         </p>
                                     )}
@@ -330,9 +364,9 @@ function HomeAdvertiser() {
             
             <header
                 className={`w-full relative overflow-hidden mt-[8vh]
-                    ${header?.sizeType === "FULL" && "h-[100vh]"} 
-                    ${header?.sizeType === "MEDIUM" && "h-[50vh]"}
-                    ${header?.sizeType === "SMALL" && "h-[25vh]"}`}
+                    ${header?.sizeType === "FULL" ? "h-[80vh] sm:h-[90vh] md:h-[100vh]" : ""} 
+                    ${header?.sizeType === "MEDIUM" ? "h-[40vh] sm:h-[45vh] md:h-[50vh]" : ""}
+                    ${header?.sizeType === "SMALL" ? "h-[20vh] sm:h-[22vh] md:h-[25vh]" : ""}`}
                 style={{ backgroundColor: header?.color || '#ffffff' }}>
 
                 {/* Background Image Layer */}
@@ -353,12 +387,24 @@ function HomeAdvertiser() {
                 />
 
                 {/* Carousel Layer */}
-                <HeaderCarousel config={header?.carousel} advertiser_id={advertiser_id} />
+                <HeaderCarousel 
+                    config={{
+                        ...header?.carousel,
+                        // Garante configurações mínimas adequadas para dispositivos móveis
+                        itemsToShow: windowWidth <= 640 ? 1 : (header?.carousel?.itemsToShow || 3),
+                        showNavigation: windowWidth > 640 ? (header?.carousel?.showNavigation || true) : false,
+                        // Adiciona opções de paginação para mobile se não estiver explicitamente definido
+                        showPagination: windowWidth <= 640 ? true : (header?.carousel?.showPagination || false)
+                    }} 
+                    advertiser_id={advertiser_id} 
+                />
             </header>
 
             {/* Sections - Agora ordenadas */}
             {sections?.sort((a, b) => a.order - b.order).map((section, index) => {
                 const sectionType = section.type.toLowerCase();
+                const mobileSizeAdjustment = windowWidth <= 640 ? 0.7 : 
+                                          windowWidth <= 830 ? 0.85 : 1;
 
                 return (
                     <section
@@ -367,9 +413,9 @@ function HomeAdvertiser() {
                         className={`w-full flex items-center justify-center relative transition-colors duration-1000 ease-in-out`}
                         style={{
                             backgroundColor: section.color,
-                            minHeight: section.sizeType === "SMALL" ? "25vh" :
-                                section.sizeType === "MEDIUM" ? "50vh" :
-                                    section.sizeType === "FULL" ? "100vh" : "50vh",
+                            minHeight: section.sizeType === "SMALL" ? `${25 * mobileSizeAdjustment}vh` :
+                                section.sizeType === "MEDIUM" ? `${50 * mobileSizeAdjustment}vh` :
+                                    section.sizeType === "FULL" ? `${100 * mobileSizeAdjustment}vh` : `${50 * mobileSizeAdjustment}vh`,
                             transitionDelay: `${index * 200}ms`,
                             fontFamily: fontStyle
                         }}

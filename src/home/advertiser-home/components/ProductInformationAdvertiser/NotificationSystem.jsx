@@ -1,18 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
+import avatarClientsUrls from '../../../../media/avatar-floor/AvatarclientsUrls';
 
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
-
-const avatares_pessoas = importAllAvatars();
+// Convertendo o objeto de URLs em um array
+const avatares_pessoas = Object.values(avatarClientsUrls);
 
 const NotificationSystem = ({ 
     showOutbidNotification, 

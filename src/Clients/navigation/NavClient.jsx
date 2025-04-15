@@ -1,20 +1,11 @@
 /* eslint-disable react/prop-types */
-import { ArrowDropDown, NotificationsNone, Settings, AccountBalanceWallet, Logout, Gavel } from "@mui/icons-material";
+import { ArrowDropDown, Settings, AccountBalanceWallet, Logout, Gavel } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls";
 
-//avatares import
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
-
-const avatares_pessoas = importAllAvatars()
+// Convertendo o objeto de URLs em um array
+const avatares_pessoas = Object.values(avatarClientsUrls);
 
 function NavClient({ currentClient }) {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -30,15 +21,9 @@ function NavClient({ currentClient }) {
 
                 {/* Container direito */}
                 <div className="flex items-center gap-4 ml-auto">
-                    {/* Botão de Notificações */}
-                    <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                        <NotificationsNone className="text-gray-600" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
-
+                    {/* Botão do martelo (Gavel) */}
                     <button onClick={()=>navigate("/floor/hub")} className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
                         <Gavel className="text-gray-600" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
 
                     {/* Botão de Configurações */}
@@ -122,18 +107,6 @@ function NavClient({ currentClient }) {
                                 >
                                     <AccountBalanceWallet className="text-gray-400 text-base" />
                                     Carteira
-                                </button>
-                                
-                                <button 
-                                    onClick={() => {
-                                        navigate('/client/settings');
-                                        setShowDropdown(false);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 
-                                        hover:bg-gray-50 transition-colors flex items-center gap-2"
-                                >
-                                    <Settings className="text-gray-400 text-base" />
-                                    Configurações
                                 </button>
                                 
                                 <div className="border-t border-gray-100 my-1"></div>

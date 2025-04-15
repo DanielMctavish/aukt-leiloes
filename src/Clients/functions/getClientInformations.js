@@ -1,27 +1,53 @@
 import axios from "axios";
 
-
-export const getClientInformations = async (navigate, getBidsByClient, setCurrentClient,
-    setAllBids, setBidsWinners, setBudget, currentClient) => {
-
+export const getClientInformations = async (
+    navigate, 
+    getBidsByClient, 
+    setCurrentClient,
+    setAllBids, 
+    setBidsWinners, 
+    setBudget, 
+    currentClient
+) => {
     const currentSessionClient = JSON.parse(localStorage.getItem("client-auk-session-login"));
+    
     if (!currentSessionClient) {
-        navigate("/client/login");
+        if (navigate) {
+            navigate("/client/login");
+        }
+        return null;
     }
 
-    await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`, {
-        headers: {
-            "Authorization": `Bearer ${currentSessionClient.token}`
+    try {
+        const response = await axios.get(
+            `${import.meta.env.VITE_APP_BACKEND_API}/client/find-by-email?email=${currentSessionClient.email}`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${currentSessionClient.token}`
+                }
+            }
+        );
+
+        if (getBidsByClient && setAllBids && setBidsWinners && setBudget) {
+            getBidsByClient(
+                response.data.id,
+                currentClient,
+                setAllBids,
+                setBidsWinners,
+                setBudget
+            );
         }
-    }).then((response) => {
-        getBidsByClient &&
-            getBidsByClient(response.data.id, currentClient,
-                setAllBids, setBidsWinners, setBudget);
 
         setCurrentClient(response.data);
-    }).catch(() => {
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar informações do cliente:", error);
         localStorage.removeItem("client-auk-session-login");
-        navigate("/client/login");
-    });
-
+        if (navigate) {
+            navigate("/client/login");
+        }
+        return null;
+    }
 };
+
+export default getClientInformations;

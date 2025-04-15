@@ -266,10 +266,10 @@ function AuctionController() {
                         {/* Botão Iniciar */}
                         <button
                             onClick={playAuction}
-                            disabled={isRunning || isDisabled}
+                            disabled={isRunning || isDisabled || isPaused}
                             title="Iniciar Leilão"
                             className={`flex items-center justify-center p-4 rounded-xl 
-                                transition-all duration-200 ${isRunning || isDisabled
+                                transition-all duration-200 ${isRunning || isDisabled || isPaused
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
                                 }`}

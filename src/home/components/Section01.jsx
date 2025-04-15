@@ -116,36 +116,55 @@ function Section01() {
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
         {/* Background que cobre toda a largura */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#012038] to-[#0D1733]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#012038] to-[#0D1733]">
+          {/* Efeito de particulas para mobile */}
+          <div className="absolute inset-0 opacity-30 hidden sm:hidden">
+            <div className="particles-container"></div>
+          </div>
+        </div>
         
         {/* Container do conteúdo - mantém as margens */}
         <div className="relative z-10 pt-20 pb-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1480px]">
-                {/* Hero Section */}
-                <div className="flex flex-col items-center text-center mb-16">
-                    <div className="relative mb-6">
+                {/* Hero Section - com animação melhorada para mobile */}
+                <div className="flex flex-col items-center text-center mb-10 md:mb-16">
+                    <div className="relative mb-6 animate-pulse-slow">
                         <img 
                             src={aukWhite} 
                             alt="AUK Leilões" 
                             className="h-24 sm:h-32 object-contain animate-float"
                         />
-                      
+                        {/* Efeito de brilho sob o logo para mobile */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#012038]/0 via-[#012038]/30 to-[#012038]/0 rounded-full filter blur-xl opacity-50 animate-glow"></div>
                     </div>
                     
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 
-                        tracking-tight leading-tight">
+                    <h1 className="text-4xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 
+                        tracking-tight leading-tight animate-fade-in">
                         AUK Leilões
                     </h1>
-                    <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed animate-fade-in-delay">
                         Grandes Oportunidades Esperam por Você
                     </p>
+
+                    {/* Botão de CTA mobile */}
+                    <div className="mt-6 mb-2 sm:hidden animate-bounce-subtle">
+                      <button 
+                        onClick={() => navigate('/floor/hub')}
+                        className="px-6 py-3 bg-gradient-to-r from-[#0d4e8e] to-[#012038] rounded-full text-white font-medium shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-[#012038]/30 flex items-center space-x-2">
+                        <Gavel fontSize="small" />
+                        <span>Participar de Leilões</span>
+                      </button>
+                    </div>
                 </div>
 
-                {/* Carrossel de Produtos */}
-                <div className="mb-20">
+                {/* Carrossel de Produtos - otimizado para mobile */}
+                <div className="mb-14 md:mb-20">
                     {isLoading ? (
                       <div className="flex justify-center items-center min-h-[300px]">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                        <div className="w-16 h-16 relative">
+                          <div className="absolute top-0 left-0 w-full h-full border-4 border-t-[#247557] border-r-transparent border-b-[#012038] border-l-transparent rounded-full animate-spin"></div>
+                          <div className="absolute top-1 left-1 right-1 bottom-1 border-4 border-t-transparent border-r-[#012038] border-b-transparent border-l-[#247557] rounded-full animate-spin-reverse"></div>
+                        </div>
                       </div>
                     ) : error ? (
                       <div className="text-center text-white py-8">
@@ -168,6 +187,8 @@ function Section01() {
                           pauseOnMouseEnter: true
                         }}
                         breakpoints={{
+                          320: { slidesPerView: 1.2, spaceBetween: 10 },
+                          480: { slidesPerView: 1.5, spaceBetween: 15 },
                           640: { slidesPerView: 2, spaceBetween: 20 },
                           768: { slidesPerView: 3, spaceBetween: 24 },
                           1024: { slidesPerView: 4, spaceBetween: 32 },
@@ -180,7 +201,9 @@ function Section01() {
                                 <div
                                     onClick={() => navigate(`/advertiser/home/product/${card.id}`)}
                                     className="group relative bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden 
-                                        cursor-pointer transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]"
+                                        cursor-pointer transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]
+                                        transform-gpu animate-card-reveal border border-white/10"
+                                    style={{animationDelay: `${index * 150}ms`}}
                                 >
                                     <div className="aspect-[4/5] overflow-hidden">
                                         <img
@@ -191,10 +214,17 @@ function Section01() {
                                         />
                                     </div>
                                     
+                                    {/* Sobreposição de informação para visibilidade em mobile */}
+                                    <div className="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-black/80 to-transparent">
+                                      <h3 className="text-sm font-bold text-white">
+                                          {card?.title}
+                                      </h3>
+                                    </div>
+                                    
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
                                         opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <div className="absolute bottom-0 left-0 right-0 p-4">
-                                            <div className="text-sm text-cyan-300 mb-1">
+                                            <div className="text-sm text-[#4ECDC4] mb-1">
                                                 {card?.auction_title}
                                             </div>
                                             <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
@@ -205,7 +235,8 @@ function Section01() {
                                             </p>
                                             <button
                                                 className="w-full py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white 
-                                                    text-sm font-medium hover:bg-white/30 transition-colors duration-300"
+                                                    text-sm font-medium hover:bg-white/30 transition-colors duration-300
+                                                    border border-white/10"
                                             >
                                                 Ver este lote
                                             </button>
@@ -218,32 +249,38 @@ function Section01() {
                     )}
                 </div>
 
-                {/* Estatísticas */}
+                {/* Estatísticas - redesenhado para mobile */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
                     {counterItems.map((item, index) => (
                         <div
                             key={index}
                             onClick={item.onClick}
-                            className={`relative bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center 
-                                transition-all duration-300 group
-                                ${item.isClickable ? 'cursor-pointer hover:bg-white/10 hover:scale-[1.02]' : ''}`}
+                            className={`relative bg-white/5 backdrop-blur-sm rounded-xl p-4 md:p-6 text-center 
+                                transition-all duration-300 group shadow-lg shadow-black/5
+                                ${item.isClickable ? 'cursor-pointer hover:bg-white/10 hover:scale-[1.02]' : ''}
+                                animate-fade-in-up`}
+                            style={{animationDelay: `${index * 100}ms`}}
                         >
+                            {/* Efeito de destaque para mobile */}
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#012038]/0 via-[#247557]/10 to-[#012038]/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            
                             {/* Ícone com efeito de brilho */}
-                            <div className="relative inline-flex p-3 rounded-full bg-white/10 mb-4 group-hover:scale-110 
+                            <div className="relative inline-flex p-3 rounded-full bg-white/10 mb-3 md:mb-4 group-hover:scale-110 
                                 transition-transform duration-300">
                                 {React.cloneElement(item.icon, {
                                     style: {
                                         color: item.color || '#fff',
-                                        fontSize: '28px'
+                                        fontSize: '24px'
                                     }
                                 })}
-                               
+                                {/* Efeito de brilho no ícone */}
+                                <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-[#247557]/30 to-white/0 opacity-0 group-hover:opacity-100 animate-rotate-glow transition-opacity duration-300"></span>
                             </div>
                             
-                            <h3 className="text-lg font-semibold text-white mb-2">
+                            <h3 className="text-xl font-semibold text-white mb-1 md:mb-2">
                                 {item.value}
                             </h3>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-xs md:text-sm text-gray-400">
                                 {item.label}
                             </p>
 
@@ -268,8 +305,88 @@ function Section01() {
                 to { transform: translateX(100%); }
             }
 
+            @keyframes pulse-slow {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+
+            @keyframes fade-in {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes fade-in-delay {
+                0% { opacity: 0; transform: translateY(10px); }
+                50% { opacity: 0; transform: translateY(10px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes bounce-subtle {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+
+            @keyframes card-reveal {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes fade-in-up {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes rotate-glow {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            @keyframes glow {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 0.8; }
+            }
+
+            @keyframes spin-reverse {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(-360deg); }
+            }
+
             .animate-float {
                 animation: float 3s ease-in-out infinite;
+            }
+
+            .animate-pulse-slow {
+                animation: pulse-slow 3s ease-in-out infinite;
+            }
+
+            .animate-fade-in {
+                animation: fade-in 0.8s ease-out forwards;
+            }
+
+            .animate-fade-in-delay {
+                animation: fade-in-delay 1.2s ease-out forwards;
+            }
+
+            .animate-bounce-subtle {
+                animation: bounce-subtle 2s ease-in-out infinite;
+            }
+
+            .animate-card-reveal {
+                opacity: 0;
+                animation: card-reveal 0.5s ease-out forwards;
+            }
+
+            .animate-fade-in-up {
+                opacity: 0;
+                animation: fade-in-up 0.5s ease-out forwards;
+            }
+
+            .animate-glow {
+                animation: glow 3s ease-in-out infinite;
+            }
+
+            .animate-rotate-glow {
+                animation: rotate-glow 4s linear infinite;
             }
 
             .animate-shine {
@@ -284,6 +401,18 @@ function Section01() {
             .product-carousel .swiper-pagination-bullet-active {
                 opacity: 1;
                 transform: scale(1.2);
+            }
+
+            /* Media queries para ajustes em telas pequenas */
+            @media (max-width: 640px) {
+                .product-carousel {
+                    margin: 0 -8px;
+                    padding: 0 8px;
+                }
+                
+                .product-carousel .swiper-pagination {
+                    bottom: -5px !important;
+                }
             }
         `}</style>
     </section>

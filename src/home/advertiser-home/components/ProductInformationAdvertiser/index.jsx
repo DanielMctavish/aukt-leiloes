@@ -75,7 +75,6 @@ function ProductInformation({ children, ...props }) {
         }).format(value);
     };
 
-
     // Efeito para verificar se o cliente tem lance automático para este produto
     const checkAutoBid = useCallback(async () => {
         // Usar currentSession se currentClient não estiver disponível
@@ -101,8 +100,6 @@ function ProductInformation({ children, ...props }) {
             console.error('Erro ao verificar status de lance automático:', error);
         }
     }, [props.currentProduct?.id, props.currentClient?.id, currentSession?.id, setHasAutoBid, setIsAutoBidEnabled]);
-
-    
 
     // Configurar WebSocket para atualizações em tempo real
     useEffect(() => {
@@ -208,7 +205,6 @@ function ProductInformation({ children, ...props }) {
         };
     }, []);
 
-
     // Escutar o evento personalizado 'productChanged'
     useEffect(() => {
         const handleProductChanged = () => {
@@ -259,8 +255,6 @@ function ProductInformation({ children, ...props }) {
         };
     }, [checkAutoBid, setCurrentSession, setBidValue, setIsAutoBidEnabled, setHasAutoBid]);
 
-
-
     // Efeito para limpar timeouts quando o componente é desmontado
     useEffect(() => {
         return () => {
@@ -271,127 +265,59 @@ function ProductInformation({ children, ...props }) {
         };
     }, []);
 
-   
-
     return (
-        <div className={`
-            flex w-full h-full
-            transition-all duration-300 ease-in-out
-            ${props.showBids ? 'mr-[300px]' : 'mr-0'}
-        `}>
-            {/* Sistema de notificações */}
-            <NotificationSystem 
-                showOutbidNotification={showOutbidNotification}
-                setShowOutbidNotification={setShowOutbidNotification}
-                lastBidClient={lastBidClient}
-                hasAutoBid={hasAutoBid}
-                getIncrementValue={getIncrementValue}
-                props={props}
-                setIsAutoBidEnabled={setIsAutoBidEnabled}
-                setAutoBidLimit={setAutoBidLimit}
-                handleBidConfirm={() => handleBidConfirm({
-                    bidValue,
-                    isAutoBidEnabled,
-                    autoBidLimit,
-                    setIsloadingBid,
-                    messageRef,
-                    props,
-                    setBidValue,
-                    fetchUpdatedProduct: () => fetchAndUpdateProduct({
-                        productId: props.currentProduct.id,
-                        props,
-                        currentSession,
-                        setLastBidClient,
-                        setBidValue,
-                        calculateNextBidValue,
-                        notificationTimeoutRef,
-                        lastNotifiedBidRef,
-                        setShowOutbidNotification,
-                        showMessage
-                    }),
-                    checkAutoBid,
-                    setAutoBidLimit,
-                    showMessage
-                })}
-               
+        <div className="w-full max-w-full overflow-hidden">
+            {/* Cabeçalho com navegação e controles */}
+            <ProductHeader
+                productId={props.currentProduct?.id}
+                auctId={props.currentAuct?.id}
+                setShowBids={props.setShowBids}
+                showBids={props.showBids}
+                handlePrevProduct={() => handlePrevProduct(props.currentProduct, props.currentAuct, navigate)}
+                handleNextProduct={() => handleNextProduct(props.currentProduct, props.currentAuct, navigate)}
             />
 
-            {/* Container principal */}
-            <div className='flex-1 flex flex-col bg-white rounded-2xl shadow-lg relative'>
-                {/* Cabeçalho com título e botão de ver lances */}
-                <ProductHeader 
-                    productId={props.currentProduct?.id} 
-                    auctId={props.currentAuct?.id}
-                    setShowBids={props.setShowBids}
-                    showBids={props.showBids}
-                    handlePrevProduct={() => {
-                        if (props.currentProduct?.id && props.currentAuct) {
-                            handlePrevProduct(
-                                props.currentProduct.id, 
-                                props.currentAuct, 
-                                props.setCurrentProduct, 
-                                navigate
-                            );
-                        }
-                    }}
-                    handleNextProduct={() => {
-                        if (props.currentProduct?.id && props.currentAuct) {
-                            handleNextProduct(
-                                props.currentProduct.id, 
-                                props.currentAuct, 
-                                props.setCurrentProduct, 
-                                navigate
-                            );
-                        }
-                    }}
+            {/* Corpo principal - agora com limitador de largura e scroll horizontal oculto */}
+            <div className="w-full max-w-full overflow-x-hidden">
+                {/* Conteúdo do produto */}
+                <ProductContent 
+                    currentProduct={props.currentProduct} 
+                    formatCurrency={formatCurrency}
                 />
-
-                {/* Conteúdo principal com scroll */}
-                <div className='flex-1 overflow-y-auto'>
-                    <div className='flex flex-col w-full h-full max-h-[calc(100vh-200px)] bg-white rounded-2xl shadow-lg relative'>
-                        <div className='p-6 space-y-6'>
-                            <ProductContent 
-                                currentProduct={props.currentProduct}
-                                formatCurrency={formatCurrency}
-                            />
-
-                            <div className='sticky bottom-0 bg-white pt-4'>
-                                <BidInterface 
-                                    currentSession={currentSession}
-                                    hasAutoBid={hasAutoBid}
-                                    isAutoBidEnabled={isAutoBidEnabled}
-                                    disableAutoBid={disableAutoBid}
-                                    isLoadingBid={isLoadingBid}
-                                    handleSetBid={handleSetBid}
-                                    bidValue={bidValue}
-                                    formatCurrency={formatCurrency}
-                                    handleSetAutoBidLimit={handleSetAutoBidLimit}
-                                    autoBidLimit={autoBidLimit}
-                                    handleBidConfirm={() => handleBidConfirm({
-                                        bidValue,
-                                        isAutoBidEnabled,
-                                        autoBidLimit,
-                                        setIsloadingBid,
-                                        messageRef,
-                                        props,
-                                        setBidValue,
-                                        fetchUpdatedProduct: () => fetchAndUpdateProduct({
-                                            productId: props.currentProduct.id,
-                                            props,
-                                            currentSession,
-                                            setLastBidClient,
-                                            setBidValue,
-                                            calculateNextBidValue,
-                                        }),
-                                        checkAutoBid,
-                                        setAutoBidLimit,
-                                        showMessage
-                                    })}
-                                    toggleAutoBid={toggleAutoBid}
-                                    props={props}
-                                />
-                            </div>
-                        </div>
+                
+                {/* Interface de lances */}
+                <div className="w-full mt-2 md:mt-4">
+                    <div className="w-full max-w-full">
+                        <BidInterface
+                            bidValue={bidValue}
+                            isLoadingBid={isLoadingBid}
+                            currentProduct={props.currentProduct}
+                            currentClient={props.currentClient}
+                            handleSetBid={handleSetBid}
+                            handleBidConfirm={() => handleBidConfirm({
+                                bidValue,
+                                productId: props.currentProduct?.id,
+                                clientId: props.currentClient?.id,
+                                isLoadingBid,
+                                setIsloadingBid,
+                                currentSession,
+                                navigate,
+                                setIsModalOn: props.setIsModalOn,
+                                fetchProduct: () => fetchAndUpdateProduct({
+                                    productId: props.currentProduct.id,
+                                    props,
+                                    currentSession,
+                                    setLastBidClient,
+                                    setBidValue,
+                                    calculateNextBidValue,
+                                }),
+                                checkAutoBid,
+                                setAutoBidLimit,
+                                showMessage
+                            })}
+                            toggleAutoBid={toggleAutoBid}
+                            props={props}
+                        />
                     </div>
                 </div>
             </div>

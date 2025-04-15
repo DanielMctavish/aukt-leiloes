@@ -3,20 +3,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, Person, Logout, Gavel } from '@mui/icons-material';
 import logoAuk from '../../../media/logos/logos-auk/aukt_blue.png';
+import avatarClientsUrls from '../../../media/avatar-floor/AvatarclientsUrls';
 
-// Importação dos avatares
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
-
-// Inicializa os avatares uma única vez fora do componente
-const avatares_pessoas = importAllAvatars();
+// Convertendo o objeto de URLs em um array
+const avatares_pessoas = Object.values(avatarClientsUrls);
 
 function SideMenu({ 
     currentClient, 

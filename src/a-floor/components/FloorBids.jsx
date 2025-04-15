@@ -4,17 +4,12 @@ import axios from "axios"
 import io from "socket.io-client";
 import { useEffect, useState, useRef, useCallback } from "react"
 import CronCard from "./CronCard"
-const importAllAvatars = () => {
-    const avatares = [];
-    for (let i = 1; i <= 58; i++) {
-        const paddedNumber = i.toString().padStart(2, '0');
-        const avatar = new URL(`../../media/avatar-floor/avatar_${paddedNumber}.png`, import.meta.url).href;
-        avatares.push(avatar);
-    }
-    return avatares;
-};
+import { useDispatch } from "react-redux"
+import { addBidLive } from "../../features/Bids/BidLive"
+import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls";
 
-const avatarIndex = importAllAvatars()
+// Convertendo o objeto de URLs em um array
+const avatarIndex = Object.values(avatarClientsUrls);
 
 function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAuctionFinished: parentIsAuctionFinished }) {
     const [currentProduct, setCurrentProduct] = useState({})
@@ -27,6 +22,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     const [isLoading, setIsLoading] = useState(false);
     const isMounted = useRef(true);
     const instanceId = useRef(`floor_client_${Math.random().toString(36).substring(2, 9)}`);
+    const dispatch = useDispatch();
 
     // Atualizar o estado local quando a prop do pai mudar
     useEffect(() => {
@@ -209,7 +205,6 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
             
             // 3. Evento de novo produto no leilão
             socket.on(`${auct_id}-playing-auction`, (message) => {
-                console.log("Floor Bids - New product event received:", message);
                 
                 // Limpar o estado quando um novo produto é iniciado, independentemente de qual produto seja
                 if (message.data && message.data.body && message.data.body.product) {
@@ -331,9 +326,108 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         updateBidsCards(newBid);
     };
 
+    // Ouvir o evento quickBid para dar lance rápido
+    useEffect(() => {
+        const handleQuickBid = async (event) => {
+            const { product_id, auction_id } = event.detail;
+            
+            if (product_id !== currentProduct.id || auction_id !== auct_id) {
+                return; // Ignora se não for para este produto/leilão
+            }
+            
+            // Buscar a versão mais atualizada do produto antes de dar o lance
+            try {
+                const productResponse = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`
+                );
+                
+                const updatedProduct = productResponse.data;
+                const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));
+                
+                if (!currentSession) {
+                    console.error("Usuário não está logado");
+                    window.dispatchEvent(new CustomEvent('quickBidError'));
+                    return;
+                }
+                
+                // Calcular valor do próximo lance
+                const currentValue = updatedProduct.real_value || updatedProduct.initial_value;
+                const incrementValue = getIncrementValue(currentValue);
+                const bidValue = currentValue + incrementValue;
+                
+                const bidPayload = {
+                    value: parseFloat(bidValue),
+                    client_id: currentSession.id,
+                    product_id: updatedProduct.id,
+                    auct_id: auct_id,
+                    Client: currentSession,
+                    Product: updatedProduct
+                };
+                
+                // Realizar o lance
+                const response = await axios.post(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct?bidInCataloge=false`,
+                    bidPayload,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${currentSession.token}`
+                        }
+                    }
+                );
+                
+                if (response.status === 200) {
+                    const newBid = response.data?.body || response.data;
+                    
+                    if (newBid) {
+                        dispatch(addBidLive({
+                            value: bidValue,
+                            product_id: updatedProduct.id
+                        }));
+                        
+                        handleNewBid(newBid);
+                        
+                        // Disparar evento de sucesso
+                        window.dispatchEvent(new CustomEvent('quickBidSuccess'));
+                    } else {
+                        window.dispatchEvent(new CustomEvent('quickBidError'));
+                    }
+                } else {
+                    window.dispatchEvent(new CustomEvent('quickBidError'));
+                }
+            } catch (error) {
+                console.error("Erro ao dar lance rápido:", error);
+                window.dispatchEvent(new CustomEvent('quickBidError'));
+            }
+        };
+        
+        window.addEventListener('quickBid', handleQuickBid);
+        
+        return () => {
+            window.removeEventListener('quickBid', handleQuickBid);
+        };
+    }, [auct_id, currentProduct.id, dispatch, handleNewBid]);
+    
+    // Função para calcular o incremento do lance
+    const getIncrementValue = (value) => {
+        const baseValue = value || currentProduct.initial_value;
+        
+        if (baseValue <= 600) {
+            return 20;
+        } else if (baseValue <= 1200) {
+            return 24; // 20% a mais que 20
+        } else if (baseValue <= 3000) {
+            return 30; // 50% a mais que 20
+        } else if (baseValue <= 6000) {
+            return 40; // 100% a mais que 20
+        } else if (baseValue <= 12000) {
+            return 60; // 200% a mais que 20
+        } else {
+            return Math.ceil(baseValue * 0.01); // 1% do valor para valores muito altos
+        }
+    };
+
     return (
-        <div className={`
-            ${isMobile 
+        <div className={`            ${isMobile 
                 ? 'w-full h-full flex flex-col bg-[#012038]/90' // Mobile: layout vertical com fundo escuro
                 : 'min-w-[45vh] lg:h-[94%] min-h-[80vh] flex flex-col lg:mr-4' // Adicionado margin-right na versão desktop
             }

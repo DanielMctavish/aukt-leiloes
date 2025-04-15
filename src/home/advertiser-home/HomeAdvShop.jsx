@@ -256,14 +256,14 @@ function HomeAdvShop() {
                 <div
                     key={product.id}
                     className={`
-                        group flex flex-col w-[280px] bg-white rounded-xl shadow-lg overflow-hidden 
+                        group flex flex-col w-full sm:w-[280px] bg-white rounded-xl shadow-lg overflow-hidden 
                         cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1
                         ${product.winner_id ? 'border-2 border-[#0c4866]' : ''}
                     `}
                     onClick={() => navigate(`/advertiser/home/product/${product.id}`)}
                 >
                     {/* Imagem Container */}
-                    <div className="relative h-[220px] overflow-hidden">
+                    <div className="relative h-[160px] sm:h-[220px] overflow-hidden">
                         <img 
                             src={product.cover_img_url} 
                             alt={product.title} 
@@ -274,8 +274,8 @@ function HomeAdvShop() {
                         {/* Overlay com gradiente */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent 
                             opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="absolute bottom-4 left-4 right-4">
-                                <p className="text-white text-sm line-clamp-2">
+                            <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
+                                <p className="text-white text-xs sm:text-sm line-clamp-2">
                                     {product.description}
                                 </p>
                             </div>
@@ -283,36 +283,36 @@ function HomeAdvShop() {
 
                         {/* Badge de Status */}
                         {product.winner_id && (
-                            <div className="absolute top-0 right-0 m-3">
+                            <div className="absolute top-0 right-0 m-2 sm:m-3">
                                 <img 
                                     src={carimboImage} 
                                     alt="Arrematado"
-                                    className="w-[100px] h-[100px] object-contain transform rotate-12" 
+                                    className="w-[60px] h-[60px] sm:w-[100px] sm:h-[100px] object-contain transform rotate-12" 
                                 />
                             </div>
                         )}
 
                         {/* Badge de Lote */}
-                        <div className="absolute top-3 left-3 bg-black/70 px-3 py-1 rounded-full">
-                            <span className="text-white text-sm font-medium">
+                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-black/70 px-2 sm:px-3 py-1 rounded-full">
+                            <span className="text-white text-xs sm:text-sm font-medium">
                                 Lote {product.lote}
                             </span>
                         </div>
                     </div>
 
                     {/* Conteúdo */}
-                    <div className="p-4 flex flex-col flex-grow">
-                        <h3 className="font-bold text-lg mb-2 line-clamp-2 text-gray-800 group-hover:text-[#012038] 
+                    <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                        <h3 className="font-bold text-sm sm:text-lg mb-2 line-clamp-2 text-gray-800 group-hover:text-[#012038] 
                             transition-colors">
                             {product.title}
                         </h3>
 
                         {/* Informações Adicionais */}
-                        <div className="mt-auto pt-4 border-t border-gray-100">
+                        <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-100">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="text-xs text-gray-500 mb-1">Valor Inicial</p>
-                                    <p className="text-lg font-bold text-[#012038]">
+                                    <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Valor Inicial</p>
+                                    <p className="text-base sm:text-lg font-bold text-[#012038]">
                                         {new Intl.NumberFormat('pt-BR', { 
                                             style: 'currency', 
                                             currency: 'BRL' 
@@ -321,8 +321,8 @@ function HomeAdvShop() {
                                 </div>
                                 {product.Bid?.length > 0 && (
                                     <div className="text-right">
-                                        <p className="text-xs text-gray-500 mb-1">Lances</p>
-                                        <p className="text-lg font-bold text-green-600">
+                                        <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Lances</p>
+                                        <p className="text-base sm:text-lg font-bold text-green-600">
                                             {product.Bid.length}
                                         </p>
                                     </div>
@@ -419,7 +419,7 @@ function HomeAdvShop() {
 
             {/* Header */}
             <div 
-                className="flex w-full min-h-[40vh] overflow-hidden relative mt-[8vh]"
+                className="flex w-full min-h-[30vh] sm:min-h-[40vh] overflow-hidden relative mt-[8vh]"
                 style={{ backgroundColor: template?.header?.color || 'white' }}
             >
                 <img 
@@ -442,12 +442,12 @@ function HomeAdvShop() {
                 </div>
             </div>
 
-            {/* Body Main - Melhorado */}
-            <div className="flex flex-col w-[80%] min-h-[140vh] mb-[3vh] mt-[3vh] rounded-xl 
+            {/* Body Main - Melhorado para Mobile */}
+            <div className="flex flex-col w-full sm:w-[90%] lg:w-[80%] min-h-[140vh] mb-[3vh] mt-[3vh] rounded-xl 
                 overflow-hidden bg-white shadow-2xl">
                 {/* Capa com degradê usando cores do template */}
                 <div 
-                    className="w-full h-48 text-white p-8 relative overflow-hidden"
+                    className="w-full h-auto py-6 sm:py-8 text-white px-4 sm:px-8 relative overflow-hidden"
                     style={{ 
                         background: `linear-gradient(to right, 
                             ${template?.header?.color || '#1a237e'}cc,
@@ -459,13 +459,13 @@ function HomeAdvShop() {
                     
                     {/* Conteúdo */}
                     <div className="relative z-10">
-                        <h1 className="text-4xl font-bold mb-2">{currentAuct.title}</h1>
-                        <div className="flex items-center space-x-2 text-sm">
+                        <h1 className="text-2xl sm:text-4xl font-bold mb-2">{currentAuct.title}</h1>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm sm:text-base">
                             <span>
                                 {currentAuct.auct_dates && 
                                     dayjs(currentAuct.auct_dates[0].date_auct).format('DD MMM')}
                             </span>
-                            <span>-</span>
+                            <span className="hidden sm:block">-</span>
                             <span>
                                 {currentAuct.auct_dates && 
                                     dayjs(currentAuct.auct_dates[currentAuct.auct_dates.length - 1].date_auct)
@@ -475,10 +475,10 @@ function HomeAdvShop() {
                     </div>
                 </div>
 
-                {/* Filtros - Versão Clean e Moderna */}
-                <div className="w-full bg-white p-8">
+                {/* Filtros - Versão Mobile Otimizada */}
+                <div className="w-full bg-white p-4 sm:p-8">
                     {/* Barra de Pesquisa e Filtros Principais */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                         {/* Barra de Pesquisa */}
                         <div className="relative">
                             <input
@@ -536,7 +536,7 @@ function HomeAdvShop() {
                             <option value="date">Data de Criação {filters.order.direction === 'asc' ? '↑' : '↓'}</option>
                         </select>
 
-                        {/* Visualização */}
+                        {/* Visualização - Ajustado para Mobile */}
                         <div className="flex gap-2 items-center">
                             <button
                                 onClick={() => setViewMode('card')}
@@ -563,10 +563,10 @@ function HomeAdvShop() {
                         </div>
                     </div>
 
-                    {/* Filtros Avançados */}
-                    <div className="flex flex-wrap items-center gap-6 mt-6">
+                    {/* Filtros Avançados - Versão Mobile */}
+                    <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 mt-4 sm:mt-6">
                         {/* Checkboxes */}
-                        <div className="flex gap-4">
+                        <div className="flex flex-wrap gap-4">
                             <label className="inline-flex items-center gap-2 cursor-pointer group">
                                 <input
                                     type="checkbox"
@@ -602,48 +602,47 @@ function HomeAdvShop() {
                             </label>
                         </div>
 
-                        {/* Filtros de Valor */}
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    placeholder="R$ Min"
-                                    value={filters.min_initial_value}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        setFilters(prev => ({
-                                            ...prev,
-                                            min_initial_value: value === '' ? '' : Number(value)
-                                        }));
-                                    }}
-                                    min="0"
-                                    step="1"
-                                    className="w-28 h-11 px-3 bg-gray-50 rounded-lg text-sm
-                                        border-none focus:ring-2 focus:ring-blue-100 transition-all"
-                                />
-                                <span className="text-gray-400">-</span>
-                                <input
-                                    type="number"
-                                    placeholder="R$ Max"
-                                    value={filters.max_initial_value}
-                                    onChange={(e) => setFilters(prev => ({
+                        {/* Filtros de Valor - Versão Mobile */}
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <input
+                                type="number"
+                                placeholder="R$ Min"
+                                value={filters.min_initial_value}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setFilters(prev => ({
                                         ...prev,
-                                        max_initial_value: e.target.value
-                                    }))}
-                                    className="w-28 h-11 px-3 bg-gray-50 rounded-lg text-sm
-                                        border-none focus:ring-2 focus:ring-blue-100 transition-all"
-                                />
-                            </div>
+                                        min_initial_value: value === '' ? '' : Number(value)
+                                    }));
+                                }}
+                                min="0"
+                                step="1"
+                                className="flex-1 sm:w-28 h-11 px-3 bg-gray-50 rounded-lg text-sm
+                                    border-none focus:ring-2 focus:ring-blue-100 transition-all"
+                            />
+                            <span className="text-gray-400">-</span>
+                            <input
+                                type="number"
+                                placeholder="R$ Max"
+                                value={filters.max_initial_value}
+                                onChange={(e) => setFilters(prev => ({
+                                    ...prev,
+                                    max_initial_value: e.target.value
+                                }))}
+                                className="flex-1 sm:w-28 h-11 px-3 bg-gray-50 rounded-lg text-sm
+                                    border-none focus:ring-2 focus:ring-blue-100 transition-all"
+                            />
                         </div>
 
-                        {/* Botão Limpar */}
+                        {/* Botão Limpar - Versão Mobile */}
                         {(searchQuery || selectedGroup || filters.order.type || 
                           filters.highlight_only || filters.has_bids || 
                           filters.min_initial_value || filters.max_initial_value) && (
                             <button
                                 onClick={clearFilters}
-                                className="h-11 px-4 text-sm text-red-500 hover:text-red-600 
-                                    transition-colors flex items-center gap-2 ml-auto"
+                                className="w-full sm:w-auto h-11 px-4 text-sm text-red-500 hover:text-red-600 
+                                    transition-colors flex items-center justify-center gap-2 sm:ml-auto
+                                    bg-red-50 hover:bg-red-100 rounded-lg"
                             >
                                 <Clear fontSize="small" />
                                 Limpar filtros
@@ -652,36 +651,42 @@ function HomeAdvShop() {
                     </div>
 
                     {/* Contador de Resultados */}
-                    <div className="mt-6 pt-6 border-t border-gray-100">
+                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100">
                         <span className="text-sm text-gray-500">
                             {totalProducts} {totalProducts === 1 ? 'produto encontrado' : 'produtos encontrados'}
                         </span>
                     </div>
                 </div>
 
-                {/* Produtos - Grid melhorado */}
-                <div className={`w-full p-6 bg-gray-50 ${viewMode === 'card' ? 'flex flex-wrap justify-center gap-6' : ''}`}>
+                {/* Grid de Produtos - Versão Mobile Otimizada */}
+                <div className={`w-full p-3 sm:p-6 bg-gray-50 ${
+                    viewMode === 'card' 
+                        ? 'grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-4 sm:gap-6' 
+                        : ''
+                }`}>
                     {renderProducts()}
                 </div>
 
-                {/* Paginação */}
-                <PaginationAdvShop
-                    pages_count={pagesCount}
-                    current_page={currentPage}
-                    setcurrentpage={setCurrentPage}
+                {/* Paginação - Versão Mobile Otimizada */}
+                <div className="px-3 sm:px-6 py-4 bg-white border-t border-gray-100">
+                    <PaginationAdvShop
+                        pages_count={pagesCount}
+                        current_page={currentPage}
+                        setcurrentpage={setCurrentPage}
+                    />
+                </div>
+
+                {/* Footer */}
+                {template?.footer && <FooterAdvHome footer={template.footer} />}
+
+                {/* Modal de Login */}
+                <LoginClientModalAdv 
+                    modalOn={isLoginModalOpen}
+                    setIsModalOn={setIsLoginModalOpen}
+                    header={template?.header}
+                    fontStyle={template?.fontStyle}
                 />
             </div>
-
-            {/* Footer */}
-            {template?.footer && <FooterAdvHome footer={template.footer} />}
-
-            {/* Modal de Login */}
-            <LoginClientModalAdv 
-                modalOn={isLoginModalOpen}
-                setIsModalOn={setIsLoginModalOpen}
-                header={template?.header}
-                fontStyle={template?.fontStyle}
-            />
         </div>
     );
 }

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ArrowDropDown, Logout, Person } from "@mui/icons-material";
+import { ArrowDropDown, Logout, Person, Menu as MenuIcon } from "@mui/icons-material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import WarningIcon from "@mui/icons-material/Warning";
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -13,6 +13,7 @@ function NavAdvertiser() {
   const [contextMenu, setContextMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const notificationRef = useRef(null);
   const navigate = useNavigate();
@@ -113,24 +114,32 @@ function NavAdvertiser() {
 
   return (
     <nav className="w-full bg-white shadow-md fixed left-0 z-[500]">
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-center items-center">
-        <div className="flex justify-between h-16 w-[90%]">
-          {/* Logo/Welcome Section */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <MenuIcon className="h-6 w-6 text-gray-600" />
+          </button>
+
+          {/* Logo/Welcome Section - Adaptado para mobile */}
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="text-xl font-semibold text-gray-800">
-                Bem vindo, {AdvertiserInfor.name}!
+              <span className="text-base lg:text-xl font-semibold text-gray-800 truncate">
+                <span className="hidden sm:inline">Bem vindo, </span>
+                {AdvertiserInfor.name}
               </span>
-              <span className="ml-2 text-sm text-gray-500">
+              <span className="hidden lg:inline ml-2 text-sm text-gray-500">
                 {AdvertiserInfor.nano_id}
               </span>
-              <span>(editado 4.3)</span>
             </div>
           </div>
 
-          {/* Warning Badge */}
+          {/* Warning Badge - Responsivo */}
           {AdvertiserInfor.police_status === 'WARNED' && (
-            <div className="flex items-center">
+            <div className="hidden sm:flex items-center">
               <div className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center">
                 <WarningIcon className="w-5 h-5 mr-1" />
                 <span className="text-sm font-medium">Conta sob aviso</span>
@@ -139,7 +148,7 @@ function NavAdvertiser() {
           )}
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 lg:gap-4">
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
               <button 
@@ -155,10 +164,10 @@ function NavAdvertiser() {
                 )}
               </button>
 
-              {/* Dropdown de Notificações */}
+              {/* Dropdown de Notificações - Adaptado para mobile */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg py-2  
-                  border border-gray-100 max-h-[80vh] overflow-y-auto">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-xl shadow-lg py-2 
+                  border border-gray-100 max-h-[80vh] overflow-y-auto mx-4 sm:mx-0">
                   <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="font-semibold text-gray-900">Notificações</h3>
                     {notifications.some(n => !n.read) && (
@@ -212,18 +221,18 @@ function NavAdvertiser() {
               )}
             </div>
 
-            {/* Profile Dropdown */}
+            {/* Profile Dropdown - Adaptado para mobile */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setContextMenu(!contextMenu)}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-all"
+                className="flex items-center gap-2 p-1.5 lg:p-2 rounded-lg hover:bg-gray-50 transition-all"
               >
                 <img
                   src={AdvertiserInfor.url_profile_cover}
                   alt="Profile"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover border-2 border-gray-200"
                 />
-                <span className="font-medium text-gray-700">{AdvertiserInfor.name}</span>
+                <span className="hidden lg:inline font-medium text-gray-700">{AdvertiserInfor.name}</span>
                 <ArrowDropDown className={`transition-transform duration-200 ${contextMenu ? 'rotate-180' : ''}`} />
               </button>
 
@@ -261,6 +270,16 @@ function NavAdvertiser() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Warning Badge */}
+        {AdvertiserInfor.police_status === 'WARNED' && (
+          <div className="sm:hidden px-4 pb-2">
+            <div className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center justify-center">
+              <WarningIcon className="w-4 h-4 mr-1" />
+              <span className="text-sm font-medium">Conta sob aviso</span>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
