@@ -30,8 +30,9 @@ function AuctionController() {
     const [loadNext, setLoadNext] = useState(false);
     const [remainingLots, setRemainingLots] = useState(0);
     const [estimatedTime, setEstimatedTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
-    const [loteTimeValue, setLoteTimeValue] = useState(30); // Valor padrão inicial: 30 segundos
+    const [loteTimeValue, setLoteTimeValue] = useState(0); // Mudando valor inicial para 0
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [hasSetTime, setHasSetTime] = useState(false); // Novo estado para controlar se o tempo foi definido
     const debounceTimerRef = useRef(null); // Referência para o timer de debounce
     const successTimeoutRef = useRef(null);
     const generalAUK = useSelector(state => state.generalAUK);
@@ -150,7 +151,8 @@ function AuctionController() {
     // Função para atualizar o valor do range de tempo por lote com debounce
     const handleLoteTimeChange = async (e) => {
         const newValue = parseInt(e.target.value);
-        setLoteTimeValue(newValue); // Atualiza o UI imediatamente
+        setLoteTimeValue(newValue);
+        setHasSetTime(true); // Marca que o usuário definiu o tempo
 
         // Limpa o timer anterior se houver
         if (debounceTimerRef.current) {
@@ -266,10 +268,10 @@ function AuctionController() {
                         {/* Botão Iniciar */}
                         <button
                             onClick={playAuction}
-                            disabled={isRunning || isDisabled || isPaused}
-                            title="Iniciar Leilão"
+                            disabled={isRunning || isDisabled || isPaused || !hasSetTime}
+                            title={!hasSetTime ? "Defina o tempo por lote antes de iniciar" : "Iniciar Leilão"}
                             className={`flex items-center justify-center p-4 rounded-xl 
-                                transition-all duration-200 ${isRunning || isDisabled || isPaused
+                                transition-all duration-200 ${isRunning || isDisabled || isPaused || !hasSetTime
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
                                 }`}
@@ -380,6 +382,11 @@ function AuctionController() {
                                         <div className="flex items-center gap-1 text-green-600 text-[12px] text-sm animate-fade-in-out">
                                             <Check sx={{ fontSize: 12 }} />
                                             <span className="text-[12px]">Tempo atualizado</span>
+                                        </div>
+                                    )}
+                                    {!hasSetTime && !isRunning && (
+                                        <div className="text-amber-600 text-[12px] animate-pulse">
+                                            Defina o tempo antes de iniciar
                                         </div>
                                     )}
                                     <span className="font-bold text-sm bg-[#012038] text-white px-2 py-0.5 rounded-lg">

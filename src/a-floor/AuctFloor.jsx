@@ -13,7 +13,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { v4 as uuidv4 } from 'uuid';
-import AuctFloorLiveCounter from "./AuctFloorLiveCounter";
+// import AuctFloorLiveCounter from "./AuctFloorLiveCounter";
 import { Gavel } from "@mui/icons-material"
 
 function AuctFloor() {
@@ -23,7 +23,6 @@ function AuctFloor() {
     const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
-    const [currentSocketInstance, setCurrentSocketInstance] = useState(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [isLotsVisible, setIsLotsVisible] = useState(false);
     const [isBidsVisible, setIsBidsVisible] = useState(false);
@@ -153,7 +152,6 @@ function AuctFloor() {
             }
         });
 
-        setCurrentSocketInstance(socket);
         socketRef.current = socket;
 
         // Adicionar listener para erros de conexão
@@ -450,13 +448,13 @@ function AuctFloor() {
             </motion.div>
 
             {/* Display connected users count with modern live indicator */}
-            <div className="w-full px-4 mt-2">
+            {/* <div className="w-full px-4 mt-2">
                 <AuctFloorLiveCounter
                     socket={currentSocketInstance}
                     currentClient={JSON.parse(localStorage.getItem('client-auk-session-login')) || {}}
                     auct_id={auct_id}
                 />
-            </div>
+            </div> */}
 
             <ModalTerms />
 
