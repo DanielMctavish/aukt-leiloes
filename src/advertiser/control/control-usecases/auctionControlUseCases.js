@@ -8,7 +8,7 @@ export const handlePlayAuction = (selectedAuction, selectedGroup, cookieSession,
     }
 
     try {
-        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/play-auction`, {
+        const response = await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/play-auction`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
@@ -18,10 +18,11 @@ export const handlePlayAuction = (selectedAuction, selectedGroup, cookieSession,
             }
         });
         dispatch(setStatus('live'));
-        // Adicione aqui qualquer outra ação necessária após iniciar o leilão
+        return response;
     } catch (error) {
         console.error("Play Auction Error:", error.message);
         alert("Erro ao iniciar o leilão. Por favor, tente novamente.");
+        throw error; // Re-throw the error so it can be caught by the component
     }
 };
 

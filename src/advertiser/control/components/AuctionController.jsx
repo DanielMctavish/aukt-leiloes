@@ -33,6 +33,7 @@ function AuctionController() {
     const [loteTimeValue, setLoteTimeValue] = useState(0); // Mudando valor inicial para 0
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [hasSetTime, setHasSetTime] = useState(false); // Novo estado para controlar se o tempo foi definido
+    const [isPlayLoading, setIsPlayLoading] = useState(false); // Estado para controlar o loading do botão play
     const debounceTimerRef = useRef(null); // Referência para o timer de debounce
     const successTimeoutRef = useRef(null);
     const generalAUK = useSelector(state => state.generalAUK);
@@ -109,8 +110,13 @@ function AuctionController() {
     const isPaused = generalAUK.status === 'paused';
     const isFinished = generalAUK.status === 'finished';
 
-    const playAuction = useCallback(() => {
-        handlePlayAuction(generalAUK.auct, generalAUK.group, cookieSession, dispatch)();
+    const playAuction = useCallback(async () => {
+        setIsPlayLoading(true);
+        try {
+            await handlePlayAuction(generalAUK.auct, generalAUK.group, cookieSession, dispatch)();
+        } finally {
+            setIsPlayLoading(false);
+        }
     }, [generalAUK.auct, generalAUK.group, cookieSession, dispatch]);
 
     const pauseAuction = useCallback(() => {
@@ -251,15 +257,20 @@ function AuctionController() {
                         {/* Botão Iniciar */}
                         <button
                             onClick={playAuction}
-                            disabled={isRunning || isPaused || isDisabled || !generalAUK.auct}
+                            disabled={isRunning || isPaused || isDisabled || !generalAUK.auct || isPlayLoading}
                             title={!generalAUK.auct ? "Selecione um leilão para iniciar" : "Iniciar Leilão"}
                             className={`flex items-center justify-center p-4 rounded-xl 
-                                transition-all duration-200 ${isRunning || isPaused || isDisabled || !generalAUK.auct
+                                transition-all duration-200 relative
+                                ${isRunning || isPaused || isDisabled || !generalAUK.auct || isPlayLoading
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
                                 }`}
                         >
-                            <PlayArrow sx={{ fontSize: 28 }} />
+                            {isPlayLoading ? (
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                            ) : (
+                                <PlayArrow sx={{ fontSize: 28 }} />
+                            )}
                         </button>
 
                         {/* Botão Próximo */}
