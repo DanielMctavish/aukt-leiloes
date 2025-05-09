@@ -77,7 +77,7 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     }, [real_value, reserve_value, showReserveMessage]);
 
     useEffect(() => {
-        const newDeadline = duration - currentTime;
+        const newDeadline = currentTime;
         setDeadline(newDeadline);
         setPercentage(newDeadline);
 
@@ -302,7 +302,14 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     };
 
     const setPercentage = (newDeadline) => {
-        const percentage = (newDeadline / duration) * 100;
+        // Se o tempo for maior que 10 segundos, a porcentagem é 0
+        if (newDeadline > 10) {
+            setPercentual(100);
+            return;
+        }
+        // Para os últimos 10 segundos, calcula a porcentagem de forma inversa
+        // quanto menor o tempo, maior a porcentagem da barra
+        const percentage = Math.max(0, Math.min(100, ((10 - newDeadline) / 10) * 100));
         setPercentual(percentage);
     };
 

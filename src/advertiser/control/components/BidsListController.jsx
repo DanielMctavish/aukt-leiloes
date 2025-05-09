@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import io from 'socket.io-client';
+import ReceiveWebsocketMessages from "../control-usecases/receiveWebsocketMessages";
 import BidDetailController from "./BidDetailController";
 import ClientBidDetailsController from "./ClientBidDetailsController";
-import { 
-    Gavel, 
-    Warning, 
-    Timer, 
-    People as Users 
+import {
+    Gavel,
+    Warning,
+    Timer,
+    People as Users
 } from "@mui/icons-material";
 import axios from "axios";
 
@@ -16,21 +16,20 @@ function BidsListController() {
     const [allBids, setAllBids] = useState([]);
     const [selectedBid, setSelectedBid] = useState(null);
     const generalAUK = useSelector(state => state.generalAUK);
-    const socketRef = useRef(null);
     const isMounted = useRef(true);
 
     // Função para buscar os lances atuais do produto
     const fetchCurrentProductBids = async (productId) => {
         if (!productId) return;
-        
+
         try {
             const response = await axios.get(
                 `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${productId}`
             );
-            
+
             if (response.data && response.data.Bid && isMounted.current) {
                 // Ordenar os lances do mais recente para o mais antigo
-                const sortedBids = [...response.data.Bid].sort((a, b) => 
+                const sortedBids = [...response.data.Bid].sort((a, b) =>
                     new Date(b.created_at) - new Date(a.created_at)
                 );
                 setAllBids(sortedBids);
@@ -54,83 +53,36 @@ function BidsListController() {
     // Configurar websocket quando o leilão estiver ativo
     useEffect(() => {
         isMounted.current = true;
-        
-        const setupSocket = () => {
-            if (!generalAUK.auct || !generalAUK.auct.id) return;
-            
-            // Limpar conexão anterior se existir
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-
-            // Conectar ao servidor WebSocket
-            socketRef.current = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-            
-            // Configurar os listeners para os eventos de lance
-            
-            // 1. Evento principal de lance
-            socketRef.current.on(`${generalAUK.auct.id}-bid`, (message) => {
-                console.log("Bid event received:", message);
-                
-                // Extrair o lance da estrutura correta
-                const newBid = message.data.body || message.data;
-                
-                // Verificar se o lance é para o produto atual
-                if (newBid && generalAUK.currentProduct && 
-                    (newBid.product_id === generalAUK.currentProduct.id ||
-                     (newBid.Product && newBid.Product[0] && 
-                      newBid.Product[0].id === generalAUK.currentProduct.id))) {
-                    
-                    fetchCurrentProductBids(generalAUK.currentProduct.id);
-                }
-            });
-            
-            // 2. Evento de lance catalogado (para compatibilidade)
-            socketRef.current.on(`${generalAUK.auct.id}-bid-cataloged`, (message) => {
-                console.log("Cataloged bid event received:", message);
-                
-                // Extrair o lance da estrutura correta
-                const newBid = message.data.body;
-                
-                // Verificar se o lance é para o produto atual
-                if (newBid && generalAUK.currentProduct && 
-                    ((newBid.Product && newBid.Product[0] && 
-                      newBid.Product[0].id === generalAUK.currentProduct.id) || 
-                     (newBid.product_id === generalAUK.currentProduct.id))) {
-                    
-                    fetchCurrentProductBids(generalAUK.currentProduct.id);
-                }
-            });
-
-            // 3. Evento de fim de leilão
-            socketRef.current.on(`${generalAUK.auct.id}-auct-finished`, (message) => {
-                console.log("BidsListController - Auction finished event received:", message);
-                // Atualizar o estado no Redux é gerenciado pelo componente DisplayCurrentLote
-                // Podemos fazer alguma limpeza ou feedback visual aqui se necessário
-                if (isMounted.current) {
-                    // Opcional: limpar a lista de lances ou adicionar indicador visual
-                    // de que o leilão foi finalizado
-                }
-            });
-            
-            // Evento de conexão para debug
-            socketRef.current.on('connect', () => {
-                console.log('WebSocket connected for bids list controller');
-            });
-        };
 
         if (generalAUK.auct && generalAUK.auct.id) {
-            setupSocket();
-        }
+            const receiveWebsocketMessages = new ReceiveWebsocketMessages(generalAUK);
 
-        // Limpar ao desmontar o componente
-        return () => {
-            isMounted.current = false;
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-                socketRef.current = null;
-            }
-        };
+            receiveWebsocketMessages.receiveBidMessage((message) => {
+                if (message.data?.body && generalAUK.currentProduct &&
+                    message.data.body.product_id === generalAUK.currentProduct.id) {
+                    fetchCurrentProductBids(generalAUK.currentProduct.id);
+                }
+            });
+
+            receiveWebsocketMessages.receiveBidCatalogedMessage((message) => {
+                if (message.data?.body && generalAUK.currentProduct &&
+                    message.data.body.product_id === generalAUK.currentProduct.id) {
+                    fetchCurrentProductBids(generalAUK.currentProduct.id);
+                }
+            });
+
+            receiveWebsocketMessages.receiveAuctionFinishedMessage((message) => {
+                if (message.data) {
+                    setAllBids([]);
+                }
+            });
+
+            // Cleanup function
+            return () => {
+                isMounted.current = false;
+                receiveWebsocketMessages.disconnect();
+            };
+        }
     }, [generalAUK.auct]);
 
     const handleBidClick = (bid) => {
@@ -199,7 +151,7 @@ function BidsListController() {
                                     <BidDetailController bid={bid} />
                                 </div>
                             ) : (
-                                <div key={index} 
+                                <div key={index}
                                     className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 
                                         flex items-center gap-2 animate-fade-in"
                                 >
@@ -226,7 +178,7 @@ function BidsListController() {
             {selectedBid && (
                 <ClientBidDetailsController
                     bid={selectedBid}
-                    onClose={handleCloseModal} 
+                    onClose={handleCloseModal}
                 />
             )}
         </div>

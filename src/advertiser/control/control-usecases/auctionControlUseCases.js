@@ -8,7 +8,7 @@ export const handlePlayAuction = (selectedAuction, selectedGroup, cookieSession,
     }
 
     try {
-         await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/start-auct`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/play-auction`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
@@ -26,9 +26,9 @@ export const handlePlayAuction = (selectedAuction, selectedGroup, cookieSession,
 };
 
 export const handlePauseAuction = (selectedAuction, cookieSession, dispatch) => async () => {
- 
+
     try {
-       await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/pause-product-time`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/pause-auction`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
@@ -36,18 +36,18 @@ export const handlePauseAuction = (selectedAuction, cookieSession, dispatch) => 
                 auct_id: selectedAuction.id,
             }
         });
-       
+
         dispatch(setStatus('paused'));
     } catch (error) {
-        
+
         alert("Erro ao pausar o leilão. Por favor, tente novamente.");
     }
 };
 
 export const handleResumeAuction = (selectedAuction, cookieSession, dispatch) => async () => {
-  
+
     try {
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/resume-floor`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/resume-auction`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
@@ -55,7 +55,7 @@ export const handleResumeAuction = (selectedAuction, cookieSession, dispatch) =>
                 auct_id: selectedAuction.id,
             }
         });
-       
+
         dispatch(setStatus('live'));
     } catch (error) {
         alert("Erro ao retomar o leilão. Por favor, tente novamente.");
@@ -63,10 +63,10 @@ export const handleResumeAuction = (selectedAuction, cookieSession, dispatch) =>
 };
 
 export const handleNextProduct = (selectedAuction, cookieSession, setLoadNext) => async () => {
-  
+
     setLoadNext(true);
     try {
-        await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/next-product`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/skip-lote`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
@@ -80,24 +80,23 @@ export const handleNextProduct = (selectedAuction, cookieSession, setLoadNext) =
     } finally {
         setTimeout(() => {
             setLoadNext(false);
-        }, 6000); 
+        }, 6000);
     }
 };
 
-
 export const handleAddTime = (selectedAuction, cookieSession, time) => async () => {
-  
+
     try {
-       await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/change-product-time`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/add-time`, {
             headers: {
                 Authorization: `Bearer ${cookieSession.token}`
             },
             params: {
                 auct_id: selectedAuction.id,
-                time: time
+                seconds: time
             }
         });
-       
+
     } catch (error) {
         alert(`Erro ao adicionar ${time} segundos. Por favor, tente novamente.`);
     }
@@ -107,7 +106,7 @@ export const killAuction = (selectedAuction, cookieSession, dispatch) => async (
     if (!cookieSession) return;
 
     try {
-       await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/auct/kill-auct`, {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/stop-auction`, {
             headers: {
                 'Authorization': `Bearer ${cookieSession.token}`
             },
@@ -127,3 +126,38 @@ export const killAuction = (selectedAuction, cookieSession, dispatch) => async (
         alert("Erro ao finalizar o leilão. Por favor, tente novamente.");
     }
 };
+
+export const changeProductTime = async (selectedAuction, cookieSession, time) => {
+
+    try {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/change-product-time`, {
+            params: {
+                auct_id: selectedAuction.id,
+                seconds: time
+            }
+        });
+
+        console.log("Tempo do leilão alterado com sucesso.");
+    } catch (error) {
+        console.log("Erro ao tentar mudar o tempo do leilão", error);
+    }
+}
+
+export const changeLote = async (cookieSession, selectedAuction, lote) => {
+
+    try {
+        await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/change-lote`, {
+            headers: {
+                'Authorization': `Bearer ${cookieSession.token}`
+            },
+            params: {
+                auct_id: selectedAuction.id,
+                lote: lote
+            }
+        });
+
+    } catch (error) {
+        alert("Erro ao tentar mudar o lote do leilão");
+    }
+
+}

@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import axios from "axios";
 import {
     PlayArrow,
     SkipNext,
@@ -21,7 +20,8 @@ import {
     handleResumeAuction,
     handleNextProduct,
     handleAddTime,
-    killAuction
+    killAuction,
+    changeProductTime
 } from "../control-usecases/auctionControlUseCases";
 
 
@@ -149,51 +149,34 @@ function AuctionController() {
     const isDisabled = !generalAUK.auct || isFinished;
 
     // Função para atualizar o valor do range de tempo por lote com debounce
-    const handleLoteTimeChange = async (e) => {
-        const newValue = parseInt(e.target.value);
-        setLoteTimeValue(newValue);
-        setHasSetTime(true); // Marca que o usuário definiu o tempo
+    const handleChangeProductTime = async (e) => {
+        // Verifica se o leilão está rodando e tem mais de 3 segundos restantes
+        if (!isRunning || generalAUK.currentTimer <= 3) {
+            return;
+        }
 
-        // Limpa o timer anterior se houver
+        const newValue = e.target.value;
+        setLoteTimeValue(newValue); // Atualiza o estado local imediatamente para feedback visual
+        setHasSetTime(true); // Indica que o tempo foi definido
+
+        // Limpa o timer anterior se existir
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
 
-        // Limpa o timeout da mensagem de sucesso se existir
-        if (successTimeoutRef.current) {
-            clearTimeout(successTimeoutRef.current);
-            setShowSuccessMessage(false);
-        }
-
-        // Define um novo timer de 500ms para enviar o valor final
+        // Define um novo timer para fazer a chamada da API após 1500ms
         debounceTimerRef.current = setTimeout(async () => {
-            const configAuth = {
-                headers: {
-                    "Authorization": `Bearer ${cookieSession.token}`
-                }
+            try {
+                await changeProductTime(generalAUK.auct, cookieSession, newValue);
+                setShowSuccessMessage(true);
+                // Limpa a mensagem de sucesso após 2 segundos
+                setTimeout(() => {
+                    setShowSuccessMessage(false);
+                }, 2000);
+            } catch (error) {
+                console.error('Erro ao atualizar o tempo do produto:', error);
             }
-
-            if (generalAUK.auct && generalAUK.auct.product_timer_seconds !== newValue) {
-                try {
-                    await axios.patch(`${import.meta.env.VITE_APP_BACKEND_API}/auct/update-auct?auct_id=${generalAUK.auct.id}`, {
-                        product_timer_seconds: newValue,
-                    }, configAuth);
-
-                    // Mostra a mensagem de sucesso
-                    setShowSuccessMessage(true);
-                    
-                    // Remove a mensagem após 2 segundos
-                    successTimeoutRef.current = setTimeout(() => {
-                        setShowSuccessMessage(false);
-                    }, 2000);
-
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-
-            debounceTimerRef.current = null;
-        }, 500);
+        }, 1500);
     };
 
     // Limpar os timers pendentes quando o componente for desmontado
@@ -209,7 +192,7 @@ function AuctionController() {
     }, []);
 
     return (
-        <div className="flex bg-white w-full h-[50%] rounded-xl shadow-lg p-4">
+        <div className="flex w-full h-[50%] rounded-xl shadow-lg p-4 bg-orange-600">
             <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
@@ -268,10 +251,10 @@ function AuctionController() {
                         {/* Botão Iniciar */}
                         <button
                             onClick={playAuction}
-                            disabled={isRunning || isDisabled || isPaused || !hasSetTime}
-                            title={!hasSetTime ? "Defina o tempo por lote antes de iniciar" : "Iniciar Leilão"}
+                            disabled={isRunning || isPaused || isDisabled || !generalAUK.auct}
+                            title={!generalAUK.auct ? "Selecione um leilão para iniciar" : "Iniciar Leilão"}
                             className={`flex items-center justify-center p-4 rounded-xl 
-                                transition-all duration-200 ${isRunning || isDisabled || isPaused || !hasSetTime
+                                transition-all duration-200 ${isRunning || isPaused || isDisabled || !generalAUK.auct
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : 'bg-[#139a0a] text-white hover:bg-[#37c72d] shadow-md'
                                 }`}
@@ -417,10 +400,10 @@ function AuctionController() {
                                         min="1"
                                         max="100"
                                         value={loteTimeValue}
-                                        onChange={handleLoteTimeChange}
-                                        disabled={isRunning}
+                                        onChange={handleChangeProductTime}
+                                        disabled={!isRunning || generalAUK.currentTimer <= 3}
                                         className={`w-full h-1.5 rounded-full appearance-none cursor-pointer relative z-10
-                                            ${isRunning ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-gray-200'}
+                                            ${(!isRunning || generalAUK.currentTimer <= 3) ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-gray-200'}
                                             [&::-webkit-slider-thumb]:appearance-none 
                                             [&::-webkit-slider-thumb]:h-4 
                                             [&::-webkit-slider-thumb]:w-4 
@@ -429,7 +412,7 @@ function AuctionController() {
                                             [&::-webkit-slider-thumb]:border-2 
                                             [&::-webkit-slider-thumb]:border-white 
                                             [&::-webkit-slider-thumb]:shadow-md
-                                            ${isRunning ? '[&::-webkit-slider-thumb]:opacity-60' : ''}
+                                            ${(!isRunning || generalAUK.currentTimer <= 3) ? '[&::-webkit-slider-thumb]:opacity-60' : ''}
                                             [&::-moz-range-thumb]:appearance-none 
                                             [&::-moz-range-thumb]:h-4 
                                             [&::-moz-range-thumb]:w-4 
@@ -438,9 +421,9 @@ function AuctionController() {
                                             [&::-moz-range-thumb]:border-2 
                                             [&::-moz-range-thumb]:border-white 
                                             [&::-moz-range-thumb]:shadow-md
-                                            ${isRunning ? '[&::-moz-range-thumb]:opacity-60' : ''}
+                                            ${(!isRunning || generalAUK.currentTimer <= 3) ? '[&::-moz-range-thumb]:opacity-60' : ''}
                                             [&:hover]:cursor-pointer
-                                            ${isRunning ? '[&:hover]:cursor-not-allowed' : ''}`}
+                                            ${(!isRunning || generalAUK.currentTimer <= 3) ? '[&:hover]:cursor-not-allowed' : ''}`}
                                     />
 
                                     {/* Área aumentada para facilitar o clique */}

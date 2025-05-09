@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import io from 'socket.io-client';
-import axios from "axios";
+import ReceiveWebsocketMessages from "../control-usecases/receiveWebsocketMessages";
 import { Timer, Gavel, EmojiEvents, Category } from '@mui/icons-material';
 import CarroselHomeAdvertiserDetails from "../../../home/advertiser-home/components/CarroselHomeAdvertiserDetails";
 import { setCurrentProduct, setStatus, setCurrentTimer } from "../../../features/auct/generalAUKSlice";
@@ -14,161 +13,68 @@ function DisplayCurrentLote() {
     const [winner, setWinner] = useState(null);
     const [winnerBidValue, setWinnerBidValue] = useState(null);
     const [instanceId] = useState(() => crypto.randomUUID()); // ID único para esta instância
-    const messagesProcessedRef = useRef(new Set()); // Para evitar processamento duplicado
-    const socketRef = useRef(null);
 
     const generalAUK = useSelector(state => state.generalAUK);
     const dispatch = useDispatch();
 
-    // Função para evitar processamento duplicado de mensagens
-    const processMessageOnce = (messageKey, message, handler) => {
-        // Usar timestamp como parte da chave se disponível
-        const timestamp = message?.data?.body?.timestamp || "";
-        const fullKey = `${messageKey}-${timestamp}`;
-        
-        if (!messagesProcessedRef.current.has(fullKey)) {
-            messagesProcessedRef.current.add(fullKey);
-            // Limitar o tamanho do conjunto para evitar vazamentos de memória
-            if (messagesProcessedRef.current.size > 1000) {
-                const messagesArray = Array.from(messagesProcessedRef.current);
-                messagesProcessedRef.current = new Set(messagesArray.slice(500));
-            }
-            handler(message);
-        }
-    };
 
     useEffect(() => {
         if (generalAUK.auct && generalAUK.status === 'live') {
-            // Desconectar socket anterior se existir
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-            
-            // Criar nova conexão com parâmetros identificadores
-            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
-                transports: ['websocket'],
-                upgrade: false,
-                reconnection: true, 
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000,
-                query: {
-                    instance_id: instanceId,
-                    client_type: "control_panel",
-                    auct_id: generalAUK.auct.id
-                }
-            });
-            
-            socketRef.current = socket;
-            
-            // Entrar explicitamente na sala do leilão
-            socket.emit('join-auction-room', { 
-                auct_id: generalAUK.auct.id,
-                instance_id: instanceId,
-                client_type: "control_panel"
-            });
+            const receiveWebsocketMessages = new ReceiveWebsocketMessages(generalAUK);
 
-            socket.on(`${generalAUK.auct.id}-playing-auction`, (message) => {
-                if (message.data && message.data.body && message.data.body.auct_id === generalAUK.auct.id) {
-                    processMessageOnce(`${generalAUK.auct.id}-playing-auction`, message, (msg) => {
-                        
-                        if (msg.data.body.product) {
-                            dispatch(setCurrentProduct(msg.data.body.product));
-                        }
-                        
-                        const totalTime = generalAUK.auct.product_timer_seconds;
-                        const elapsedTime = msg.data.cronTimer || 0;
-                        const remaining = Math.max(0, totalTime - elapsedTime);
-                        
-                        setRemainingTime(remaining);
-                        
-                        if (remaining === 0) {
-                            setCurrentBidValue(0);
-                        }
-                        
-                        dispatch(setCurrentTimer(remaining));
-                    });
+            // Configurar handlers para cada tipo de mensagem
+            receiveWebsocketMessages.receivePlayingAuction((playingMessage) => {
+                if (playingMessage.data?.body?.auct_id === generalAUK.auct.id) {
+                    if (playingMessage.data.body.product) {
+                        dispatch(setCurrentProduct(playingMessage.data.body.product));
+                    }
+
+                    const remaining = playingMessage.data.cronTimer || 0;
+                    setRemainingTime(remaining);
+                    dispatch(setCurrentTimer(remaining));
+
+                    if (remaining === 0) {
+                        setCurrentBidValue(0);
+                    }
                 }
             });
 
-            socket.on(`${generalAUK.auct.id}-bid`, async (message) => {
-                if (message.data && message.data.body) {
-                    processMessageOnce(`${generalAUK.auct.id}-bid`, message, (msg) => {
-                        try {
-                            if (msg.data.body.Product && msg.data.body.Product[0]) {
-                                setCurrentBidValue(msg.data.body.Product[0].Bid[0].value);
-                            }
-                        } catch (error) {
-                            console.error("Erro ao atualizar lance:", error);
+            receiveWebsocketMessages.receiveBidMessage((bidMessage) => {
+                if (bidMessage.data?.body) {
+                    try {
+                        if (bidMessage.data.body.Product) {
+                            setCurrentBidValue(bidMessage.data.body.CurrentBid.value);
                         }
-                    });
+                    } catch (error) {
+                        console.error("Erro ao atualizar lance:", error);
+                    }
                 }
             });
 
-            socket.on(`${generalAUK.auct.id}-winner`, (message) => {
-                if (message.data && message.data.body) {
-                    processMessageOnce(`${generalAUK.auct.id}-winner`, message, async (msg) => {
-                        // Primeiro, buscar o produto atualizado para ter os dados mais recentes
-                        try {
-                            const response = await axios.get(
-                                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${generalAUK.currentProduct.id}`
-                            );
-                            
-                            if (response.data && response.data.Bid && response.data.Bid.length > 0) {
-                                // Pegar o último lance do produto
-                                const lastBid = response.data.Bid[0];
-                                setWinnerBidValue(lastBid.value);
-                            }
-                        } catch (error) {
-                            console.error("Erro ao buscar produto atualizado:", error);
-                            // Fallback para o valor atual se não conseguir buscar o produto
-                            if (currentBidValue) {
-                                setWinnerBidValue(currentBidValue);
-                            }
-                        }
-                        
-                        // Buscar informações do vencedor
-                        getCurrentClientWinner(msg.data.body.winner);
-                    });
+            receiveWebsocketMessages.receiveWinnerMessage((winnerMessage) => {
+                if (winnerMessage.data?.body) {
+                    if (winnerMessage.data.body.product?.Bid?.length > 0) {
+                        const lastBid = winnerMessage.data.body.product.Bid[0];
+                        setWinnerBidValue(lastBid.value);
+                        setWinner(winnerMessage.data.body.winner);
+                    }
                 }
             });
 
-            socket.on(`${generalAUK.auct.id}-auct-finished`, () => {
-                dispatch(setStatus('finished'));
-            });
-            
-            // Adicionar manipulador de reconexão
-            socket.on('reconnect', () => {
-               
-
-                socket.emit('join-auction-room', { 
-                    auct_id: generalAUK.auct.id,
-                    instance_id: instanceId,
-                    client_type: "control_panel"
-                });
+            receiveWebsocketMessages.receiveAuctionFinishedMessage((finishedMessage) => {
+                if (finishedMessage.data) {
+                    dispatch(setStatus('finished'));
+                }
             });
 
+            // Cleanup function
             return () => {
-                if (socket) {
-                    socket.disconnect();
-                }
+                receiveWebsocketMessages.disconnect();
             };
         }
     }, [generalAUK.auct, generalAUK.status, dispatch, instanceId]);
 
-    const getCurrentClientWinner = async (client_id) => {
-        if (!client_id) return;
-        
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
-            setWinner(response.data);
-            setTimeout(() => {
-                setWinner(null);
-                setWinnerBidValue(null);
-            }, 3000);
-        } catch (error) {
-            console.error("Erro ao buscar cliente vencedor:", error);
-        }
-    };
+
 
     if (!generalAUK.auct || generalAUK.status !== 'live') {
         return (
@@ -213,7 +119,7 @@ function DisplayCurrentLote() {
                             <div className="bg-white/10 rounded-lg p-3">
                                 <p className="text-sm text-white/70">Lance Atual</p>
                                 <p className="text-lg font-bold text-green-400">
-                                    {currentBidValue ? 
+                                    {currentBidValue ?
                                         new Intl.NumberFormat('pt-BR', {
                                             style: 'currency',
                                             currency: 'BRL'
@@ -281,7 +187,7 @@ function DisplayCurrentLote() {
                                     <div>
                                         <p className="text-white/70 text-sm">Lance Vencedor</p>
                                         <p className="font-medium">
-                                            {winnerBidValue ? 
+                                            {winnerBidValue ?
                                                 new Intl.NumberFormat('pt-BR', {
                                                     style: 'currency',
                                                     currency: 'BRL'

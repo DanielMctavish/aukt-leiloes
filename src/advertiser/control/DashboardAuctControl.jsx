@@ -12,6 +12,7 @@ import BidsListController from "./components/BidsListController";
 import AuctionsSelectorController from "./components/AuctionsSelectorController";
 import { setAuct, setStatus } from "../../features/auct/generalAUKSlice";
 import FloorMessageSet from "./components/FloorMessageSet";
+import ChangeLoteController from "./components/ChangeLoteController";
 
 function DashboardAuctControl() {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ function DashboardAuctControl() {
                 shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e900] 
                 overflow-y-auto rounded-lg">
 
-                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[75vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[100vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />
                             <AuctionController />
@@ -82,7 +83,11 @@ function DashboardAuctControl() {
                         <DisplayCurrentLote />
                     </div>
 
-                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[40vh] min-h-[100vh] p-1 gap-1">
+                    <div className="flex w-full min-h-[47vh] bg-[#ddd] justify-center items-center">
+                        <ChangeLoteController />
+                    </div>
+
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[60vh] min-h-[100vh] p-1 gap-1">
                         <FloorMessageSet />
                         <BidsListController />
                     </div>
