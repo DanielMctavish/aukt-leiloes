@@ -75,7 +75,7 @@ function DashboardAuctControl() {
                 shadow-lg shadow-[#1919192d] bg-gradient-to-b from-[#fff] to-[#e9e9e900] 
                 overflow-y-auto rounded-lg">
 
-                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[100vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
+                    <div className="flex lg:flex-row flex-col w-full lg:min-h-[110vh] min-h-[120vh] bg-[#fff] p-1 gap-1">
                         <div className="flex flex-col lg:w-[50%] w-full h-full p-1 gap-1">
                             <AuctionsSelectorController />
                             <AuctionController />

@@ -32,8 +32,7 @@ function AuctionController() {
     const [estimatedTime, setEstimatedTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
     const [loteTimeValue, setLoteTimeValue] = useState(0); // Mudando valor inicial para 0
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-    const [hasSetTime, setHasSetTime] = useState(false); // Novo estado para controlar se o tempo foi definido
-    const [isPlayLoading, setIsPlayLoading] = useState(false); // Estado para controlar o loading do botão play
+    const [isPlayLoading, setIsPlayLoading] = useState(false);
     const debounceTimerRef = useRef(null); // Referência para o timer de debounce
     const successTimeoutRef = useRef(null);
     const generalAUK = useSelector(state => state.generalAUK);
@@ -162,8 +161,7 @@ function AuctionController() {
         }
 
         const newValue = e.target.value;
-        setLoteTimeValue(newValue); // Atualiza o estado local imediatamente para feedback visual
-        setHasSetTime(true); // Indica que o tempo foi definido
+        setLoteTimeValue(newValue);
 
         // Limpa o timer anterior se existir
         if (debounceTimerRef.current) {
@@ -198,7 +196,7 @@ function AuctionController() {
     }, []);
 
     return (
-        <div className="flex w-full h-[50%] rounded-xl shadow-lg p-4 bg-orange-600">
+        <div className="flex w-full h-[50%] rounded-xl shadow-lg">
             <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
@@ -378,11 +376,7 @@ function AuctionController() {
                                             <span className="text-[12px]">Tempo atualizado</span>
                                         </div>
                                     )}
-                                    {!hasSetTime && !isRunning && (
-                                        <div className="text-amber-600 text-[12px] animate-pulse">
-                                            Defina o tempo antes de iniciar
-                                        </div>
-                                    )}
+                                    
                                     <span className="font-bold text-sm bg-[#012038] text-white px-2 py-0.5 rounded-lg">
                                         {loteTimeValue}s
                                     </span>

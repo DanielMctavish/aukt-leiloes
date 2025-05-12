@@ -78,6 +78,9 @@ class ReceiveWebsocketMessages {
         
         this.socket.on(eventName, (message) => {
             if (!message?.data?.body?.product?.advertiser_id) return;
+
+            console.log('playing auction receive -> ', message)
+            
             const advertiserId = message.data.body.product.advertiser_id;
             if(this.verifyAuctionOwner(advertiserId)){
                 callback(message);

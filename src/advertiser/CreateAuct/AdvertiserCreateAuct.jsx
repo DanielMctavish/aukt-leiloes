@@ -14,8 +14,8 @@ import DisplayInformations from "./components/DisplayInformations"
 import DisplayLocalHour from "./components/DisplayLocalHour"
 import DisplayTermsConditions from "./components/DisplayTermsConditions"
 import DisplayMethodsPayments from "./components/DisplayMethodsPayments"
-import DisplayLimitations from "./components/DisplayLimitations"
-import DisplayDateLimite from "./components/DisplayDateLimite"
+// import DisplayLimitations from "./components/DisplayLimitations"
+// import DisplayDateLimite from "./components/DisplayDateLimite"
 import { useSelector } from "react-redux";
 import { getCurrentFile } from "./functions/handleImageChange"
 import { addAuct } from "../../features/auct/Auct";
@@ -274,18 +274,23 @@ export const AdvertiserCreateAuct = () => {
 
             {!errorDetector ?
                 !isLoading ?
-                    <button onClick={handleSaveAuct}
-                        className="w-[130px] h-[50px] bg-[#012038] text-white 
+                    <div className="flex flex-col gap-2 w-full justify-center items-center h-[100px] relative mt-[3vh]">
+                        <button onClick={handleSaveAuct}
+                            className="w-[130px] h-[50px] bg-[#012038] text-white 
                         rounded-md shadow-lg shadow-[#0e0e0e47] hover:bg-[#023161] 
-                        transition-colors fixed bottom-4 right-1">
-                        confirmar
-                    </button> :
+                        transition-colors relative bottom-4 right-1">
+                            confirmar
+                        </button>
+                    </div>
+                    :
                     <span className="bg-white/90 backdrop-blur-sm px-6 py-3 rounded-md shadow-lg">criando...</span>
                 :
-                <button className="w-[130px] h-[50px] bg-[#696969] text-white 
-                rounded-md cursor-not-allowed fixed bottom-4 right-1">
+                <div className="flex flex-col gap-2 w-full justify-center items-center h-[100px] relative mt-[3vh]">
+                    <button className="w-[130px] h-[50px] bg-[#696969] text-white 
+                rounded-md cursor-not-allowed relative bottom-4 right-1">
                     confirmar
                 </button>
+                </div>
             }
         </div>
     )

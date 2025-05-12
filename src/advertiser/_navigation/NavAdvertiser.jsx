@@ -113,8 +113,8 @@ function NavAdvertiser() {
   };
 
   return (
-    <nav className="w-full bg-white shadow-md fixed left-0 z-[500]">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+    <nav className="w-full bg-white shadow-md fixed left-0 z-[500] flex justify-center items-center">
+      <div className="min-w-[94%] px-4 sm:px-6 lg:px-8 ">
         <div className="flex justify-between h-16 items-center">
           {/* Mobile menu button */}
           <button

@@ -40,10 +40,10 @@ function AuctFloor() {
     useEffect(() => {
         webSocketFlow();
 
-        // Garantir que a tela de carregamento seja exibida por pelo menos 3 segundos
+        // Garantir que a tela de carregamento seja exibida por pelo menos 1.5 segundos
         const minLoadingTimer = setTimeout(() => {
             setForceLoading(false);
-        }, 3000);
+        }, 1500);
 
         return () => {
             if (socketRef.current) {
@@ -289,7 +289,7 @@ function AuctFloor() {
                         <img 
                             src={auk_logo} 
                             alt="Logo Auk" 
-                            className="w-[130px] h-[130px] relative z-10 animate-pulse drop-shadow-2xl" 
+                            className="w-[130px] h-[130px] relative z-10 animate-pulse drop-shadow-2xl object-cover rounded-full" 
                             style={{ animationDuration: '3s' }}
                         />
                     </div>

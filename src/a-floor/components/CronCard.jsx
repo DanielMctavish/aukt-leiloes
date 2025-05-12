@@ -13,17 +13,24 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     const [canBid, setCanBid] = useState(true);
     const [clientSession, setClientSession] = useState();
     const [showReserveMessage, setShowReserveMessage] = useState(false);
-    const [deadline, setDeadline] = useState(1);
-    const [percentual, setPercentual] = useState(1); // Começar em 1%
+    const [deadline, setDeadline] = useState(currentTime);
+    const [percentual, setPercentual] = useState(0);
     const [isFinishedLot,] = useState(false);
     const [updatedProductState, setUpdatedProductState] = useState(null);
-    const refBarDeadline = useRef();
+    const refBarDeadline = useRef(null);
     const dispatch = useDispatch();
     const [auctioneerCall, setAuctioneerCall] = useState('');
     const [hasWinner, setHasWinner] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Usar o produto atualizado se disponível, ou o produto original como fallback
     const productToUse = updatedProductState || currentProduct;
+
+    // Efeito para controlar a montagem do componente
+    useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
 
     useEffect(() => {
         getClientSession();
@@ -77,6 +84,9 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
     }, [real_value, reserve_value, showReserveMessage]);
 
     useEffect(() => {
+        // Não executar se o componente não estiver montado
+        if (!isMounted) return;
+
         const newDeadline = currentTime;
         setDeadline(newDeadline);
         setPercentage(newDeadline);
@@ -99,30 +109,33 @@ function CronCard({ currentTime, duration, auct_id, initial_value, real_value,
             setAuctioneerCall('');
         }
 
-        if (newDeadline <= 10) {
-            // Atualizar a barra com estilo mais limpo e nítido
-            const barWidth = Math.max(0, Math.min(100, 100 - ((newDeadline / 10) * 100)));
-            
-            // Usar classes em vez de inline styles para uma renderização mais eficiente
-            refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
-            
-            // Aplicar classes baseadas no tempo restante
-            if (newDeadline <= 3) {
-                refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
-            } else if (newDeadline <= 6) {
-                refBarDeadline.current.classList.add('progress-orange');
+        // Verificar se o ref existe antes de atualizar a barra
+        if (refBarDeadline.current) {
+            if (newDeadline <= 10) {
+                // Atualizar a barra com estilo mais limpo e nítido
+                const barWidth = Math.max(0, Math.min(100, 100 - ((newDeadline / 10) * 100)));
+                
+                // Usar classes em vez de inline styles para uma renderização mais eficiente
+                refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
+                
+                // Aplicar classes baseadas no tempo restante
+                if (newDeadline <= 3) {
+                    refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
+                } else if (newDeadline <= 6) {
+                    refBarDeadline.current.classList.add('progress-orange');
+                } else {
+                    refBarDeadline.current.classList.add('progress-yellow');
+                }
+                
+                // Aplicar a largura com precisão
+                refBarDeadline.current.style.width = `${barWidth}%`;
             } else {
-                refBarDeadline.current.classList.add('progress-yellow');
+                // Resetar a barra para o estado inicial
+                refBarDeadline.current.classList.remove('progress-red', 'progress-orange', 'progress-yellow', 'pulse-animation');
+                refBarDeadline.current.style.width = "0%";
             }
-            
-            // Aplicar a largura com precisão
-            refBarDeadline.current.style.width = `${barWidth}%`;
-        } else {
-            // Resetar a barra para o estado inicial
-            refBarDeadline.current.classList.remove('progress-red', 'progress-orange', 'progress-yellow', 'pulse-animation');
-            refBarDeadline.current.style.width = "0%";
         }
-    }, [currentTime, duration, real_value]);
+    }, [currentTime, duration, real_value, isMounted]);
 
     const getClientSession = async () => {
         const currentSession = JSON.parse(localStorage.getItem("client-auk-session-login"));

@@ -114,7 +114,7 @@ function DisplayProductsCsv() {
     };
 
     return (
-        <div ref={refMain} className="w-[33%] h-[100%] bg-white rounded-lg p-4
+        <div ref={refMain} className="w-full h-[60vh] bg-white rounded-lg p-4
             hover:scale-[1.02] transition-all duration-300 ease-in-out
             shadow-xl shadow-[#00000020] flex flex-col justify-center items-center gap-6">
 

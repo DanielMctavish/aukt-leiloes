@@ -125,7 +125,7 @@ function AuctionsSelectorController() {
 
 
     return (
-        <div className="flex bg-purple-600 w-full h-[50%] rounded-xl shadow-lg p-4">
+        <div className="flex w-full h-[50%] rounded-xl shadow-lg p-4">
             <div className="flex flex-col w-full h-full bg-gray-50 rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#012038] text-white px-6 py-4 flex items-center justify-between">
