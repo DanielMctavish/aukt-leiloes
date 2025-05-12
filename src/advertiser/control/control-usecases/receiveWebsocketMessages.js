@@ -111,7 +111,7 @@ class ReceiveWebsocketMessages {
             if(this.verifyAuctionOwner(advertiserId)){
                 callback(message);
             }
-        });
+        })
     }
 
     receiveAuctionFinishedMessage(callback) {
