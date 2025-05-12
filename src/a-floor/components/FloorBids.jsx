@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import axios from "axios"
-import io from "socket.io-client";
 import { useEffect, useState, useRef, useCallback } from "react"
 import CronCard from "./CronCard"
 import { useDispatch } from "react-redux"
 import { addBidLive } from "../../features/Bids/BidLive"
-import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls";
+import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls"
+import ReceiveWebsocketMessages from "../../advertiser/control/control-usecases/receiveWebsocketMessages"
 
 // Convertendo o objeto de URLs em um array
 const avatarIndex = Object.values(avatarClientsUrls);
@@ -16,12 +16,9 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     const [bidsCards, setBidsCards] = useState([])
     const [showWinner, setShowWinner] = useState(false)
     const [isAuctionFinished, setIsAuctionFinished] = useState(false)
-    const socketRef = useRef(null);
-    const winnerTimeoutRef = useRef(null);
     const [highestBid, setHighestBid] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const isMounted = useRef(true);
-    const instanceId = useRef(`floor_client_${Math.random().toString(36).substring(2, 9)}`);
     const dispatch = useDispatch();
 
     // Atualizar o estado local quando a prop do pai mudar
@@ -105,178 +102,58 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         }
     }, []);
 
-    // Setup do WebSocket
+    // Setup do WebSocket usando ReceiveWebsocketMessages
     useEffect(() => {
         isMounted.current = true;
         
-        const setupSocket = () => {
-            if (!auct_id || !productId) return;
-            
-            // Limpar conexão anterior se existir
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-            
-            // Conectar ao servidor WebSocket
-            const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`, {
-                transports: ['websocket'],
-                upgrade: false,
-                reconnection: true, 
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000,
-                timeout: 20000,
-                forceNew: true,
-                query: {
-                    instance_id: instanceId.current,
-                    client_type: "floor_bids",
-                    auct_id: auct_id
-                }
-            });
-            
-            socketRef.current = socket;
-            
-            // Evento de conexão para debug
-            socket.on('connect', () => {
-                console.log('WebSocket connected for floor bids - ID:', socket.id);
-                
-                // Explicitamente entrar na sala do leilão após conexão
-                socket.emit('join-auction-room', { 
-                    auct_id: auct_id,
-                    instance_id: instanceId.current,
-                    client_type: "floor_bids"
-                });
-                
-                console.log(`Inscrito na sala de leilão: ${auct_id}`);
-            });
-            
-            // Monitorar eventos de erro
-            socket.on('connect_error', (error) => {
-                console.error('Erro na conexão WebSocket:', error);
-            });
-            
-            socket.on('error', (error) => {
-                console.error('Erro no WebSocket:', error);
-            });
-            
-            // Evento de reconexão
-            socket.on('reconnect', (attemptNumber) => {
-                console.log(`WebSocket reconectado na tentativa ${attemptNumber}`);
-                
-                // Reingressar na sala após reconexão
-                socket.emit('join-auction-room', { 
-                    auct_id: auct_id,
-                    instance_id: instanceId.current,
-                    client_type: "floor_bids"
-                });
-            });
+        if (!auct_id || !productId) return;
 
-            // 1. Evento principal de lance
-            socket.on(`${auct_id}-bid`, (message) => {
-           
-                // Extrair o lance da estrutura correta
-                const newBid = message.data.body || message.data;
-                
-                // Verificar se o lance é para o produto atual
-                if (newBid && (newBid.product_id === productId || 
-                    (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
-                    
-                    // Atualizar a lista de lances
-                    fetchCurrentProductBids(productId);
-                } else {
-                    console.log("Lance recebido, mas não corresponde ao produto atual");
-                }
-            });
+        const generalAUK = { auct: { id: auct_id } };
+        const receiveWebsocketMessages = new ReceiveWebsocketMessages(generalAUK);
+
+        // Configurar receptor de mensagens de lance
+        receiveWebsocketMessages.receiveBidMessage((message) => {
+            const newBid = message.data.body || message.data;
             
-            // 2. Evento de lance catalogado (para compatibilidade)
-            socket.on(`${auct_id}-bid-cataloged`, (message) => {
-                
-                // Extrair o lance da estrutura correta
-                const newBid = message.data.body;
-                
-                // Verificar se o lance é para o produto atual
-                if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId) || 
-                    (newBid.product_id === productId))) {
-                    
-                    console.log("Lance catalogado recebido para o produto atual:", newBid);
-                    // Atualizar a lista de lances
-                    fetchCurrentProductBids(productId);
-                }
-            });
+            if (newBid && (newBid.product_id === productId || 
+                (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
+                fetchCurrentProductBids(productId);
+            }
+        });
+
+        // Configurar receptor de mensagens de lance catalogado
+        receiveWebsocketMessages.receiveBidCatalogedMessage((message) => {
+            const newBid = message.data.body;
             
-            // 3. Evento de novo produto no leilão
-            socket.on(`${auct_id}-playing-auction`, (message) => {
-                
-                // Limpar o estado quando um novo produto é iniciado, independentemente de qual produto seja
-                if (message.data && message.data.body && message.data.body.product) {
-                    // Sempre limpar o vencedor quando um novo produto começa
-                    setShowWinner(false);
-                    setIsAuctionFinished(false);
-                    
-                    // Se for um produto diferente do atual, atualizar o produto
-                    if (message.data.body.product.id !== productId) {
-                        setHighestBid(null);
-                        setBidsCards([]);
-                        getCurrentProduct(message.data.body.product.id);
+            if (newBid && (newBid.product_id === productId || 
+                (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
+                fetchCurrentProductBids(productId);
+            }
+        });
+
+        // Configurar receptor de mensagens de fim de leilão
+        receiveWebsocketMessages.receiveAuctionFinishedMessage(() => {
+            if (isMounted.current) {
+                setIsAuctionFinished(true);
+                setTimeout(() => {
+                    if (isMounted.current) {
+                        setShowWinner(false);
                     }
-                }
-            });
-            
-            // 4. Evento de fim de leilão
-            socket.on(`${auct_id}-auct-finished`, () => {
-                console.log("Floor Bids - Auction finished event received");
-                if (isMounted.current) {
-                    setIsAuctionFinished(true);
-                    
-                    // Limpar o vencedor após um tempo para exibição
-                    setTimeout(() => {
-                        if (isMounted.current) {
-                            setShowWinner(false);
-                        }
-                    }, 5000);
-                }
-            });
-            
-            // 5. Evento de fim de lote/produto
-            socket.on(`${auct_id}-product-finished`, (message) => {
-                console.log("Floor Bids - Product finished event received:", message);
-                if (isMounted.current) {
-                    // Após exibir o vencedor por alguns segundos, limpar
-                    setTimeout(() => {
-                        if (isMounted.current) {
-                            setShowWinner(false);
-                        }
-                    }, 5000);
-                }
-            });
-        };
-        
-        setupSocket();
+                }, 5000);
+            }
+        });
         
         // Carregar informações iniciais
         if (productId) {
             getCurrentProduct(productId);
-            // Limpar o vencedor quando o productId mudar (novo lote)
             setShowWinner(false);
         }
         
         return () => {
             isMounted.current = false;
-            
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-            
-            if (winnerTimeoutRef.current) {
-                clearTimeout(winnerTimeoutRef.current);
-            }
+            receiveWebsocketMessages.disconnect();
         };
     }, [auct_id, productId, getCurrentProduct]);
-    
-    // Limpar estado quando o produto mudar através de props
-    useEffect(() => {
-        // Limpar o vencedor quando o productId mudar
-        setShowWinner(false);
-    }, [productId]);
 
     // Função específica para buscar lances do produto atual
     const fetchCurrentProductBids = async (product_id) => {
@@ -310,15 +187,13 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         if (winner) {
             setShowWinner(true);
             
-            if (winnerTimeoutRef.current) {
-                clearTimeout(winnerTimeoutRef.current);
-            }
-            
-            winnerTimeoutRef.current = setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 if (isMounted.current) {
                     setShowWinner(false);
                 }
             }, 3000);
+            
+            return () => clearTimeout(timeoutId);
         }
     }, [winner]);
 
