@@ -81,17 +81,29 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
         }
     }, []);
 
-    // Função para atualizar os cards de lances com um novo lance
-    const updateBidsCards = useCallback((newBid) => {
-        if (!isMounted.current) return;
+    // Função para processar um novo lance
+    const processNewBid = useCallback((message) => {
+        if (!message?.body) return;
         
-        if (newBid && newBid.Client) {
+        const { currentBid, product } = message.body;
+        
+        // Verificar se o lance é para o produto atual
+        if (product?.id === productId) {
+            // Criar objeto de lance formatado
+            const formattedBid = {
+                ...currentBid,
+                Client: currentBid.Client,
+                Product: [product],
+                value: currentBid.value
+            };
+            
+            // Atualizar os cards de lance
             setBidsCards(prevCards => {
                 // Verificar se o lance já existe
-                const bidExists = prevCards.some(bid => bid.id === newBid.id);
+                const bidExists = prevCards.some(bid => bid.id === formattedBid.id);
                 if (bidExists) return prevCards;
                 
-                const updatedCards = [newBid, ...prevCards].slice(0, 10);
+                const updatedCards = [formattedBid, ...prevCards].slice(0, 10);
                 const highest = updatedCards.reduce((max, bid) => 
                     parseFloat(bid.value) > parseFloat(max.value) ? bid : max, 
                     updatedCards[0]
@@ -99,8 +111,20 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
                 setHighestBid(highest);
                 return updatedCards;
             });
+
+            // Atualizar o produto atual com o novo valor
+            setCurrentProduct(prevProduct => ({
+                ...prevProduct,
+                real_value: currentBid.value
+            }));
+
+            // Dispatch para o Redux se necessário
+            dispatch(addBidLive({
+                value: currentBid.value,
+                product_id: product.id
+            }));
         }
-    }, []);
+    }, [productId, dispatch]);
 
     // Setup do WebSocket usando ReceiveWebsocketMessages
     useEffect(() => {
@@ -113,22 +137,12 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
 
         // Configurar receptor de mensagens de lance
         receiveWebsocketMessages.receiveBidMessage((message) => {
-            const newBid = message.data.body || message.data;
-            
-            if (newBid && (newBid.product_id === productId || 
-                (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
-                fetchCurrentProductBids(productId);
-            }
+            processNewBid(message);
         });
 
         // Configurar receptor de mensagens de lance catalogado
         receiveWebsocketMessages.receiveBidCatalogedMessage((message) => {
-            const newBid = message.data.body;
-            
-            if (newBid && (newBid.product_id === productId || 
-                (newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId))) {
-                fetchCurrentProductBids(productId);
-            }
+            processNewBid(message);
         });
 
         // Configurar receptor de mensagens de fim de leilão
@@ -153,34 +167,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
             isMounted.current = false;
             receiveWebsocketMessages.disconnect();
         };
-    }, [auct_id, productId, getCurrentProduct]);
-
-    // Função específica para buscar lances do produto atual
-    const fetchCurrentProductBids = async (product_id) => {
-        if (!product_id || !isMounted.current) return;
-        
-        try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${product_id}`
-            );
-            
-            if (response.data && response.data.Bid && isMounted.current) {
-                const sortedBids = response.data.Bid.slice(-10).reverse();
-                setBidsCards(sortedBids);
-                
-                // Encontra o maior lance entre os lances
-                if (sortedBids.length > 0) {
-                    const highest = sortedBids.reduce((max, bid) => 
-                        parseFloat(bid.value) > parseFloat(max.value) ? bid : max,
-                        sortedBids[0]
-                    );
-                    setHighestBid(highest);
-                }
-            }
-        } catch (error) {
-            console.error("Erro ao buscar lances do produto:", error);
-        }
-    };
+    }, [auct_id, productId, getCurrentProduct, processNewBid]);
 
     // Lidar com a exibição do vencedor
     useEffect(() => {
@@ -198,7 +185,7 @@ function FloorBids({ timer, duration, auct_id, productId, winner, isMobile, isAu
     }, [winner]);
 
     const handleNewBid = (newBid) => {
-        updateBidsCards(newBid);
+        processNewBid(newBid);
     };
 
     // Ouvir o evento quickBid para dar lance rápido
