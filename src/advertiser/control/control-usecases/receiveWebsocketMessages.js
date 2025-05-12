@@ -94,6 +94,7 @@ class ReceiveWebsocketMessages {
         this.socket.off(eventName);
         
         this.socket.on(eventName, (message) => {
+            console.log("mensagem recebida Bid: ", message.data)
             callback(message);
         });
     }
@@ -106,6 +107,7 @@ class ReceiveWebsocketMessages {
         this.socket.on(eventName, (message) => {
             if (!message?.data?.body?.product?.advertiser_id) return;
             const advertiserId = message.data.body.product.advertiser_id;
+            console.log("mensagem recebida Winner: ", message.data)
             if(this.verifyAuctionOwner(advertiserId)){
                 callback(message);
             }
