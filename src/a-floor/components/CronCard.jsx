@@ -6,27 +6,65 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
+import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
 
-function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
+function CronCard({ auct_id }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [canBid, setCanBid] = useState(true);
     const [clientSession, setClientSession] = useState(null);
     const [showReserveMessage, setShowReserveMessage] = useState(false);
-    const [deadline, setDeadline] = useState(currentTime);
+    const [deadline, setDeadline] = useState(0);
     const [percentual, setPercentual] = useState(0);
     const [auctioneerCall, setAuctioneerCall] = useState('');
     const [hasWinner, setHasWinner] = useState(false);
+    const [isAuctionFinished, setIsAuctionFinished] = useState(false);
+    const [currentProduct, setCurrentProduct] = useState(null);
     const refBarDeadline = useRef(null);
+    const websocketRef = useRef(null);
     const dispatch = useDispatch();
 
-    // Efeito para verificar se há vencedor
+    // Configurar WebSocket
     useEffect(() => {
-        setHasWinner(Boolean(currentProduct.winner_id));
-    }, [currentProduct.winner_id]);
+        websocketRef.current = new ReceiveWebsocketOnFloor(auct_id);
+
+        // Configurar listeners
+        websocketRef.current.receivePlayingAuction((message) => {
+            const { body, cronTimer } = message.data;
+            setCurrentProduct(body.product);
+            setDeadline(cronTimer);
+            setIsAuctionFinished(false);
+            setHasWinner(false);
+        });
+
+        websocketRef.current.receiveWinnerMessage((message) => {
+            const { body } = message.data;
+            setCurrentProduct(body.product);
+            setHasWinner(true);
+            setIsAuctionFinished(true);
+        });
+
+        websocketRef.current.receiveBidMessage((message) => {
+            const { body } = message.data;
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct || prevProduct.id !== body.product.id) return prevProduct;
+                return {
+                    ...prevProduct,
+                    real_value: body.currentBid.value,
+                    Bid: [...(prevProduct.Bid || []), body.currentBid]
+                };
+            });
+        });
+
+        return () => {
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
+        };
+    }, [auct_id]);
 
     // Efeito para verificar se o valor de reserva foi atingido
     useEffect(() => {
-        if (currentProduct.reserve_value && currentProduct.real_value && 
+        if (currentProduct?.reserve_value && currentProduct?.real_value && 
             currentProduct.real_value >= currentProduct.reserve_value && !showReserveMessage) {
             setShowReserveMessage(true);
             const timer = setTimeout(() => {
@@ -34,20 +72,19 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
             }, 3000);
             return () => clearTimeout(timer);
         }
-    }, [currentProduct.real_value, currentProduct.reserve_value, showReserveMessage]);
+    }, [currentProduct?.real_value, currentProduct?.reserve_value, showReserveMessage]);
 
     // Efeito para atualizar o cronômetro e chamadas do leiloeiro
     useEffect(() => {
-        setDeadline(currentTime);
-        setPercentage(currentTime);
+        setPercentage(deadline);
 
-        if (currentTime <= 3 && currentTime > 2) {
+        if (deadline <= 3 && deadline > 2) {
             setAuctioneerCall('Dou-lhe uma!');
-        } else if (currentTime <= 2 && currentTime > 1) {
+        } else if (deadline <= 2 && deadline > 1) {
             setAuctioneerCall('Dou-lhe duas!');
-        } else if (currentTime <= 1 && currentTime > 0) {
+        } else if (deadline <= 1 && deadline > 0) {
             setAuctioneerCall('E...');
-        } else if (currentTime <= 0) {
+        } else if (deadline <= 0) {
             setAuctioneerCall(hasWinner ? 'VENDIDO!' : 'Tempo esgotado!');
         } else {
             setAuctioneerCall('');
@@ -55,13 +92,13 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
 
         // Atualizar a barra de progresso
         if (refBarDeadline.current) {
-            if (currentTime <= 10) {
-                const barWidth = Math.max(0, Math.min(100, 100 - ((currentTime / 10) * 100)));
+            if (deadline <= 10) {
+                const barWidth = Math.max(0, Math.min(100, 100 - ((deadline / 10) * 100)));
                 refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
                 
-                if (currentTime <= 3) {
+                if (deadline <= 3) {
                     refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
-                } else if (currentTime <= 6) {
+                } else if (deadline <= 6) {
                     refBarDeadline.current.classList.add('progress-orange');
                 } else {
                     refBarDeadline.current.classList.add('progress-yellow');
@@ -73,7 +110,7 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
                 refBarDeadline.current.style.width = "0%";
             }
         }
-    }, [currentTime, hasWinner]);
+    }, [deadline, hasWinner]);
 
     // Efeito para verificar a sessão do cliente
     useEffect(() => {
@@ -118,11 +155,10 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
     };
 
     const getCurrentValue = () => {
-        // Sempre usar o real_value do produto se disponível
+        if (!currentProduct) return 0;
         if (currentProduct.real_value) {
             return currentProduct.real_value;
         }
-        // Caso não tenha real_value, usar o valor inicial
         if (currentProduct.initial_value) {
             return currentProduct.initial_value;
         }
@@ -130,6 +166,7 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
     };
 
     const getDisplayIncrement = () => {
+        if (!currentProduct) return 0;
         const currentValue = getCurrentValue();
         return currentProduct.Bid?.length ? getIncrementValue(currentValue) : 0;
     };

@@ -154,12 +154,10 @@ function FloorBids() {
                         </div>
                     )}
 
+                    {/* CronCard */}
                     {currentProduct && (
                         <div className="w-full absolute bottom-2 left-0 p-2">
-                            <CronCard
-                                currentTime={currentTime}
-                                currentProduct={currentProduct}
-                                isAuctionFinished={isAuctionFinished}
+                            <CronCard 
                                 auct_id={auct_id}
                             />
                         </div>
