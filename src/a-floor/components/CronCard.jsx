@@ -19,18 +19,166 @@ function CronCard({ auct_id }) {
     const [hasWinner, setHasWinner] = useState(false);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
+    const [bids, setBids] = useState([]);
+    const [currentValue, setCurrentValue] = useState(0);
+    const [nextIncrementValue, setNextIncrementValue] = useState(0);
     const refBarDeadline = useRef(null);
     const websocketRef = useRef(null);
     const dispatch = useDispatch();
+
+    const calculateIncrement = (value) => {
+        if (value <= 600) return 20;
+        if (value <= 1200) return 24;
+        if (value <= 3000) return 30;
+        if (value <= 6000) return 40;
+        if (value <= 12000) return 60;
+        return Math.ceil(value * 0.01);
+    };
+
+  
+
+    const handleBidAuctionLive = async () => {
+        if (!canBid || !clientSession || !currentProduct) return;
+        
+        try {
+            setCanBid(false);
+            setIsloadingBid(true);
+
+            // Primeiro, buscar o valor mais recente do produto
+            const checkUrl = `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`;
+            const checkResponse = await axios.get(checkUrl);
+            
+            if (!checkResponse.data) {
+                throw new Error("Não foi possível obter os dados mais recentes do produto");
+            }
+
+            const latestProduct = checkResponse.data;
+            const latestBids = latestProduct.Bid || [];
+            
+            // Determinar o valor atual e o incremento
+            const latestValue = latestBids.length > 0 
+                ? Math.max(...latestBids.map(bid => bid.value))
+                : latestProduct.initial_value;
+
+            const increment = latestBids.length > 0 ? calculateIncrement(latestValue) : 0;
+            const nextValue = latestValue + increment;
+
+            console.log("Valor mais recente:", latestValue);
+            console.log("Incremento calculado:", increment);
+            console.log("Próximo valor:", nextValue);
+
+            // Fazer o lance com o valor atualizado
+            const bidPayload = {
+                value: nextValue,
+                client_id: clientSession.id,
+                product_id: currentProduct.id,
+                auct_id: auct_id,
+                Client: clientSession,
+                Product: latestProduct
+            };
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct?bidInCataloge=false`,
+                bidPayload,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${clientSession.token}`
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                // Atualizar o estado com os dados mais recentes
+                setBids(latestBids);
+                setCurrentProduct(latestProduct);
+                setCurrentValue(nextValue);
+                setNextIncrementValue(calculateIncrement(nextValue));
+
+                dispatch(addBidLive({
+                    value: nextValue,
+                    product_id: currentProduct.id
+                }));
+            }
+        } catch (error) {
+            console.error("Erro ao dar lance:", error);
+            alert("Erro ao dar lance. Por favor, tente novamente.");
+        } finally {
+            setIsloadingBid(false);
+            setTimeout(() => {
+                setCanBid(true);
+            }, 1000);
+        }
+    };
 
     // Configurar WebSocket
     useEffect(() => {
         websocketRef.current = new ReceiveWebsocketOnFloor(auct_id);
 
-        // Configurar listeners
+        websocketRef.current.receiveBidMessage(async (message) => {
+            const { body } = message.data;
+            const newBid = body.currentBid;
+            
+            console.log("Novo lance recebido via WebSocket:", newBid);
+            
+            // Atualizar os estados com o novo lance
+            setBids(prevBids => {
+                // Verificar se já temos este lance
+                if (prevBids.some(bid => bid.id === newBid.id)) {
+                    return prevBids;
+                }
+                const newBids = [...prevBids, newBid].sort((a, b) => b.value - a.value);
+                return newBids;
+            });
+
+            // Atualizar o valor atual e calcular novo incremento apenas se for um lance mais alto
+            setCurrentValue(prevValue => {
+                if (newBid.value > prevValue) {
+                    setNextIncrementValue(calculateIncrement(newBid.value));
+                    return newBid.value;
+                }
+                return prevValue;
+            });
+            
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct || prevProduct.id !== body.product.id) return prevProduct;
+                return {
+                    ...prevProduct,
+                    real_value: Math.max(prevProduct.real_value || 0, newBid.value)
+                };
+            });
+        });
+
         websocketRef.current.receivePlayingAuction((message) => {
             const { body, cronTimer } = message.data;
-            setCurrentProduct(body.product);
+            const product = body.product;
+            const productBids = product.Bid || [];
+            
+            // Determinar o valor atual
+            const currentBidValue = productBids.length > 0 
+                ? Math.max(...productBids.map(bid => bid.value))
+                : product.initial_value;
+
+            // Só atualizar se o valor for maior que o atual
+            setCurrentValue(prevValue => {
+                const newValue = Math.max(prevValue || 0, currentBidValue);
+                setNextIncrementValue(calculateIncrement(newValue));
+                return newValue;
+            });
+
+            setBids(productBids);
+            setCurrentProduct(prevProduct => {
+                if (prevProduct && prevProduct.id === product.id) {
+                    return {
+                        ...product,
+                        real_value: Math.max(prevProduct.real_value || 0, currentBidValue)
+                    };
+                }
+                return {
+                    ...product,
+                    real_value: currentBidValue
+                };
+            });
+            
             setDeadline(cronTimer);
             setIsAuctionFinished(false);
             setHasWinner(false);
@@ -38,21 +186,22 @@ function CronCard({ auct_id }) {
 
         websocketRef.current.receiveWinnerMessage((message) => {
             const { body } = message.data;
-            setCurrentProduct(body.product);
+            const product = body.product;
+            const productBids = product.Bid || [];
+            
+            const finalValue = productBids.length > 0 
+                ? Math.max(...productBids.map(bid => bid.value))
+                : product.initial_value;
+
+            setBids(productBids);
+            setCurrentValue(finalValue);
+            setNextIncrementValue(calculateIncrement(finalValue));
+            setCurrentProduct({
+                ...product,
+                real_value: finalValue
+            });
             setHasWinner(true);
             setIsAuctionFinished(true);
-        });
-
-        websocketRef.current.receiveBidMessage((message) => {
-            const { body } = message.data;
-            setCurrentProduct(prevProduct => {
-                if (!prevProduct || prevProduct.id !== body.product.id) return prevProduct;
-                return {
-                    ...prevProduct,
-                    real_value: body.currentBid.value,
-                    Bid: [...(prevProduct.Bid || []), body.currentBid]
-                };
-            });
         });
 
         return () => {
@@ -61,6 +210,20 @@ function CronCard({ auct_id }) {
             }
         };
     }, [auct_id]);
+
+    // Efeito para monitorar mudanças nos lances
+    useEffect(() => {
+        if (bids.length > 0) {
+            const highestBid = bids[0]; // Já está ordenado pelo valor mais alto
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct) return prevProduct;
+                return {
+                    ...prevProduct,
+                    real_value: highestBid.value
+                };
+            });
+        }
+    }, [bids]);
 
     // Efeito para verificar se o valor de reserva foi atingido
     useEffect(() => {
@@ -144,79 +307,6 @@ function CronCard({ auct_id }) {
             window.removeEventListener('clientLogout', handleLogout);
         };
     }, []);
-
-    const getIncrementValue = (value) => {
-        if (value <= 600) return 20;
-        if (value <= 1200) return 24;
-        if (value <= 3000) return 30;
-        if (value <= 6000) return 40;
-        if (value <= 12000) return 60;
-        return Math.ceil(value * 0.01);
-    };
-
-    const getCurrentValue = () => {
-        if (!currentProduct) return 0;
-        if (currentProduct.real_value) {
-            return currentProduct.real_value;
-        }
-        if (currentProduct.initial_value) {
-            return currentProduct.initial_value;
-        }
-        return 0;
-    };
-
-    const getDisplayIncrement = () => {
-        if (!currentProduct) return 0;
-        const currentValue = getCurrentValue();
-        return currentProduct.Bid?.length ? getIncrementValue(currentValue) : 0;
-    };
-
-    const handleBidAuctionLive = async () => {
-        if (!canBid || !clientSession) return;
-        
-        try {
-            setCanBid(false);
-            setIsloadingBid(true);
-
-            const currentValue = getCurrentValue();
-            const increment = getIncrementValue(currentValue);
-            const bidValue = currentValue + increment;
-
-            const bidPayload = {
-                value: parseFloat(bidValue),
-                client_id: clientSession.id,
-                product_id: currentProduct.id,
-                auct_id: auct_id,
-                Client: clientSession,
-                Product: currentProduct
-            };
-
-            const response = await axios.post(
-                `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct?bidInCataloge=false`,
-                bidPayload,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${clientSession.token}`
-                    }
-                }
-            );
-
-            if (response.status === 200) {
-                dispatch(addBidLive({
-                    value: bidValue,
-                    product_id: currentProduct.id
-                }));
-            }
-        } catch (error) {
-            console.error("Erro ao dar lance:", error);
-        } finally {
-            setIsloadingBid(false);
-            // Adiciona um pequeno delay antes de permitir novo lance
-            setTimeout(() => {
-                setCanBid(true);
-            }, 1000);
-        }
-    };
 
     const setPercentage = (newDeadline) => {
         if (newDeadline > 10) {
@@ -311,7 +401,7 @@ function CronCard({ auct_id }) {
                                 <div className="flex items-center gap-4 z-10">
                                     <FilledCircle percentage={percentual} />
                                     <span className="text-xl font-bold text-gray-800">
-                                        R$ {getCurrentValue().toFixed(2)}
+                                        R$ {currentValue.toFixed(2)}
                                     </span>
                                 </div>
 
@@ -336,11 +426,16 @@ function CronCard({ auct_id }) {
                 )}
             </div>
 
-            {!isAuctionFinished && deadline > 0 && getCurrentValue() > 0 && (
+            {!isAuctionFinished && deadline > 0 && currentValue > 0 && (
                 <div className="w-full flex justify-between items-center gap-2">
                     <div className="flex-1 h-[50px] bg-white/95 shadow-lg rounded-xl border border-gray-100
                         flex justify-center items-center text-gray-700">
-                        R$ {getCurrentValue().toFixed(2)}
+                        <div className="flex flex-col items-center">
+                            <span className="text-xs text-gray-500">Próximo lance</span>
+                            <span className="font-medium">
+                                R$ {(currentValue + nextIncrementValue).toFixed(2)}
+                            </span>
+                        </div>
                     </div>
 
                     {clientSession && (
@@ -363,7 +458,7 @@ function CronCard({ auct_id }) {
                                         : 'bg-gray-400 cursor-not-allowed'}`}
                             >
                                 <Paid sx={{ fontSize: 24 }} />
-                                <span>+ R$ {getDisplayIncrement()},00</span>
+                                <span>+ R$ {nextIncrementValue.toFixed(2)}</span>
                             </button>
                         )
                     )}
