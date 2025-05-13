@@ -1,10 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { Star } from "@mui/icons-material";
-import io from 'socket.io-client';
 import dayjs from 'dayjs';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -16,12 +15,14 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/zoom';
+import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
 
 function CenterFloor({ title, description, auction, currentProduct, isAuctionFinished: parentIsAuctionFinished }) {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
     const [sortedAuctions, setSortedAuctions] = useState([]);
+    const websocketRef = useRef(null);
     const navigate = useNavigate();
 
     // Garantir que imagens é sempre um array válido
@@ -40,22 +41,24 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
         }
     }, [parentIsAuctionFinished]);
 
+    // Configurar WebSocket
     useEffect(() => {
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
+        // Criar instância do WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(auction.id);
 
-        socket.on(`${auction.id}-auct-finished`, () => {
+        // Configurar listener para mensagem de leilão finalizado
+        websocketRef.current.receiveAuctionFinishedMessage(() => {
             setIsAuctionFinished(true);
             listAuctions();
         });
 
-        if (isAuctionFinished) {
-            listAuctions();
-        }
-
+        // Cleanup
         return () => {
-            socket.disconnect();
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
         };
-    }, [auction.id, isAuctionFinished]);
+    }, [auction.id]);
 
     const handleToggleFullscreen = () => {
         setIsFullscreen(!isFullscreen);

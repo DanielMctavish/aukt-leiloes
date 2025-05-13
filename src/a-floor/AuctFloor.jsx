@@ -20,7 +20,6 @@ function AuctFloor() {
     const [currentAuct, setCurrentAuct] = useState(null);
     const [currentProduct, setCurrentProduct] = useState(null);
     const [socketMessage, setSocketMessage] = useState();
-    const [socketWinner, setSocketWinner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -197,14 +196,6 @@ function AuctFloor() {
                 }
             });
 
-            socket.on(`${auct_id}-winner`, (message) => {
-                if (message.data && message.data.body) {
-                    processMessageOnce(`${auct_id}-winner`, message, (msg) => {
-                        getCurrentClientWinner(msg.data.body.winner);
-                    });
-                }
-            });
-
             socket.on(`${auct_id}-auct-finished`, (message) => {
                 // console.log("AuctFloor - Auction finished event received:", message);
                 processMessageOnce(`${auct_id}-auct-finished`, message, () => {
@@ -258,16 +249,6 @@ function AuctFloor() {
         }
     }
 
-    const getCurrentClientWinner = async (client_id) => {
-        if (!client_id) return;
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_API}/client/find-client?client_id=${client_id}`);
-            setSocketWinner(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar cliente vencedor:", error);
-            return error
-        }
-    }
 
     if (isLoading || !currentAuct || forceLoading) {
         return (
@@ -497,15 +478,7 @@ function AuctFloor() {
                     transition={{ duration: 0.7, delay: 0.4 }}
                 >
                     <div className="sticky top-4">
-                        <FloorBids
-                            timer={socketMessage ? socketMessage.data.cronTimer : 0}
-                            duration={currentAuct?.product_timer_seconds || 0}
-                            auct_id={currentAuct?.id}
-                            productId={currentProduct ? currentProduct.id : null}
-                            winner={socketWinner}
-                            isMobile={false}
-                            isAuctionFinished={isAuctionFinished}
-                        />
+                        <FloorBids/>
                     </div>
                 </motion.div>
             </div>
@@ -514,7 +487,7 @@ function AuctFloor() {
             <AnimatePresence>
                 {isBidsVisible && (
                     <motion.div
-                        className="lg:hidden fixed right-0 bottom-0 z-[999] h-[85vh] w-[77%]"
+                        className="lg:hidden fixed right-0 bottom-0 z-[999] h-[85vh] w-[77%] "
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
@@ -528,15 +501,8 @@ function AuctFloor() {
                             }
                         }}
                     >
-                        <FloorBids
-                            timer={socketMessage ? socketMessage.data.cronTimer : 0}
-                            duration={currentAuct?.product_timer_seconds || 0}
-                            auct_id={currentAuct?.id}
-                            productId={currentProduct ? currentProduct.id : null}
-                            winner={socketWinner}
-                            isMobile={true}
-                            isAuctionFinished={isAuctionFinished}
-                        />
+                        <FloorBids/>
+
 
                         {/* Indicador de arraste */}
                         <div className="absolute -left-3 top-1/2 -translate-y-1/2 
