@@ -16,7 +16,6 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
     const [percentual, setPercentual] = useState(0);
     const [auctioneerCall, setAuctioneerCall] = useState('');
     const [hasWinner, setHasWinner] = useState(false);
-    const [lastBidValue, setLastBidValue] = useState(null);
     const refBarDeadline = useRef(null);
     const dispatch = useDispatch();
 
@@ -36,13 +35,6 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
             return () => clearTimeout(timer);
         }
     }, [currentProduct.real_value, currentProduct.reserve_value, showReserveMessage]);
-
-    // Efeito para atualizar o último valor de lance
-    useEffect(() => {
-        if (currentProduct.real_value) {
-            setLastBidValue(currentProduct.real_value);
-        }
-    }, [currentProduct.real_value]);
 
     // Efeito para atualizar o cronômetro e chamadas do leiloeiro
     useEffect(() => {
@@ -126,30 +118,32 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
     };
 
     const getCurrentValue = () => {
-        // Primeiro verifica o lastBidValue (que é atualizado via useEffect)
-        if (lastBidValue !== null) return lastBidValue;
-        // Caso contrário, usa a lógica anterior
-        if (!currentProduct.initial_value) return 0;
-        return currentProduct.real_value || currentProduct.initial_value;
+        // Sempre usar o real_value do produto se disponível
+        if (currentProduct.real_value) {
+            return currentProduct.real_value;
+        }
+        // Caso não tenha real_value, usar o valor inicial
+        if (currentProduct.initial_value) {
+            return currentProduct.initial_value;
+        }
+        return 0;
     };
 
     const getDisplayIncrement = () => {
-        return currentProduct.Bid?.length ? getIncrementValue(getCurrentValue()) : 0;
+        const currentValue = getCurrentValue();
+        return currentProduct.Bid?.length ? getIncrementValue(currentValue) : 0;
     };
 
     const handleBidAuctionLive = async () => {
         if (!canBid || !clientSession) return;
         
-        const currentValue = getCurrentValue();
-        const increment = getIncrementValue(currentValue);
-        const bidValue = currentValue + increment;
-
         try {
             setCanBid(false);
             setIsloadingBid(true);
 
-            // Atualiza o lastBidValue imediatamente para evitar race conditions
-            setLastBidValue(bidValue);
+            const currentValue = getCurrentValue();
+            const increment = getIncrementValue(currentValue);
+            const bidValue = currentValue + increment;
 
             const bidPayload = {
                 value: parseFloat(bidValue),
@@ -178,8 +172,6 @@ function CronCard({ currentTime, currentProduct, isAuctionFinished, auct_id }) {
             }
         } catch (error) {
             console.error("Erro ao dar lance:", error);
-            // Se houver erro, reverte o lastBidValue
-            setLastBidValue(currentValue);
         } finally {
             setIsloadingBid(false);
             // Adiciona um pequeno delay antes de permitir novo lance
