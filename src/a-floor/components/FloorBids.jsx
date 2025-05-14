@@ -14,7 +14,6 @@ function FloorBids() {
     const websocketRef = useRef(null);
     const bidsContainerRef = useRef(null);
     const [currentProduct, setCurrentProduct] = useState(null);
-    const [currentTime, setCurrentTime] = useState(0);
     const [isAuctionFinished, setIsAuctionFinished] = useState(false);
     const [winner, setWinner] = useState(null);
     const [isEntireAuctionFinished, setIsEntireAuctionFinished] = useState(false);
@@ -43,7 +42,7 @@ function FloorBids() {
 
         // Configurar listeners
         websocketRef.current.receivePlayingAuction((message) => {
-            const { body, cronTimer } = message.data;
+            const { body } = message.data;
 
             setCurrentProduct(prevProduct => {
                 if (prevProduct && prevProduct.id === body.product.id) {
@@ -58,7 +57,6 @@ function FloorBids() {
                 };
             });
 
-            setCurrentTime(cronTimer);
             setIsAuctionFinished(false);
             setWinner(null);
         });

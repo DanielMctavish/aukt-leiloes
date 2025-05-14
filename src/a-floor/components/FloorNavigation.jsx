@@ -1,11 +1,13 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { AccountCircle, Notifications, SpaceDashboard, Inventory, Close, Logout, Dashboard } from "@mui/icons-material";
 import "./floorStyles.css";
 import DisplayClock from "./DisplayClock";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
+import { getAuctionInformations } from "../functions/getAuctionInformations";
 
 const ModalAllProducts = ({ products, onClose }) => {
 
@@ -145,12 +147,50 @@ const ModalAllProducts = ({ products, onClose }) => {
     );
 };
 
-function FloorNavigation({ auction, group, setShowLoginModal }) {
+function FloorNavigation({ setShowLoginModal }) {
+    const { auct_id } = useParams();
     const [currentClient, setCurrentClient] = useState({})
     const [modalAllProducts, setModalAllProducts] = useState(false)
     const [showUserMenu, setShowUserMenu] = useState(false)
+    const [currentAuct, setCurrentAuct] = useState(null)
+    const [currentProduct, setCurrentProduct] = useState(null)
     const userMenuRef = useRef(null)
+    const websocketRef = useRef(null)
     const navigate = useNavigate()
+
+    // Buscar informações iniciais do leilão
+    useEffect(() => {
+        getAuctionInformations(auct_id, setCurrentAuct);
+    }, [auct_id]);
+    
+    // Inicializa o websocket
+    useEffect(() => {
+        websocketRef.current = new ReceiveWebsocketOnFloor(auct_id);
+
+        // Configura os listeners
+        websocketRef.current.receivePlayingAuction((message) => {
+            const { body } = message.data;
+            setCurrentAuct(body.auction);
+            setCurrentProduct(body.product);
+        });
+
+        websocketRef.current.receiveBidMessage((message) => {
+            const { body } = message.data;
+            if (body.currentBid) {
+                setCurrentProduct(prevProduct => ({
+                    ...prevProduct,
+                    real_value: body.currentBid.value,
+                    Bid: [...(prevProduct?.Bid || []), body.currentBid]
+                }));
+            }
+        });
+
+        return () => {
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
+        };
+    }, [auct_id]);
 
     useEffect(() => {
         const currentSession = localStorage.getItem("client-auk-session-login")
@@ -239,7 +279,7 @@ function FloorNavigation({ auction, group, setShowLoginModal }) {
             <AnimatePresence>
                 {modalAllProducts && (
                     <ModalAllProducts
-                        products={auction?.product_list}
+                        products={currentAuct?.product_list}
                         onClose={() => setModalAllProducts(false)}
                     />
                 )}
@@ -266,20 +306,20 @@ function FloorNavigation({ auction, group, setShowLoginModal }) {
                     </motion.div>
 
                     {/* Etiqueta leilão - Versão Mobile */}
-                    {auction && (
+                    {currentAuct && (
                         <div className="flex lg:hidden items-center gap-2 bg-white/10 p-1.5 pr-3 rounded-lg">
                             <img
-                                src={auction.auct_cover_img}
+                                src={currentAuct.auct_cover_img}
                                 alt=""
                                 className="w-8 h-8 object-cover rounded-lg shadow-md"
                             />
                             <div className="flex flex-col">
                                 <span className="text-white text-sm font-medium truncate max-w-[150px]">
-                                    {auction.title}
+                                    {currentAuct.title}
                                 </span>
-                                {group && (
+                                {currentProduct?.group && (
                                     <span className="text-white/80 text-xs bg-white/20 px-1.5 rounded">
-                                        Grupo {group}
+                                        Grupo {currentProduct.group}
                                     </span>
                                 )}
                             </div>
@@ -287,30 +327,30 @@ function FloorNavigation({ auction, group, setShowLoginModal }) {
                     )}
 
                     {/* Etiqueta leilão - Versão Desktop */}
-                    {auction && (
+                    {currentAuct && (
                         <div className="hidden lg:flex flex-row justify-center items-center gap-3 
                             w-[400px] relative left-[9vh] ml-[-83px]">
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 className="overflow-hidden rounded-lg shadow-lg"
                             >
-                                <img src={auction.auct_cover_img} alt=""
+                                <img src={currentAuct.auct_cover_img} alt=""
                                     className="w-[90px] h-[90px] object-cover hover:scale-110 transition-transform duration-500" />
                             </motion.div>
                             <div className="flex flex-col justify-start items-start 
                                 w-[300px] h-[90px] bg-gradient-to-br from-[#3c3c3c] to-[#2a2a2a]
                                 rounded-lg p-2 text-white overflow-y-auto shadow-lg border border-gray-700/50">
-                                <h1 className="font-bold text-left w-full">{auction.title}</h1>
+                                <h1 className="font-bold text-left w-full">{currentAuct.title}</h1>
                                 <p className="text-[12px] text-left text-gray-300">
-                                    {auction.descriptions_informations}
+                                    {currentAuct.descriptions_informations}
                                 </p>
                             </div>
-                            {group && (
+                            {currentProduct?.group && (
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="font-bold text-[33px] bg-[#012038] text-white px-4 py-2 rounded-lg shadow-lg"
                                 >
-                                    {group}
+                                    {currentProduct.group}
                                 </motion.div>
                             )}
                         </div>
@@ -319,7 +359,7 @@ function FloorNavigation({ auction, group, setShowLoginModal }) {
 
                 <div className="flex items-center justify-end gap-4 lg:gap-8">
                     <div className="hidden lg:block">
-                        <DisplayClock message={auction.display_message} />
+                        <DisplayClock message={currentAuct?.display_message} />
                     </div>
 
                     <div className="flex gap-3 lg:gap-8 items-center">
