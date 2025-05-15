@@ -1,11 +1,15 @@
-import { Timer, Gavel, ListAlt, Close, Lock, LockOpen } from "@mui/icons-material";
+import { Timer, Gavel, ListAlt, Lock, LockOpen } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import PropTypes from 'prop-types';
 import ReceiveWebsocketOnFloor from "./class/ReceiveWebsocketOnFloor";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import FloorBids from "./components/FloorBids";
+import avatarClientsUrls from "../media/avatar-floor/AvatarclientsUrls";
+import MobileBidsList from "./components/MobileBidsList";
+
+// Convertendo o objeto de URLs em um array
+const avatarIndex = Object.values(avatarClientsUrls);
 
 function MobileElements() {
     const [cronTimer, setCronTimer] = useState(0);
@@ -17,9 +21,13 @@ function MobileElements() {
     const [clientSession, setClientSession] = useState(null);
     const [showBids, setShowBids] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
+    const [isAuctionFinished, setIsAuctionFinished] = useState(false);
+    const [winner, setWinner] = useState(null);
+    const [isEntireAuctionFinished, setIsEntireAuctionFinished] = useState(false);
     const websocketRef = useRef(null);
     const { auct_id } = useParams();
     const refBarDeadline = useRef(null);
+    const [bidNotifications, setBidNotifications] = useState([]);
 
     // Carregar estado do cadeado do localStorage
     useEffect(() => {
@@ -55,22 +63,116 @@ function MobileElements() {
             const { cronTimer, body } = message.data;
             setCronTimer(cronTimer);
             setIsActive(cronTimer > 0);
+            
             if (body && body.product) {
-                setCurrentProduct(body.product);
-                const productBids = body.product.Bid || [];
-                const currentBidValue = productBids.length > 0 
-                    ? Math.max(...productBids.map(bid => bid.value))
+                // Atualizar o produto mantendo os lances existentes
+                setCurrentProduct(prevProduct => {
+                    const currentBids = prevProduct?.Bid || [];
+                    const newBids = body.product.Bid || [];
+                    
+                    // Mesclar os lances sem duplicatas
+                    const allBids = [...currentBids, ...newBids];
+                    const uniqueBids = allBids.reduce((acc, bid) => {
+                        if (!acc.find(b => b.id === bid.id)) {
+                            acc.push(bid);
+                        }
+                        return acc;
+                    }, []);
+                    
+                    return {
+                        ...body.product,
+                        Bid: uniqueBids
+                    };
+                });
+                
+                // Atualizar o incremento
+                const currentValue = body.product.Bid?.length > 0
+                    ? Math.max(...body.product.Bid.map(bid => bid.value))
                     : body.product.initial_value;
-                setNextIncrementValue(calculateIncrement(currentBidValue));
+                setNextIncrementValue(calculateIncrement(currentValue));
+            }
+            
+            // Não resetar o vencedor aqui
+            if (cronTimer > 0) {
+                setIsAuctionFinished(false);
             }
         });
 
+        // Listener para novos lances
+        websocketRef.current.receiveBidMessage((message) => {
+            const { body } = message.data;
+            
+            // Atualizar o produto com o novo lance
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct) return prevProduct;
+                
+                const newBid = {
+                    id: Date.now(), // Garantir ID único
+                    value: body.currentBid.value,
+                    client_id: body.currentBid.client_id,
+                    Client: body.currentBid.Client,
+                    created_at: new Date().toISOString()
+                };
+                
+                const updatedBids = [...(prevProduct.Bid || []), newBid];
+                
+                return {
+                    ...prevProduct,
+                    Bid: updatedBids
+                };
+            });
+
+            // Adicionar notificação
+            const newBidNotification = {
+                id: Date.now(),
+                value: body.currentBid.value,
+                client: body.currentBid.Client,
+                avatar: body.currentBid.Client?.client_avatar !== undefined 
+                    ? avatarIndex[body.currentBid.Client.client_avatar]
+                    : null,
+                timestamp: new Date()
+            };
+            
+            setBidNotifications(prev => [...prev, newBidNotification]);
+
+            setTimeout(() => {
+                setBidNotifications(prev => prev.filter(n => n.id !== newBidNotification.id));
+            }, 3000);
+        });
+
+        // Adicionar listeners para finalização
+        websocketRef.current.receiveWinnerMessage((message) => {
+            const { body } = message.data;
+            setWinner(body.winner);
+            setIsAuctionFinished(true);
+            setIsActive(false);
+            
+            // Atualizar o produto com o vencedor
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct) return prevProduct;
+                return {
+                    ...prevProduct,
+                    Winner: body.winner
+                };
+            });
+        });
+
+        websocketRef.current.receiveAuctionFinishedMessage(() => {
+            setIsEntireAuctionFinished(true);
+            setIsActive(false);
+        });
+        
         return () => {
             if (websocketRef.current) {
                 websocketRef.current.disconnect();
             }
         };
     }, [auct_id]);
+
+    // Efeito para debug do valor atual
+    useEffect(() => {
+        console.log('Current Product Updated:', currentProduct?.real_value);
+    }, [currentProduct]);
 
     // Recuperar sessão do cliente
     useEffect(() => {
@@ -84,6 +186,27 @@ function MobileElements() {
             }
         }
     }, []);
+
+    // Buscar dados atualizados do produto ao montar o componente
+    useEffect(() => {
+        const fetchCurrentProduct = async () => {
+            if (!currentProduct?.id) return;
+
+            try {
+                const response = await axios.get(
+                    `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`
+                );
+                
+                if (response.data) {
+                    setCurrentProduct(response.data);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do produto:", error);
+            }
+        };
+
+        fetchCurrentProduct();
+    }, [currentProduct?.id]);
 
     const handleBidAuctionLive = async () => {
         if (!canBid || !clientSession || !currentProduct) return;
@@ -122,6 +245,17 @@ function MobileElements() {
                 }
             );
             if (response.status === 200) {
+                // Atualizar o produto com o novo lance
+                const newBid = {
+                    value: nextValue,
+                    client_id: clientSession.id,
+                    Client: clientSession
+                };
+                const updatedProduct = {
+                    ...latestProduct,
+                    Bid: [...(latestProduct.Bid || []), newBid]
+                };
+                setCurrentProduct(updatedProduct);
                 setNextIncrementValue(calculateIncrement(nextValue));
             }
         } catch (error) {
@@ -130,6 +264,21 @@ function MobileElements() {
             setIsLoadingBid(false);
             setTimeout(() => setCanBid(true), 1000);
         }
+    };
+
+    // Função para verificar se o usuário está vencendo
+    const checkIfUserIsWinning = () => {
+        if (!currentProduct?.Bid || !clientSession) return false;
+        
+        const bids = currentProduct.Bid;
+        if (bids.length === 0) return false;
+
+        // Encontrar o lance mais alto
+        const highestBid = bids.reduce((max, bid) => 
+            (bid.value > max.value) ? bid : max, bids[0]
+        );
+
+        return highestBid.client_id === clientSession.id;
     };
 
     const formatTime = (seconds) => {
@@ -183,48 +332,137 @@ function MobileElements() {
 
     return (
         <div className="lg:hidden w-full h-full flex flex-col justify-end items-center z-[200] pb-[80px]">
+            {/* Container de Notificações */}
+            <div className="fixed left-4 bottom-[100px] z-30 pointer-events-none">
+                {bidNotifications.map((notification) => (
+                    <motion.div
+                        key={notification.id}
+                        initial={{ x: -100, y: 0, opacity: 0 }}
+                        animate={{ x: 0, y: -100, opacity: 1 }}
+                        exit={{ x: -50, y: -200, opacity: 0 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className="flex items-center gap-2 mb-2 bg-white/90 backdrop-blur-sm rounded-full 
+                            px-3 py-2 shadow-lg"
+                    >
+                        {/* Avatar */}
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex-shrink-0">
+                            {notification.avatar ? (
+                                <img 
+                                    src={notification.avatar}
+                                    alt={`Avatar de ${notification.client?.nickname || 'Usuário'}`}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 
+                                    flex items-center justify-center text-white text-sm font-bold">
+                                    {notification.client?.nickname?.charAt(0).toUpperCase() || '?'}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Informação do Lance */}
+                        <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-gray-800">
+                                {notification.client?.nickname || 'Anônimo'}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                                R$ {notification.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
+
+                        {/* Ícone de Martelo */}
+                        <Gavel className="w-4 h-4 text-gray-500" />
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Valor Atual do Lote */}
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className={`fixed bottom-[70px] right-0 w-full max-w-[400px] backdrop-blur-sm 
+                    text-white px-4 py-2 rounded-t-lg shadow-lg z-20
+                    ${isEntireAuctionFinished ? 'bg-red-600/90' : 'bg-[#012038]/90'}`}
+            >
+                <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-white/80">
+                        {isEntireAuctionFinished ? 'Leilão Finalizado' : 
+                         isAuctionFinished ? 'Lote Arrematado' : 'Valor Atual:'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                        {isAuctionFinished && winner ? (
+                            <span className="text-sm bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full flex items-center gap-2 font-semibold">
+                                <span className="flex items-center gap-1">
+                                    <span className="w-[6px] h-[6px] bg-blue-400 rounded-full"></span>
+                                </span>
+                                {winner.nickname || 'Anônimo'}
+                            </span>
+                        ) : checkIfUserIsWinning() && (
+                            <span className="text-sm bg-green-500/20 text-green-400 px-3 py-1 rounded-full flex items-center gap-2 font-semibold">
+                                <span className="flex items-center gap-1">
+                                    <span className="w-[6px] h-[6px] bg-green-400 rounded-full animate-pulse"></span>
+                                    <span className="w-[4px] h-[4px] bg-green-400/70 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></span>
+                                    <span className="w-[3px] h-[3px] bg-green-400/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></span>
+                                </span>
+                                Vencendo
+                            </span>
+                        )}
+                        <span className="text-lg font-bold">
+                            R$ {(() => {
+                                if (!currentProduct) return '0,00';
+                                const bids = currentProduct.Bid || [];
+                                const currentValue = bids.length > 0
+                                    ? Math.max(...bids.map(bid => bid.value))
+                                    : currentProduct.initial_value || 0;
+                                return currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                            })()}
+                        </span>
+                    </div>
+                </div>
+            </motion.div>
+
             {/* Miniplayer */}
             <motion.div 
                 initial={{ y: 100 }}
                 animate={{ y: 0 }}
-                className="fixed bottom-0 right-0 w-full max-w-[400px] h-[70px] bg-white shadow-lg rounded-t-xl flex items-center px-4 z-20 overflow-hidden"
+                className={`fixed bottom-0 right-0 w-full max-w-[400px] h-[70px] shadow-lg rounded-t-xl flex items-center px-4 z-20
+                    ${isEntireAuctionFinished ? 'bg-red-600' : 'bg-white'}`}
             >
                 {/* Barra de Progresso */}
                 <div 
                     ref={refBarDeadline} 
-                    className="progress-bar absolute top-0 left-0 h-[2px]"
+                    className="progress-bar absolute top-0 left-0 right-0 h-[2px]"
                     style={{ width: '0%' }}
                 />
 
                 <style>
                     {`
-                    @keyframes pulse {
-                        0% { opacity: 1; }
-                        50% { opacity: 0.8; }
-                        100% { opacity: 1; }
-                    }
-                    
-                    .pulse-animation {
-                        animation: pulse 0.7s infinite;
-                    }
-                    
                     .progress-bar {
                         transition: width 1s linear;
+                        height: 2px !important;
+                        opacity: 0.8;
                     }
                     
                     .progress-yellow {
                         background-color: #FFC107;
-                        box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
                     }
                     
                     .progress-orange {
                         background-color: #FF9800;
-                        box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
                     }
                     
                     .progress-red {
                         background-color: #F44336;
-                        box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+                    }
+
+                    .pulse-animation {
+                        animation: pulse 0.7s infinite;
+                    }
+
+                    @keyframes pulse {
+                        0% { opacity: 0.8; }
+                        50% { opacity: 0.4; }
+                        100% { opacity: 0.8; }
                     }
                     `}
                 </style>
@@ -284,19 +522,16 @@ function MobileElements() {
                 )}
             </motion.div>
 
-            {/* Modal de lances em tela cheia usando FloorBids */}
+            {/* Modal de lances em tela cheia usando MobileBidsList */}
             {showBids && (
                 <div className="absolute flex w-full top-0 h-[90vh] z-[100] mt-[10vh] bg-white flex-col">
-                    <button
-                        className="absolute top-2 right-2 z-10 p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700"
-                        onClick={() => setShowBids(false)}
-                        aria-label="Fechar lances"
-                    >
-                        <Close />
-                    </button>
-                    <div className="w-full h-full overflow-hidden">
-                        <FloorBids />
-                    </div>
+                    <MobileBidsList
+                        currentProduct={currentProduct}
+                        clientSession={clientSession}
+                        onClose={() => setShowBids(false)}
+                        isAuctionFinished={isAuctionFinished}
+                        winner={winner}
+                    />
                 </div>
             )}
         </div>
