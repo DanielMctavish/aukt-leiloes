@@ -209,7 +209,7 @@ function SelectLoginType() {
                             </p>
                         </div>
 
-                        <div className="absolute bottom-8 left-8 text-white/60 text-sm">
+                        <div className="absolute bottom-[10vh] left-8 text-white/60 text-sm">
                             Entrar como cliente →
                         </div>
                     </div>
@@ -303,7 +303,7 @@ function SelectLoginType() {
             </div>
 
             {/* Conteúdo */}
-            <div className="relative z-10 flex flex-col items-center justify-between h-full p-6">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full p-6">
                 {/* Logo */}
                 <div className="w-full flex justify-center items-center pt-4 mb-6">
                     <img 
@@ -315,7 +315,7 @@ function SelectLoginType() {
                 </div>
 
                 {/* Área principal com conteúdo */}
-                <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md">
+                <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md max-h-[40vh]">
                     {/* Switch Estilo Apple - Agora com suporte a swipe */}
                     <div 
                         className="relative mb-12 w-full max-w-xs"
@@ -346,7 +346,7 @@ function SelectLoginType() {
                             
                             {/* Opção Cliente */}
                             <button 
-                                className={`z-10 flex-1 h-full flex items-center justify-center gap-2 rounded-full transition-all duration-300 ${
+                                className={`z-10 flex-1 h-full flex items-center justify-center gap-2 text-[14px] rounded-full transition-all duration-300 ${
                                     activeType === 'client'
                                         ? 'text-[#1dad24] font-medium'
                                         : 'text-white/80'
@@ -373,7 +373,7 @@ function SelectLoginType() {
                     </div>
 
                     {/* Conteúdo baseado no tipo ativo */}
-                    <div className="text-center transform transition-all duration-300">
+                    <div className="text-center transform transition-all duration-300 text-[14px]">
                         <div className={`w-24 h-24 rounded-full flex items-center justify-center
                             mb-6 mx-auto backdrop-blur-sm transition-all ${
                                 activeType === 'client' 
