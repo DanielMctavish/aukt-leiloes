@@ -85,7 +85,7 @@ export const handleNextProduct = (selectedAuction, cookieSession, setLoadNext) =
     }
 };
 
-export const handleAddTime = (selectedAuction, cookieSession, time) => async () => {
+export const handleAddTime = (auct_id, cookieSession, time) => async () => {
 
     try {
         await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/add-time`, {
@@ -93,10 +93,12 @@ export const handleAddTime = (selectedAuction, cookieSession, time) => async () 
                 Authorization: `Bearer ${cookieSession.token}`
             },
             params: {
-                auct_id: selectedAuction.id,
+                auct_id: auct_id,
                 seconds: time
             }
         });
+
+        console.log("Tempo do leilão alterado com sucesso.");
 
     } catch (error) {
         alert(`Erro ao adicionar ${time} segundos. Por favor, tente novamente.`);

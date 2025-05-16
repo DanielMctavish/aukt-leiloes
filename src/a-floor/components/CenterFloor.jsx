@@ -99,7 +99,7 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
     return (
         <section className="w-full lg:h-[60vh] flex lg:flex-row flex-col 
             bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl shadow-xl shadow-[#1414143a] 
-            border-t-[2px] border-[#e3e3e3] relative z-[2] p-4 lg:p-6 gap-6"
+            border-[1px] border-[#ffffff] relative z-[2] p-4 lg:p-6 gap-6"
         >
             {/* Tela de Leilão Finalizado */}
             {isAuctionFinished && (

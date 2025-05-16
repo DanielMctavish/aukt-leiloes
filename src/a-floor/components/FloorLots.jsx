@@ -2,18 +2,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import { GridView, ViewTimeline } from '@mui/icons-material';
+import { useParams } from "react-router-dom";
+import { getAuctionInformations } from "../functions/getAuctionInformations";
 
-function FloorLots({ products, currentProduct }) {
+function FloorLots({ currentProduct }) {
     const [productLots, setProductsLots] = useState([])
     const [selectedLot, setSelectedLot] = useState(null)
     const [visibleLots, setVisibleLots] = useState([])
     const [showAllLots, setShowAllLots] = useState(false)
+    const [currentAuct, setCurrentAuct] = useState(null)
+    const { auct_id } = useParams();
+
+    // Buscar informações iniciais do leilão
+    useEffect(() => {
+        getAuctionInformations(auct_id, setCurrentAuct);
+    }, [auct_id]);
 
     useEffect(() => {
-        if (Array.isArray(products)) {
-            setProductsLots(products)
+        if (currentAuct?.product_list) {
+            setProductsLots(currentAuct.product_list);
         }
-    }, [products])
+    }, [currentAuct]);
 
     // Atualiza os lotes visíveis com base no lote atual
     useEffect(() => {
@@ -69,8 +78,8 @@ function FloorLots({ products, currentProduct }) {
                 className={`
                     lot-item flex-shrink-0
                     ${isCurrentLot 
-                        ? 'lg:w-[85px] lg:h-[85px] w-[100px] h-[100px] ring-2 ring-[#13326b] ring-offset-2 ring-offset-[#d2d2d2]' 
-                        : 'lg:w-[70px] lg:h-[70px] w-[80px] h-[80px] opacity-75 hover:opacity-100'
+                        ? 'lg:w-[85px] lg:h-[85px] w-[100px] h-full ring-2 ring-[#13326b] ring-offset-2 ring-offset-[#d2d2d2]' 
+                        : 'lg:w-[70px] lg:h-[70px] w-[80px] opacity-75 hover:opacity-100'
                     }
                     relative rounded-lg overflow-hidden
                     transition-all duration-300 ease-in-out
@@ -101,8 +110,8 @@ function FloorLots({ products, currentProduct }) {
     };
 
     return (
-        <div className="w-full lg:h-[200px] h-full bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl 
-            shadow-xl shadow-[#1414143a] border-t-[2px] border-[#e3e3e3] overflow-hidden"
+        <div className="w-full  h-full bg-[#d2d2d2ad] backdrop-blur-lg rounded-2xl 
+            shadow-xl shadow-[#1414143a] border-[1px] border-[#f9f9f9] overflow-hidden"
         >
             {/* Cabeçalho com Título e Botão Toggle */}
             <div className="lg:px-3 lg:py-1.5 px-2 py-1 bg-white/10 border-b border-white/20 flex justify-between items-center">

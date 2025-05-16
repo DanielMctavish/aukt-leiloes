@@ -84,7 +84,6 @@ class ReceiveWebsocketOnFloor {
         this.socket.off(eventName);
         
         this.socket.on(eventName, (message) => {
-            console.log("mensagem recebida Bid: ", message.data)
             callback(message);
         });
     }
@@ -95,7 +94,6 @@ class ReceiveWebsocketOnFloor {
         this.socket.off(eventName);
         
         this.socket.on(eventName, (message) => {
-            console.log("mensagem recebida Winner: ", message.data)
             callback(message);
         });
     }

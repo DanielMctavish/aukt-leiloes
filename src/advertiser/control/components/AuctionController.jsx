@@ -131,7 +131,7 @@ function AuctionController() {
     }, [generalAUK.auct, cookieSession]);
 
     const addTime = useCallback((time) => {
-        handleAddTime(generalAUK.auct, cookieSession, time)();
+        handleAddTime(generalAUK.auct.id, cookieSession, time)();
     }, [generalAUK.auct, cookieSession]);
 
     const killAuctionHandler = useCallback(() => {

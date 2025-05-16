@@ -43,7 +43,8 @@ const ModalAllProducts = ({ products, onClose }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed top-[8vh] right-[22vh] w-[600px] max-h-[86vh] bg-white rounded-2xl shadow-2xl 
+            className="fixed lg:top-[8vh] top-0 lg:right-[22vh] right-0 lg:w-[600px] w-full 
+                h-[100vh] lg:h-[85vh] bg-white rounded-2xl lg:rounded-2xl rounded-none shadow-2xl 
                 overflow-hidden flex flex-col z-50 border border-gray-200"
         >
             {/* Cabeçalho */}
@@ -61,7 +62,7 @@ const ModalAllProducts = ({ products, onClose }) => {
             </div>
 
             {/* Lista de Produtos Agrupados */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 lg:pb-20">
                 {sortedGroups?.length > 0 ? (
                     sortedGroups.map((group) => (
                         <div key={group} className="mb-6">
@@ -82,7 +83,7 @@ const ModalAllProducts = ({ products, onClose }) => {
                             </div>
 
                             {/* Produtos do Grupo */}
-                            <div className="space-y-4">
+                            <div className="space-y-4 pb-4">
                                 {groupedProducts[group]
                                     .sort((a, b) => a.lote - b.lote)
                                     .map((product) => (
@@ -93,40 +94,40 @@ const ModalAllProducts = ({ products, onClose }) => {
                                             transition-all duration-300 border border-gray-100 hover:shadow-lg 
                                             hover:border-blue-100"
                                         >
-                                            <div className="flex">
+                                            <div className="flex lg:flex-row flex-col">
                                                 {/* Imagem do Produto */}
-                                                <div className="w-[120px] h-[120px] flex-shrink-0 relative overflow-hidden">
+                                                <div className="lg:w-[120px] w-full lg:h-[120px] h-[200px] flex-shrink-0 relative overflow-hidden">
                                                     <img
                                                         src={product.cover_img_url}
                                                         alt={product.title}
                                                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                                                     />
-                                                    <div className="absolute top-2 left-2 bg-gray-900/70 text-white px-2 py-0.5 text-xs rounded-full">
+                                                    <div className="absolute top-2 left-2 bg-gray-900/70 text-white px-2 py-0.5 text-[10px] rounded-full">
                                                         Lote {product.lote}
                                                     </div>
                                                 </div>
 
                                                 {/* Informações do Produto */}
                                                 <div className="flex-1 p-4">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <div>
-                                                            <h3 className="text-lg font-semibold text-gray-800 hover:text-[#036982] transition-colors">
+                                                    <div className="flex lg:flex-row flex-col justify-between items-start gap-2 mb-2">
+                                                        <div className="lg:max-w-[60%] w-full">
+                                                            <h3 className="text-sm font-semibold text-gray-800 hover:text-[#036982] transition-colors">
                                                                 {product.title}
                                                             </h3>
                                                         </div>
-                                                        <div className="flex flex-col items-end">
-                                                            <span className="text-sm text-gray-500">Valor Inicial</span>
-                                                            <span className="text-lg font-bold text-[#036982]">
+                                                        <div className="flex flex-col items-start lg:items-end">
+                                                            <span className="text-[10px] text-gray-500">Valor Inicial</span>
+                                                            <span className="text-sm font-bold text-[#036982]">
                                                                 {formatCurrency(product.initial_value)}
                                                             </span>
                                                             {product.real_value > 0 && (
-                                                                <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                                                <span className="text-[10px] font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">
                                                                     Atual: {formatCurrency(product.real_value)}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <p className="text-sm text-gray-600 line-clamp-2 hover:line-clamp-none transition-all">
+                                                    <p className="text-[11px] text-gray-600 line-clamp-2 hover:line-clamp-none transition-all">
                                                         {product.description}
                                                     </p>
                                                 </div>
@@ -162,6 +163,10 @@ function FloorNavigation({ setShowLoginModal }) {
     useEffect(() => {
         getAuctionInformations(auct_id, setCurrentAuct);
     }, [auct_id]);
+
+    useEffect(()=>{
+        console.log("observando CURRENT AUCT", currentAuct)
+    },[currentAuct])
     
     // Inicializa o websocket
     useEffect(() => {
@@ -170,18 +175,41 @@ function FloorNavigation({ setShowLoginModal }) {
         // Configura os listeners
         websocketRef.current.receivePlayingAuction((message) => {
             const { body } = message.data;
-            setCurrentAuct(body.auction);
-            setCurrentProduct(body.product);
+            
+            // Verificar se body e body.auction existem
+            if (body) {
+                // Atualizar apenas os campos específicos do leilão que vêm do websocket
+                if (body.auction) {
+                    setCurrentAuct(prevAuct => {
+                        if (!prevAuct) return body.auction;
+                        return {
+                            ...prevAuct,
+                            display_message: body.auction.display_message,
+                            status: body.auction.status,
+                            product_timer_seconds: body.auction.product_timer_seconds,
+                            updated_at: body.auction.updated_at
+                        };
+                    });
+                }
+                
+                // Verificar se body.product existe antes de atualizar
+                if (body.product) {
+                    setCurrentProduct(body.product);
+                }
+            }
         });
 
         websocketRef.current.receiveBidMessage((message) => {
             const { body } = message.data;
-            if (body.currentBid) {
-                setCurrentProduct(prevProduct => ({
-                    ...prevProduct,
-                    real_value: body.currentBid.value,
-                    Bid: [...(prevProduct?.Bid || []), body.currentBid]
-                }));
+            if (body?.currentBid) {
+                setCurrentProduct(prevProduct => {
+                    if (!prevProduct) return null;
+                    return {
+                        ...prevProduct,
+                        real_value: body.currentBid.value,
+                        Bid: [...(prevProduct.Bid || []), body.currentBid]
+                    };
+                });
             }
         });
 
@@ -314,11 +342,11 @@ function FloorNavigation({ setShowLoginModal }) {
                                 className="w-8 h-8 object-cover rounded-lg shadow-md"
                             />
                             <div className="flex flex-col">
-                                <span className="text-white text-sm font-medium truncate max-w-[150px]">
+                                <span className="text-white text-xs font-medium truncate max-w-[150px]">
                                     {currentAuct.title}
                                 </span>
                                 {currentProduct?.group && (
-                                    <span className="text-white/80 text-xs bg-white/20 px-1.5 rounded">
+                                    <span className="text-white/80 text-[10px] bg-white/20 px-1.5 rounded">
                                         Grupo {currentProduct.group}
                                     </span>
                                 )}
@@ -340,8 +368,8 @@ function FloorNavigation({ setShowLoginModal }) {
                             <div className="flex flex-col justify-start items-start 
                                 w-[300px] h-[90px] bg-gradient-to-br from-[#3c3c3c] to-[#2a2a2a]
                                 rounded-lg p-2 text-white overflow-y-auto shadow-lg border border-gray-700/50">
-                                <h1 className="font-bold text-left w-full">{currentAuct.title}</h1>
-                                <p className="text-[12px] text-left text-gray-300">
+                                <h1 className="font-bold text-sm text-left w-full">{currentAuct.title}</h1>
+                                <p className="text-[11px] text-left text-gray-300">
                                     {currentAuct.descriptions_informations}
                                 </p>
                             </div>

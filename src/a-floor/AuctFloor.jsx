@@ -256,17 +256,17 @@ function AuctFloor() {
 
             {/* Container Principal */}
             <div className="flex lg:flex-row flex-col w-full max-w-[1920px] h-[calc(100vh-220px)] lg:h-[calc(100vh-100px)]
-                justify-between items-start gap-4 z-[2] px-4 mt-2 mx-auto">
+                justify-center items-center gap-4 z-[2] px-4 mt-2 mx-auto">
 
                 {/* Coluna Esquerda (CenterFloor e FloorLots Desktop) */}
                 <motion.section
-                    className="lg:w-[70%] w-full h-full flex flex-col justify-start items-center gap-3 
+                    className="lg:w-[70%] w-full flex flex-col justify-between items-center gap-3 h-[80vh]
                         lg:overflow-visible overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
                 >
-                    <div className="w-full min-h-[75vh] lg:min-h-[70%] mt-0">
+                    <div className="w-full h-[60vh] mt-0">
                         <CenterFloor
                             title={currentProduct ? currentProduct.title : ''}
                             cover={currentProduct ? currentProduct.cover_img_url : ''}
@@ -277,9 +277,8 @@ function AuctFloor() {
                     </div>
 
                     {/* FloorLots Desktop */}
-                    <div className="w-full min-h-[25vh] lg:min-h-[30%] hidden lg:block">
+                    <div className="w-full h-[20vh]  hidden lg:block">
                         <FloorLots
-                            products={currentAuct?.product_list || []}
                             currentProduct={currentProduct}
                         />
                     </div>
@@ -287,12 +286,12 @@ function AuctFloor() {
 
                 {/* FloorBids Desktop */}
                 <motion.div
-                    className="hidden lg:block lg:w-[28%] h-full"
+                    className="hidden lg:block lg:w-[28%] h-[80vh]"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7, delay: 0.4 }}
                 >
-                    <div className="sticky top-4">
+                    <div className="sticky">
                         <FloorBids/>
                     </div>
                 </motion.div>

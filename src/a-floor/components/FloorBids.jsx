@@ -116,8 +116,8 @@ function FloorBids() {
     }, [currentProduct?.Bid]);
 
     return (
-        <div className={`w-full rounded-xl h-[81vh] ${isEntireAuctionFinished ? 'bg-red-600' : 'bg-[#c9c9c9df]'} 
-        flex flex-col items-center justify-start p-4 transition-colors duration-500`}>
+        <div className={`w-full rounded-xl h-[80vh] ${isEntireAuctionFinished ? 'bg-[#ae0404' : 'bg-[#c9c9c9df]'} 
+        flex flex-col items-center justify-start p-4 transition-colors duration-500 backdrop-blur-[3px] border-[#fff] border-[1px]`}>
             {isEntireAuctionFinished ? (
                 <AuctionFinishedCard />
             ) : winner && isAuctionFinished ? (

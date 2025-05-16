@@ -8,6 +8,7 @@ import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
 
+
 function CronCard({ auct_id }) {
     const [isLoadingBid, setIsloadingBid] = useState(false);
     const [canBid, setCanBid] = useState(true);
@@ -35,11 +36,11 @@ function CronCard({ auct_id }) {
         return Math.ceil(value * 0.01);
     };
 
-  
+
 
     const handleBidAuctionLive = async () => {
         if (!canBid || !clientSession || !currentProduct) return;
-        
+
         try {
             setCanBid(false);
             setIsloadingBid(true);
@@ -47,25 +48,25 @@ function CronCard({ auct_id }) {
             // Primeiro, buscar o valor mais recente do produto
             const checkUrl = `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`;
             const checkResponse = await axios.get(checkUrl);
-            
+
             if (!checkResponse.data) {
                 throw new Error("Não foi possível obter os dados mais recentes do produto");
             }
 
             const latestProduct = checkResponse.data;
             const latestBids = latestProduct.Bid || [];
-            
+
             // Determinar o valor atual e o incremento
-            const latestValue = latestBids.length > 0 
+            const latestValue = latestBids.length > 0
                 ? Math.max(...latestBids.map(bid => bid.value))
                 : latestProduct.initial_value;
 
             const increment = latestBids.length > 0 ? calculateIncrement(latestValue) : 0;
             const nextValue = latestValue + increment;
 
-            console.log("Valor mais recente:", latestValue);
-            console.log("Incremento calculado:", increment);
-            console.log("Próximo valor:", nextValue);
+            // console.log("Valor mais recente:", latestValue);
+            // console.log("Incremento calculado:", increment);
+            // console.log("Próximo valor:", nextValue);
 
             // Fazer o lance com o valor atualizado
             const bidPayload = {
@@ -87,6 +88,7 @@ function CronCard({ auct_id }) {
                 }
             );
 
+
             if (response.status === 200) {
                 // Atualizar o estado com os dados mais recentes
                 setBids(latestBids);
@@ -99,6 +101,7 @@ function CronCard({ auct_id }) {
                     product_id: currentProduct.id
                 }));
             }
+
         } catch (error) {
             console.error("Erro ao dar lance:", error);
             alert("Erro ao dar lance. Por favor, tente novamente.");
@@ -117,9 +120,9 @@ function CronCard({ auct_id }) {
         websocketRef.current.receiveBidMessage(async (message) => {
             const { body } = message.data;
             const newBid = body.currentBid;
-            
+
             console.log("Novo lance recebido via WebSocket:", newBid);
-            
+
             // Atualizar os estados com o novo lance
             setBids(prevBids => {
                 // Verificar se já temos este lance
@@ -138,7 +141,7 @@ function CronCard({ auct_id }) {
                 }
                 return prevValue;
             });
-            
+
             setCurrentProduct(prevProduct => {
                 if (!prevProduct || prevProduct.id !== body.product.id) return prevProduct;
                 return {
@@ -152,9 +155,9 @@ function CronCard({ auct_id }) {
             const { body, cronTimer } = message.data;
             const product = body.product;
             const productBids = product.Bid || [];
-            
+
             // Determinar o valor atual
-            const currentBidValue = productBids.length > 0 
+            const currentBidValue = productBids.length > 0
                 ? Math.max(...productBids.map(bid => bid.value))
                 : product.initial_value;
 
@@ -178,7 +181,7 @@ function CronCard({ auct_id }) {
                     real_value: currentBidValue
                 };
             });
-            
+
             setDeadline(cronTimer);
             setIsAuctionFinished(false);
             setHasWinner(false);
@@ -188,8 +191,8 @@ function CronCard({ auct_id }) {
             const { body } = message.data;
             const product = body.product;
             const productBids = product.Bid || [];
-            
-            const finalValue = productBids.length > 0 
+
+            const finalValue = productBids.length > 0
                 ? Math.max(...productBids.map(bid => bid.value))
                 : product.initial_value;
 
@@ -227,7 +230,7 @@ function CronCard({ auct_id }) {
 
     // Efeito para verificar se o valor de reserva foi atingido
     useEffect(() => {
-        if (currentProduct?.reserve_value && currentProduct?.real_value && 
+        if (currentProduct?.reserve_value && currentProduct?.real_value &&
             currentProduct.real_value >= currentProduct.reserve_value && !showReserveMessage) {
             setShowReserveMessage(true);
             const timer = setTimeout(() => {
@@ -258,7 +261,7 @@ function CronCard({ auct_id }) {
             if (deadline <= 10) {
                 const barWidth = Math.max(0, Math.min(100, 100 - ((deadline / 10) * 100)));
                 refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
-                
+
                 if (deadline <= 3) {
                     refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
                 } else if (deadline <= 6) {
@@ -266,7 +269,7 @@ function CronCard({ auct_id }) {
                 } else {
                     refBarDeadline.current.classList.add('progress-yellow');
                 }
-                
+
                 refBarDeadline.current.style.width = `${barWidth}%`;
             } else {
                 refBarDeadline.current.classList.remove('progress-red', 'progress-orange', 'progress-yellow', 'pulse-animation');
@@ -356,14 +359,14 @@ function CronCard({ auct_id }) {
                 }
                 `}
             </style>
-            
+
             <div className="w-full h-[70px] flex justify-between p-4 bg-white/95 backdrop-blur-md 
                 shadow-lg rounded-xl border border-gray-100 items-center relative overflow-hidden">
-                
+
                 {!isAuctionFinished ? (
                     <>
-                        <div 
-                            ref={refBarDeadline} 
+                        <div
+                            ref={refBarDeadline}
                             className="progress-bar"
                             style={{ width: '0%' }}
                         />
@@ -379,15 +382,15 @@ function CronCard({ auct_id }) {
                             <div className="absolute inset-0 flex items-center justify-center z-20 
                                 bg-black/30 backdrop-blur-[2px]">
                                 <div className={`
-                                    ${auctioneerCall === 'VENDIDO!' 
-                                        ? 'bg-green-500/90' 
-                                        : auctioneerCall === 'Tempo esgotado!' 
+                                    ${auctioneerCall === 'VENDIDO!'
+                                        ? 'bg-green-500/90'
+                                        : auctioneerCall === 'Tempo esgotado!'
                                             ? 'bg-red-500/90'
                                             : 'bg-blue-500/90'
                                     }
                                     px-6 py-3 rounded-lg shadow-lg transform
-                                    ${auctioneerCall === 'VENDIDO!' 
-                                        ? 'animate-bounce' 
+                                    ${auctioneerCall === 'VENDIDO!'
+                                        ? 'animate-bounce'
                                         : 'animate-pulse'
                                     }
                                 `}>
@@ -415,7 +418,7 @@ function CronCard({ auct_id }) {
                                 </div>
                             </>
                         )}
-                    </> 
+                    </>
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 
                         flex justify-center items-center">
@@ -443,7 +446,7 @@ function CronCard({ auct_id }) {
                             <div className="flex-1 h-[50px] bg-gradient-to-r from-green-500 to-green-600 
                                 rounded-xl shadow-lg flex justify-center items-center gap-2
                                 font-bold text-white">
-                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/>
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
                                 <span>Dando lance...</span>
                             </div>
                         ) : (
@@ -454,7 +457,7 @@ function CronCard({ auct_id }) {
                                     flex justify-center items-center gap-2
                                     font-bold text-white transition-all duration-300
                                     ${canBid
-                                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
                                         : 'bg-gray-400 cursor-not-allowed'}`}
                             >
                                 <Paid sx={{ fontSize: 24 }} />
