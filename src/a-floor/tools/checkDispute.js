@@ -1,5 +1,5 @@
 /* eslint-disable no-async-promise-executor */
-import axios from "axios";
+// import axios from "axios";
 
 async function checkDispute(auct_id, deadline) {
     return new Promise(async (resolve, reject) => {
@@ -7,12 +7,12 @@ async function checkDispute(auct_id, deadline) {
         console.log(deadline);
         if (deadline <= 4) {
             try {
-                await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/add-time`, {
-                    params: {
-                        auct_id: auct_id,
-                        seconds: 3
-                    }
-                });
+                // await axios.get(`${import.meta.env.VITE_APP_CONTROLLER_API}/controller/add-time`, {
+                //     params: {
+                //         auct_id: auct_id,
+                //         seconds: 3
+                //     }
+                // });
                 console.log("Acréscimo de tempo adicionado com sucesso.");
                 resolve(true);
             } catch (error) {
