@@ -284,11 +284,25 @@ function ClientCartelas() {
                                         </div>
 
                                         <div className="p-4 space-y-4">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-600 text-sm">Valor Total:</span>
-                                                <span className="font-medium text-green-600">
-                                                    {formatCurrency(cartela.amount)}
-                                                </span>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-gray-600 text-sm">Valor Total dos Produtos:</span>
+                                                    <span className="font-medium text-gray-800">
+                                                        {formatCurrency(cartela.amount)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-gray-600">Comissão do Leiloeiro (5%):</span>
+                                                    <span className="font-medium text-blue-600">
+                                                        {formatCurrency(cartela.amount * 0.05)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center pt-2 border-t">
+                                                    <span className="text-gray-700 font-medium">Valor Total com Comissão:</span>
+                                                    <span className="font-bold text-green-600">
+                                                        {formatCurrency(cartela.amount * 1.05)}
+                                                    </span>
+                                                </div>
                                             </div>
                                             
                                             {/* Usar Auct da cartela se disponível, senão usar auctionDetails */}
@@ -436,45 +450,53 @@ function ClientCartelas() {
                                             {/* Lista de produtos expandida */}
                                             <div className={`space-y-3 overflow-hidden transition-all duration-300 ease-in-out
                                                 ${expandedCartela === cartela.id 
-                                                    ? 'max-h-[800px] opacity-100' 
+                                                    ? 'max-h-[400px] opacity-100' 
                                                     : 'max-h-0 opacity-0'}`}
                                             >
-                                                {cartela.products.map(product => (
-                                                    <div key={product.id} 
-                                                        className="flex gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-200 transition-colors"
-                                                    >
-                                                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border border-gray-200">
-                                                            <img 
-                                                                src={product.cover_img_url} 
-                                                                alt={product.title}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <div className="flex justify-between items-start">
-                                                                <p className="text-sm font-medium text-gray-800">{product.title}</p>
-                                                                <span className="text-sm font-bold text-green-600">
-                                                                    {formatCurrency(product.real_value)}
-                                                                </span>
+                                                <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3
+                                                    scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                                    {cartela.products
+                                                        .sort((a, b) => (a.lote || 0) - (b.lote || 0))
+                                                        .map(product => (
+                                                            <div key={product.id} 
+                                                                className="flex gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 
+                                                                    hover:border-blue-200 transition-colors"
+                                                            >
+                                                                <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border border-gray-200">
+                                                                    <img 
+                                                                        src={product.cover_img_url} 
+                                                                        alt={product.title}
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-start">
+                                                                        <div className="flex items-start gap-2">
+                                                                            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
+                                                                                Lote {product.lote || 'N/A'}
+                                                                            </span>
+                                                                            <p className="text-sm font-medium text-gray-800">{product.title}</p>
+                                                                        </div>
+                                                                        <span className="text-sm font-bold text-green-600">
+                                                                            {formatCurrency(product.real_value)}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                                        {product.category && (
+                                                                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                                                                                {product.category}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    {product.description && (
+                                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                                                            {product.description}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            <div className="mt-1 flex flex-wrap gap-2">
-                                                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                                                    Lote: {product.lote || 'N/A'}
-                                                                </span>
-                                                                {product.category && (
-                                                                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
-                                                                        {product.category}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            {product.description && (
-                                                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                                                    {product.description}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                        ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

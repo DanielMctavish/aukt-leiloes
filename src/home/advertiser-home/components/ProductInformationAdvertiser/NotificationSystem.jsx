@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import avatarClientsUrls from '../../../../media/avatar-floor/AvatarclientsUrls';
+import ReceiveWebsocketOnFloor from "../../../../a-floor/class/ReceiveWebsocketOnFloor";
 
 // Convertendo o objeto de URLs em um array
 const avatares_pessoas = Object.values(avatarClientsUrls);
@@ -9,13 +10,43 @@ const avatares_pessoas = Object.values(avatarClientsUrls);
 const NotificationSystem = ({ 
     showOutbidNotification, 
     setShowOutbidNotification, 
-    currentProduct
+    currentProduct,
+    auctionId
 }) => {
     const [isCurrentWinner, setIsCurrentWinner] = useState(false);
     const [hasPlacedBid, setHasPlacedBid] = useState(false);
+    const websocketRef = useRef(null);
 
     useEffect(() => {
-        setShowOutbidNotification(true)
+        if (!auctionId) return;
+
+        // Inicializar WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(auctionId);
+
+        // Configurar listeners
+        websocketRef.current.receiveBidMessage((message) => {
+            const newBid = message.data.body || message.data;
+            if (newBid && newBid.product_id === currentProduct?.id) {
+                checkWinnerStatus();
+            }
+        });
+
+        websocketRef.current.receiveBidCatalogedMessage((message) => {
+            const newBid = message.data.body;
+            if (newBid && newBid.product_id === currentProduct?.id) {
+                checkWinnerStatus();
+            }
+        });
+
+        return () => {
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
+        };
+    }, [auctionId, currentProduct?.id]);
+
+    const checkWinnerStatus = () => {
+        setShowOutbidNotification(true);
         if (!currentProduct?.Bid?.length) return;
 
         try {
@@ -34,6 +65,10 @@ const NotificationSystem = ({
         } catch (error) {
             console.error("Erro ao verificar vencedor:", error);
         }
+    };
+
+    useEffect(() => {
+        checkWinnerStatus();
     }, [currentProduct]);
 
     if (!showOutbidNotification || !currentProduct?.Bid?.length) return null;

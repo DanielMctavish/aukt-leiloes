@@ -42,7 +42,7 @@ export const getBidsByClient = async (client_id, currentClient, setAllBids, setB
                 if (!bidsFiltered.find((b) => b.Product[0].id === bid.Product[0].id)) {
 
                     bidsFiltered.push(bid)
-                    localBudget += bid.Product[0] ? bid.Product[0].initial_value : 0
+                    localBudget += bid.Product[0] ? bid.Product[0].real_value : 0
                 }
 
             })

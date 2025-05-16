@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import formatCurrency from "../../../../utils/formatCurrency";
 import axios from "axios";
+import ReceiveWebsocketOnFloor from "../../../../a-floor/class/ReceiveWebsocketOnFloor";
 // Importar ícones do MUI
 import { 
     Gavel, // Ícone de martelo para lance
@@ -25,6 +26,7 @@ const BidInterface = ({
     const [messageText, setMessageText] = useState('');
     const [messageType, setMessageType] = useState('');
     const [showMessage, setShowMessage] = useState(false);
+    const websocketRef = useRef(null);
 
     // Função para mostrar mensagens ao usuário
     const displayMessage = useCallback((message, type = 'success') => {
@@ -168,6 +170,34 @@ const BidInterface = ({
     useEffect(() => {
         updateProductInfo();
     }, [productInfo?.id, updateProductInfo]);
+
+    useEffect(() => {
+        if (!productInfo?.auct_id) return;
+
+        // Inicializar WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(productInfo.auct_id);
+
+        // Configurar listeners
+        websocketRef.current.receiveBidMessage((message) => {
+            const newBid = message.data.body || message.data;
+            if (newBid && newBid.product_id === productInfo.id) {
+                updateProductInfo();
+            }
+        });
+
+        websocketRef.current.receiveBidCatalogedMessage((message) => {
+            const newBid = message.data.body;
+            if (newBid && newBid.product_id === productInfo.id) {
+                updateProductInfo();
+            }
+        });
+
+        return () => {
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
+        };
+    }, [productInfo?.auct_id, productInfo?.id]);
 
     // Função para processar entrada do valor de lance
     const handleSetBid = (e) => {

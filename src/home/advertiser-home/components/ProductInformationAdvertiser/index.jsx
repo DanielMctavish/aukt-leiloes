@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import axios from "axios";
-import io from "socket.io-client";
+import ReceiveWebsocketOnFloor from "../../../../a-floor/class/ReceiveWebsocketOnFloor";
 
 // Componentes
 import BidInterface from "./BidInterface";
@@ -18,7 +18,7 @@ import fetchAndUpdateProduct from "./functions/fetchAndUpdateProduct";
 
 function ProductInformation({ children, ...props }) {
     const messageRef = useRef(null);
-    const socketRef = useRef(null);
+    const websocketRef = useRef(null);
     const [showBids, setShowBids] = useState(false);
     
     // Hooks personalizados
@@ -39,7 +39,6 @@ function ProductInformation({ children, ...props }) {
 
     // Função para mostrar mensagens ao usuário
     const showMessage = useCallback((message, type = 'success') => {
-        // Verificar se o componente ainda está montado
         if (!messageRef.current) return;
 
         messageRef.current.textContent = message;
@@ -89,7 +88,7 @@ function ProductInformation({ children, ...props }) {
         }
     }, [props.currentProduct?.id, props.currentClient?.id, currentSession?.id, setHasAutoBid, setIsAutoBidEnabled]);
 
-    // Callback para sucesso do lance - Mover para depois da declaração de checkAutoBid
+    // Callback para sucesso do lance
     const handleBidSuccess = useCallback(() => {
         fetchAndUpdateProduct({
             productId: props.currentProduct.id,
@@ -111,12 +110,11 @@ function ProductInformation({ children, ...props }) {
     useEffect(() => {
         if (!props.currentAuct?.id || !props.currentProduct?.id) return;
         
-        // Conectar ao servidor WebSocket
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-        socketRef.current = socket;
+        // Inicializar o WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(props.currentAuct.id);
         
-        // Escutar eventos de novos lances em catálogo
-        socket.on(`${props.currentAuct.id}-bid-cataloged`, (message) => {
+        // Configurar listeners
+        websocketRef.current.receiveBidCatalogedMessage((message) => {
             const newBid = message.data.body;
             
             if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === props.currentProduct.id) || 
@@ -137,8 +135,7 @@ function ProductInformation({ children, ...props }) {
             }
         });
         
-        // Também escutar o evento normal de lance
-        socket.on(`${props.currentAuct.id}-bid`, (message) => {
+        websocketRef.current.receiveBidMessage((message) => {
             const newBid = message.data.body || message.data;
             
             if (newBid && newBid.product_id === props.currentProduct.id) {
@@ -156,12 +153,11 @@ function ProductInformation({ children, ...props }) {
                 });
             }
         });
-        
-        
+
         // Limpar ao desmontar
         return () => {
-            if (socketRef.current) {
-                socketRef.current.disconnect();
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
             }
         };
     }, [props.currentAuct?.id, props.currentProduct?.id]);
@@ -291,6 +287,7 @@ function ProductInformation({ children, ...props }) {
                 {/* Conteúdo do produto */}
                 <ProductContent 
                     currentProduct={props.currentProduct} 
+                    auctionId={props.currentAuct?.id}
                 />
                 
                 {/* Interface de lances */}

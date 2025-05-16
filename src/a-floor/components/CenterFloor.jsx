@@ -26,13 +26,15 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
     const navigate = useNavigate();
 
     // Garantir que imagens é sempre um array válido
-    const images = currentProduct ? 
+    const images = currentProduct ?
         [currentProduct.cover_img_url, ...(currentProduct.group_imgs_url?.filter(img => img) || [])]
             .filter(img => img) // Filtrar valores nulos ou undefined
         : [];
-    
+
     // Verificar se há imagens suficientes para navegação
     const hasMultipleImages = images.length > 1;
+
+    useEffect(() => { }, [isAuctionFinished])
 
     useEffect(() => {
         if (parentIsAuctionFinished) {
@@ -130,7 +132,7 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 w-full">
                             {sortedAuctions.map(auction => (
                                 auction && (
-                                    <div key={auction.id} 
+                                    <div key={auction.id}
                                         className="bg-white/80 backdrop-blur-sm flex flex-col h-80 overflow-hidden
                                         rounded-xl border border-white shadow-lg
                                         transition-all duration-300 hover:transform hover:scale-[1.02]
@@ -196,15 +198,15 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
                 <div className="w-full h-full flex lg:flex-row flex-col items-center justify-between gap-6 overflow-y-auto">
                     <div className="lg:w-1/2 w-full lg:h-full min-h-[50vh] relative overflow-hidden rounded-xl">
                         <div className="absolute inset-0">
-                            <img 
-                                src={auction.auct_cover_img} 
-                                alt="background" 
+                            <img
+                                src={auction.auct_cover_img}
+                                alt="background"
                                 className="w-full lg:h-full min-h-[50vh] object-cover filter blur-sm opacity-30"
                             />
                         </div>
-                        <img 
-                            src={auction.auct_cover_img} 
-                            alt="capa do leilão" 
+                        <img
+                            src={auction.auct_cover_img}
+                            alt="capa do leilão"
                             className="relative z-10 w-full lg:h-full min-h-[50vh] object-contain p-4"
                         />
                     </div>
@@ -219,22 +221,22 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
                         <div className="flex flex-wrap gap-3 justify-center">
                             {auction.auct_dates?.map((date, i) => {
                                 const isPassed = isDatePassed(date.date_auct);
-                                
+
                                 return (
-                                    <div 
-                                        key={i} 
+                                    <div
+                                        key={i}
                                         className={`flex items-center px-4 py-2 rounded-lg shadow-md
                                             transition-all duration-300 
-                                            ${isPassed 
-                                                ? 'bg-gray-300/50 text-gray-500' 
+                                            ${isPassed
+                                                ? 'bg-gray-300/50 text-gray-500'
                                                 : 'bg-[#012038] text-white'
                                             }`}
                                     >
-                                        <CalendarTodayIcon 
-                                            className={`mr-2 ${isPassed 
-                                                ? 'text-gray-400' 
+                                        <CalendarTodayIcon
+                                            className={`mr-2 ${isPassed
+                                                ? 'text-gray-400'
                                                 : 'text-cyan-400'
-                                            }`} 
+                                                }`}
                                         />
                                         <div className="flex flex-col">
                                             <span className={`text-sm font-medium ${isPassed && 'line-through'}`}>
@@ -328,12 +330,19 @@ function CenterFloor({ title, description, auction, currentProduct, isAuctionFin
                 <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center">
                     <button
                         onClick={handleToggleFullscreen}
-                        className="absolute top-4 right-4 text-white bg-white/10 rounded-full p-1 lg:p-2 
-                            hover:bg-white/20 transition-colors z-10"
+                        className="absolute top-4 right-4 text-white rounded-full p-2 lg:p-3
+                        transition-all duration-300 z-10
+                            backdrop-blur-sm border border-white/10"
                     >
-                        <CloseIcon sx={{ fontSize: { xs: '20px', lg: '24px' } }} />
+                        <CloseIcon
+                            sx={{
+                                fontSize: { xs: '24px', lg: '28px' },
+                                filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.8))',
+                                color: 'white'
+                            }}
+                        />
                     </button>
-                    
+
                     <Swiper
                         modules={[Navigation, Pagination, Zoom]}
                         spaceBetween={0}

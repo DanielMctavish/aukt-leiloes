@@ -1,33 +1,85 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { EmojiEvents } from "@mui/icons-material";
 import avatarClientsUrls from "../../media/avatar-floor/AvatarclientsUrls"
+import { useEffect, useState } from "react";
 
 // Convertendo o objeto de URLs em um array
 const avatarIndex = Object.values(avatarClientsUrls)
 
 function WinnerCard({ winner, product }) {
+    const [isWinner, setIsWinner] = useState(false);
+
+    useEffect(() => {
+        const checkIfIsWinner = () => {
+            const clientSession = localStorage.getItem("client-auk-session-login");
+            
+            // Se não houver sessão ou winner, retorna
+            if (!clientSession || !winner) {
+                setIsWinner(false);
+                return;
+            }
+
+            try {
+                const { id } = JSON.parse(clientSession);
+                if (id === winner.id) {
+                    setIsWinner(true);
+                }
+            } catch (error) {
+                console.log("Erro ao verificar vencedor:", error);
+                setIsWinner(false);
+            }
+        };
+
+        checkIfIsWinner();
+
+        // Ouvir eventos de login/logout para atualizar o estado
+        const handleLoginSuccess = () => checkIfIsWinner();
+        const handleLogout = () => setIsWinner(false);
+
+        window.addEventListener('clientLoginSuccess', handleLoginSuccess);
+        window.addEventListener('clientLogout', handleLogout);
+
+        return () => {
+            window.removeEventListener('clientLoginSuccess', handleLoginSuccess);
+            window.removeEventListener('clientLogout', handleLogout);
+        };
+    }, [winner]);
+
     return (
         <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden animate-scale-in">
-            {/* Header com troféu e parabéns */}
-            <div className="bg-green-600 text-white p-6 text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full">
-                    <div className="absolute -left-4 -top-4 w-20 h-20 bg-green-500 rounded-full opacity-20" />
-                    <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-green-500 rounded-full opacity-20" />
+            {/* Header com troféu e parabéns - só aparece para o vencedor */}
+            {isWinner && (
+                <div className="bg-green-600 text-white p-6 text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-full">
+                        <div className="absolute -left-4 -top-4 w-20 h-20 bg-green-500 rounded-full opacity-20" />
+                        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-green-500 rounded-full opacity-20" />
+                    </div>
+                    <div className="relative z-10">
+                        <EmojiEvents sx={{ fontSize: 48 }} className="mb-2" />
+                        <h2 className="text-2xl font-bold mb-1">Parabéns pelo Arremate!</h2>
+                        <p className="opacity-90">Lote {product.lote} foi vendido com sucesso</p>
+                    </div>
                 </div>
-                <div className="relative z-10">
-                    <EmojiEvents sx={{ fontSize: 48 }} className="mb-2" />
-                    <h2 className="text-2xl font-bold mb-1">Parabéns pelo Arremate!</h2>
-                    <p className="opacity-90">Lote {product.lote} foi vendido com sucesso</p>
+            )}
+
+            {/* Header alternativo para não vencedores */}
+            {!isWinner && (
+                <div className="bg-gray-800 text-white p-6 text-center relative overflow-hidden">
+                    <div className="relative z-10">
+                        <h2 className="text-xl font-bold mb-1">Lote Finalizado</h2>
+                        <p className="opacity-90">Lote {product.lote} foi vendido</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Conteúdo principal */}
             <div className="p-6">
                 {/* Produto */}
                 <div className="flex gap-6 items-center mb-8">
                     <div className="w-40 h-40 flex-shrink-0">
-                        <img 
-                            src={product.cover_img_url} 
+                        <img
+                            src={product.cover_img_url}
                             alt={product.title}
                             className="w-full h-full object-cover rounded-lg shadow-md"
                         />
@@ -43,9 +95,9 @@ function WinnerCard({ winner, product }) {
                 {/* Vencedor */}
                 <div className="flex items-center justify-between border-t border-gray-100 pt-6">
                     <div className="flex items-center gap-4">
-                        <img 
-                            src={avatarIndex[winner.client_avatar]} 
-                            alt="Avatar" 
+                        <img
+                            src={avatarIndex[winner.client_avatar]}
+                            alt="Avatar"
                             className="w-16 h-16 rounded-full border-4 border-green-100"
                         />
                         <div>

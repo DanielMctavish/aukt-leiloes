@@ -10,6 +10,11 @@ import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
 import { getAuctionInformations } from "../functions/getAuctionInformations";
 
 const ModalAllProducts = ({ products, onClose }) => {
+    // Função para navegar para os detalhes do produto em nova aba
+    const handleProductClick = (product_id) => {
+        onClose(); // Fecha o modal
+        window.open(`/advertiser/home/product/${product_id}`, '_blank');
+    };
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -44,7 +49,7 @@ const ModalAllProducts = ({ products, onClose }) => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="fixed lg:top-[8vh] top-0 lg:right-[22vh] right-0 lg:w-[600px] w-full 
-                h-[100vh] lg:h-[85vh] bg-white rounded-2xl lg:rounded-2xl rounded-none shadow-2xl 
+                h-[100vh] lg:h-[85vh] bg-white rounded-2xl lg:rounded-2xl shadow-2xl 
                 overflow-hidden flex flex-col z-50 border border-gray-200"
         >
             {/* Cabeçalho */}
@@ -90,9 +95,10 @@ const ModalAllProducts = ({ products, onClose }) => {
                                         <motion.div 
                                             key={product.id}
                                             whileHover={{ y: -3 }}
+                                            onClick={() => handleProductClick(product.id)}
                                             className="bg-white rounded-xl shadow-md overflow-hidden 
                                             transition-all duration-300 border border-gray-100 hover:shadow-lg 
-                                            hover:border-blue-100"
+                                            hover:border-blue-100 cursor-pointer"
                                         >
                                             <div className="flex lg:flex-row flex-col">
                                                 {/* Imagem do Produto */}
@@ -150,6 +156,7 @@ const ModalAllProducts = ({ products, onClose }) => {
 
 function FloorNavigation({ setShowLoginModal }) {
     const { auct_id } = useParams();
+    const navigate = useNavigate();
     const [currentClient, setCurrentClient] = useState({})
     const [modalAllProducts, setModalAllProducts] = useState(false)
     const [showUserMenu, setShowUserMenu] = useState(false)
@@ -157,7 +164,6 @@ function FloorNavigation({ setShowLoginModal }) {
     const [currentProduct, setCurrentProduct] = useState(null)
     const userMenuRef = useRef(null)
     const websocketRef = useRef(null)
-    const navigate = useNavigate()
 
     // Buscar informações iniciais do leilão
     useEffect(() => {
@@ -301,7 +307,7 @@ function FloorNavigation({ setShowLoginModal }) {
             className="w-full min-h-[60px] lg:min-h-[100px] rounded-none lg:rounded-[22px] 
                 flex flex-col lg:flex-row justify-between p-2 lg:p-3 items-center 
                 bg-[#012038]/90 lg:bg-[#d2d2d291] backdrop-blur-md shadow-sm lg:shadow-xl shadow-[#1414143a] 
-                border-b border-white/10 lg:border-b-[2px] lg:border-[#e3e3e3] z-[2] relative gap-4 lg:gap-0
+                border-b border-white/10 lg:border-b-[2px] lg:border-[#e3e3e3] z-[2] gap-4 lg:gap-0
                 fixed lg:relative top-0 left-0 right-0"
         >
             <AnimatePresence>

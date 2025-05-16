@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import avatarClientsUrls from "../media/avatar-floor/AvatarclientsUrls";
 import MobileBidsList from "./components/MobileBidsList";
+import checkDispute from "./tools/checkDispute";
 
 // Convertendo o objeto de URLs em um array
 const avatarIndex = Object.values(avatarClientsUrls);
@@ -63,13 +64,13 @@ function MobileElements() {
             const { cronTimer, body } = message.data;
             setCronTimer(cronTimer);
             setIsActive(cronTimer > 0);
-            
+
             if (body && body.product) {
                 // Atualizar o produto mantendo os lances existentes
                 setCurrentProduct(prevProduct => {
                     const currentBids = prevProduct?.Bid || [];
                     const newBids = body.product.Bid || [];
-                    
+
                     // Mesclar os lances sem duplicatas
                     const allBids = [...currentBids, ...newBids];
                     const uniqueBids = allBids.reduce((acc, bid) => {
@@ -78,20 +79,20 @@ function MobileElements() {
                         }
                         return acc;
                     }, []);
-                    
+
                     return {
                         ...body.product,
                         Bid: uniqueBids
                     };
                 });
-                
+
                 // Atualizar o incremento
                 const currentValue = body.product.Bid?.length > 0
                     ? Math.max(...body.product.Bid.map(bid => bid.value))
                     : body.product.initial_value;
                 setNextIncrementValue(calculateIncrement(currentValue));
             }
-            
+
             // Não resetar o vencedor aqui
             if (cronTimer > 0) {
                 setIsAuctionFinished(false);
@@ -101,11 +102,11 @@ function MobileElements() {
         // Listener para novos lances
         websocketRef.current.receiveBidMessage((message) => {
             const { body } = message.data;
-            
+
             // Atualizar o produto com o novo lance
             setCurrentProduct(prevProduct => {
                 if (!prevProduct) return prevProduct;
-                
+
                 const newBid = {
                     id: Date.now(), // Garantir ID único
                     value: body.currentBid.value,
@@ -113,9 +114,9 @@ function MobileElements() {
                     Client: body.currentBid.Client,
                     created_at: new Date().toISOString()
                 };
-                
+
                 const updatedBids = [...(prevProduct.Bid || []), newBid];
-                
+
                 return {
                     ...prevProduct,
                     Bid: updatedBids
@@ -127,12 +128,12 @@ function MobileElements() {
                 id: Date.now(),
                 value: body.currentBid.value,
                 client: body.currentBid.Client,
-                avatar: body.currentBid.Client?.client_avatar !== undefined 
+                avatar: body.currentBid.Client?.client_avatar !== undefined
                     ? avatarIndex[body.currentBid.Client.client_avatar]
                     : null,
                 timestamp: new Date()
             };
-            
+
             setBidNotifications(prev => [...prev, newBidNotification]);
 
             setTimeout(() => {
@@ -146,7 +147,7 @@ function MobileElements() {
             setWinner(body.winner);
             setIsAuctionFinished(true);
             setIsActive(false);
-            
+
             // Atualizar o produto com o vencedor
             setCurrentProduct(prevProduct => {
                 if (!prevProduct) return prevProduct;
@@ -161,7 +162,7 @@ function MobileElements() {
             setIsEntireAuctionFinished(true);
             setIsActive(false);
         });
-        
+
         return () => {
             if (websocketRef.current) {
                 websocketRef.current.disconnect();
@@ -196,7 +197,7 @@ function MobileElements() {
                 const response = await axios.get(
                     `${import.meta.env.VITE_APP_BACKEND_API}/products/find?product_id=${currentProduct.id}`
                 );
-                
+
                 if (response.data) {
                     setCurrentProduct(response.data);
                 }
@@ -220,11 +221,17 @@ function MobileElements() {
             if (!checkResponse.data) throw new Error("Não foi possível obter os dados mais recentes do produto");
             const latestProduct = checkResponse.data;
             const latestBids = latestProduct.Bid || [];
-            const latestValue = latestBids.length > 0 
+            const latestValue = latestBids.length > 0
                 ? Math.max(...latestBids.map(bid => bid.value))
                 : latestProduct.initial_value;
             const increment = latestBids.length > 0 ? calculateIncrement(latestValue) : 0;
             const nextValue = latestValue + increment;
+
+            try {
+                await checkDispute(auct_id, cronTimer);
+            } catch (error) {
+                console.log("Não foi necessário adicionar tempo ou houve erro na disputa");
+            }
 
             // Fazer o lance
             const bidPayload = {
@@ -269,12 +276,12 @@ function MobileElements() {
     // Função para verificar se o usuário está vencendo
     const checkIfUserIsWinning = () => {
         if (!currentProduct?.Bid || !clientSession) return false;
-        
+
         const bids = currentProduct.Bid;
         if (bids.length === 0) return false;
 
         // Encontrar o lance mais alto
-        const highestBid = bids.reduce((max, bid) => 
+        const highestBid = bids.reduce((max, bid) =>
             (bid.value > max.value) ? bid : max, bids[0]
         );
 
@@ -313,7 +320,7 @@ function MobileElements() {
             if (cronTimer <= 10) {
                 const barWidth = Math.max(0, Math.min(100, 100 - ((cronTimer / 10) * 100)));
                 refBarDeadline.current.classList.remove('progress-green', 'progress-yellow', 'progress-orange', 'progress-red', 'pulse-animation');
-                
+
                 if (cronTimer <= 3) {
                     refBarDeadline.current.classList.add('progress-red', 'pulse-animation');
                 } else if (cronTimer <= 6) {
@@ -321,7 +328,7 @@ function MobileElements() {
                 } else {
                     refBarDeadline.current.classList.add('progress-yellow');
                 }
-                
+
                 refBarDeadline.current.style.width = `${barWidth}%`;
             } else {
                 refBarDeadline.current.classList.remove('progress-red', 'progress-orange', 'progress-yellow', 'pulse-animation');
@@ -347,7 +354,7 @@ function MobileElements() {
                         {/* Avatar */}
                         <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex-shrink-0">
                             {notification.avatar ? (
-                                <img 
+                                <img
                                     src={notification.avatar}
                                     alt={`Avatar de ${notification.client?.nickname || 'Usuário'}`}
                                     className="w-full h-full object-cover"
@@ -359,7 +366,7 @@ function MobileElements() {
                                 </div>
                             )}
                         </div>
-                        
+
                         {/* Informação do Lance */}
                         <div className="flex flex-col">
                             <span className="text-sm font-semibold text-gray-800">
@@ -386,8 +393,8 @@ function MobileElements() {
             >
                 <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-white/80">
-                        {isEntireAuctionFinished ? 'Leilão Finalizado' : 
-                         isAuctionFinished ? 'Lote Arrematado' : 'Valor Atual:'}
+                        {isEntireAuctionFinished ? 'Leilão Finalizado' :
+                            isAuctionFinished ? 'Lote Arrematado' : 'Valor Atual:'}
                     </span>
                     <div className="flex items-center gap-2">
                         {isAuctionFinished && winner ? (
@@ -422,15 +429,15 @@ function MobileElements() {
             </motion.div>
 
             {/* Miniplayer */}
-            <motion.div 
+            <motion.div
                 initial={{ y: 100 }}
                 animate={{ y: 0 }}
                 className={`fixed bottom-0 right-0 w-full max-w-[400px] h-[70px] shadow-lg rounded-t-xl flex items-center px-4 z-20
                     ${isEntireAuctionFinished ? 'bg-red-600' : 'bg-white'}`}
             >
                 {/* Barra de Progresso */}
-                <div 
-                    ref={refBarDeadline} 
+                <div
+                    ref={refBarDeadline}
                     className="progress-bar absolute top-0 left-0 right-0 h-[2px]"
                     style={{ width: '0%' }}
                 />
@@ -508,7 +515,7 @@ function MobileElements() {
                                 whileTap={{ scale: 0.95 }}
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg 
                                     ${isActive && canBid && !isLocked
-                                        ? 'bg-gradient-to-r from-green-700 to-green-500 hover:from-green-800 hover:to-green-600 text-white' 
+                                        ? 'bg-gradient-to-r from-green-700 to-green-500 hover:from-green-800 hover:to-green-600 text-white'
                                         : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                                     } transition-all duration-200`}
                                 disabled={!isActive || !canBid || isLocked}

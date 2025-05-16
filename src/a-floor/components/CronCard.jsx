@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { addBidLive } from "../../features/Bids/BidLive";
 import FilledCircle from "./FilledCircle";
 import ReceiveWebsocketOnFloor from "../class/ReceiveWebsocketOnFloor";
+import checkDispute from "../tools/checkDispute";
 
 
 function CronCard({ auct_id }) {
@@ -78,6 +79,13 @@ function CronCard({ auct_id }) {
                 Product: latestProduct
             };
 
+
+            try {
+                await checkDispute(auct_id, deadline);
+            } catch (error) {
+                console.log("Não foi necessário adicionar tempo ou houve erro na disputa");
+            }
+
             const response = await axios.post(
                 `${import.meta.env.VITE_APP_BACKEND_API}/client/bid-auct?bidInCataloge=false`,
                 bidPayload,
@@ -104,7 +112,6 @@ function CronCard({ auct_id }) {
 
         } catch (error) {
             console.error("Erro ao dar lance:", error);
-            alert("Erro ao dar lance. Por favor, tente novamente.");
         } finally {
             setIsloadingBid(false);
             setTimeout(() => {

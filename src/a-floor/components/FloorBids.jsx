@@ -111,7 +111,7 @@ function FloorBids() {
     // Efeito para rolar para o último lance quando o produto muda
     useEffect(() => {
         if (bidsContainerRef.current) {
-            bidsContainerRef.current.scrollTop = bidsContainerRef.current.scrollHeight;
+            bidsContainerRef.current.scrollTop = 0; // Mantém o scroll no topo
         }
     }, [currentProduct?.Bid]);
 
@@ -136,9 +136,8 @@ function FloorBids() {
                                 }}
                             >
                                 {[...currentProduct.Bid]
-                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Mantém a ordenação decrescente
                                     .map((bid, index) => {
-                                        // O maior lance é o primeiro após a ordenação por data
                                         const isHighestBid = index === 0;
                                         return (
                                             <BidCard 

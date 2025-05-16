@@ -4,10 +4,11 @@ import { useNavigate, useParams } from "react-router-dom"
 import axios from "axios";
 import AssideAdvertiser from "../../_asside/AssideAdvertiser";
 import NavAdvertiser from "../../_navigation/NavAdvertiser";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { DeleteForever, ImageNotSupported, Edit, Gavel, TrendingUp, AccessTime, Sell } from "@mui/icons-material"
 import AdvertiserProductDetailsUpdate from "./AdvertiserProductDetailsUpdate"; // Import the update modal
 import dayjs from "dayjs";
+import ReceiveWebsocketOnFloor from "../../../a-floor/class/ReceiveWebsocketOnFloor";
 
 function AdvertiserProductDetails() {
     const [currentProduct, setCurrentProduct] = useState({})
@@ -16,12 +17,41 @@ function AdvertiserProductDetails() {
     const [showSelectClientModal, setShowSelectClientModal] = useState(false)
     const [advertiserClients, setAdvertiserClients] = useState([])
     const [selectedClient, setSelectedClient] = useState(null)
+    const [newBidAnimation, setNewBidAnimation] = useState(null)
     const navigate = useNavigate()
     const { product_id } = useParams();
+    const websocketRef = useRef(null);
 
     useEffect(() => {
         getCurrentProduct()
     }, [deleteIsLoading])
+
+    useEffect(() => {
+        if (!currentProduct?.auction_id) return;
+
+        // Inicializar WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(currentProduct.auction_id);
+
+        // Configurar listener para lances em catálogo
+        websocketRef.current.receiveBidCatalogedMessage((message) => {
+            const { body } = message.data;
+            if (body?.currentBid && body?.product?.id === currentProduct?.id) {
+                setNewBidAnimation(body.currentBid.id);
+                getCurrentProduct(); // Atualiza o produto quando receber um novo lance
+                
+                // Remove a animação após 2 segundos
+                setTimeout(() => {
+                    setNewBidAnimation(null);
+                }, 2000);
+            }
+        });
+
+        return () => {
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
+            }
+        };
+    }, [currentProduct?.auction_id, currentProduct?.id]);
 
     const getCurrentProduct = async () => {
         const currentLocalAdvertiser = localStorage.getItem('advertiser-session-aukt')
@@ -32,7 +62,27 @@ function AdvertiserProductDetails() {
                 'Authorization': `Bearer ${localAdvertiser.token}`
             }
         }).then(async response => {
-            setCurrentProduct(response.data)
+            // Ordenar os lances por data mais recente
+            const product = response.data;
+            if (product.Bid) {
+                product.Bid = product.Bid.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+            
+            // Atualizar o produto mantendo os lances únicos
+            setCurrentProduct(prevProduct => {
+                if (!prevProduct || !prevProduct.Bid) return product;
+
+                // Mesclar lances sem duplicatas
+                const bidMap = new Map();
+                [...(prevProduct.Bid || []), ...(product.Bid || [])].forEach(bid => {
+                    bidMap.set(bid.id, bid);
+                });
+
+                return {
+                    ...product,
+                    Bid: Array.from(bidMap.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                };
+            });
         }).catch(err => {
             if (err.response.status === 404) {
                 navigate('/advertiser/auctions')
@@ -390,7 +440,7 @@ function AdvertiserProductDetails() {
                                                         <tr key={index} className={`${currentProduct.winner_id === bid.client_id
                                                             ? 'bg-green-50'
                                                             : 'hover:bg-gray-50'
-                                                            }`}>
+                                                            } ${newBidAnimation === bid.id ? 'animate-highlight' : ''}`}>
                                                             <td className="py-3 px-4">
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -456,6 +506,20 @@ function AdvertiserProductDetails() {
                     </div>
                 </div>
             </section>
+
+            {/* Estilos para animação */}
+            <style>
+                {`
+                @keyframes highlightBid {
+                    0% { background-color: rgba(59, 130, 246, 0.1); }
+                    50% { background-color: rgba(59, 130, 246, 0.2); }
+                    100% { background-color: transparent; }
+                }
+                .animate-highlight {
+                    animation: highlightBid 2s ease-in-out;
+                }
+                `}
+            </style>
 
             {isEditing && (
                 <AdvertiserProductDetailsUpdate

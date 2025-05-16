@@ -1,17 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useRef, useCallback } from 'react';
-import io from "socket.io-client";
 import axios from 'axios';
 import { SmartToy, Person, Close, FilterList } from '@mui/icons-material';
 import avatarClientsUrls from '../../../media/avatar-floor/AvatarclientsUrls';
+import ReceiveWebsocketOnFloor from '../../../a-floor/class/ReceiveWebsocketOnFloor';
 
 // Convertendo o objeto de URLs em um array
 const avatares_pessoas = Object.values(avatarClientsUrls);
 
-function BidsAdvertiserHome({ showBids, productId, auctId,setShowBids }) {
+function BidsAdvertiserHome({ showBids, productId, auctId, setShowBids }) {
     const isMounted = useRef(true);
-    const socketRef = useRef(null);
+    const websocketRef = useRef(null);
     const [localBids, setLocalBids] = useState([]);
     const [filteredBids, setFilteredBids] = useState([]);
     const [latestBidId, setLatestBidId] = useState(null);
@@ -49,12 +49,23 @@ function BidsAdvertiserHome({ showBids, productId, auctId,setShowBids }) {
             if (response.data && response.data.Bid) {
                 // Ordenar os lances por data mais recente
                 const sortedBids = sortBidsByDate(response.data.Bid);
-                setLocalBids(sortedBids);
-
-                // Atualizar o ID do lance mais recente
-                if (sortedBids.length > 0) {
-                    setLatestBidId(sortedBids[0].id);
-                }
+                
+                // Atualizar os lances mantendo os únicos
+                setLocalBids(prevBids => {
+                    const bidMap = new Map();
+                    [...prevBids, ...sortedBids].forEach(bid => {
+                        bidMap.set(bid.id, bid);
+                    });
+                    const uniqueBids = Array.from(bidMap.values());
+                    const finalSortedBids = sortBidsByDate(uniqueBids);
+                    
+                    // Atualizar o ID do lance mais recente
+                    if (finalSortedBids.length > 0) {
+                        setLatestBidId(finalSortedBids[0].id);
+                    }
+                    
+                    return finalSortedBids;
+                });
             }
         } catch (error) {
             console.error('Erro ao buscar lances do produto:', error);
@@ -104,25 +115,21 @@ function BidsAdvertiserHome({ showBids, productId, auctId,setShowBids }) {
 
         fetchProductBids();
 
-        // Conectar ao servidor WebSocket
-        const socket = io(`${import.meta.env.VITE_APP_BACKEND_WEBSOCKET}`);
-        socketRef.current = socket;
+        // Inicializar WebSocket
+        websocketRef.current = new ReceiveWebsocketOnFloor(auctId);
 
-        // Escutar eventos de novos lances em catálogo
-        socket.on(`${auctId}-bid-cataloged`, (message) => {
-            const newBid = message.data.body;
-
-            if (newBid && ((newBid.Product && newBid.Product[0] && newBid.Product[0].id === productId) ||
-                (newBid.product_id === productId))) {
+        // Configurar listener para lances em catálogo
+        websocketRef.current.receiveBidCatalogedMessage((message) => {
+            const { body } = message.data;
+            if (body?.currentBid && body?.product?.id === productId) {
                 fetchProductBids();
             }
         });
 
-        // Escutar o evento normal de lance
-        socket.on(`${auctId}-bid`, (message) => {
-            const newBid = message.data.body || message.data;
-
-            if (newBid && newBid.product_id === productId) {
+        // Configurar listener para lances normais
+        websocketRef.current.receiveBidMessage((message) => {
+            const { body } = message.data;
+            if (body?.currentBid && body?.product?.id === productId) {
                 fetchProductBids();
             }
         });
@@ -130,8 +137,8 @@ function BidsAdvertiserHome({ showBids, productId, auctId,setShowBids }) {
         // Limpar ao desmontar
         return () => {
             isMounted.current = false;
-            if (socketRef.current) {
-                socketRef.current.disconnect();
+            if (websocketRef.current) {
+                websocketRef.current.disconnect();
             }
         };
     }, [auctId, productId, fetchProductBids]);
